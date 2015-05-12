@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <RelativeLayout
+        android:id="@+id/menu_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/jpush_blue"
+        android:orientation="vertical" >
+
+        <ImageButton
+            android:id="@+id/return_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/back_btn_bg" />
+
+        <TextView
+            android:id="@+id/title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textColor="#FFFFFF"
+            android:layout_centerInParent="true"
+            android:textSize="20sp"/>
+
+        <Button
+            android:id="@+id/commit_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_margin="7dp"
+            android:layout_centerVertical="true"
+            android:text="保存"
+            android:textColor="#FFFFFF"
+            android:background="#6FD66B"/>
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/signature_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:cursorVisible="true"
+        android:textCursorDrawable="@drawable/text_cursor_bg"
+        android:maxEms="30"
+        android:textColorHint="@color/chat_detail_item_content_color"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        style="@style/default_input_style"/>
+
+    <TextView
+        android:id="@+id/text_count_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="right"
+        android:text="30"
+        android:textColor="#f47d2d"/>
+
+</LinearLayout>

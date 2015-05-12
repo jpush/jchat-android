@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F1EFF5"
+    android:orientation="vertical" >
+
+<include layout="@layout/menu_title_bar" />
+
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:orientation="vertical"
+        >
+        <RelativeLayout
+            android:id="@+id/notification_rl"
+            style="@style/SettingItemStyle"
+            android:clickable="true"
+            android:visibility="gone"
+             >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dip"
+                android:layout_centerVertical="true"
+                android:text="新消息提醒"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/arrow"/>
+        </RelativeLayout>
+        
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/me_split_line_color" />
+
+        <RelativeLayout
+            android:id="@+id/change_password_rl"
+            style="@style/SettingItemStyle"
+            android:clickable="true"
+            >
+
+            <TextView
+                android:id="@+id/change_password_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dip"
+                android:layout_centerVertical="true"
+                android:text="密码修改"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/arrow"/>
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/me_split_line_color"
+            android:visibility="gone"/>
+        
+        <RelativeLayout
+            android:id="@+id/disturb_mode_rl"
+            style="@style/SettingItemStyle"
+            android:clickable="true"
+            android:visibility="gone"
+             >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dip"
+                android:layout_centerVertical="true"
+                android:text="勿扰模式"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/arrow"/>
+        </RelativeLayout>
+        
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/me_split_line_color" />
+        
+    </LinearLayout>
+
+
+</LinearLayout>
