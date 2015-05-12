@@ -12,29 +12,13 @@ android {
         versionName "1.0"
     }
 
-    signingConfigs {
-        release {
-            storeFile file("release.keystore")
-            storePassword "jpush-release"
-            keyAlias "release.keystore"
-            keyPassword "jpush-release"
-        }
-        debug {
-            storeFile file("debug.keystore")
-            storePassword "jpush-debug"
-            keyAlias "debug.keystore"
-            keyPassword "jpush-debug"
-        }
-    }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            signingConfig signingConfigs.debug
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -42,7 +26,6 @@ android {
 
     lintOptions {
         abortOnError false
-        // 闃叉鍦ㄥ彂甯冪殑鏃跺?鍑虹幇鍥燤issingTranslation瀵艰嚧Build Failed!
         disable 'MissingTranslation'
     }
 
@@ -84,7 +67,3 @@ task copyApk(type: Copy, dependsOn: 'build') {
     //include('JMessageDemo-release-unsigned.apk')
     //rename('JMessageDemo-release.apk', 'jchat-1.0.0.apk')
 }
-
-
-
-ant.importBuild "proguard/build.xml"
