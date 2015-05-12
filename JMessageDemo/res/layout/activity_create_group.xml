@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cn.jpush.im.android.demo.view.CreateGroupView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/create_group_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/jpush_blue" >
+
+        <ImageButton
+            android:id="@+id/creat_group_return_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/back_btn_bg" />
+
+        <Button
+            android:id="@+id/commit_btn"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:background="#1EE8BE"
+            android:text="@string/commit"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/target_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"
+            android:text="@string/create_group"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/input_group_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:cursorVisible="true"
+        android:textCursorDrawable="@drawable/text_cursor_bg"
+        style="@style/default_input_style"
+        android:layout_margin="10dp"
+        android:hint="输入群名"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@color/contacts_pinner_bg"
+        android:orientation="vertical"
+        android:paddingBottom="5dp"
+        android:paddingLeft="15dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/section_show"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="A"
+            android:textColor="@color/contacts_pinner_txt"
+            />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/contacts_item_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingLeft="15dp"
+        android:paddingTop="5dp"
+        android:visibility="gone">
+
+        <cn.jpush.im.android.demo.view.RoundImageView
+            android:id="@+id/contact_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/head_icon" />
+
+        <TextView
+            android:id="@+id/contact_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/contact_avatar"
+            android:text="Alice" />
+
+        <CheckBox
+            android:id="@+id/check_friend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/green"
+        android:visibility="gone"/>
+
+</cn.jpush.im.android.demo.view.CreateGroupView>

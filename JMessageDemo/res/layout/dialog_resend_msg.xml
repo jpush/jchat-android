@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="30dp"
+    android:layout_marginRight="30dp"
+    android:layout_gravity="center_vertical|center_horizontal"
+    android:background="@drawable/dialog_default_style"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="30dp"
+        android:text="@string/resend_message_hint"
+        android:textSize="24sp"
+        android:textColor="#555555"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/cancel_btn"
+            android:layout_height="50dp"
+            android:layout_width="0dip"
+            android:layout_weight="1"
+            android:text="@string/cancel"
+            android:textColor="#333336"
+            android:background="@drawable/dialog_bottom_left_btn"
+            />
+
+        <Button
+            android:id="@+id/resend_btn"
+            android:layout_height="50dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/resend_commit"
+            android:textColor="#333336"
+            android:background="@drawable/dialog_bottom_right_btn"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

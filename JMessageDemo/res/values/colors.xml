@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 全局使用的颜色 -->
+    <color name="titlebar_bg_color">#3C3C3C</color>
+    <!-- 这是Login相关界面中的颜色 -->
+    <color name="login_split_line_color">#C1D3CC</color>
+    <color name="login_btn_def_color">#98FB98</color>
+    <color name="re_login_btn_def_color">#6fd66b</color>
+    <color name="login_btn_sel_color">#006400</color>
+    <color name="relogin_txt_color">#555555</color>
+    <color name="swich_user_sel_color">#3F80DC</color>
+    <color name="circular_progressbar_color">#3F80DD</color>
+    <color name="circular_progressbar_bg_color">#D0D4D8</color>
+    <!-- 注册头像设置页面 -->
+    <color name="regist_photo_focus_color">#3F80DD</color>
+    <color name="regist_photo_def_color">#555555</color>
+    <!-- 主页面 -->
+    <color name="actionbar_sel_color">#1c1c1c</color>
+    <color name="actionbar_pres_color">#3f80dc</color>
+    <color name="actionbar_def_color">#3C3C3C</color>
+    <color name="jpush_blue">#3F80DC</color>
+    <color name="main_view_split_line_color">#C8C8C8</color>
+    <color name="contacts_pinner_bg">#F2F8F8F8</color>
+    <color name="contacts_pinner_txt">#858585</color>
+    <color name="contacts_txt_color">#0479FB</color>
+    <color name="me_split_line_color">#D0D0CF</color>
+    <color name="msg_list_item_sel_color">#A3C2EF</color>
+    <color name="friend_request_acept">#808080</color>
+    <color name="chat_detail_hit_color">#3C3C3C</color>
+    <color name="chat_detail_item_hit_color">#555555</color>
+    <color name="chat_detail_item_content_color">#808080</color>
+    <color name="chat_detail_split_line_color">#D0D0CF</color>
+    <color name="dialog_select_color">#d4d4d4</color>
+    <color name="finish_btn_unclickable_color">#b9ebb8</color>
+    <color name="finish_btn_clickable_color">#6fd66b</color>
+    <!-- 黑色 -->
+    <color name="black">#000000</color>
+    <color name="gray">#808080</color>
+
+    <!-- 灰色 -->
+
+    <color name="grey">#808080</color>
+
+    <!-- 灰色 -->
+
+
+    <color name="green">#008000</color>
+
+    <!-- 绿色 -->
+
+    <color name="darkgreen">#006400</color>
+
+    <!-- 暗绿色 -->
+
+    <color name="blue">#0000FF</color>
+
+    <!-- 蓝色 -->
+
+	<color name="white">#FFFFFF</color>
+    
+    <color name="light_blue">#8CA4FF</color>
+</resources>

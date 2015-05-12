@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="13dp" >
+
+    <TextView
+        android:id="@+id/send_time_txt"
+        style="@style/chat_text_date_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp" >
+
+        <cn.jpush.im.android.demo.view.RoundImageView
+            android:id="@+id/avatar_iv"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="3dp"
+            android:src="@drawable/head_icon"
+            android:scaleType="fitXY" />
+
+        <TextView
+            android:id="@+id/display_name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/avatar_iv"
+            android:layout_marginLeft="10dp"
+            android:ems="5"
+            android:singleLine="true"
+            android:textSize="10sp"
+            android:textColor="#555555"
+            android:visibility="gone"/>
+
+        <FrameLayout
+            android:id="@+id/msg_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/display_name_tv"
+            android:layout_marginLeft="3dp"
+            android:layout_toRightOf="@id/avatar_iv"
+            android:background="@drawable/receive_msg"
+            android:maxWidth="200.0dip" >
+
+
+            <ImageView
+                android:id="@+id/picture_iv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:scaleType="fitXY"
+                android:src="@drawable/fetch_failed"/>
+
+
+        </FrameLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

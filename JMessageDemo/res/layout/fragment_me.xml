@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cn.jpush.im.android.demo.view.MeView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/me_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <include layout="@layout/base_title_bar" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <ImageView
+            android:id="@+id/my_avatar_iv"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="-100dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/friends_sends_pictures_no" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:layout_marginTop="20dp">
+
+            <ImageButton
+                android:id="@+id/take_photo_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/take_photo_me"
+                android:layout_gravity="center" />
+
+            <TextView
+                android:id="@+id/username_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:gravity="center_horizontal"
+                android:text="ID:1125644"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <cn.jpush.im.android.demo.view.PullScrollView
+            android:id="@+id/scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="120dp"
+            app:headerHeight="300dp"
+            app:headerVisibleHeight="150dp"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:id="@+id/content_list_ll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="#ffffff">
+
+                <RelativeLayout
+                    android:id="@+id/user_info_rl"
+                    style="@style/SettingItemStyle">
+
+                    <ImageView
+                        android:id="@+id/avatar_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/me_man" />
+
+                    <TextView
+                        android:id="@+id/user_name_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/avatar_iv"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="10dp"
+                        android:text="Minion"
+                        android:textColor="#555555" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/arrow" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/me_split_line_color" />
+
+                <RelativeLayout
+                    android:id="@+id/setting_rl"
+                    style="@style/SettingItemStyle">
+
+                    <ImageView
+                        android:id="@+id/setting_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/setting" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/setting_iv"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="10dp"
+                        android:text="@string/setting"
+                        android:textColor="#555555" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/arrow" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/me_split_line_color" />
+
+                <RelativeLayout
+                    android:id="@+id/logout_rl"
+                    style="@style/SettingItemStyle">
+
+                    <ImageView
+                        android:id="@+id/exit_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/exit" />
+
+                    <TextView
+                        android:id="@+id/logout_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/exit_iv"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="10dp"
+                        android:text="@string/login_out"
+                        android:textColor="#555555" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/arrow" />
+
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/me_split_line_color" />
+
+            </LinearLayout>
+
+        </cn.jpush.im.android.demo.view.PullScrollView>
+
+    </FrameLayout>
+
+</cn.jpush.im.android.demo.view.MeView>
