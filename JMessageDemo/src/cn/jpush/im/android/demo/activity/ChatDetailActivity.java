@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,23 +17,25 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
+import java.io.File;
 import java.util.List;
 
+import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.enums.ContentType;
-import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ConversationRefreshEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.demo.R;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.demo.application.JPushDemoApplication;
 import cn.jpush.im.android.demo.controller.ChatDetailController;
 import cn.jpush.im.android.demo.tools.HandleResponseCode;
+import cn.jpush.im.android.demo.tools.NativeImageLoader;
 import cn.jpush.im.android.demo.view.ChatDetailView;
 import cn.jpush.im.api.BasicCallback;
 
@@ -51,6 +54,7 @@ public class ChatDetailActivity extends BaseActivity {
 	private static final int ADD_FRIEND_REQUEST_CODE = 3;
     private Context mContext;
     private ProgressDialog mDialog;
+    private double mDensity;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +69,9 @@ public class ChatDetailActivity extends BaseActivity {
 		mChatDetailView.setListeners(mChatDetailController);
 		mChatDetailView.setItemListener(mChatDetailController);
 		mChatDetailView.setLongClickListener(mChatDetailController);
-
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mDensity = dm.density;
 	}
 
     //设置群聊名称
@@ -179,12 +185,14 @@ public class ChatDetailActivity extends BaseActivity {
     @Override
     public void handleMsg(Message msg){
         switch (msg.what){
+            case JPushDemoApplication.ADD_GROUP_MEMBER_EVENT:
+                break;
             case JPushDemoApplication.ON_GROUP_EVENT:
                 mChatDetailController.refresh(msg.getData().getLong("groupID", 0));
                 break;
             case JPushDemoApplication.REFRESH_GROUP_NAME:
                 Log.i(TAG, "Refresh GroupName Or user name");
-                mChatDetailController.NotifyNameChange();
+                mChatDetailController.NotifyGroupInfoChange();
                 break;
         }
     }
@@ -209,7 +217,7 @@ public class ChatDetailActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-        mChatDetailController.NotifyNameChange();
+        mChatDetailController.NotifyGroupInfoChange();
         super.onResume();
     }
 
@@ -250,6 +258,7 @@ public class ChatDetailActivity extends BaseActivity {
     }
 
     public void onEvent(ConversationRefreshEvent conversationRefreshEvent){
+        Log.i(TAG, "ConversationRefreshEvent execute!");
         mHandler.sendEmptyMessage(JPushDemoApplication.REFRESH_GROUP_NAME);
     }
 
@@ -258,8 +267,53 @@ public class ChatDetailActivity extends BaseActivity {
      * @param event
      */
     public void onEvent(MessageEvent event){
-        cn.jpush.im.android.api.model.Message msg = event.getMessage();
+        final cn.jpush.im.android.api.model.Message msg = event.getMessage();
         if(msg.getContentType() == ContentType.eventNotification){
+            //添加群成员事件特殊处理
+            if(((EventNotificationContent)msg.getContent()).getEventNotificationType().equals(EventNotificationContent.EventNotificationType.group_member_added)){
+                List<String> userNames = ((EventNotificationContent)msg.getContent()).getUserNames();
+                for (final String userName : userNames){
+                    Conversation conv = JMessageClient.getSingleConversation(userName);
+                    //若存在目标头像，直接刷新界面
+                    if(NativeImageLoader.getInstance().getBitmapFromMemCache(userName) != null){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mChatDetailController.NotifyGroupInfoChange();
+                            }
+                        });
+                        //否则从Conversation拿
+                    }else if(conv != null){
+                        final File file = conv.getAvatar();
+                        if(file != null){
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    NativeImageLoader.getInstance().putUserAvatar(userName, file.getAbsolutePath(), (int) (50 * mDensity));
+                                    Log.i(TAG, "file exist, refresh group member");
+                                    mChatDetailController.refresh(Long.parseLong(msg.getTargetID()));
+                                }
+                            });
+                        }
+                        //用getUserInfo()接口拿，拿到后刷新并缓存头像
+                    }else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                NativeImageLoader.getInstance().setAvatarCache(userName, (int)(50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
+                                    @Override
+                                    public void onCacheAvatarCallBack(int status) {
+                                        if(status == 0){
+                                            mChatDetailController.refresh(Long.parseLong(msg.getTargetID()));
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+            //无论是否添加群成员，刷新界面
             android.os.Message handleMsg = mHandler.obtainMessage();
             handleMsg.what = JPushDemoApplication.ON_GROUP_EVENT;
             Bundle bundle = new Bundle();

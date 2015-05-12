@@ -658,7 +658,7 @@ public class ChatDetailController implements OnClickListener,
     }
 
     //刷新群名称
-    public void NotifyNameChange() {
+    public void NotifyGroupInfoChange() {
         if (mGridAdapter != null)
             mGridAdapter.notifyDataSetChanged();
         if (mIsGroup && mGroupID != 0) {
