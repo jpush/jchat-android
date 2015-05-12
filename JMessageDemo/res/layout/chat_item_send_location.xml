@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingTop="13dp" >
+
+    <TextView
+        android:id="@+id/send_time_txt"
+        style="@style/chat_text_date_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp" >
+
+        <cn.jpush.im.android.demo.view.RoundImageView
+            android:id="@+id/avatar_iv"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="3dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/head_icon"
+            android:scaleType="fitXY" />
+
+         <LinearLayout
+            android:id="@+id/layout_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp"
+            android:paddingRight="15dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:layout_toLeftOf="@id/avatar_iv"
+            android:background="@drawable/msg_send_bg" >
+
+            <TextView
+                android:id="@+id/msg_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="3dp"
+                android:background="@drawable/location_default"
+                android:gravity="center|bottom"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+        
+        <ImageButton
+            android:id="@+id/fail_resend_ib"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@id/layout_location"
+            android:clickable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/send_error"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/send_status_tv"
+            style="@style/chat_text_name_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@id/layout_location"
+            android:textSize="12sp"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/sending_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="3dp"
+            android:layout_toLeftOf="@id/layout_location"
+            android:src="@drawable/sending_img"/>
+
+    </RelativeLayout>
+
+</LinearLayout>
