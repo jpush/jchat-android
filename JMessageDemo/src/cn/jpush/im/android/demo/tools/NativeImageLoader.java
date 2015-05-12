@@ -107,6 +107,43 @@ public class NativeImageLoader {
     }
 
     /**
+     * setAvatarCache的重载函数
+     * @param userName
+     * @param length
+     * @param callBack
+     */
+    public void setAvatarCache(final String userName, final int length, final cacheAvatarCallBack callBack) {
+        final Handler handler = new Handler() {
+
+            @Override
+            public void handleMessage(android.os.Message msg) {
+                super.handleMessage(msg);
+                if (msg.getData() != null) {
+                    callBack.onCacheAvatarCallBack(msg.getData().getInt("status", -1));
+                }
+            }
+        };
+
+        JMessageClient.getUserInfo(userName, new GetUserInfoCallback(false) {
+            @Override
+            public void gotResult(int status, String desc, UserInfo userInfo) {
+                if (status == 0) {
+                    File file = userInfo.getAvatar();
+                    if (file != null) {
+                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), length, length);
+                        addBitmapToMemoryCache(userName, bitmap);
+                    }
+                    android.os.Message msg = handler.obtainMessage();
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("status", 0);
+                    msg.setData(bundle);
+                    msg.sendToTarget();
+                }
+            }
+        });
+    }
+
+    /**
      * 此方法直接在LruCache中增加一个键值对
      *
      * @param targetID 用户名

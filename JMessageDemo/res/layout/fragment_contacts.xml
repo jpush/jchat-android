@@ -45,6 +45,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="@color/chat_detail_item_content_color"
+            android:textSize="24sp"
+            android:text="敬请期待！"/>
+
         <cn.jpush.im.android.demo.view.QuickAlphabeticBar
             android:id="@+id/fast_scroller"
             android:layout_width="wrap_content"
