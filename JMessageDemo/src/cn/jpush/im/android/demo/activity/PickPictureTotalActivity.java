@@ -50,8 +50,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 	private TextView mTitle;
 	private ImageButton mMenuBtn;
 	private Intent mIntent;
-	static Context PPTActivity;
-	
+
 	private Handler mHandler = new Handler(){
 
 		@Override
@@ -67,7 +66,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 				break;
                 case SCAN_ERROR:
                     mProgressDialog.dismiss();
-                    Toast.makeText(PPTActivity, PPTActivity.getString(R.string.sdcard_not_prepare_toast), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PickPictureTotalActivity.this, PickPictureTotalActivity.this.getString(R.string.sdcard_not_prepare_toast), Toast.LENGTH_SHORT).show();
                     break;
 			}
 		}
@@ -85,7 +84,6 @@ public class PickPictureTotalActivity extends BaseActivity {
 		mListView = (ListView) findViewById(R.id.pick_picture_total_list_view);
 		mTitle.setText(this.getString(R.string.choose_album_title));
 		mMenuBtn.setVisibility(View.GONE);
-		PPTActivity = this;
 		getImages();
 		mIntent = this.getIntent();
 		mListView.setOnItemClickListener(new OnItemClickListener() {
@@ -123,7 +121,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 	 */
 	private void getImages() {
 		//显示进度条
-		mProgressDialog = ProgressDialog.show(this, null, PPTActivity.getString(R.string.loading));
+		mProgressDialog = ProgressDialog.show(this, null, PickPictureTotalActivity.this.getString(R.string.loading));
 		
 		new Thread(new Runnable() {
 			

@@ -89,6 +89,7 @@ public class FriendInfoActivity extends BaseActivity {
 
     public void StartChatActivity() {
         Intent intent = new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("targetID", mTargetID);
         intent.setClass(this, ChatActivity.class);
         startActivity(intent);

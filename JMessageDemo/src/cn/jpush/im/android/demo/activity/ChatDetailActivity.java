@@ -185,8 +185,6 @@ public class ChatDetailActivity extends BaseActivity {
     @Override
     public void handleMsg(Message msg){
         switch (msg.what){
-            case JPushDemoApplication.ADD_GROUP_MEMBER_EVENT:
-                break;
             case JPushDemoApplication.ON_GROUP_EVENT:
                 mChatDetailController.refresh(msg.getData().getLong("groupID", 0));
                 break;
@@ -202,10 +200,7 @@ public class ChatDetailActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// TODO Auto-generated method stub
 		super.onActivityResult(requestCode, resultCode, data);
-		if(data == null){
-			return;
-		}
-		else if(requestCode == GROUP_NAME_REQUEST_CODE){
+		if(requestCode == GROUP_NAME_REQUEST_CODE){
 			Log.i(TAG, "resultName = "+ data.getStringExtra("resultName"));
 			mChatDetailView.setGroupName(data.getStringExtra("resultName"));
 		}
@@ -217,7 +212,7 @@ public class ChatDetailActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-        mChatDetailController.NotifyGroupInfoChange();
+//        mChatDetailController.NotifyGroupInfoChange();
         super.onResume();
     }
 
@@ -241,6 +236,7 @@ public class ChatDetailActivity extends BaseActivity {
 
     public void StartMainActivity() {
         Intent intent = new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setClass(this, MainActivity.class);
         startActivity(intent);
     }

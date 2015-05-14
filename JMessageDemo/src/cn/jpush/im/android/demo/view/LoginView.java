@@ -54,11 +54,11 @@ public class LoginView extends LinearLayout {
 	}
 	
 	public void userNameError(Context context) {
-		Toast.makeText(context, "用户名不能为空！", Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, context.getString(R.string.username_not_null_toast), Toast.LENGTH_SHORT).show();
 	}
 	
 	public void passwordError(Context context) {
-		Toast.makeText(context, "密码不能为空！", Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, context.getString(R.string.password_not_null_toast), Toast.LENGTH_SHORT).show();
 	}
 
     public void setListener(Listener listener){

@@ -37,7 +37,6 @@ public class FriendInfoController implements OnClickListener{
 		case R.id.friend_more_btn:
 			break;
 		case R.id.friend_send_msg_btn:
-            ((Activity) ChatActivity.mChatActivity).finish();
 			mContext.StartChatActivity();
             break;
             case R.id.friend_detail_avatar:
