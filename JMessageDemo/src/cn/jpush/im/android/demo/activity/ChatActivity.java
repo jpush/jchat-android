@@ -42,9 +42,7 @@ public class ChatActivity extends BaseActivity {
 	private ChatView mChatView;
 	private ChatController mChatController;
 	private RefreshChatListReceiver mChatReceiver;
-//	private Conversation mConv;
 	private String mTargetID;
-    public static Context mChatActivity;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +50,6 @@ public class ChatActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
         JMessageClient.registerEventReceiver(this);
 		setContentView(R.layout.activity_chat);
-        mChatActivity = this;
 		mChatView = (ChatView) findViewById(R.id.chat_view);
 		mChatView.initModule();
 		mChatController = new ChatController(mChatView, this);
@@ -79,10 +76,7 @@ public class ChatActivity extends BaseActivity {
             if(data != null){
                 mTargetID = data.getStringExtra("targetID");
                 boolean isGroup = data.getBooleanExtra("isGroup", false);
-                if (data.getAction().equals(
-                    JPushDemoApplication.REFRESH_CHATTING_ACTION_IMAGE)) {
-                    handleImgRefresh(data, isGroup);
-                }else if(data.getAction().equals(
+                if(data.getAction().equals(
                     JPushDemoApplication.UPDATE_GROUP_NAME_ACTION)){
                     mChatView.setChatTitle(data.getStringExtra("newGroupName"));
                 }
@@ -219,6 +213,11 @@ public class ChatActivity extends BaseActivity {
             }
         } else {
             JMessageClient.enterSingleConversaion(targetID);
+        }
+        boolean sendPicture = getIntent().getBooleanExtra("sendPicture", false);
+        if(sendPicture){
+            handleImgRefresh(getIntent(), isGroup);
+            getIntent().putExtra("sendPicture", false);
         }
         mChatController.refresh();
         Log.i(TAG, "[Life cycle] - onResume");

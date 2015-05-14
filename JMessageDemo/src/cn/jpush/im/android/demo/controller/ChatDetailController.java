@@ -257,7 +257,6 @@ public class ChatDetailController implements OnClickListener,
                         if (status == 0) {
                             boolean deleted = JMessageClient.deleteGroupConversation(mGroupID);
                             Log.i(TAG, "deleted: " + deleted);
-                            ((Activity) ChatActivity.mChatActivity).finish();
                             mContext.StartMainActivity();
                         } else HandleResponseCode.onHandle(mContext, status);
                     }
@@ -538,6 +537,7 @@ public class ChatDetailController implements OnClickListener,
                 // 获取成员列表，缓存头像，更新GridView
                 case GET_GROUP_MEMBER:
                     mMemberIDList = msg.getData().getStringArrayList("memberList");
+                    Log.i(TAG, "GroupMember: " + mMemberIDList.toString());
                     NativeImageLoader.getInstance().setAvatarCache(mMemberIDList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
                         @Override
                         public void onCacheAvatarCallBack(int status) {

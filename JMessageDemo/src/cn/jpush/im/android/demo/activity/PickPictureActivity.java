@@ -49,7 +49,6 @@ public class PickPictureActivity extends BaseActivity {
     private String mSelectedPath;
     private Conversation mConv;
     private static final int REFRESH_CHAT_LISTVIEW = 2000;
-    static Context PPActivity;
     private ProgressDialog mDialog;
     private long mGroupID;
     private int[] mMsgIDs;
@@ -58,7 +57,6 @@ public class PickPictureActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pick_picture_detail);
-        PPActivity = this;
         mSendPictureBtn = (Button) findViewById(R.id.pick_picture_send_btn);
         mReturnBtn = (ImageButton) findViewById(R.id.pick_picture_detail_return_btn);
         mGridView = (GridView) findViewById(R.id.child_grid);
@@ -122,9 +120,9 @@ public class PickPictureActivity extends BaseActivity {
                     if(mPickedList.size() < 1)
                         return;
                     else {
-                        mDialog = new ProgressDialog(PPActivity);
+                        mDialog = new ProgressDialog(PickPictureActivity.this);
                         mDialog.setCanceledOnTouchOutside(false);
-                        mDialog.setMessage(PPActivity.getString(R.string.sending_hint));
+                        mDialog.setMessage(PickPictureActivity.this.getString(R.string.sending_hint));
                         mDialog.show();
 
                         Thread thread = new Thread(new Runnable() {
@@ -194,7 +192,7 @@ public class PickPictureActivity extends BaseActivity {
                         ++sum;
                 }
                 if(sum > 0)
-                    mSendPictureBtn.setText(PPActivity.getString(R.string.send) + "(" + sum + "/" + "9)");
+                    mSendPictureBtn.setText(PickPictureActivity.this.getString(R.string.send) + "(" + sum + "/" + "9)");
                 mAdapter.refresh(selectedArray);
             }
 
@@ -209,15 +207,16 @@ public class PickPictureActivity extends BaseActivity {
             switch (msg.what) {
                 case 0:
                     Intent intent = new Intent(JPushDemoApplication.REFRESH_CHATTING_ACTION_IMAGE);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("sendPicture", true);
                     intent.putExtra("targetID", mTargetID);
                     intent.putExtra("groupID", mGroupID);
                     intent.putExtra("isGroup", mIsGroup);
                     intent.putExtra("msgIDs", mMsgIDs);
-                    sendBroadcast(intent);
+                    intent.setClass(PickPictureActivity.this, ChatActivity.class);
+                    startActivity(intent);
                     if(mDialog != null)
                         mDialog.dismiss();
-                    //finish掉PickPictureTotalActivity，直接返回聊天界面
-                    ((Activity) PickPictureTotalActivity.PPTActivity).finish();
                     finish();
                     break;
             }

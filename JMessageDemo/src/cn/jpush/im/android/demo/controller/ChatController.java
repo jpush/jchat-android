@@ -86,7 +86,8 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                 mChatView.setChatTitle(groupName);
                 mConv = JMessageClient.getGroupConversation(mGroupID);
             } else {
-                mGroupID = Long.parseLong(mTargetID);
+                if(mTargetID != null)
+                    mGroupID = Long.parseLong(mTargetID);
                 mConv = JMessageClient.getGroupConversation(mGroupID);
                 //判断自己如果不在群聊中，隐藏群聊详情按钮
                 JMessageClient.getGroupMembers(mGroupID, new GetGroupMembersCallback(false) {
@@ -383,12 +384,6 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         int touchPosition = 0;
-    }
-
-    // 更新消息列表
-    public void addMessage() {
-        mChatAdapter.refresh();
-        mChatView.setToBottom();
     }
 
     public MsgListAdapter getAdapter() {

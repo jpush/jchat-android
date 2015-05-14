@@ -577,15 +577,15 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"));
                     break;
                 case 5:
-                    Intent intent = new Intent(
-                            JPushDemoApplication.REFRESH_CHATTING_ACTION_IMAGE);
+                    Intent intent = new Intent();
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("sendPicture", true);
                     intent.putExtra("targetID", mTargetID);
                     intent.putExtra("isGroup", mIsGroup);
                     intent.putExtra("groupID", mGroupID);
                     intent.putExtra("msgIDs", mMsgIDs);
-                    sendBroadcast(intent);
-                    ((Activity) PickPictureTotalActivity.PPTActivity).finish();
-                    ((Activity) PickPictureActivity.PPActivity).finish();
+                    intent.setClass(BrowserViewPagerActivity.this, ChatActivity.class);
+                    startActivity(intent);
                     finish();
                     break;
             }
