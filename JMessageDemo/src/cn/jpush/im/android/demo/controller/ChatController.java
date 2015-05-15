@@ -9,7 +9,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.format.DateFormat;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -54,19 +53,13 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     private String mTargetID;
     private long mGroupID;
     private boolean mIsGroup;
-    private boolean mFromGroup = false;
     private String mPhotoPath = null;
-    private int mContentH;
 
     public ChatController(ChatView mChatView, ChatActivity context) {
         this.mChatView = mChatView;
         this.mContext = context;
         // 得到消息列表
         initData();
-
-        DisplayMetrics dm = new DisplayMetrics();
-        mContext.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mContentH = dm.heightPixels;
 
     }
 
@@ -76,12 +69,12 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         Log.i("ChatController", "mTargetID " + mTargetID);
         mGroupID = intent.getLongExtra("groupID", 0);
         mIsGroup = intent.getBooleanExtra("isGroup", false);
-        mFromGroup = intent.getBooleanExtra("fromGroup", false);
+        boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
         // 如果是群组，特别处理
         if (mIsGroup) {
             Log.i("Tag", "mGroupID is " + mGroupID);
             //判断是否从创建群组跳转过来
-            if (mFromGroup) {
+            if (fromGroup) {
                 String groupName = intent.getStringExtra("groupName");
                 mChatView.setChatTitle(groupName);
                 mConv = JMessageClient.getGroupConversation(mGroupID);
@@ -131,8 +124,10 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         } else if (mConv == null && !mIsGroup) {
             mConv = Conversation.createConversation(ConversationType.single, mTargetID);
         }
-        mChatView.setChatTitle(mConv.getDisplayName());
-        mConv.resetUnreadCount();
+        if(mConv != null){
+            mChatView.setChatTitle(mConv.getDisplayName());
+            mConv.resetUnreadCount();
+        }
         mChatAdapter = new MsgListAdapter(mContext, mIsGroup, mTargetID, mGroupID);
         mChatView.setChatListAdapter(mChatAdapter);
         // 滑动到底部
@@ -341,7 +336,6 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             }
         } else {
             Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
-            return;
         }
     }
 
@@ -383,7 +377,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-        int touchPosition = 0;
+//        int touchPosition = 0;
     }
 
     public MsgListAdapter getAdapter() {
@@ -396,10 +390,6 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
 
     public Conversation getConversation() {
         return mConv;
-    }
-
-    public String getSign() {
-        return mConv.getType() + ":" + mConv.getTargetId();
     }
 
     public String getTargetID() {

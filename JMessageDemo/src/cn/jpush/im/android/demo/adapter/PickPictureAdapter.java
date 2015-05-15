@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,22 +21,18 @@ import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 
 import cn.jpush.im.android.demo.tools.NativeImageLoader;
 import cn.jpush.im.android.demo.tools.NativeImageLoader.NativeImageCallBack;
 import cn.jpush.im.android.demo.view.MyImageView;
-import cn.jpush.im.android.demo.view.MyImageView.OnMeasureListener;
 
 public class PickPictureAdapter extends BaseAdapter {
     /**
      * 用来存储图片的选中情况
      */
-    private HashMap<Integer, Boolean> mSelectMap = new HashMap<Integer, Boolean>();
+    private SparseBooleanArray mSelectMap = new SparseBooleanArray();
     private GridView mGridView;
     private List<String> mList;
     protected LayoutInflater mInflater;
@@ -100,10 +96,10 @@ public class PickPictureAdapter extends BaseAdapter {
                         addAnimation(viewHolder.mCheckBox);
                     } else {
                         Toast.makeText(mContext, mContext.getString(R.string.picture_num_limit_toast), Toast.LENGTH_SHORT).show();
-                        viewHolder.mCheckBox.setChecked(mSelectMap.containsKey(position) ? mSelectMap.get(position) : false);
+                        viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
                     }
                 }else if(mSelectMap.size() <= 9){
-                    mSelectMap.remove(position);
+                    mSelectMap.delete(position);
                 }
 
                 if (mSelectMap.size() > 0) {
@@ -115,7 +111,7 @@ public class PickPictureAdapter extends BaseAdapter {
             }
         });
 
-        viewHolder.mCheckBox.setChecked(mSelectMap.containsKey(position) ? mSelectMap.get(position) : false);
+        viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
 
         //利用NativeImageLoader类加载本地图片
         Bitmap bitmap = NativeImageLoader.getInstance().loadNativeImage(path, (int) (80 * mDensity), new NativeImageCallBack() {
@@ -144,8 +140,6 @@ public class PickPictureAdapter extends BaseAdapter {
 
     /**
      * 给CheckBox加点击动画，利用开源库nineoldandroids设置动画
-     *
-     * @param view
      */
     private void addAnimation(View view) {
         float[] vaules = new float[]{0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f, 1.25f, 1.2f, 1.15f, 1.1f, 1.0f};
@@ -160,15 +154,12 @@ public class PickPictureAdapter extends BaseAdapter {
     /**
      * 获取选中的Item的position
      *
-     * @return
+     * @return 选中的图片路径集合
      */
     public List<Integer> getSelectItems() {
         List<Integer> list = new ArrayList<Integer>();
-        for (Iterator<Map.Entry<Integer, Boolean>> it = mSelectMap.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<Integer, Boolean> entry = it.next();
-            if (entry.getValue()) {
-                list.add(entry.getKey());
-            }
+        for (int i = 0; i < mSelectMap.size(); i++) {
+            list.add(mSelectMap.keyAt(i));
         }
 
         return list;
@@ -181,17 +172,13 @@ public class PickPictureAdapter extends BaseAdapter {
         int pathArray[] = new int[mList.size()];
         for (int i = 0; i < pathArray.length; i++)
             pathArray[i] = 0;
-        for (Iterator<Map.Entry<Integer, Boolean>> it = mSelectMap.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<Integer, Boolean> entry = it.next();
-            if (entry.getValue()) {
-                pathArray[entry.getKey()] = 1;
-            }
+        for (int i = 0; i < mSelectMap.size(); i++) {
+            pathArray[mSelectMap.keyAt(i)] = 1;
         }
         return pathArray;
     }
 
     public void refresh(int[] pathArray) {
-        Log.i("PickPictureAdapter", "Refreshing SelectedMap pathArray:" + pathArray.toString());
         mSelectMap.clear();
         for (int i = 0; i < pathArray.length; i++) {
             if (pathArray[i] == 1)

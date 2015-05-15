@@ -1,6 +1,5 @@
 package cn.jpush.im.android.demo.controller;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -8,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,7 +35,6 @@ import cn.jpush.im.android.api.callback.CreateGroupCallback;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.callback.GetGroupMembersCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
-import cn.jpush.im.android.demo.activity.ChatActivity;
 import cn.jpush.im.android.demo.activity.ChatDetailActivity;
 import cn.jpush.im.android.demo.activity.FriendInfoActivity;
 import cn.jpush.im.android.demo.activity.MeInfoActivity;
@@ -62,7 +61,6 @@ public class ChatDetailController implements OnClickListener,
     private int[] mRestArray;
     private boolean mIsGroup = false;
     private boolean mIsCreator = false;
-    private String mGroupOwnerID;
     private long mGroupID;
     private String mTargetID;
     private LoadingDialog mLD;
@@ -290,7 +288,7 @@ public class ChatDetailController implements OnClickListener,
             } else if (position == mCurrentNum + 1 && mIsCreator && mCurrentNum > 1) {
                 // delete friend from group
                 mIsShowDelete = true;
-                mGridAdapter.setIsShowDelete(mIsShowDelete,
+                mGridAdapter.setIsShowDelete(true,
                         mRestArray[mCurrentNum % 4]);
             }
             // delete状态
@@ -311,14 +309,14 @@ public class ChatDetailController implements OnClickListener,
                     // 当前成员数为0，退出删除状态
                     if (mMemberIDList.size() == 0) {
                         mIsShowDelete = false;
-                        mGridAdapter.setIsShowDelete(mIsShowDelete);
+                        mGridAdapter.setIsShowDelete(false);
                     }
                 }
                 // 点击空白项时, 恢复GridView界面
             } else {
                 if (mIsShowDelete) {
                     mIsShowDelete = false;
-                    mGridAdapter.setIsShowDelete(mIsShowDelete,
+                    mGridAdapter.setIsShowDelete(false,
                             mRestArray[mCurrentNum % 4]);
                 }
             }
@@ -348,7 +346,7 @@ public class ChatDetailController implements OnClickListener,
                     case R.id.commit_btn:
                         final String targetID = userNameEt.getText().toString().trim();
                         Log.i(TAG, "targetID " + targetID);
-                        if (targetID == null || targetID.equals("")) {
+                        if (TextUtils.isEmpty(targetID)) {
                             Toast.makeText(mContext, mContext.getString(R.string.username_not_null_toast), Toast.LENGTH_SHORT).show();
                             break;
                         } else if (!mMemberIDList.contains(targetID)) {
@@ -461,8 +459,8 @@ public class ChatDetailController implements OnClickListener,
 
     /**
      * 删除成员
-     * @param list
-     * @param position
+     * @param list 被删除的用户名List
+     * @param position 删除的位置
      */
     private void delMember(List<String> list, final int position) {
         mLoadingDialog.show();
@@ -511,9 +509,9 @@ public class ChatDetailController implements OnClickListener,
             switch (msg.what) {
                 // 初始化群组
                 case 0:
-                    mGroupOwnerID = msg.getData().getString("groupOwnerID");
+                    String groupOwnerID = msg.getData().getString("groupOwnerID");
                     // 判断是否为群主
-                    if (mGroupOwnerID != null && mGroupOwnerID.equals(JMessageClient.getMyInfo().getUserName()))
+                    if (groupOwnerID != null && groupOwnerID.equals(JMessageClient.getMyInfo().getUserName()))
                         mIsCreator = true;
                     mChatDetailView.setMyName(JMessageClient.getMyInfo().getUserName());
                     if (mGridAdapter != null) {
@@ -625,7 +623,7 @@ public class ChatDetailController implements OnClickListener,
         if (!mIsShowDelete && mIsCreator) {
             if (position < mCurrentNum && mCurrentNum > 1) {
                 mIsShowDelete = true;
-                mGridAdapter.setIsShowDelete(mIsShowDelete,
+                mGridAdapter.setIsShowDelete(true,
                         mRestArray[mCurrentNum % 4]);
             }
         }
@@ -634,7 +632,7 @@ public class ChatDetailController implements OnClickListener,
 
     /**
      * 当收到群成员变化的Event后，刷新成员列表
-     * @param groupID
+     * @param groupID 群组ID
      */
     public void refresh(long groupID) {
         //当前群聊
@@ -651,10 +649,6 @@ public class ChatDetailController implements OnClickListener,
             });
             Log.i(TAG, "Group Member Changing");
         }
-    }
-
-    public Long getGroupID() {
-        return mGroupID;
     }
 
     //刷新群名称
