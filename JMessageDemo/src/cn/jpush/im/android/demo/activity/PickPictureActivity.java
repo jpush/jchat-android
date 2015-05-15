@@ -1,8 +1,6 @@
 package cn.jpush.im.android.demo.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -16,19 +14,15 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
-
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.demo.R;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.enums.ConversationType;
 
 import cn.jpush.im.android.demo.adapter.PickPictureAdapter;
 import cn.jpush.im.android.demo.application.JPushDemoApplication;
@@ -46,9 +40,7 @@ public class PickPictureActivity extends BaseActivity {
     private PickPictureAdapter mAdapter;
     private Intent mIntent;
     private String mTargetID;
-    private String mSelectedPath;
     private Conversation mConv;
-    private static final int REFRESH_CHAT_LISTVIEW = 2000;
     private ProgressDialog mDialog;
     private long mGroupID;
     private int[] mMsgIDs;
@@ -94,7 +86,6 @@ public class PickPictureActivity extends BaseActivity {
             intent.putStringArrayListExtra("pathList", (ArrayList<String>) mList);
             intent.putExtra("position", position);
             intent.putExtra("isGroup", mIsGroup);
-            mSelectedPath = mList.get(position);
             intent.putExtra("pathArray", mAdapter.getSelectedArray());
             intent.setClass(PickPictureActivity.this, BrowserViewPagerActivity.class);
             startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_SELECT_PICTURE);
@@ -206,7 +197,7 @@ public class PickPictureActivity extends BaseActivity {
             super.handleMessage(msg);
             switch (msg.what) {
                 case 0:
-                    Intent intent = new Intent(JPushDemoApplication.REFRESH_CHATTING_ACTION_IMAGE);
+                    Intent intent = new Intent();
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.putExtra("sendPicture", true);
                     intent.putExtra("targetID", mTargetID);

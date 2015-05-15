@@ -1,6 +1,5 @@
 package cn.jpush.im.android.demo.activity;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +11,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -29,10 +29,7 @@ import cn.jpush.im.android.demo.R;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
@@ -41,7 +38,6 @@ import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.enums.ContentType;
-import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.demo.application.JPushDemoApplication;
 import cn.jpush.im.android.demo.tools.BitmapLoader;
@@ -73,7 +69,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private Message mMsg;
     private String mTargetID;
     private boolean mFromChatActivity = true;
-    private boolean mBrowserAvatar;
     private int mWidth;
     private int mHeight;
     private Context mContext;
@@ -84,7 +79,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
     /**
      * 用来存储图片的选中情况
      */
-    private HashMap<Integer, Boolean> mSelectMap = new HashMap<Integer, Boolean>();
+    private SparseBooleanArray mSelectMap = new SparseBooleanArray();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -119,7 +114,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
         mPosition = intent.getIntExtra("position", 0);
         mFromChatActivity = intent.getBooleanExtra("fromChatActivity", true);
-        mBrowserAvatar = intent.getBooleanExtra("browserAvatar", false);
+        boolean browserAvatar = intent.getBooleanExtra("browserAvatar", false);
 
         PagerAdapter pagerAdapter = new PagerAdapter() {
 
@@ -179,7 +174,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
             mTitleBarRl.setVisibility(View.GONE);
             mCheckBoxRl.setVisibility(View.GONE);
             //预览头像
-            if (mBrowserAvatar) {
+            if (browserAvatar) {
                 mPathList.add(intent.getStringExtra("avatarPath"));
                 photoView = new PhotoView(mFromChatActivity, this);
                 mLoadBtn.setVisibility(View.GONE);
@@ -195,14 +190,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     Toast.makeText(this, this.getString(R.string.local_picture_not_found_toast), Toast.LENGTH_SHORT).show();
                 }
                 mMsg = mConv.getMessage(intent.getIntExtra("msgID", 0));
-                ImageContent ic = (ImageContent) mMsg.getContent();
                 photoView = new PhotoView(mFromChatActivity, this);
                 try {
-                    if (ic.getLocalPath() == null) {
-//                        mLoadBtn.setVisibility(View.VISIBLE);
-                    } else {
-                        mLoadBtn.setVisibility(View.GONE);
-                    }
+                    mLoadBtn.setVisibility(View.GONE);
                     photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(mMsgIDList.indexOf(mMsg.getId())), mWidth, mHeight));
                     mViewPager.setCurrentItem(mMsgIDList.indexOf(mMsg.getId()));
                 } catch (NullPointerException e) {
@@ -226,9 +216,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
             mNumberTv.setText(mPosition + 1 + "/" + mPathList.size());
             int currentItem = mViewPager.getCurrentItem();
             checkPictureSelected(currentItem);
-            checkOriginPictureSelected(currentItem);
+            checkOriginPictureSelected();
             //第一张特殊处理
-            mPictureSelectedCb.setChecked(mSelectMap.containsKey(currentItem) ? mSelectMap.get(currentItem) : false);
+            mPictureSelectedCb.setChecked(mSelectMap.get(currentItem));
             showTotalSize();
         }
     }
@@ -244,13 +234,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (mSelectMap.size() + 1 <= 9) {
                     if (isChecked)
-                        mSelectMap.put(currentItem, isChecked);
-                    else mSelectMap.remove(currentItem);
+                        mSelectMap.put(currentItem, true);
+                    else mSelectMap.delete(currentItem);
                 } else if (isChecked) {
                     Toast.makeText(mContext, mContext.getString(R.string.picture_num_limit_toast), Toast.LENGTH_SHORT).show();
-                    mPictureSelectedCb.setChecked(mSelectMap.containsKey(currentItem) ? mSelectMap.get(currentItem) : false);
+                    mPictureSelectedCb.setChecked(mSelectMap.get(currentItem));
                 } else {
-                    mSelectMap.remove(currentItem);
+                    mSelectMap.delete(currentItem);
                 }
 
                 showSelectedNum();
@@ -263,16 +253,14 @@ public class BrowserViewPagerActivity extends BaseActivity {
     /**
      * 点击发送原图CheckBox，触发事件
      *
-     * @param currentItem
      */
-    private void checkOriginPictureSelected(final int currentItem) {
+    private void checkOriginPictureSelected() {
         mOriginPictureCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked) {
                     if (mSelectMap.size() < 1)
                         mPictureSelectedCb.setChecked(true);
-                    else return;
                 }
             }
         });
@@ -282,11 +270,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private void showTotalSize() {
         if (mSelectMap.size() > 0) {
             List<String> pathList = new ArrayList<String>();
-            for (Iterator<Map.Entry<Integer, Boolean>> it = mSelectMap.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry<Integer, Boolean> entry = it.next();
-                if (entry.getValue()) {
-                    pathList.add(mPathList.get(entry.getKey()));
-                }
+            for (int i=0; i < mSelectMap.size(); i++) {
+                pathList.add(mPathList.get(mSelectMap.keyAt(i)));
             }
             String totalSize = BitmapLoader.getPictureSize(pathList);
             mTotalSizeTv.setText(mContext.getString(R.string.origin_picture) + "(" + totalSize + ")");
@@ -306,9 +291,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
         public void onPageScrolled(final int i, float v, int i2) {
 //            mNumberTv.setText(i + 1 + "/" + mPathList.size());
             checkPictureSelected(i);
-            checkOriginPictureSelected(i);
+            checkOriginPictureSelected();
 
-            mPictureSelectedCb.setChecked(mSelectMap.containsKey(i) ? mSelectMap.get(i) : false);
+            mPictureSelectedCb.setChecked(mSelectMap.get(i));
         }
 
         @Override
@@ -360,11 +345,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     int pathArray[] = new int[mPathList.size()];
                     for (int i = 0; i < pathArray.length; i++)
                         pathArray[i] = 0;
-                    for (Iterator<Map.Entry<Integer, Boolean>> it = mSelectMap.entrySet().iterator(); it.hasNext(); ) {
-                        Map.Entry<Integer, Boolean> entry = it.next();
-                        if (entry.getValue()) {
-                            pathArray[entry.getKey()] = 1;
-                        }
+                    for (int j = 0; j < mSelectMap.size(); j++) {
+                        pathArray[mSelectMap.keyAt(j)] = 1;
                     }
                     Intent intent = new Intent();
                     intent.putExtra("pathArray", pathArray);
@@ -409,6 +391,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 Message msg = mConv.createSendMessage(content);
                 mMsgIDs[i] = msg.getId();
             } catch (FileNotFoundException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -416,15 +399,12 @@ public class BrowserViewPagerActivity extends BaseActivity {
     /**
      * 获得选中图片的原图路径
      *
-     * @param pathList
-     * @param position
+     * @param pathList 选中图片的原图路径
+     * @param position 选中的图片位置
      */
     private void getOriginPictures(List<String> pathList, int position) {
-        for (Iterator<Map.Entry<Integer, Boolean>> it = mSelectMap.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<Integer, Boolean> entry = it.next();
-            if (entry.getValue()) {
-                pathList.add(mPathList.get(entry.getKey()));
-            }
+        for (int i = 0; i < mSelectMap.size(); i++) {
+            pathList.add(mPathList.get(mSelectMap.keyAt(i)));
         }
         if (pathList.size() < 1)
             pathList.add(mPathList.get(position));
@@ -435,27 +415,22 @@ public class BrowserViewPagerActivity extends BaseActivity {
     /**
      * 获得选中图片的缩略图路径
      *
-     * @param pathList
-     * @param position
+     * @param pathList 选中图片的缩略图路径
+     * @param position 选中的图片位置
      */
     private void getThumbnailPictures(List<String> pathList, int position) {
         String tempPath;
         Bitmap bitmap;
         if (mSelectMap.size() < 1)
             mSelectMap.put(position, true);
-        for (Iterator<Map.Entry<Integer, Boolean>> it = mSelectMap.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<Integer, Boolean> entry = it.next();
-            if (entry.getValue()) {
-                //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
-                if (BitmapLoader.verifyPictureSize(mPathList.get(entry.getKey())))
-                    pathList.add(mPathList.get(entry.getKey()));
-                else {
-                    bitmap = BitmapLoader.getBitmapFromFile(mPathList.get(entry.getKey()), 720, 1280);
-                    tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-                    pathList.add(tempPath);
-                }
-//
-
+        for (int i = 0; i < mSelectMap.size(); i++) {
+            //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
+            if (BitmapLoader.verifyPictureSize(mPathList.get(mSelectMap.keyAt(i))))
+                pathList.add(mPathList.get(mSelectMap.keyAt(i)));
+            else {
+                bitmap = BitmapLoader.getBitmapFromFile(mPathList.get(mSelectMap.keyAt(i)), 720, 1280);
+                tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
+                pathList.add(tempPath);
             }
         }
         createSendMsg(pathList);
@@ -478,11 +453,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
         int pathArray[] = new int[mPathList.size()];
         for (int i = 0; i < pathArray.length; i++)
             pathArray[i] = 0;
-        for (Iterator<Map.Entry<Integer, Boolean>> it = mSelectMap.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<Integer, Boolean> entry = it.next();
-            if (entry.getValue()) {
-                pathArray[entry.getKey()] = 1;
-            }
+        for (int i = 0; i < mSelectMap.size(); i++) {
+            pathArray[mSelectMap.keyAt(i)] = 1;
         }
         Intent intent = new Intent();
         intent.putExtra("pathArray", pathArray);
@@ -560,9 +532,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     //更新图片并显示
                     Bundle bundle = msg.getData();
                     mPathList.set(bundle.getInt("position"), bundle.getString("path"));
-//				Picasso.with(mContext)
-//						.load(new File(msg.getData().getString("path")))
-//						.into(photoView);
                     mViewPager.getAdapter().notifyDataSetChanged();
                     mLoadBtn.setVisibility(View.GONE);
                     break;

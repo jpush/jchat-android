@@ -16,8 +16,6 @@ public class JPushDemoApplication extends Application {
     public static final int ON_GROUP_EVENT = 3004;
 
     public static String UPDATE_GROUP_NAME_ACTION = "cn.jpush.im.demo.activity.ACTION_UPDATE_GROUP_NAME";
-    //从本地收到广播（图片）更新会话界面
-    public static String REFRESH_CHATTING_ACTION_IMAGE = "refresh_image";
 
     @Override
     public void onCreate() {
