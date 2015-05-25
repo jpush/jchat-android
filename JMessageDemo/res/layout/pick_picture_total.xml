@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <include layout="@layout/menu_title_bar"/>"
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        <!--
+        <GridView
+            android:id="@+id/pick_picture_total_grid_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:horizontalSpacing="20dip"
+            android:numColumns="2"
+            android:verticalSpacing="20dip"
+            android:scrollbars="none" >
+        </GridView>
+        -->
+        <ListView
+            android:id="@+id/pick_picture_total_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </ListView>
+    </RelativeLayout>
+
+</LinearLayout>

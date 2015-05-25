@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cn.jpush.im.android.demo"
+    android:versionCode="27"
+    android:versionName="1.1.0">
+
+    <uses-sdk
+        android:minSdkVersion="9"
+        android:targetSdkVersion="19" />
+
+    <permission
+        android:name="cn.jpush.im.android.demo.permission.JPUSH_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <!--Required 一些系统要求的权限，如访问网络等-->
+    <uses-permission android:name="cn.jpush.im.android.demo.permission.JPUSH_MESSAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
+    <!-- JMessage Demo required for record audio-->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application
+        android:name="cn.jpush.im.android.demo.application.JPushDemoApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:screenOrientation="portrait">
+
+        <!-- Required Push SDK核心功能-->
+        <service
+            android:name="cn.jpush.android.service.PushService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="cn.jpush.android.intent.REGISTER" />
+                <action android:name="cn.jpush.android.intent.REPORT" />
+                <action android:name="cn.jpush.android.intent.PushService" />
+                <action android:name="cn.jpush.android.intent.PUSH_TIME" />
+            </intent-filter>
+        </service>
+
+        <!-- Required Push SDK核心功能-->
+        <receiver
+            android:name="cn.jpush.android.service.PushReceiver"
+            android:enabled="true">
+            <intent-filter android:priority="1000">
+                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED_PROXY" />
+                <category android:name="cn.jpush.im.android.demo" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+            <!-- Optional -->
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Required Push SDK核心功能 -->
+        <activity
+            android:name="cn.jpush.android.ui.PushActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="cn.jpush.android.ui.PushActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="cn.jpush.im.android.demo" />
+            </intent-filter>
+        </activity>
+        <!-- Required Push SDK核心功能 -->
+        <service
+            android:name="cn.jpush.android.service.DownloadService"
+            android:enabled="true"
+            android:exported="false" />
+        <!-- Required Push SDK核心功能 -->
+        <receiver android:name="cn.jpush.android.service.AlarmReceiver" />
+
+        <!-- IM Required IM SDK核心功能-->
+        <receiver
+            android:name="cn.jpush.im.android.helpers.IMReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter android:priority="1000">
+                <action android:name="cn.jpush.im.android.action.IM_RESPONSE" />
+                <action android:name="cn.jpush.im.android.action.NOTIFICATION_CLICK_PROXY" />
+
+                <category android:name="cn.jpush.im.android.demo" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Required. Enable it you can get statistics data with channel -->
+        <meta-data
+            android:name="JPUSH_CHANNEL"
+            android:value="developer-default" />
+        <!-- Required. AppKey copied from Portal -->
+        <meta-data
+            android:name="JPUSH_APPKEY"
+            android:value="4f7aef34fb361292c566a1cd" />
+
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.BaseActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.LoginActivity"
+            android:theme="@style/notitle"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden"></activity>
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/notitle">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.RegisterActivity"
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.MeInfoActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.ChatActivity"
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity android:name="cn.jpush.im.android.demo.activity.ReloginActivity"
+            android:theme="@style/notitle"/>
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.ChatDetailActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.GroupSettingActivity"
+            android:theme="@style/group_setting_dialog" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.FriendInfoActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.CreateGroupActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.PickPictureTotalActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.PickPictureActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.BrowserViewPagerActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.SettingActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.NotificationSettingActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.DisturbSettingActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.ResetPasswordActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.FixProfileActivity"
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.ResetNickNameActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.SelectAreaActivity"
+            android:theme="@style/notitle" />
+        <activity
+            android:name="cn.jpush.im.android.demo.activity.EditSignatureActivity"
+            android:theme="@style/notitle" />
+
+    </application>
+
+</manifest>

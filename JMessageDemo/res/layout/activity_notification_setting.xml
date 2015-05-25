@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F1EFF5"
+    android:orientation="vertical" >
+
+    <include layout="@layout/menu_title_bar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="#FFFFFF"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:id="@+id/notification_switch_ll"
+            style="@style/SettingItemStyle" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:paddingLeft="20dip"
+                android:text="接收新消息通知"
+                android:textSize="16sp" 
+                android:textColor="@color/black"/>
+            
+            <cn.jpush.im.android.demo.view.SlipButton
+                android:id="@+id/notification_switch"
+                android:layout_width="70dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                />
+            
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/me_split_line_color" />
+
+        <RelativeLayout
+            android:id="@+id/switch_sound_ll"
+            style="@style/SettingItemStyle" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:paddingLeft="20dip"
+                android:text="声音"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+
+            <cn.jpush.im.android.demo.view.SlipButton
+                android:id="@+id/sound_switch"
+                android:layout_width="70dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                />
+
+        </RelativeLayout>
+        
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/me_split_line_color" />
+
+
+        <RelativeLayout
+            android:id="@+id/switch_vibrate_ll"
+            style="@style/SettingItemStyle" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:paddingLeft="20dip"
+                android:text="震动"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+
+            <cn.jpush.im.android.demo.view.SlipButton
+                android:id="@+id/vibrate_switch"
+                android:layout_width="70dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                />
+        </RelativeLayout>
+    </LinearLayout>
+    
+</LinearLayout>
