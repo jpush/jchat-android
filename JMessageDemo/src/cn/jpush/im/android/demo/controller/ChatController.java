@@ -172,6 +172,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                 }
                 break;
             case R.id.chat_input_et:
+                mChatView.setMoreMenuHeight();
                 mChatView.showMoreMenu();
 //                mChatView.invisibleMoreMenu();
                 mIsShowMoreMenu = true;

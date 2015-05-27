@@ -30,12 +30,10 @@ public class AlbumListAdapter extends BaseAdapter{
     private List<ImageBean> list;
     private Point mPoint = new Point(0, 0);//用来封装ImageView的宽和高的对象
     private ListView mListView;
-    private Context mContext;
     protected LayoutInflater mInflater;
     private double mDensity;
 
     public AlbumListAdapter(Context context, List<ImageBean> list, ListView listView){
-        mContext = context;
         this.list = list;
         this.mListView = listView;
         mInflater = LayoutInflater.from(context);

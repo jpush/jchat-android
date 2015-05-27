@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import cn.jpush.im.android.api.content.EventNotificationContent;
@@ -135,33 +136,45 @@ public class ChatActivity extends BaseActivity {
 
     }
 
+
     @Override
-	public void onBackPressed() {
-        if(RecordVoiceBtnController.mIsPressed){
-            mChatView.dismissRecordDialog();
-            mChatView.releaseRecorder();
-            RecordVoiceBtnController.mIsPressed = false;
-        }
-        if(mChatController.mIsShowMoreMenu){
-            Log.i(TAG, "onBackPressed");
-            mChatView.dismissMoreMenu();
-            mChatController.dismissSoftInput();
-            ChatController.mIsShowMoreMenu = false;
-            //清空未读数
-        }else{
-            if(mChatController.isGroup()){
-                long groupID = mChatController.getGroupID();
-                Log.i(TAG, "groupID "  + groupID);
-                Conversation conv = JMessageClient.getGroupConversation(groupID);
-                conv.resetUnreadCount();
-            }else{
-                mTargetID = mChatController.getTargetID();
-                Conversation conv = JMessageClient.getSingleConversation(mTargetID);
-                conv.resetUnreadCount();
+    public boolean dispatchKeyEvent(KeyEvent event){
+        if(event.getAction() == KeyEvent.ACTION_UP){
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_BACK:
+                    Log.i(TAG, "BACK pressed");
+                    if(RecordVoiceBtnController.mIsPressed){
+                        mChatView.dismissRecordDialog();
+                        mChatView.releaseRecorder();
+                        RecordVoiceBtnController.mIsPressed = false;
+                    }
+                    if(mChatController.mIsShowMoreMenu){
+                        mChatView.resetMoreMenuHeight();
+                        mChatView.dismissMoreMenu();
+                        mChatController.dismissSoftInput();
+                        ChatController.mIsShowMoreMenu = false;
+                        //清空未读数
+                    }else{
+                        if(mChatController.isGroup()){
+                            long groupID = mChatController.getGroupID();
+                            Log.i(TAG, "groupID "  + groupID);
+                            Conversation conv = JMessageClient.getGroupConversation(groupID);
+                            conv.resetUnreadCount();
+                        }else{
+                            mTargetID = mChatController.getTargetID();
+                            Conversation conv = JMessageClient.getSingleConversation(mTargetID);
+                            conv.resetUnreadCount();
+                        }
+                    }
+                    break;
+                case KeyEvent.KEYCODE_MENU:
+                    // 处理自己的逻辑break;
+                default:
+                    break;
             }
-            super.onBackPressed();
         }
-	}
+        return super.dispatchKeyEvent(event);
+    }
 
 	/**
 	 * 释放资源
@@ -172,8 +185,6 @@ public class ChatActivity extends BaseActivity {
         JMessageClient.unRegisterEventReceiver(this);
 		super.onDestroy();
 		unregisterReceiver(mReceiver);
-		mChatController.releaseMediaPlayer();
-        mChatView.releaseRecorder();
 	}
 
 	@Override
@@ -186,6 +197,8 @@ public class ChatActivity extends BaseActivity {
 
     @Override
     protected void onStop(){
+        mChatController.releaseMediaPlayer();
+        mChatView.releaseRecorder();
         if(mChatController.mIsShowMoreMenu){
             mChatView.dismissMoreMenu();
             mChatController.dismissSoftInput();
@@ -218,6 +231,7 @@ public class ChatActivity extends BaseActivity {
             getIntent().putExtra("sendPicture", false);
         }
         mChatController.refresh();
+        mChatController.getAdapter().initMediaPlayer();
         Log.i(TAG, "[Life cycle] - onResume");
 		super.onResume();
 	}

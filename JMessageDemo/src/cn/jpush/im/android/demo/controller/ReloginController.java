@@ -21,7 +21,6 @@ public class ReloginController implements OnClickListener {
 
     private ReloginView mReloginView;
     private ReloginActivity mContext;
-    private LoadingDialog mLD;
     private Dialog mLoadingDialog = null;
     private String mUserName;
 
@@ -48,8 +47,8 @@ public class ReloginController implements OnClickListener {
                     mReloginView.passwordError(mContext);
                     break;
                 }
-                mLD = new LoadingDialog();
-                mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
+                LoadingDialog ld = new LoadingDialog();
+                mLoadingDialog = ld.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
                 mLoadingDialog.show();
                 Log.i("ReloginController", "mUserName: " + mUserName);
                 JMessageClient.login(mUserName, password, new BasicCallback() {

@@ -223,8 +223,10 @@
     <string name="server_801004">密码错误</string>
     <string name="server_803001">发送消息失败，状态存储异常</string>
     <string name="server_803002">发送消息失败，系统网络异常</string>
+    <string name="server_803003">发送失败，目标用户未注册或从未登录过</string>
     <string name="server_803004">发送失败，此群已被删除</string>
     <string name="server_803005">您已被请出此群，不能发送消息</string>
+    <string name="server_808003">讨论组数量已达上限，创建失败</string>
     <string name="server_808004">群组名长度超出上限</string>
     <string name="server_810003">用户不属于该群组</string>
     <string name="server_810005">要添加的用户尚未注册</string>

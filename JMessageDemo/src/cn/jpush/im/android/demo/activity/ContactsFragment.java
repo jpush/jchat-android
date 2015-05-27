@@ -28,7 +28,7 @@ public class ContactsFragment extends Fragment{
 		mContactsView.initModule();
 		mContactsController = new ContactsController(mContactsView, this);
 		mContactsView.setOnClickListener(mContactsController);
-	}
+    }
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,

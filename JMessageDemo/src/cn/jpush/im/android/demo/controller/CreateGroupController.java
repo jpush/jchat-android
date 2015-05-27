@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Toast;
 
 import cn.jpush.im.android.demo.R;
 
@@ -19,8 +18,7 @@ public class CreateGroupController implements OnClickListener {
 
     private CreateGroupView mCreateGroupView;
     private CreateGroupActivity mContext;
-    private LoadingDialog mLD;
-    private Dialog mLoadingDialog = null;
+    private Dialog mDialog = null;
     private String mGroupName;
 
     public CreateGroupController(CreateGroupView view,
@@ -47,10 +45,10 @@ public class CreateGroupController implements OnClickListener {
                     mCreateGroupView.groupNameError(mContext);
                     return;
                 }
-                mLD = new LoadingDialog();
-                mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
+                LoadingDialog loadingDialog = new LoadingDialog();
+                mDialog = loadingDialog.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
                 final String desc = "";
-                mLoadingDialog.show();
+                mDialog.show();
                 JMessageClient.createGroup(
                         mGroupName, desc,
                         new CreateGroupCallback(false) {
@@ -61,7 +59,7 @@ public class CreateGroupController implements OnClickListener {
                                 mContext.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mLoadingDialog.dismiss();
+                                        mDialog.dismiss();
                                         if (status == 0) {
                                             mContext.StartChatActivity(GroupID, mGroupName);
                                         } else {

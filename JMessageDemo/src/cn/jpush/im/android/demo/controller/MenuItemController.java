@@ -3,6 +3,7 @@ package cn.jpush.im.android.demo.controller;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,7 +72,7 @@ public class MenuItemController implements View.OnClickListener{
                             case R.id.commit_btn:
                                 final String targetID = userNameEt.getText().toString().trim();
                                 Log.i("MenuItemController", "targetID " + targetID);
-                                if(targetID == null || targetID.equals("")){
+                                if(TextUtils.isEmpty(targetID)){
                                     Toast.makeText(mContext.getActivity(), mContext.getString(R.string.username_not_null_toast), Toast.LENGTH_SHORT).show();
                                     break;
                                 }else if(targetID.equals(JMessageClient.getMyInfo().getUserName()) || targetID.equals(JMessageClient.getMyInfo().getNickname())){

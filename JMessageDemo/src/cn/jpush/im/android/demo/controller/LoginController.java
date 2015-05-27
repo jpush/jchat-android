@@ -22,9 +22,7 @@ public class LoginController implements LoginView.Listener, OnClickListener {
 
     private LoginView mLoginView;
     private LoginActivity mContext;
-    private LoginDialog mLoginDialog;
     private Dialog mDialog;
-    private int mAfterMeasureSize;
 
     public LoginController(LoginView mLoginView, LoginActivity context) {
         this.mLoginView = mLoginView;
@@ -53,8 +51,8 @@ public class LoginController implements LoginView.Listener, OnClickListener {
                     mLoginView.passwordError(mContext);
                     break;
                 }
-                mLoginDialog = new LoginDialog();
-                mDialog = mLoginDialog.createLoadingDialog(mContext);
+                LoginDialog loginDialog = new LoginDialog();
+                mDialog = loginDialog.createLoadingDialog(mContext);
                 mDialog.show();
                 JMessageClient.login(userId, password,
                         new BasicCallback() {
