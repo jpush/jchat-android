@@ -217,7 +217,7 @@ public class ChatDetailController implements OnClickListener,
                             case R.id.commit_btn:
                                 Conversation conv;
                                 if (mIsGroup)
-                                    conv = JMessageClient.getGroupConversation(Integer.parseInt(mTargetID));
+                                    conv = JMessageClient.getGroupConversation(mGroupID);
                                 else
                                     conv = JMessageClient.getSingleConversation(mTargetID);
                                 if (conv != null) {

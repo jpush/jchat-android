@@ -5,9 +5,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.demo.controller.MeInfoController;
-import cn.jpush.im.android.demo.tools.BitmapLoader;
 import cn.jpush.im.android.demo.tools.HandleResponseCode;
-import cn.jpush.im.android.demo.tools.NativeImageLoader;
 import cn.jpush.im.android.demo.view.MeInfoView;
 import cn.jpush.im.api.BasicCallback;
 
@@ -15,18 +13,14 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
-import java.io.File;
 
 import cn.jpush.im.android.demo.R;
 
@@ -47,7 +41,6 @@ public class MeInfoActivity extends BaseActivity {
         mMeInfoView.initModule();
         mMeInfoController = new MeInfoController(mMeInfoView, this);
         mMeInfoView.setListeners(mMeInfoController);
-
         final ProgressDialog dialog = new ProgressDialog(this);
         dialog.setMessage(this.getString(R.string.loading));
         dialog.show();

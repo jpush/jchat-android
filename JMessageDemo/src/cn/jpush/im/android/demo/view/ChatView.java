@@ -87,16 +87,15 @@ public class ChatView extends RelativeLayout{
         mChatInputEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId == EditorInfo.IME_ACTION_DONE){
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
                     dismissMoreMenu();
                     Log.i("ChatView", "dismissMoreMenu()----------");
                 }
                 return false;
             }
         });
-        setMoreMenuHeight();
         mChatInputEt.setMaxLines(4);
-
+        setMoreMenuHeight();
 	}
 
     public void setMoreMenuHeight() {
@@ -294,5 +293,9 @@ public class ChatView extends RelativeLayout{
 
     public void releaseRecorder() {
         mVoiceBtn.releaseRecorder();
+    }
+
+    public void resetMoreMenuHeight() {
+        mMoreMenuTl.setLayoutParams(new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, 0));
     }
 }

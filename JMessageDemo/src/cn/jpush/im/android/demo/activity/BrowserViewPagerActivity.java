@@ -55,11 +55,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private List<String> mPathList = new ArrayList<String>();
     //存放图片消息的ID
     private List<Integer> mMsgIDList = new ArrayList<Integer>();
-    private RelativeLayout mTitleBarRl;
-    private ImageButton mReturnBtn;
     private TextView mNumberTv;
     private Button mSendBtn;
-    private RelativeLayout mCheckBoxRl;
     private CheckBox mOriginPictureCb;
     private TextView mTotalSizeTv;
     private CheckBox mPictureSelectedCb;
@@ -84,6 +81,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ImageButton returnBtn;
+        RelativeLayout titleBarRl, checkBoxRl;
 
         mContext = this;
         DisplayMetrics dm = new DisplayMetrics();
@@ -93,11 +92,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
         Log.i("BrowserViewPagerActivity", "width height :" + mWidth + mHeight);
         setContentView(R.layout.activity_image_browser);
         mViewPager = (ImgBrowserViewPager) findViewById(R.id.img_browser_viewpager);
-        mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
+        returnBtn = (ImageButton) findViewById(R.id.return_btn);
         mNumberTv = (TextView) findViewById(R.id.number_tv);
         mSendBtn = (Button) findViewById(R.id.pick_picture_send_btn);
-        mTitleBarRl = (RelativeLayout) findViewById(R.id.title_bar_rl);
-        mCheckBoxRl = (RelativeLayout) findViewById(R.id.check_box_rl);
+        titleBarRl = (RelativeLayout) findViewById(R.id.title_bar_rl);
+        checkBoxRl = (RelativeLayout) findViewById(R.id.check_box_rl);
         mOriginPictureCb = (CheckBox) findViewById(R.id.origin_picture_cb);
         mTotalSizeTv = (TextView) findViewById(R.id.total_size_tv);
         mPictureSelectedCb = (CheckBox) findViewById(R.id.picture_selected_cb);
@@ -165,14 +164,14 @@ public class BrowserViewPagerActivity extends BaseActivity {
         };
         mViewPager.setAdapter(pagerAdapter);
         mViewPager.setOnPageChangeListener(l);
-        mReturnBtn.setOnClickListener(listener);
+        returnBtn.setOnClickListener(listener);
         mSendBtn.setOnClickListener(listener);
         mLoadBtn.setOnClickListener(listener);
 
         // 在聊天界面中点击图片
         if (mFromChatActivity) {
-            mTitleBarRl.setVisibility(View.GONE);
-            mCheckBoxRl.setVisibility(View.GONE);
+            titleBarRl.setVisibility(View.GONE);
+            checkBoxRl.setVisibility(View.GONE);
             //预览头像
             if (browserAvatar) {
                 mPathList.add(intent.getStringExtra("avatarPath"));

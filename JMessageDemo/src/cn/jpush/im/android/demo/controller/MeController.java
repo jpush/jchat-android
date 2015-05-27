@@ -10,14 +10,12 @@ import cn.jpush.im.android.demo.R;
 import cn.jpush.im.android.demo.activity.MeFragment;
 import cn.jpush.im.android.demo.tools.NativeImageLoader;
 import cn.jpush.im.android.demo.view.MeView;
-import cn.jpush.im.android.demo.view.PullScrollView;
 
 public class MeController implements OnClickListener, View.OnTouchListener {
 
     private MeView mMeView;
     private MeFragment mContext;
-    private String mPath;
-    private float startY = 0, endY = 0;
+    private float startY = 0;
 
     public MeController(MeView meView, MeFragment context) {
         this.mMeView = meView;
@@ -93,7 +91,7 @@ public class MeController implements OnClickListener, View.OnTouchListener {
             case MotionEvent.ACTION_MOVE:
                  return mMeView.touchEvent(e);
             case MotionEvent.ACTION_UP:
-                endY = e.getY();
+                float endY = e.getY();
                 if(endY - startY > 10)
                     return mMeView.touchEvent(e);
                 else return onSingleTapConfirmed(view);
@@ -119,14 +117,6 @@ public class MeController implements OnClickListener, View.OnTouchListener {
                 break;
         }
         return false;
-    }
-
-    private void setPath(String path){
-        mPath = path;
-    }
-
-    public String getPath(){
-        return mPath;
     }
 
 }

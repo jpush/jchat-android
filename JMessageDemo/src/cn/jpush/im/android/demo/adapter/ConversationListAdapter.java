@@ -1,11 +1,7 @@
 package cn.jpush.im.android.demo.adapter;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.os.Handler;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +26,6 @@ public class ConversationListAdapter extends BaseAdapter {
 
     List<Conversation> mDatas;
     private ConversationListFragment mContext;
-    private double mDensity;
 
     public ConversationListAdapter(ConversationListFragment context,
                                    List<Conversation> data) {
@@ -38,12 +33,12 @@ public class ConversationListAdapter extends BaseAdapter {
         this.mDatas = data;
         DisplayMetrics dm = new DisplayMetrics();
         (context.getActivity()).getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDensity = dm.density;
+        double density = dm.density;
         for (Conversation conv : mDatas) {
             if (conv.getType().equals(ConversationType.single)){
                 File file = conv.getAvatar();
                 if(file != null){
-                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * density), (int)(50 * density));
                     NativeImageLoader.getInstance().updateBitmapFromCache(conv.getTargetId(), bitmap);
                 }
             }

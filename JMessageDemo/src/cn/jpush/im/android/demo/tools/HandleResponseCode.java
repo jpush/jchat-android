@@ -58,11 +58,17 @@ public class HandleResponseCode {
             case 803002:
                 Toast.makeText(context, context.getString(R.string.server_803002), Toast.LENGTH_SHORT).show();
                 break;
+            case 803003:
+                Toast.makeText(context, context.getString(R.string.server_803003), Toast.LENGTH_SHORT).show();
+                break;
             case 803004:
                 Toast.makeText(context, context.getString(R.string.server_803004), Toast.LENGTH_SHORT).show();
                 break;
             case 803005:
                 Toast.makeText(context, context.getString(R.string.server_803005), Toast.LENGTH_SHORT).show();
+                break;
+            case 808003:
+                Toast.makeText(context, context.getString(R.string.server_808003), Toast.LENGTH_SHORT).show();
                 break;
             case 808004:
                 Toast.makeText(context, context.getString(R.string.server_808004), Toast.LENGTH_SHORT).show();

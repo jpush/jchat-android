@@ -81,14 +81,12 @@ public class MsgListAdapter extends BaseAdapter {
     private String mTargetID;
     private Conversation mConv;
     private List<Message> mMsgList = new ArrayList<Message>();//所有消息列表
-    private List<String> mUserIDList = new ArrayList<String>();
     private List<Integer> mIndexList = new ArrayList<Integer>();//语音索引
     private LayoutInflater mInflater;
     private boolean mSetData = false;
     private boolean mIsGroup = false;
     private long mGroupID;
     private int mPosition = -1;// 和mSetData一起组成判断播放哪条录音的依据
-    private int count = 0;
     private final int UPDATE_IMAGEVIEW = 1999;
     private final int UPDATE_PROGRESS = 1998;
     // 9种Item的类型
@@ -107,7 +105,7 @@ public class MsgListAdapter extends BaseAdapter {
     //群成员变动
     private final int TYPE_GROUP_CHANGE = 8;
     private final int TYPE_CUSTOM_MSG = 9;
-    private final MediaPlayer mp;
+    private final MediaPlayer mp = new MediaPlayer();
     private AnimationDrawable mVoiceAnimation;
     private FileInputStream mFIS;
     private FileDescriptor mFD;
@@ -146,9 +144,10 @@ public class MsgListAdapter extends BaseAdapter {
         } else {
             this.mConv = JMessageClient.getSingleConversation(mTargetID);
             this.mMsgList = mConv.getAllMessage();
-            mUserIDList.add(targetID);
-            mUserIDList.add(JMessageClient.getMyInfo().getUserName());
-            NativeImageLoader.getInstance().setAvatarCache(mUserIDList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
+            List<String> userIDList = new ArrayList<String>();
+            userIDList.add(targetID);
+            userIDList.add(JMessageClient.getMyInfo().getUserName());
+            NativeImageLoader.getInstance().setAvatarCache(userIDList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
                 @Override
                 public void onCacheAvatarCallBack(int status) {
                     mActivity.runOnUiThread(new Runnable() {
@@ -163,10 +162,8 @@ public class MsgListAdapter extends BaseAdapter {
         }
 
         mInflater = LayoutInflater.from(mContext);
-
         AudioManager audioManager = (AudioManager) mContext
                 .getSystemService(Context.AUDIO_SERVICE);
-        mp = new MediaPlayer();
         audioManager.setMode(AudioManager.MODE_NORMAL);
         audioManager.setSpeakerphoneOn(true);
         mp.setAudioStreamType(AudioManager.STREAM_RING);
@@ -177,6 +174,10 @@ public class MsgListAdapter extends BaseAdapter {
                 return false;
             }
         });
+    }
+
+    public void initMediaPlayer(){
+        mp.reset();
     }
 
     public void setSendImg(int[] msgIDs) {
@@ -418,7 +419,7 @@ public class MsgListAdapter extends BaseAdapter {
                 handleImgMsg(msg, holder, position);
                 break;
             case voice:
-                handleVoiceMsg(msg, holder, position, convertView);
+                handleVoiceMsg(msg, holder, position);
                 break;
             case location:
                 handleLocationMsg(msg, holder, position);
@@ -868,8 +869,8 @@ public class MsgListAdapter extends BaseAdapter {
     /**
      * 设置图片最小宽高
      *
-     * @param path
-     * @param imageView
+     * @param path 图片路径
+     * @param imageView 显示图片的View
      */
     private void setPictureScale(String path, ImageView imageView) {
         BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -958,7 +959,7 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     private void handleVoiceMsg(final Message msg, final ViewHolder holder,
-                                final int position, final View convertView) {
+                                final int position) {
         final VoiceContent content = (VoiceContent) msg.getContent();
         final MessageDirect msgDirect = msg.getDirect();
         int length = content.getDuration();
@@ -1010,7 +1011,7 @@ public class MsgListAdapter extends BaseAdapter {
                 holder.voice.setImageResource(R.drawable.receive_3);
                 // 收到语音，设置未读
                 if (msg.getContent().getExtra("isReaded") == null
-                        || (Boolean) msg.getContent().getExtra("isReaded") == false) {
+                        || !(Boolean) msg.getContent().getExtra("isReaded")) {
                     mConv.updateMessageExtra(msg, "isReaded", false);
                     holder.readStatus.setVisibility(View.VISIBLE);
                     if (mIndexList.size() > 0) {

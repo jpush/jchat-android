@@ -6,12 +6,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Toast;
-
 import cn.jpush.im.android.demo.R;
-
-import java.util.regex.Pattern;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.demo.activity.RegisterActivity;
 import cn.jpush.im.android.demo.tools.HandleResponseCode;

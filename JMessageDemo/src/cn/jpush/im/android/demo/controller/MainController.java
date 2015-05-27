@@ -7,10 +7,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Toast;
-
 import cn.jpush.im.android.demo.R;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +25,9 @@ import cn.jpush.im.api.BasicCallback;
 
 public class MainController implements OnClickListener, OnPageChangeListener{
 	
-	private ConversationListFragment mMsgListActivity;
-	private ContactsFragment mContactsActivity;
 	private MeFragment mMeActivity;
 	private MainView mMainView;
 	private MainActivity mContext;
-	private List<Fragment> fragments;
-	private ViewPagerAdapter mViewPagerAdapter;
     private ProgressDialog mDialog;
 	
 	public MainController(MainView mMainView, MainActivity context){
@@ -44,17 +37,17 @@ public class MainController implements OnClickListener, OnPageChangeListener{
 	}
 
 	private void setViewPager() {
-		fragments = new ArrayList<Fragment>();
+        List<Fragment> fragments = new ArrayList<Fragment>();
 		// init Fragment
-		mMsgListActivity = new ConversationListFragment();
-		mContactsActivity = new ContactsFragment();
+		ConversationListFragment convActivity = new ConversationListFragment();
+        ContactsFragment contactsActivity = new ContactsFragment();
 		mMeActivity = new MeFragment();
-		fragments.add(mMsgListActivity);
-		fragments.add(mContactsActivity);
+		fragments.add(convActivity);
+		fragments.add(contactsActivity);
 		fragments.add(mMeActivity);
-		mViewPagerAdapter = new ViewPagerAdapter(
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(
 				mContext.getSupportFragmentManger(), fragments);
-		mMainView.setViewPagerAdapter(mViewPagerAdapter);
+		mMainView.setViewPagerAdapter(viewPagerAdapter);
 	}
 	@Override
 	public void onClick(View v) {

@@ -1,13 +1,9 @@
 package cn.jpush.im.android.demo.controller;
 
 
-import android.app.Activity;
 import android.view.View;
 import android.view.View.OnClickListener;
-
 import cn.jpush.im.android.demo.R;
-
-import cn.jpush.im.android.demo.activity.ChatActivity;
 import cn.jpush.im.android.demo.activity.FriendInfoActivity;
 import cn.jpush.im.android.demo.view.FriendInfoView;
 

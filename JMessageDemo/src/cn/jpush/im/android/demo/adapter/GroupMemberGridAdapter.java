@@ -1,6 +1,5 @@
 package cn.jpush.im.android.demo.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
@@ -11,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.demo.R;
 
 import java.util.ArrayList;
@@ -24,14 +22,12 @@ import cn.jpush.im.android.demo.view.RoundImageView;
 
 public class GroupMemberGridAdapter extends BaseAdapter {
 
-    private Context mContext;
     private LayoutInflater mInflater;
     //群成员列表
     private List<String> mMemberList = new ArrayList<String>();
     //空白项列表
     private ArrayList<String> mBlankList = new ArrayList<String>();
     private boolean mIsCreator = false;
-    private boolean mIsGroup = false;
     private boolean mIsShowDelete;
     //群成员个数
     private int mCurrentNum;
@@ -43,11 +39,9 @@ public class GroupMemberGridAdapter extends BaseAdapter {
 
     public GroupMemberGridAdapter(Context context, List<String> memberList,
                                   boolean isCreator, boolean isGroup) {
-        this.mContext = context;
         this.mMemberList = memberList;
         this.mIsCreator = isCreator;
-        this.mIsGroup = isGroup;
-        mInflater = LayoutInflater.from(mContext);
+        mInflater = LayoutInflater.from(context);
         mIsShowDelete = false;
         initBlankItem();
     }
@@ -87,22 +81,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         mRestNum = mRestArray[mCurrentNum % 4];
         notifyDataSetChanged();
     }
-
-    public void delMemberFromList(List<String> memberList) {
-        for (String memberID : memberList) {
-            if (mMemberList.contains(memberID))
-                mMemberList.remove(memberID);
-        }
-        Activity activity = (Activity) mContext;
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                notifyDataSetChanged();
-            }
-        });
-
-    }
-
 
     public void setIsShowDelete(boolean isShowDelete) {
         this.mIsShowDelete = isShowDelete;
