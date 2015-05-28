@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:descendantFocusability="blocksDescendants"
+    android:id="@+id/frame_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <io.jchat.android.view.MyImageView
+        android:id="@+id/child_image"
+        android:layout_width="fill_parent"
+        android:layout_height="100dip"
+        android:background="@drawable/friends_sends_pictures_no"
+        android:scaleType="fitXY" />
+
+    <CheckBox
+        android:id="@+id/child_checkbox"
+        android:layout_gravity="right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:button="@drawable/pictures_select_icon" />
+
+</FrameLayout>
