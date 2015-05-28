@@ -1255,6 +1255,10 @@ public class MsgListAdapter extends BaseAdapter {
 
     }
 
+    public void stopMediaPlayer() {
+        mp.stop();
+    }
+
     public static class ViewHolder {
         RoundImageView headIcon;
         TextView displayName;
