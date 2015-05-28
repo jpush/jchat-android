@@ -192,6 +192,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 mMsg = mConv.getMessage(intent.getIntExtra("msgID", 0));
                 photoView = new PhotoView(mFromChatActivity, this);
                 try {
+                    ImageContent ic = (ImageContent) mMsg.getContent();
+                    //如果点击的是第一张图片并且图片未下载过，则显示大图
+                    if (ic.getLocalPath() == null && mMsgIDList.indexOf(mMsg.getId()) == 0) {
+                        downLoadImage();
+                    }
                     mLoadBtn.setVisibility(View.GONE);
                     photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(mMsgIDList.indexOf(mMsg.getId())), mWidth, mHeight));
                     mViewPager.setCurrentItem(mMsgIDList.indexOf(mMsg.getId()));
@@ -289,7 +294,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
         //在滑动的时候更新CheckBox的状态
         @Override
         public void onPageScrolled(final int i, float v, int i2) {
-//            mNumberTv.setText(i + 1 + "/" + mPathList.size());
             checkPictureSelected(i);
             checkOriginPictureSelected();
 
@@ -298,9 +302,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
         @Override
         public void onPageSelected(final int i) {
+            Log.i(TAG, "onPageSelected !");
             if (mFromChatActivity) {
                 mMsg = mConv.getMessage(mMsgIDList.get(i));
                 ImageContent ic = (ImageContent) mMsg.getContent();
+                //每次选择或滑动图片，如果不存在本地图片则下载，显示大图
                 if (ic.getLocalPath() == null) {
 //                    mLoadBtn.setVisibility(View.VISIBLE);
                     downLoadImage();
