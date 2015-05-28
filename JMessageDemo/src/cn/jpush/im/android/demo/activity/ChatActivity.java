@@ -185,6 +185,8 @@ public class ChatActivity extends BaseActivity {
         JMessageClient.unRegisterEventReceiver(this);
 		super.onDestroy();
 		unregisterReceiver(mReceiver);
+        mChatController.releaseMediaPlayer();
+        mChatView.releaseRecorder();
 	}
 
 	@Override
@@ -197,8 +199,7 @@ public class ChatActivity extends BaseActivity {
 
     @Override
     protected void onStop(){
-        mChatController.releaseMediaPlayer();
-        mChatView.releaseRecorder();
+        mChatController.getAdapter().stopMediaPlayer();
         if(mChatController.mIsShowMoreMenu){
             mChatView.dismissMoreMenu();
             mChatController.dismissSoftInput();
