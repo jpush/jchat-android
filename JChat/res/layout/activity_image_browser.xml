@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/image_browser_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+   <RelativeLayout
+       	android:id="@+id/title_bar_rl"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#6599E4" >
+
+        <ImageButton
+            android:id="@+id/return_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/back_btn_bg" />
+
+        <TextView
+            android:id="@+id/number_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/return_btn"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:text="3/6"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            />
+
+        <Button
+            android:id="@+id/pick_picture_send_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:background="@color/green"
+            android:text="@string/send"/>
+    </RelativeLayout>
+    
+   <FrameLayout 
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:layout_below="@id/title_bar_rl"
+       android:layout_above="@+id/check_box_rl">
+       
+    <io.jchat.android.view.ImgBrowserViewPager
+        android:id="@+id/img_browser_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    
+    <Button
+        android:id="@+id/load_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="10dp"
+        android:text="@string/load_origin_image"
+        android:textColor="#ffffff"
+        android:background="@drawable/download_image_btn_bg"
+        android:visibility="gone"/>
+
+   </FrameLayout>
+
+       <RelativeLayout
+           android:id="@+id/check_box_rl"
+           android:layout_width="match_parent"
+           android:layout_height="50dp"
+           android:layout_alignParentBottom="true"
+           android:background="#2b2b2b">
+       <CheckBox
+           android:id="@+id/origin_picture_cb"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_centerVertical="true"
+           android:layout_marginLeft="5dp"
+           style="@style/round_check_box_style"
+
+           />
+
+       <TextView
+           android:id="@+id/total_size_tv"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_centerVertical="true"
+           android:layout_marginLeft="5dp"
+           android:layout_toRightOf="@id/origin_picture_cb"
+           android:text="@string/origin_picture"
+           android:textColor="#FFFFFF"
+           android:textSize="20sp"
+           />
+
+           <TextView
+               android:id="@+id/choose_tv"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_alignParentRight="true"
+               android:layout_centerVertical="true"
+               android:layout_marginRight="5dp"
+               android:text="@string/choose"
+               android:textColor="#FFFFFF"
+               android:textSize="20sp"
+               />
+
+           <CheckBox
+               android:id="@+id/picture_selected_cb"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_centerVertical="true"
+               android:layout_toLeftOf="@id/choose_tv"
+               android:layout_marginRight="5dp"
+               style="@style/default_check_box_style"/>
+       </RelativeLayout>
+    
+
+</RelativeLayout>

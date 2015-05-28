@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:background="@drawable/msg_item_bg">
+
+
+    <LinearLayout
+        android:id="@+id/msg_item_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingTop="5dp" >
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical" >
+
+            <io.jchat.android.view.RoundImageView
+                android:id="@+id/msg_item_head_icon"
+                android:layout_width="@dimen/item_head_icon_size"
+                android:layout_height="@dimen/item_head_icon_size"
+                android:src="@drawable/head_icon" />
+
+            <TextView
+                android:id="@+id/new_msg_number"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="top|right"
+                android:background="@drawable/red_circle"
+                android:gravity="center"
+                android:text="15"
+                android:textColor="@android:color/white" />
+        </FrameLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="5dp" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerVertical="true"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/conv_item_group_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="8"
+                    android:singleLine="true"
+                    android:textColor="#3F80DD"
+                    android:textSize="@dimen/text_medium_size"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/msg_item_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:maxLength="10"
+                    android:text=""
+                    android:textColor="#808080" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/msg_item_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:text=""
+                android:textColor="#808080" />
+        </RelativeLayout>
+    </LinearLayout>
+        <View
+            android:layout_below="@+id/msg_item_ll"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/main_view_split_line_color" />
+
+</RelativeLayout>
