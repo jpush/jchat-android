@@ -87,13 +87,11 @@ public class MeController implements OnClickListener, View.OnTouchListener {
         switch (e.getAction()){
             case MotionEvent.ACTION_DOWN:
                 startY = e.getY();
-                Log.i("MeController", "startY " + startY);
                 return false;
             case MotionEvent.ACTION_MOVE:
                  return mMeView.touchEvent(e);
             case MotionEvent.ACTION_UP:
                 float endY = e.getY();
-                Log.i("MeController", "endY - startY = " + (int)(endY - startY));
                 if(endY - startY > 10)
                     return mMeView.touchEvent(e);
                 else return onSingleTapConfirmed(view);
