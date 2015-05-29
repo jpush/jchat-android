@@ -154,7 +154,7 @@ public class ConversationListFragment extends Fragment{
 	@Override
 	public void onResume() {
         //当前用户信息为空，需要重新登录
-        if(JMessageClient.getMyInfo() == null || TextUtils.isEmpty(JMessageClient.getMyInfo().getUserName())){
+        if(TextUtils.isEmpty(JMessageClient.getMyInfo().getUserName())){
             Intent intent = new Intent();
             intent.setClass(this.getActivity(), LoginActivity.class);
             startActivity(intent);

@@ -62,8 +62,6 @@ public class LoginController implements LoginView.Listener, OnClickListener {
                                     @Override
                                     public void run() {
                                         if (status == 0) {
-                                            //后台拿UserInfo
-                                            JMessageClient.getUserInfo(userId, null);
                                             mContext.StartMainActivity();
                                         } else {
                                             dismissDialog();

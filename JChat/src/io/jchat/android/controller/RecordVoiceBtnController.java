@@ -404,20 +404,24 @@ public class RecordVoiceBtnController extends Button {
                 if (recorder == null || !running) {
                     break;
                 }
-                int x = recorder.getMaxAmplitude();
-                if (x != 0) {
-                    int f = (int) (10 * Math.log(x) / Math.log(10));
-                    if (f < 20) {
-                        mVolumeHandler.sendEmptyMessage(0);
-                    } else if (f < 26) {
-                        mVolumeHandler.sendEmptyMessage(1);
-                    } else if (f < 32) {
-                        mVolumeHandler.sendEmptyMessage(2);
-                    } else if (f < 38) {
-                        mVolumeHandler.sendEmptyMessage(3);
-                    } else {
-                        mVolumeHandler.sendEmptyMessage(4);
+                try{
+                    int x = recorder.getMaxAmplitude();
+                    if (x != 0) {
+                        int f = (int) (10 * Math.log(x) / Math.log(10));
+                        if (f < 20) {
+                            mVolumeHandler.sendEmptyMessage(0);
+                        } else if (f < 26) {
+                            mVolumeHandler.sendEmptyMessage(1);
+                        } else if (f < 32) {
+                            mVolumeHandler.sendEmptyMessage(2);
+                        } else if (f < 38) {
+                            mVolumeHandler.sendEmptyMessage(3);
+                        } else {
+                            mVolumeHandler.sendEmptyMessage(4);
+                        }
                     }
+                }catch (RuntimeException e){
+                    e.printStackTrace();
                 }
 
             }

@@ -8,37 +8,29 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-
 import java.io.File;
-import java.util.Calendar;
-import java.util.Locale;
-
 import cn.jpush.im.android.api.JMessageClient;
-
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MeController;
-import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MeView;
-import cn.jpush.im.api.BasicCallback;
 
 public class MeFragment extends Fragment {
 
@@ -82,8 +74,38 @@ public class MeFragment extends Fragment {
         if(JMessageClient.getMyInfo().getAvatar() != null){
             File file = JMessageClient.getMyInfo().getAvatar();
             loadUserAvatar(file.getAbsolutePath());
+        }else {
+            final ProgressDialog dialog = new ProgressDialog(mContext);
+            dialog.setMessage(this.getString(R.string.loading));
+            dialog.show();
+            JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int status, String desc, UserInfo userInfo) {
+                    ((Activity)mContext).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                        }
+                    });
+                    if (status == 0) {
+                        handler.sendEmptyMessage(1);
+                    } else {
+                        android.os.Message msg = handler.obtainMessage();
+                        msg.what = 2;
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("status", status);
+                        msg.setData(bundle);
+                        msg.sendToTarget();
+                    }
+                }
+            });
         }
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     //退出登录
@@ -188,7 +210,6 @@ public class MeFragment extends Fragment {
             getActivity().startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_SELECT_PICTURE);
         }else {
             Toast.makeText(this.getActivity(), mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
-            return;
         }
 
     }
@@ -209,4 +230,21 @@ public class MeFragment extends Fragment {
             startActivity(intent);
         }
     }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 1:
+                    File file = JMessageClient.getMyInfo().getAvatar();
+                    if(file != null)
+                        mMeView.showPhoto(file.getAbsolutePath());
+                    break;
+                case 2:
+                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"));
+                    break;
+            }
+        }
+    };
 }
