@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
@@ -217,15 +218,18 @@ public class ChatActivity extends BaseActivity {
             mChatView.dismissRecordDialog();
         String targetID = getIntent().getStringExtra("targetID");
         boolean isGroup = getIntent().getBooleanExtra("isGroup", false);
-        if (isGroup) {
-            try {
-                JMessageClient.enterGroupConversation(Long.parseLong(targetID));
-            }catch (NumberFormatException nfe){
-                nfe.printStackTrace();
+        if (!TextUtils.isEmpty(targetID)) {
+            if (isGroup) {
+                try {
+                    JMessageClient.enterGroupConversation(Long.parseLong(targetID));
+                } catch (NumberFormatException nfe) {
+                    nfe.printStackTrace();
+                }
+            } else {
+                JMessageClient.enterSingleConversaion(targetID);
             }
-        } else {
-            JMessageClient.enterSingleConversaion(targetID);
         }
+
         boolean sendPicture = getIntent().getBooleanExtra("sendPicture", false);
         if(sendPicture){
             handleImgRefresh(getIntent(), isGroup);

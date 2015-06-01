@@ -104,7 +104,6 @@ public class MsgListAdapter extends BaseAdapter {
     private final int TYPE_RECEIVER_VOICE = 7;
     //群成员变动
     private final int TYPE_GROUP_CHANGE = 8;
-    private final int TYPE_CUSTOM_MSG = 9;
     private final MediaPlayer mp = new MediaPlayer();
     private AnimationDrawable mVoiceAnimation;
     private FileInputStream mFIS;
@@ -242,9 +241,7 @@ public class MsgListAdapter extends BaseAdapter {
                     : TYPE_RECEIVER_VOICE;
         } else if (msg.getContentType().equals(ContentType.eventNotification)) {
             return TYPE_GROUP_CHANGE;
-        } else if(msg.getContentType().equals(ContentType.custom)){
-            return TYPE_CUSTOM_MSG;
-        } else {
+        }else {
             return msg.getDirect().equals(MessageDirect.send) ? TYPE_SEND_LOCATION
                     : TYPE_RECEIVER_LOCATION;
         }
@@ -272,9 +269,6 @@ public class MsgListAdapter extends BaseAdapter {
                         null);
             case eventNotification:
                 if (getItemViewType(position) == TYPE_GROUP_CHANGE)
-                    return mInflater.inflate(R.layout.chat_item_group_change, null);
-            case custom:
-                if(getItemViewType(position) == TYPE_CUSTOM_MSG)
                     return mInflater.inflate(R.layout.chat_item_group_change, null);
             default:
                 return getItemViewType(position) == TYPE_SEND_TXT ? mInflater
@@ -385,13 +379,7 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.group_content);
                 } catch (Exception e) {
                 }
-            } else if (contentType.equals(ContentType.custom)) {
-                try {
-                    holder.groupChange = (TextView) convertView
-                            .findViewById(R.id.group_content);
-                } catch (Exception e) {
-                }
-            }else {
+            } else {
                 try {
                     holder.headIcon = (RoundImageView) convertView
                             .findViewById(R.id.avatar_iv);
@@ -1256,7 +1244,8 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     public void stopMediaPlayer() {
-        mp.stop();
+        if(mp.isPlaying())
+            mp.stop();
     }
 
     public static class ViewHolder {
