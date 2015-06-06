@@ -3,6 +3,6 @@ JChat android app. A real app for jmessage.
 
 [JChat App](http://jchat.io)
 
-[JChat Android](http://https://github.com/jpush/jchat-android)
+[JChat iOS](https://github.com/jpush/jchat-ios)
 
 [JChat Web](https://github.com/jpush/jchat-web)
