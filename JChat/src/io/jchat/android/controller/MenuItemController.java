@@ -3,6 +3,7 @@ package io.jchat.android.controller;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.callback.CreateGroupCallback;
 import io.jchat.android.R;
 
 import java.util.List;
@@ -22,6 +24,8 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
+import io.jchat.android.activity.ChatActivity;
+import io.jchat.android.activity.ChatDetailActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.LoadingDialog;
@@ -30,15 +34,15 @@ import io.jchat.android.view.MenuItemView;
 /**
  * Created by Ken on 2015/1/26.
  */
-public class MenuItemController implements View.OnClickListener{
+public class MenuItemController implements View.OnClickListener {
 
     private MenuItemView mMenuItemView;
     private ConversationListFragment mContext;
     private ConversationListController mController;
-    private LoadingDialog mLD;
+    private LoadingDialog mLD = new LoadingDialog();
     private Dialog mLoadingDialog;
 
-    public MenuItemController(MenuItemView view, ConversationListFragment context, ConversationListController controller){
+    public MenuItemController(MenuItemView view, ConversationListFragment context, ConversationListController controller) {
         this.mMenuItemView = view;
         this.mContext = context;
         this.mController = controller;
@@ -46,10 +50,36 @@ public class MenuItemController implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.create_group_ll:
                 mContext.dismissPopWindow();
-                mContext.StartCreateGroupActivity();
+//                mContext.StartCreateGroupActivity();
+                mLoadingDialog = mLD.createLoadingDialog(mContext.getActivity(), mContext.getString(R.string.creating_hint));
+                mLoadingDialog.show();
+                JMessageClient.createGroup(
+                        "", "",
+                        new CreateGroupCallback() {
+
+                            @Override
+                            public void gotResult(final int status, String msg,
+                                                  final long groupID) {
+                                mLoadingDialog.dismiss();
+                                if (status == 0) {
+                                    Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
+                                    Intent intent = new Intent();
+                                    intent.putExtra("isGroup", true);
+                                    //设置跳转标志
+                                    intent.putExtra("fromGroup", true);
+                                    intent.putExtra("groupID", groupID);
+                                    intent.putExtra("groupName", conv.getDisplayName());
+                                    intent.setClass(mContext.getActivity(), ChatActivity.class);
+                                    mContext.startActivity(intent);
+                                } else {
+                                    HandleResponseCode.onHandle(mContext.getActivity(), status);
+                                    Log.i("CreateGroupController", "status : " + status);
+                                }
+                            }
+                        });
                 break;
             case R.id.add_friend_ll:
                 mContext.dismissPopWindow();
@@ -59,27 +89,26 @@ public class MenuItemController implements View.OnClickListener{
                 builder.setView(view);
                 final Dialog dialog = builder.create();
                 dialog.show();
-                final EditText userNameEt = (EditText)view.findViewById(R.id.user_name_et);
+                final EditText userNameEt = (EditText) view.findViewById(R.id.user_name_et);
                 final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
                 final Button commit = (Button) view.findViewById(R.id.commit_btn);
                 View.OnClickListener listener = new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        switch (view.getId()){
+                        switch (view.getId()) {
                             case R.id.cancel_btn:
                                 dialog.cancel();
                                 break;
                             case R.id.commit_btn:
                                 final String targetID = userNameEt.getText().toString().trim();
                                 Log.i("MenuItemController", "targetID " + targetID);
-                                if(TextUtils.isEmpty(targetID)){
+                                if (TextUtils.isEmpty(targetID)) {
                                     Toast.makeText(mContext.getActivity(), mContext.getString(R.string.username_not_null_toast), Toast.LENGTH_SHORT).show();
                                     break;
-                                }else if(targetID.equals(JMessageClient.getMyInfo().getUserName()) || targetID.equals(JMessageClient.getMyInfo().getNickname())){
+                                } else if (targetID.equals(JMessageClient.getMyInfo().getUserName()) || targetID.equals(JMessageClient.getMyInfo().getNickname())) {
                                     Toast.makeText(mContext.getActivity(), mContext.getString(R.string.user_add_self_toast), Toast.LENGTH_SHORT).show();
                                     return;
-                                }else {
-                                    mLD = new LoadingDialog();
+                                } else {
                                     mLoadingDialog = mLD.createLoadingDialog(mContext.getActivity(), mContext.getString(R.string.adding_hint));
                                     mLoadingDialog.show();
                                     dismissSoftInput();
@@ -89,17 +118,17 @@ public class MenuItemController implements View.OnClickListener{
                                             mContext.getActivity().runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    if(mLoadingDialog != null)
+                                                    if (mLoadingDialog != null)
                                                         mLoadingDialog.dismiss();
-                                                    if(status == 0){
+                                                    if (status == 0) {
                                                         List<Conversation> list = JMessageClient.getConversationList();
                                                         Conversation conv = Conversation.createConversation(ConversationType.single, targetID);
                                                         list.add(conv);
-                                                        if(userInfo.getAvatar() != null){
+                                                        if (userInfo.getAvatar() != null) {
                                                             mController.loadAvatarAndRefresh(targetID, userInfo.getAvatar().getAbsolutePath());
-                                                        }else mController.refreshConvList();
+                                                        } else mController.refreshConvList();
                                                         dialog.cancel();
-                                                    }else {
+                                                    } else {
                                                         HandleResponseCode.onHandle(mContext.getActivity(), status);
                                                     }
                                                 }

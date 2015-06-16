@@ -63,7 +63,9 @@ public class NativeImageLoader {
                 }
             }
         };
-
+        if(null == userIDList){
+            return;
+        }
 
         for (final String userID : userIDList) {
             //若为CurrentUser，直接获取本地的头像（CurrentUser本地头像为最新）

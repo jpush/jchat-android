@@ -79,32 +79,32 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                 mChatView.setChatTitle(groupName);
                 mConv = JMessageClient.getGroupConversation(mGroupID);
             } else {
-                if(mTargetID != null)
+                if (mTargetID != null)
                     mGroupID = Long.parseLong(mTargetID);
                 mConv = JMessageClient.getGroupConversation(mGroupID);
                 //判断自己如果不在群聊中，隐藏群聊详情按钮
-                JMessageClient.getGroupMembers(mGroupID, new GetGroupMembersCallback(false) {
+                JMessageClient.getGroupMembers(mGroupID, new GetGroupMembersCallback() {
                     @Override
                     public void gotResult(final int status, final String desc, final List<String> memberList) {
-                        mContext.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (status == 0) {
-                                    //群主解散后，返回memberList为空
-                                    if (memberList.isEmpty()) {
-                                        mChatView.dismissRightBtn();
-                                        //判断自己如果不在memberList中，则隐藏聊天详情按钮
-                                    } else if (!memberList.contains(JMessageClient.getMyInfo().getUserName()))
-                                        mChatView.dismissRightBtn();
-                                    else mChatView.showRightBtn();
-                                } else {
-                                    if (memberList.isEmpty()) {
-                                        mChatView.dismissRightBtn();
-                                    }
-                                    HandleResponseCode.onHandle(mContext, status);
-                                }
+//                        mContext.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+                        if (status == 0) {
+                            //群主解散后，返回memberList为空
+                            if (memberList.isEmpty()) {
+                                mChatView.dismissRightBtn();
+                                //判断自己如果不在memberList中，则隐藏聊天详情按钮
+                            } else if (!memberList.contains(JMessageClient.getMyInfo().getUserName()))
+                                mChatView.dismissRightBtn();
+                            else mChatView.showRightBtn();
+                        } else {
+                            if (null == memberList || memberList.isEmpty()) {
+                                mChatView.dismissRightBtn();
                             }
-                        });
+                            HandleResponseCode.onHandle(mContext, status);
+                        }
+//                            }
+//                        });
                     }
                 });
             }
@@ -124,7 +124,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         } else if (mConv == null && !mIsGroup) {
             mConv = Conversation.createConversation(ConversationType.single, mTargetID);
         }
-        if(mConv != null){
+        if (mConv != null) {
             mChatView.setChatTitle(mConv.getDisplayName());
             mConv.resetUnreadCount();
         }

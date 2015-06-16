@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.R;
 
 import java.io.File;
@@ -513,6 +514,7 @@ public class ChatDetailController implements OnClickListener,
                     // 判断是否为群主
                     if (groupOwnerID != null && groupOwnerID.equals(JMessageClient.getMyInfo().getUserName()))
                         mIsCreator = true;
+                    Log.d(TAG,"groupOwnerID = " + groupOwnerID + "isCreator = " + true);
                     mChatDetailView.setMyName(JMessageClient.getMyInfo().getUserName());
                     if (mGridAdapter != null) {
                         mGridAdapter.setCreator(mIsCreator);
@@ -578,11 +580,8 @@ public class ChatDetailController implements OnClickListener,
     private void addMemberAndCreateGroup(final String newMember) {
         mLD = new LoadingDialog();
         mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
-        final String desc = "";
         mLoadingDialog.show();
-        final String groupName = JMessageClient.getMyInfo().getUserName() + "、" + mTargetID
-                + "、" + newMember;
-        JMessageClient.createGroup(groupName, desc, new CreateGroupCallback(false) {
+        JMessageClient.createGroup("", "", new CreateGroupCallback(false) {
             @Override
             public void gotResult(int status, final String desc, final long groupID) {
                 if (status == 0) {
@@ -594,10 +593,11 @@ public class ChatDetailController implements OnClickListener,
                         public void gotResult(int status, String desc) {
                             if (mLoadingDialog != null)
                                 mLoadingDialog.dismiss();
+                            Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
                             if (status == 0) {
-                                mContext.StartChatActivity(groupID, groupName);
+                                mContext.StartChatActivity(groupID, conv.getDisplayName());
                             } else {
-                                mContext.StartChatActivity(groupID, groupName);
+                                mContext.StartChatActivity(groupID, conv.getDisplayName());
                                 Toast.makeText(mContext, desc, Toast.LENGTH_SHORT).show();
                             }
                         }

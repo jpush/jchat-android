@@ -1,6 +1,7 @@
 package io.jchat.android.controller;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -9,6 +10,7 @@ import io.jchat.android.R;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
+import io.jchat.android.activity.ChatDetailActivity;
 import io.jchat.android.activity.CreateGroupActivity;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.CreateGroupView;
@@ -55,13 +57,13 @@ public class CreateGroupController implements OnClickListener {
 
                             @Override
                             public void gotResult(final int status, String msg,
-                                                  final long GroupID) {
+                                                  final long groupID) {
                                 mContext.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         mDialog.dismiss();
                                         if (status == 0) {
-                                            mContext.StartChatActivity(GroupID, mGroupName);
+                                            mContext.StartChatActivity(groupID, mGroupName);
                                         } else {
                                             HandleResponseCode.onHandle(mContext, status);
                                             Log.i("CreateGroupController", "status : " + status);
