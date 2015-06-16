@@ -1,27 +1,21 @@
 package io.jchat.android.activity;
 
 import cn.jpush.im.android.api.JMessageClient;
-
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import io.jchat.android.controller.MeInfoController;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MeInfoView;
 import cn.jpush.im.api.BasicCallback;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import io.jchat.android.R;
 
 public class MeInfoActivity extends BaseActivity {
@@ -41,33 +35,8 @@ public class MeInfoActivity extends BaseActivity {
         mMeInfoView.initModule();
         mMeInfoController = new MeInfoController(mMeInfoView, this);
         mMeInfoView.setListeners(mMeInfoController);
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage(this.getString(R.string.loading));
-        dialog.show();
-        JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), new GetUserInfoCallback() {
-            @Override
-            public void gotResult(int status, String desc, UserInfo userInfo) {
-                MeInfoActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.dismiss();
-                    }
-                });
-                if (status == 0) {
-                    android.os.Message msg = handler.obtainMessage();
-                    msg.what = 1;
-                    msg.obj = userInfo;
-                    msg.sendToTarget();
-                } else {
-                    android.os.Message msg = handler.obtainMessage();
-                    msg.what = 2;
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("status", status);
-                    msg.setData(bundle);
-                    msg.sendToTarget();
-                }
-            }
-        });
+        UserInfo userInfo = JMessageClient.getMyInfo();
+        mMeInfoView.refreshUserInfo(userInfo);
     }
 
     public void StartModifyNickNameActivity() {
@@ -189,20 +158,4 @@ public class MeInfoActivity extends BaseActivity {
                 mMeInfoView.setSignature(data.getStringExtra("signature"));
         }
     }
-
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case 1:
-                    UserInfo userInfo = (UserInfo) msg.obj;
-                    mMeInfoView.refreshUserInfo(userInfo);
-                    break;
-                case 2:
-                    HandleResponseCode.onHandle(MeInfoActivity.this, msg.getData().getInt("status"));
-                    break;
-            }
-        }
-    };
 }

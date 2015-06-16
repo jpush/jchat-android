@@ -129,7 +129,9 @@ public class FixProfileActivity extends BaseActivity {
                                 FixProfileActivity.this.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        dialog.dismiss();
+                                        if(dialog.isShowing()) {
+                                            dialog.dismiss();
+                                        }
                                         if (status != 0) {
                                             Toast.makeText(mContext, mContext.getString(R.string.nickname_save_failed),
                                                     Toast.LENGTH_SHORT).show();
@@ -269,7 +271,9 @@ public class FixProfileActivity extends BaseActivity {
         JMessageClient.updateUserAvatar(new File(path), new BasicCallback(false) {
             @Override
             public void gotResult(int status, final String desc) {
-                mDialog.dismiss();
+                if(mDialog.isShowing()) {
+                    mDialog.dismiss();
+                }
                 if (status == 0) {
                     Log.i("FixProfileActivity", "Update avatar succeed path " + path);
                     loadUserAvatar(originPath);
