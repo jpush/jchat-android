@@ -218,16 +218,14 @@ public class ChatActivity extends BaseActivity {
             mChatView.dismissRecordDialog();
         String targetID = getIntent().getStringExtra("targetID");
         boolean isGroup = getIntent().getBooleanExtra("isGroup", false);
-        if (!TextUtils.isEmpty(targetID)) {
-            if (isGroup) {
-                try {
-                    JMessageClient.enterGroupConversation(Long.parseLong(targetID));
-                } catch (NumberFormatException nfe) {
-                    nfe.printStackTrace();
-                }
-            } else {
-                JMessageClient.enterSingleConversaion(targetID);
+        if (isGroup && !TextUtils.isEmpty(targetID)) {
+            try {
+                JMessageClient.enterGroupConversation(Long.parseLong(targetID));
+            }catch (NumberFormatException nfe){
+                nfe.printStackTrace();
             }
+        } else if(null != targetID){
+            JMessageClient.enterSingleConversaion(targetID);
         }
 
         boolean sendPicture = getIntent().getBooleanExtra("sendPicture", false);
@@ -313,19 +311,10 @@ public class ChatActivity extends BaseActivity {
         if(msg.getContentType() == ContentType.eventNotification){
             //退出群聊
             if(((EventNotificationContent)msg.getContent()).getEventNotificationType().equals(EventNotificationContent.EventNotificationType.group_member_exit)){
-                boolean isContainCreator = ((EventNotificationContent)msg.getContent()).containsGroupOwner();
-                //退出群聊的为群主，则隐藏聊天详情按钮
-                if(isContainCreator){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mChatView.dismissRightBtn();
-                        }
-                    });
-                    Log.i(TAG, "Group Creator delete the group");
-                }
-                //删除群成员事件
+                //群成员退群事件已经弃用
+
             }else if(((EventNotificationContent)msg.getContent()).getEventNotificationType().equals(EventNotificationContent.EventNotificationType.group_member_removed)){
+                //删除群成员事件
                 List<String> userNames = ((EventNotificationContent)msg.getContent()).getUserNames();
                 //群主删除了当前用户，则隐藏聊天详情按钮
                 if(userNames.contains(JMessageClient.getMyInfo().getUserName())){
@@ -337,8 +326,8 @@ public class ChatActivity extends BaseActivity {
                     });
                     Log.i(TAG, "You have been removed from group");
                 }
-                //添加群成员事件
             }else {
+                //添加群成员事件
                 List<String> userNames = ((EventNotificationContent)msg.getContent()).getUserNames();
                 //群主把当前用户添加到群聊，则显示聊天详情按钮
                 if(userNames.contains(JMessageClient.getMyInfo().getUserName())){

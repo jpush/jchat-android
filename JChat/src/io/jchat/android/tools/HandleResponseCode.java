@@ -120,6 +120,9 @@ public class HandleResponseCode {
             case 871309:
                 Toast.makeText(context, context.getString(R.string.sdk_87x_871309), Toast.LENGTH_SHORT).show();
                 break;
+            case 871310:
+                Toast.makeText(context, context.getString(R.string.sdk_87x_871310), Toast.LENGTH_SHORT).show();
+                break;
             case 871403:
                 Toast.makeText(context, context.getString(R.string.sdk_87x_871403), Toast.LENGTH_SHORT).show();
                 break;

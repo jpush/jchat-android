@@ -2,17 +2,22 @@ package io.jchat.android.view;
 
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
 
 
@@ -24,6 +29,7 @@ public class LoginView extends LinearLayout {
 	private Button mLoginBtn;
 	private Button mRegistBtnOnlogin;
     private Listener mListener;
+	private CheckBox mTestEvnCB;
     private Context mContext;
 
 	public LoginView(Context context, AttributeSet attrs) {
@@ -36,13 +42,38 @@ public class LoginView extends LinearLayout {
 		mPassword = (EditText) findViewById(R.id.password);
 		mLoginBtn = (Button) findViewById(R.id.login_btn);
 		mRegistBtnOnlogin = (Button) findViewById(R.id.register_btn);
-
+		mTestEvnCB = (CheckBox) findViewById(R.id.testEvn_cb);
         mTitle.setText(mContext.getString(R.string.app_name));
+		initTestEvnCB();
+	}
+
+	private void initTestEvnCB(){
+		Boolean isTestEvn = invokeIsTestEvn();
+		mTestEvnCB.setChecked(isTestEvn);
+	}
+
+	private Boolean invokeIsTestEvn(){
+		try {
+			Method method = JMessageClient.class.getDeclaredMethod("isTestEnvironment");
+			Object result = method.invoke(null);
+			return (Boolean)result;
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	public void setListeners(OnClickListener onClickListener) {
 		mLoginBtn.setOnClickListener(onClickListener);
 		mRegistBtnOnlogin.setOnClickListener(onClickListener);
+	}
+
+	public void setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener onCheckedChangeListener){
+		mTestEvnCB.setOnCheckedChangeListener(onCheckedChangeListener);
 	}
 
 	public String getUserId(){
@@ -66,7 +97,7 @@ public class LoginView extends LinearLayout {
     }
 
     public interface Listener {
-        public void onSoftKeyboardShown(int softKeyboardHeight);
+        void onSoftKeyboardShown(int softKeyboardHeight);
     }
 
     @Override

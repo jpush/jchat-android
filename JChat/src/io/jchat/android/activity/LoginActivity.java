@@ -27,6 +27,7 @@ public class LoginActivity extends BaseActivity {
         mLoginController = new LoginController(mLoginView, this);
         mLoginView.setListener(mLoginController);
         mLoginView.setListeners(mLoginController);
+        mLoginView.setOnCheckedChangeListener(mLoginController);
     }
 
     @Override
