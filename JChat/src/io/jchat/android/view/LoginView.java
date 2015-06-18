@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -31,6 +32,7 @@ public class LoginView extends LinearLayout {
     private Listener mListener;
 	private CheckBox mTestEvnCB;
     private Context mContext;
+	private static final boolean DEV_FLAG = false;
 
 	public LoginView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -48,6 +50,9 @@ public class LoginView extends LinearLayout {
 	}
 
 	private void initTestEvnCB(){
+		if(!DEV_FLAG){
+			mTestEvnCB.setVisibility(View.GONE);
+		}
 		Boolean isTestEvn = invokeIsTestEvn();
 		mTestEvnCB.setChecked(isTestEvn);
 	}
