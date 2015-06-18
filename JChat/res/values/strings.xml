@@ -243,6 +243,7 @@
     <string name="sdk_87x_871304">密码长度要在4-128个字节之间</string>
     <string name="sdk_87x_871305">名称长度须小于64个字节</string>
     <string name="sdk_87x_871309">消息所含文件不存在</string>
+    <string name="sdk_87x_871310">网络已断开，请检查网络连接</string>
     <string name="sdk_87x_871403">发送失败，请稍后重试</string>
     <string name="sdk_87x_871404">下载失败，请稍后重试</string>
     <string name="sdk_87x_871201">请求超时，请检查您的网络</string>

@@ -9,6 +9,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
@@ -18,7 +22,7 @@ import io.jchat.android.view.LoginDialog;
 import io.jchat.android.view.LoginView;
 import cn.jpush.im.api.BasicCallback;
 
-public class LoginController implements LoginView.Listener, OnClickListener {
+public class LoginController implements LoginView.Listener, OnClickListener,CompoundButton.OnCheckedChangeListener {
 
     private LoginView mLoginView;
     private LoginActivity mContext;
@@ -98,6 +102,29 @@ public class LoginController implements LoginView.Listener, OnClickListener {
     public void dismissDialog() {
         if (mDialog != null) {
             mDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        Log.d("sdfs","onCheckedChanged !!!! isChecked = " + isChecked);
+        if(isChecked){
+            swapEnvironment(true);
+        }else{
+            swapEnvironment(false);
+        }
+    }
+
+    private void swapEnvironment(boolean isTest){
+        try {
+            Method method = JMessageClient.class.getDeclaredMethod("swapEnvironment", Context.class, Boolean.class);
+            method.invoke(null, mContext, isTest);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
     }
 }

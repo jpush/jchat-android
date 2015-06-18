@@ -22,7 +22,7 @@ public class JPushDemoApplication extends Application {
         super.onCreate();
         Log.i("JpushDemoApplication", "init");
 
-        JMessageClient.init(getApplicationContext(),true);
+        JMessageClient.init(getApplicationContext());
         JMessageClient.setNotificationMode(JMessageClient.NOTI_MODE_DEFAULT);
         new NotificationClickEventReceiver(getApplicationContext());
     }

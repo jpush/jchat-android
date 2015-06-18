@@ -100,17 +100,32 @@
         android:textColor="#FFFFFF"
         android:textSize="18sp" />
 
-    <TextView
+    <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="20dp"
-        android:text="忘记密码？"
-        android:textColor="#555555"
-        android:textSize="18sp"
-        android:visibility="gone"
-        />
+        android:layout_height="wrap_content">
+        <CheckBox
+            android:id="@+id/testEvn_cb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="20dp"
+            android:text="测试环境"
+            android:textColor="#555555"
+            android:textSize="18sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp"
+            android:text="忘记密码？"
+            android:textColor="#555555"
+            android:textSize="18sp"
+            android:visibility="visible"
+            />
+    </RelativeLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"

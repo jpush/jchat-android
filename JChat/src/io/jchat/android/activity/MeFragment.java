@@ -25,7 +25,9 @@ import android.widget.Toast;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
+
 import java.io.File;
+
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MeController;
@@ -71,17 +73,20 @@ public class MeFragment extends Fragment {
 
     @Override
     public void onResume() {
-        if(JMessageClient.getMyInfo().getAvatar() != null){
-            File file = JMessageClient.getMyInfo().getAvatar();
-            loadUserAvatar(file.getAbsolutePath());
-        }else {
+        UserInfo myInfo = JMessageClient.getMyInfo();
+        if (myInfo != null) {
+            if (null != myInfo.getAvatar()) {
+                File file = myInfo.getAvatar();
+                loadUserAvatar(file.getAbsolutePath());
+            }
+        } else {
             final ProgressDialog dialog = new ProgressDialog(mContext);
             dialog.setMessage(this.getString(R.string.loading));
             dialog.show();
             JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), new GetUserInfoCallback() {
                 @Override
                 public void gotResult(int status, String desc, UserInfo userInfo) {
-                    ((Activity)mContext).runOnUiThread(new Runnable() {
+                    ((Activity) mContext).runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             dialog.dismiss();
@@ -113,14 +118,14 @@ public class MeFragment extends Fragment {
         // TODO Auto-generated method stub
         Intent intent = new Intent();
         UserInfo info = JMessageClient.getMyInfo();
-        if(null != info) {
+        if (null != info) {
             intent.putExtra("userName", info.getUserName());
             Log.i("MeFragment", "userName " + info.getUserName());
             JMessageClient.logout();
             intent.setClass(this.getActivity(), ReloginActivity.class);
             startActivity(intent);
-        }else{
-            Log.d(TAG,"user info is null!");
+        } else {
+            Log.d(TAG, "user info is null!");
         }
     }
 
@@ -154,7 +159,7 @@ public class MeFragment extends Fragment {
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (v.getId()){
+                switch (v.getId()) {
                     case R.id.take_photo_ll:
                         dialog.cancel();
                         takePhoto();
@@ -171,10 +176,10 @@ public class MeFragment extends Fragment {
     }
 
     private void takePhoto() {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
-            String dir ="sdcard/JPushDemo/pictures/";
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            String dir = "sdcard/JPushDemo/pictures/";
             File destDir = new File(dir);
-            if(!destDir.exists()){
+            if (!destDir.exists()) {
                 destDir.mkdirs();
             }
             File file = new File(dir, JMessageClient.getMyInfo().getUserName() + ".jpg");
@@ -183,21 +188,21 @@ public class MeFragment extends Fragment {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             try {
                 getActivity().startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_TAKE_PHOTO);
-            }catch (ActivityNotFoundException anf){
+            } catch (ActivityNotFoundException anf) {
                 Toast.makeText(this.getActivity(), mContext.getString(R.string.camera_not_prepared), Toast.LENGTH_SHORT).show();
             }
-        }else {
+        } else {
             Toast.makeText(this.getActivity(), mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
             return;
         }
     }
 
-    public String getPhotoPath(){
+    public String getPhotoPath() {
         return mPath;
     }
 
     public void selectImageFromLocal() {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             Intent intent;
             if (Build.VERSION.SDK_INT < 19) {
                 intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -208,21 +213,21 @@ public class MeFragment extends Fragment {
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             }
             getActivity().startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_SELECT_PICTURE);
-        }else {
+        } else {
             Toast.makeText(this.getActivity(), mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
         }
 
     }
 
-    public void loadUserAvatar(String path){
-        if(null != mMeView) {
+    public void loadUserAvatar(String path) {
+        if (null != mMeView) {
             mMeView.showPhoto(path);
         }
     }
 
     public void startBrowserAvatar() {
         File file = JMessageClient.getMyInfo().getAvatar();
-        if(file != null && file.exists()){
+        if (file != null && file.exists()) {
             Intent intent = new Intent();
             intent.putExtra("browserAvatar", true);
             intent.putExtra("avatarPath", file.getAbsolutePath());
@@ -238,7 +243,7 @@ public class MeFragment extends Fragment {
             switch (msg.what) {
                 case 1:
                     File file = JMessageClient.getMyInfo().getAvatar();
-                    if(file != null)
+                    if (file != null)
                         mMeView.showPhoto(file.getAbsolutePath());
                     break;
                 case 2:
