@@ -43,6 +43,7 @@ public class MeFragment extends Fragment {
     private MeController mMeController;
     private Context mContext;
     private String mPath;
+    private boolean isGetMeInfoFailed = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,38 @@ public class MeFragment extends Fragment {
         mMeController = new MeController(mMeView, this);
         mMeView.setListeners(mMeController);
         mMeView.setOnTouchListener(mMeController);
+        getMyUserInfo();
+    }
+
+    private void getMyUserInfo() {
+        final ProgressDialog dialog = new ProgressDialog(mContext);
+        dialog.setMessage(this.getString(R.string.loading));
+        dialog.show();
+        UserInfo userInfo = JMessageClient.getMyInfo();
+        if (null != userInfo) {
+            JMessageClient.getUserInfo(userInfo.getUserName(), new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int status, String desc, UserInfo userInfo) {
+                    ((Activity) mContext).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                        }
+                    });
+                    if (status == 0) {
+                        handler.sendEmptyMessage(1);
+                    } else {
+                        isGetMeInfoFailed = true;
+                        android.os.Message msg = handler.obtainMessage();
+                        msg.what = 2;
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("status", status);
+                        msg.setData(bundle);
+                        msg.sendToTarget();
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -73,37 +106,8 @@ public class MeFragment extends Fragment {
 
     @Override
     public void onResume() {
-        UserInfo myInfo = JMessageClient.getMyInfo();
-        if (myInfo != null) {
-            if (null != myInfo.getAvatar()) {
-                File file = myInfo.getAvatar();
-                loadUserAvatar(file.getAbsolutePath());
-            }
-        } else {
-            final ProgressDialog dialog = new ProgressDialog(mContext);
-            dialog.setMessage(this.getString(R.string.loading));
-            dialog.show();
-            JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), new GetUserInfoCallback() {
-                @Override
-                public void gotResult(int status, String desc, UserInfo userInfo) {
-                    ((Activity) mContext).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.dismiss();
-                        }
-                    });
-                    if (status == 0) {
-                        handler.sendEmptyMessage(1);
-                    } else {
-                        android.os.Message msg = handler.obtainMessage();
-                        msg.what = 2;
-                        Bundle bundle = new Bundle();
-                        bundle.putInt("status", status);
-                        msg.setData(bundle);
-                        msg.sendToTarget();
-                    }
-                }
-            });
+        if(isGetMeInfoFailed){
+            getMyUserInfo();
         }
         super.onResume();
     }
