@@ -22,7 +22,7 @@ import io.jchat.android.view.LoginDialog;
 import io.jchat.android.view.LoginView;
 import cn.jpush.im.api.BasicCallback;
 
-public class LoginController implements LoginView.Listener, OnClickListener,CompoundButton.OnCheckedChangeListener {
+public class LoginController implements LoginView.Listener, OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     private LoginView mLoginView;
     private LoginActivity mContext;
@@ -86,6 +86,7 @@ public class LoginController implements LoginView.Listener, OnClickListener,Comp
     @Override
     public void onSoftKeyboardShown(int softKeyboardHeight) {
         if (softKeyboardHeight > 300) {
+            mLoginView.setRegistBtnVisable(View.INVISIBLE);
             Log.i("LoginController", "softKeyboardHeight h: " + softKeyboardHeight);
             SharedPreferences sp = mContext.getSharedPreferences("JPushDemo", Context.MODE_PRIVATE);
             boolean writable = sp.getBoolean("writable", true);
@@ -96,6 +97,8 @@ public class LoginController implements LoginView.Listener, OnClickListener,Comp
                 editor.putBoolean("writable", false);
                 editor.commit();
             }
+        } else {
+            mLoginView.setRegistBtnVisable(View.VISIBLE);
         }
     }
 
@@ -107,15 +110,15 @@ public class LoginController implements LoginView.Listener, OnClickListener,Comp
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        Log.d("sdfs","onCheckedChanged !!!! isChecked = " + isChecked);
-        if(isChecked){
+        Log.d("sdfs", "onCheckedChanged !!!! isChecked = " + isChecked);
+        if (isChecked) {
             swapEnvironment(true);
-        }else{
+        } else {
             swapEnvironment(false);
         }
     }
 
-    private void swapEnvironment(boolean isTest){
+    private void swapEnvironment(boolean isTest) {
         try {
             Method method = JMessageClient.class.getDeclaredMethod("swapEnvironment", Context.class, Boolean.class);
             method.invoke(null, mContext, isTest);

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -16,8 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
-            android:background="@drawable/back_btn_bg"
-            />
+            android:background="@drawable/back_btn_bg" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -26,47 +25,55 @@
             android:layout_centerVertical="true"
             android:text="@string/app_name"
             android:textColor="#ffffff"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
 
-        </RelativeLayout>
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="150dp">
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
 
         <EditText
             android:id="@+id/nick_name_et"
+            style="@style/default_input_style"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/avatar_iv"
-            android:layout_marginLeft="20dp"
-            android:layout_marginBottom="35dp"
+            android:background="@null"
             android:hint="输入您的昵称"
-            style="@style/default_input_style"
             android:textColor="#555555"
-            />
+            android:textColorHint="@color/chat_detail_item_content_color"
+            android:textCursorDrawable="@drawable/text_cursor_bg" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_toLeftOf="@+id/avatar_iv"
+            android:layout_below="@+id/avatar_iv"
+            android:background="@color/login_split_line_color" />
 
         <io.jchat.android.view.RoundImageView
             android:id="@+id/avatar_iv"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="10dp"
             android:layout_alignParentRight="true"
-            android:layout_margin="10dp"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/take_photo_fix_profile"/>
+            android:background="@drawable/take_photo_fix_profile" />
 
-        </RelativeLayout>
+    </RelativeLayout>
 
     <Button
         android:id="@+id/finish_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="@string/finish"
-        android:textColor="#ffffff"
+        android:background="@drawable/fix_profile_btn_bg"
         android:clickable="false"
-        android:background="@drawable/fix_profile_btn_bg"/>
+        android:text="@string/finish"
+        android:textColor="#ffffff" />
 
 </LinearLayout>

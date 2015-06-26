@@ -105,6 +105,10 @@ public class LoginView extends LinearLayout {
         void onSoftKeyboardShown(int softKeyboardHeight);
     }
 
+	public void setRegistBtnVisable(int visibility){
+		mRegistBtnOnlogin.setVisibility(visibility);
+	}
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int height = MeasureSpec.getSize(heightMeasureSpec);
