@@ -107,7 +107,7 @@ public class MeFragment extends Fragment {
 
     @Override
     public void onResume() {
-        if(isGetMeInfoFailed){
+        if (isGetMeInfoFailed) {
             getMyUserInfo();
         }
         super.onResume();
@@ -125,6 +125,10 @@ public class MeFragment extends Fragment {
         UserInfo info = JMessageClient.getMyInfo();
         if (null != info) {
             intent.putExtra("userName", info.getUserName());
+            File avatar = info.getAvatar();
+            if (null != avatar && avatar.exists()) {
+                intent.putExtra("userAvatar", avatar.getAbsolutePath());
+            }
             Log.i("MeFragment", "userName " + info.getUserName());
             JMessageClient.logout();
             intent.setClass(this.getActivity(), ReloginActivity.class);
