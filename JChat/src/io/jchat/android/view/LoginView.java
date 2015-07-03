@@ -63,11 +63,8 @@ public class LoginView extends LinearLayout {
 			Object result = method.invoke(null);
 			return (Boolean)result;
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
 		}
 		return false;
 	}

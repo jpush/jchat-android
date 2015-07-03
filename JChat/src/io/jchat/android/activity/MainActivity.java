@@ -7,15 +7,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
-
 import java.io.File;
-
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MainController;
 import io.jchat.android.tools.SharePreferenceManager;
@@ -29,7 +26,6 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         if (JMessageClient.getMyInfo() == null) {
             Intent intent = new Intent();

@@ -115,7 +115,7 @@
                         android:layout_height="30dp"
                         android:background="@drawable/register_btn_bg"
                         android:gravity="center_horizontal|center_vertical"
-                        android:text="发送"
+                        android:text="@string/send"
                         android:textColor="@android:color/white"
                         android:padding="5dp"
                         android:textSize="14sp"
@@ -168,7 +168,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
-                            android:text="图片"
+                            android:text="@string/picture"
                             android:textColor="#696969" />
                     </LinearLayout>
 
@@ -189,7 +189,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
-                            android:text="拍照"
+                            android:text="@string/take_photo"
                             android:textColor="#696969" />
                     </LinearLayout>
 
@@ -212,7 +212,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
-                            android:text="视频"
+                            android:text="@string/video"
                             android:textColor="#696969" />
                     </LinearLayout>
 
