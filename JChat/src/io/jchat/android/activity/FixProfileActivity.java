@@ -129,7 +129,7 @@ public class FixProfileActivity extends BaseActivity {
                                 FixProfileActivity.this.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if(dialog.isShowing()) {
+                                        if (dialog.isShowing()) {
                                             dialog.dismiss();
                                         }
                                         if (status != 0) {
@@ -271,7 +271,7 @@ public class FixProfileActivity extends BaseActivity {
         JMessageClient.updateUserAvatar(new File(path), new BasicCallback(false) {
             @Override
             public void gotResult(int status, final String desc) {
-                if(mDialog.isShowing()) {
+                if (mDialog.isShowing()) {
                     mDialog.dismiss();
                 }
                 if (status == 0) {
@@ -302,6 +302,7 @@ public class FixProfileActivity extends BaseActivity {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                mAvatarIv.setBackgroundResource(0);
                 mAvatarIv.setImageBitmap(bitmap);
             }
         });

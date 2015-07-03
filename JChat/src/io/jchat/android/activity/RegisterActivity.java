@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 
-import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
 
 import io.jchat.android.controller.RegisterController;
@@ -37,11 +36,15 @@ public class RegisterActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
+        startLoginActivity();
+        super.onBackPressed();
+    }
+
+    public void startLoginActivity() {
         Intent intent = new Intent();
         intent.setClass(this, LoginActivity.class);
         startActivity(intent);
         finish();
-        super.onBackPressed();
     }
 
     @Override
