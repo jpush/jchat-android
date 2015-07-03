@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_login_view"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/notitle"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:background="#3F80DE">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="24sp"
+            android:textColor="#FFFFFF"/>
+
+        </LinearLayout>
+
+    <io.jchat.android.view.RoundImageView
+        android:id="@+id/login_iv"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_above="@+id/login_wait_tv"
+        android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/head_icon"/>
+
+    <TextView
+        android:id="@+id/login_wait_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="Hello!"
+        android:textColor="#555555"
+        android:textSize="24sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/login_wait_tv"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:text="稍等片刻!"
+        android:textColor="#555555"
+        android:textSize="24sp"/>
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40dp"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/clock"/>
+
+</RelativeLayout>
