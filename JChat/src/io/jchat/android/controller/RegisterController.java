@@ -88,7 +88,7 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
                 });
                 break;
             case R.id.return_btn:
-                mContext.startLoginActivity();
+                mContext.finish();
                 break;
         }
     }

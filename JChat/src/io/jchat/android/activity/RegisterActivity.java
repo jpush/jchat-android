@@ -7,6 +7,7 @@ import android.os.Bundle;
 import io.jchat.android.R;
 
 import io.jchat.android.controller.RegisterController;
+import io.jchat.android.tools.ActivityManager;
 import io.jchat.android.view.RegisterView;
 
 public class RegisterActivity extends BaseActivity {
@@ -18,7 +19,7 @@ public class RegisterActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_regist);
-		
+		ActivityManager.addActivity(this);
 		mRegisterView = (RegisterView) findViewById(R.id.regist_view);
 		mRegisterView.initModule();
 		mRegisterController = new RegisterController(mRegisterView,this);
@@ -31,21 +32,8 @@ public class RegisterActivity extends BaseActivity {
         Intent intent = new Intent();
         intent.setClass(this, FixProfileActivity.class);
         startActivity(intent);
-        finish();
+		ActivityManager.clearList();
 	}
-
-    @Override
-    public void onBackPressed() {
-        startLoginActivity();
-        super.onBackPressed();
-    }
-
-    public void startLoginActivity() {
-        Intent intent = new Intent();
-        intent.setClass(this, LoginActivity.class);
-        startActivity(intent);
-        finish();
-    }
 
     @Override
     protected void onDestroy() {

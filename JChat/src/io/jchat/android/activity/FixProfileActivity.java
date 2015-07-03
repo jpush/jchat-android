@@ -28,13 +28,8 @@ import android.widget.Toast;
 import io.jchat.android.R;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.api.callback.GetGroupIDListCallback;
-import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.view.RoundImageView;
@@ -70,7 +65,6 @@ public class FixProfileActivity extends BaseActivity {
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
-
         JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), null);
     }
 

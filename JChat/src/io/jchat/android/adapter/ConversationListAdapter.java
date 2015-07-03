@@ -102,13 +102,13 @@ public class ConversationListAdapter extends BaseAdapter {
         // 按照最后一条消息的消息类型进行处理
         switch (convItem.getLatestType()) {
             case image:
-                viewHolder.content.setText(mContext.getString(R.string.picture));
+                viewHolder.content.setText(mContext.getString(R.string.type_picture));
                 break;
             case voice:
-                viewHolder.content.setText(mContext.getString(R.string.voice));
+                viewHolder.content.setText(mContext.getString(R.string.type_voice));
                 break;
             case location:
-                viewHolder.content.setText(mContext.getString(R.string.location));
+                viewHolder.content.setText(mContext.getString(R.string.type_location));
                 break;
             case eventNotification:
                 viewHolder.content.setText(mContext.getString(R.string.group_notification));

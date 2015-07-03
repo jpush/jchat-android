@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import io.jchat.android.R;
 
 import io.jchat.android.controller.ReloginController;
+import io.jchat.android.tools.ActivityManager;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.ReloginView;
@@ -26,6 +27,7 @@ public class ReloginActivity extends BaseActivity {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_re_login);
+        ActivityManager.addActivity(this);
         mReloginView = (ReloginView) findViewById(R.id.relogin_view);
         mReloginView.initModule();
         fillContent();
@@ -65,7 +67,7 @@ public class ReloginActivity extends BaseActivity {
         Intent intent = new Intent();
         intent.setClass(this, MainActivity.class);
         startActivity(intent);
-        finish();
+        ActivityManager.clearList();
     }
 
 
@@ -74,7 +76,6 @@ public class ReloginActivity extends BaseActivity {
         Intent intent = new Intent();
         intent.setClass(this, LoginActivity.class);
         startActivity(intent);
-        finish();
     }
 
 
@@ -82,6 +83,10 @@ public class ReloginActivity extends BaseActivity {
         Intent intent = new Intent();
         intent.setClass(this, RegisterActivity.class);
         startActivity(intent);
-        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

@@ -24,6 +24,7 @@
     <!-- fixProfile界面中使用到的字符串 -->
     <string name="nickname_hit">昵称</string>
     <string name="take_new_photo">拍摄照片</string>
+    <string name="take_photo">拍照</string>
     <string name="pick_picture_from_local">选择图片</string>
     <string name="get_photo">　使用照片</string>
     <string name="updating_avatar_hint">正在上传头像</string>
@@ -88,9 +89,11 @@
     <string name="file_fetch_failed">文件获取失败</string>
     <string name="record_voice_permission_toast">若要使用语音功能，请选择允许录音</string>
     <string name="voice_fetch_failed_toast">获取语音失败，请重试</string>
-    <string name="picture">[图片]</string>
-    <string name="voice">[语音]</string>
-    <string name="location">[位置]</string>
+    <string name="picture">图片</string>
+    <string name="type_picture">[图片]</string>
+    <string name="type_voice">[语音]</string>
+    <string name="type_location">[位置]</string>
+    <string name="video">视频</string>
     <string name="group_notification">[群成员变动]</string>
     <string name="yesterday">昨天</string>
     <string name="before_dawn">凌晨</string>
@@ -112,12 +115,6 @@
     <string name="sdcard_not_exist_toast">暂无外部存储</string>
     <string name="camera_not_prepared">摄像头尚未准备好</string>
     <string name="sdcard_not_prepare_toast">sdcard尚未准备好</string>
-
-    <!--notification-->
-    <string name="noti_new_message_receive">收到新消息</string>
-    <string name="noti_content_type_img">[图片]</string>
-    <string name="noti_content_type_voice">[语音]</string>
-    <string name="noti_content_type_location">[位置]</string>
 
     <!--设置相关-->
     <string name="birthday">出生日期</string>
