@@ -111,7 +111,7 @@
         <!-- Required. AppKey copied from Portal -->
         <meta-data
             android:name="JPUSH_APPKEY"
-            android:value="fee8220aa148bc926c2d8dc4" />
+            android:value="4f7aef34fb361292c566a1cd" />
 
         <activity
             android:name="io.jchat.android.activity.BaseActivity"
