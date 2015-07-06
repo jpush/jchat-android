@@ -2,6 +2,7 @@ package io.jchat.android.controller;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,7 +18,7 @@ import io.jchat.android.view.LoadingDialog;
 import io.jchat.android.view.ReloginView;
 import cn.jpush.im.api.BasicCallback;
 
-public class ReloginController implements OnClickListener {
+public class ReloginController implements ReloginView.Listener, OnClickListener {
 
     private ReloginView mReloginView;
     private ReloginActivity mContext;
@@ -79,6 +80,13 @@ public class ReloginController implements OnClickListener {
                 break;
         }
 
+    }
+
+    @Override
+    public void onSoftKeyboardShown(int softKeyboardHeight) {
+        if (softKeyboardHeight > 300) {
+            mReloginView.setToBottom();
+        }
     }
 
 }

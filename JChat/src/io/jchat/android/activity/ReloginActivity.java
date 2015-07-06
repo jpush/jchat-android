@@ -32,6 +32,7 @@ public class ReloginActivity extends BaseActivity {
         mReloginView.initModule();
         fillContent();
         mReloginView.setListeners(mReloginController);
+        mReloginView.setListener(mReloginController);
     }
 
     private void fillContent() {
