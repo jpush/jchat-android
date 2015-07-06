@@ -24,6 +24,8 @@ public class LoginActivity extends BaseActivity {
         mLoginView.setListener(mLoginController);
         mLoginView.setListeners(mLoginController);
         mLoginView.setOnCheckedChangeListener(mLoginController);
+        Intent intent = this.getIntent();
+        mLoginView.isShowReturnBtn(intent.getBooleanExtra("fromSwitch", false));
     }
 
     @Override
@@ -44,13 +46,11 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        mLoginController.dismissDialog();
         super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
-        mLoginController.dismissDialog();
         finish();
         super.onBackPressed();
     }

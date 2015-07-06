@@ -20,6 +20,7 @@ import io.jchat.android.R;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
@@ -27,6 +28,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.adapter.PickPictureAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.SortPictureList;
 
 public class PickPictureActivity extends BaseActivity {
     private GridView mGridView;
@@ -66,7 +68,10 @@ public class PickPictureActivity extends BaseActivity {
             mConv = JMessageClient.getSingleConversation(mTargetID);
         }
         mList = mIntent.getStringArrayListExtra("data");
-
+        if (mList.size() > 1) {
+            SortPictureList sortList = new SortPictureList();
+            Collections.sort(mList, sortList);
+        }
         mAdapter = new PickPictureAdapter(this, mList, mGridView);
         mGridView.setAdapter(mAdapter);
         mGridView.setOnItemClickListener(onItemListener);

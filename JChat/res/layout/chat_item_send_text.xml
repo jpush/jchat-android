@@ -3,20 +3,16 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="6dp">
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
+
+    <TextView
+        android:id="@+id/send_time_txt"
+        style="@style/chat_text_date_style"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/send_time_txt"
-            style="@style/chat_text_date_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+        android:layout_gravity="center"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,37 +27,38 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="5dp"
+            android:background="@drawable/send_error"
             android:clickable="true"
             android:scaleType="fitCenter"
-            android:background="@drawable/send_error"
             android:visibility="invisible" />
 
         <ImageView
             android:id="@+id/sending_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="3dp"
             android:layout_gravity="center_vertical"
+            android:layout_marginRight="3dp"
             android:src="@drawable/sending_img" />
 
         <TextView
             android:id="@+id/msg_content"
+            style="@style/msg_text_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="3dp"
+            android:background="@drawable/msg_send_bg"
+            android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="15dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:layout_marginRight="3dp"
-            style="@style/msg_text_style"
-            android:background="@drawable/msg_send_bg" />
+            android:paddingTop="10dp" />
 
         <io.jchat.android.view.RoundImageView
             android:id="@+id/avatar_iv"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/head_icon"
-            android:focusable="false" />
+            android:layout_marginRight="3dp"
+            android:focusable="false"
+            android:src="@drawable/head_icon" />
 
     </LinearLayout>
 

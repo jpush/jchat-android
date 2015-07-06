@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape >
-            <corners android:radius="@dimen/default_btn_radius"/>
+            <corners android:radius="5dp"/>
             <solid android:color="#b9ebb8"/>
         </shape>
     </item>

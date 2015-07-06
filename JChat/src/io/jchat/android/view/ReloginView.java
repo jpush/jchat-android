@@ -3,10 +3,12 @@ package io.jchat.android.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +45,7 @@ public class ReloginView extends LinearLayout {
         mReloginBtn.setOnClickListener(onClickListener);
         mSwitchBtn.setOnClickListener(onClickListener);
         mRegisterBtn.setOnClickListener(onClickListener);
+        mPassword.setOnClickListener(onClickListener);
     }
 
     public String getPassword() {

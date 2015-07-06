@@ -15,10 +15,14 @@ public class ActivityManager {
         activityList.add(activity);
     }
 
+    public static void removeActivity(Activity activity){
+        activityList.remove(activity);
+    }
+
     public static void clearList(){
         for(Activity activity : activityList){
             activity.finish();
-            activityList.remove(activity);
         }
+        activityList.clear();
     }
 }

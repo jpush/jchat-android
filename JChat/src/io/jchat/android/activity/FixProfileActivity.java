@@ -40,7 +40,6 @@ import cn.jpush.im.api.BasicCallback;
  */
 public class FixProfileActivity extends BaseActivity {
 
-    private ImageView mReturnBtn;
     private Button mFinishBtn;
     private EditText mNickNameEt;
     private ImageView mAvatarIv;
@@ -52,13 +51,15 @@ public class FixProfileActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(null != savedInstanceState){
+            String nickName = savedInstanceState.getString("savedNickName");
+            mNickNameEt.setText(nickName);
+        }
         setContentView(R.layout.activity_fix_profile);
         mContext = this;
-        mReturnBtn = (ImageView) findViewById(R.id.return_btn);
         mNickNameEt = (EditText) findViewById(R.id.nick_name_et);
         mAvatarIv = (RoundImageView) findViewById(R.id.avatar_iv);
         mFinishBtn = (Button) findViewById(R.id.finish_btn);
-        mReturnBtn.setOnClickListener(listener);
         mAvatarIv.setOnClickListener(listener);
         mFinishBtn.setOnClickListener(listener);
         mNickNameEt.addTextChangedListener(watcher);
@@ -67,6 +68,13 @@ public class FixProfileActivity extends BaseActivity {
         mDensity = dm.density;
         JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), null);
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstancedState) {
+        savedInstancedState.putString("savedNickName", mNickNameEt.getText().toString());
+        super.onSaveInstanceState(savedInstancedState);
+    }
+
 
     private TextWatcher watcher = new TextWatcher() {
         private CharSequence temp = "";
@@ -103,9 +111,6 @@ public class FixProfileActivity extends BaseActivity {
         @Override
         public void onClick(View view) {
             switch (view.getId()) {
-                case R.id.return_btn:
-                    finish();
-                    break;
                 case R.id.avatar_iv:
                     showSetAvatarDialog();
                     break;

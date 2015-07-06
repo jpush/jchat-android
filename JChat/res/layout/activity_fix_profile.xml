@@ -10,14 +10,6 @@
         android:layout_height="50dp"
         android:background="@color/jpush_blue">
 
-        <ImageButton
-            android:id="@+id/return_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:background="@drawable/back_btn_bg" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,7 +33,7 @@
             style="@style/default_input_style"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
+            android:layout_marginTop="45dp"
             android:layout_toLeftOf="@+id/avatar_iv"
             android:background="@null"
             android:hint="输入您的昵称"

@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import cn.jpush.android.api.JPushInterface;
@@ -36,6 +37,11 @@ public class MainActivity extends FragmentActivity {
             } else {
                 intent.setClass(this, LoginActivity.class);
             }
+            startActivity(intent);
+            finish();
+        }else if(TextUtils.isEmpty(JMessageClient.getMyInfo().getNickname())){
+            Intent intent = new Intent();
+            intent.setClass(this, FixProfileActivity.class);
             startActivity(intent);
             finish();
         }

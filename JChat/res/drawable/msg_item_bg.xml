@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item>
-        <shape ><solid android:color="#FFFFFF"/></shape>
+    <item android:state_pressed="true" android:drawable="@color/contacts_pinner_txt">
+        <shape >
+            <solid android:color="#FFFFFF"/>
+        </shape>
     </item>
 
 </selector>

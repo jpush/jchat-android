@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.reflect.InvocationTargetException;
@@ -24,7 +24,7 @@ import io.jchat.android.R;
 
 public class LoginView extends LinearLayout {
 
-    private TextView mTitle;
+	private ImageButton mReturnBtn;
 	private EditText mUserId;
 	private EditText mPassword;
 	private Button mLoginBtn;
@@ -39,13 +39,12 @@ public class LoginView extends LinearLayout {
 		this.mContext = context;
 	}
 	public void initModule() {
-        mTitle = (TextView) findViewById(R.id.title_bar_title);
+		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
 		mUserId = (EditText) findViewById(R.id.username);
 		mPassword = (EditText) findViewById(R.id.password);
 		mLoginBtn = (Button) findViewById(R.id.login_btn);
 		mRegistBtnOnlogin = (Button) findViewById(R.id.register_btn);
 		mTestEvnCB = (CheckBox) findViewById(R.id.testEvn_cb);
-        mTitle.setText(mContext.getString(R.string.app_name));
 		initTestEvnCB();
 	}
 
@@ -70,6 +69,7 @@ public class LoginView extends LinearLayout {
 	}
 	
 	public void setListeners(OnClickListener onClickListener) {
+		mReturnBtn.setOnClickListener(onClickListener);
 		mLoginBtn.setOnClickListener(onClickListener);
 		mRegistBtnOnlogin.setOnClickListener(onClickListener);
 	}
@@ -98,7 +98,13 @@ public class LoginView extends LinearLayout {
         this.mListener = listener;
     }
 
-    public interface Listener {
+	public void isShowReturnBtn(boolean fromSwitch) {
+		if(fromSwitch){
+			mReturnBtn.setVisibility(VISIBLE);
+		}else mReturnBtn.setVisibility(INVISIBLE);
+	}
+
+	public interface Listener {
         void onSoftKeyboardShown(int softKeyboardHeight);
     }
 

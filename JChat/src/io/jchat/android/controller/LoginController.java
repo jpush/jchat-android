@@ -17,8 +17,9 @@ import java.lang.reflect.Method;
 import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.activity.LoginActivity;
+import io.jchat.android.tools.ActivityManager;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.LoginDialog;
+import io.jchat.android.view.LoadingDialog;
 import io.jchat.android.view.LoginView;
 import cn.jpush.im.api.BasicCallback;
 
@@ -26,7 +27,6 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
 
     private LoginView mLoginView;
     private LoginActivity mContext;
-    private Dialog mDialog;
 
     public LoginController(LoginView mLoginView, LoginActivity context) {
         this.mLoginView = mLoginView;
@@ -36,6 +36,10 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.return_btn:
+                mContext.finish();
+                ActivityManager.removeActivity(mContext);
+                break;
             case R.id.login_btn:
                 //隐藏软键盘
                 InputMethodManager manager = ((InputMethodManager) mContext.getSystemService(Activity.INPUT_METHOD_SERVICE));
@@ -55,9 +59,9 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
                     mLoginView.passwordError(mContext);
                     break;
                 }
-                LoginDialog loginDialog = new LoginDialog();
-                mDialog = loginDialog.createLoadingDialog(mContext);
-                mDialog.show();
+                LoadingDialog ld = new LoadingDialog();
+                final Dialog dialog = ld.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
+                dialog.show();
                 JMessageClient.login(userId, password,
                         new BasicCallback() {
                             @Override
@@ -65,10 +69,10 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
                                 mContext.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        dialog.dismiss();
                                         if (status == 0) {
                                             mContext.StartMainActivity();
                                         } else {
-                                            dismissDialog();
                                             Log.i("LoginController", "status = " + status);
                                             HandleResponseCode.onHandle(mContext, status);
                                         }
@@ -102,11 +106,6 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
         }
     }
 
-    public void dismissDialog() {
-        if (mDialog != null) {
-            mDialog.dismiss();
-        }
-    }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

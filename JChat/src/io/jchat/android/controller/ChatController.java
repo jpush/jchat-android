@@ -86,9 +86,6 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                 JMessageClient.getGroupMembers(mGroupID, new GetGroupMembersCallback() {
                     @Override
                     public void gotResult(final int status, final String desc, final List<String> memberList) {
-//                        mContext.runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
                         if (status == 0) {
                             //群主解散后，返回memberList为空
                             if (memberList.isEmpty()) {
@@ -103,8 +100,6 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                             }
                             HandleResponseCode.onHandle(mContext, status);
                         }
-//                            }
-//                        });
                     }
                 });
             }
