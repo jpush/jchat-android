@@ -32,6 +32,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.RoundImageView;
 import cn.jpush.im.api.BasicCallback;
 
@@ -67,6 +68,7 @@ public class FixProfileActivity extends BaseActivity {
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
         JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), null);
+        SharePreferenceManager.setCachedFixProfileFlag(true);
     }
 
     @Override
@@ -115,6 +117,7 @@ public class FixProfileActivity extends BaseActivity {
                     showSetAvatarDialog();
                     break;
                 case R.id.finish_btn:
+                    SharePreferenceManager.setCachedFixProfileFlag(false);
                     String nickName = mNickNameEt.getText().toString().trim();
                     if (nickName != null && !nickName.equals("")) {
                         final ProgressDialog dialog = new ProgressDialog(mContext);

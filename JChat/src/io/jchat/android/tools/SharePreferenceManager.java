@@ -39,4 +39,19 @@ public class SharePreferenceManager {
         }
         return null;
     }
+
+    private static final String KEY_CACHED_FIX_PROFILE_FLAG = "fixProfileFlag";
+
+    public static void setCachedFixProfileFlag(boolean value) {
+        if(null != sp){
+            sp.edit().putBoolean(KEY_CACHED_FIX_PROFILE_FLAG, value).commit();
+        }
+    }
+
+    public static boolean getCachedFixProfileFlag(){
+        if(null != sp){
+            return sp.getBoolean(KEY_CACHED_FIX_PROFILE_FLAG, false);
+        }
+        return false;
+    }
 }
