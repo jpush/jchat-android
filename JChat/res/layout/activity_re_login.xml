@@ -4,141 +4,141 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical">
 
-    <include layout="@layout/base_title_bar"/>
+    <include layout="@layout/base_title_bar" />
 
     <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:orientation="vertical"
             android:paddingLeft="@dimen/view_left_right_padding"
-            android:paddingRight="@dimen/view_left_right_padding"
-            android:orientation="vertical">
+            android:paddingRight="@dimen/view_left_right_padding">
 
-    <TextView
-        android:id="@+id/relogin_switch_user_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_gravity="right"
-        android:textColor="#555555"
-        android:textSize="20sp"
-        android:text="切换账号" />
+            <TextView
+                android:id="@+id/relogin_switch_user_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="20dp"
+                android:text="切换账号"
+                android:textColor="#555555"
+                android:textSize="20sp" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical">
 
-        <io.jchat.android.view.RoundImageView
-            android:id="@+id/relogin_head_icon"
-            android:layout_width="@dimen/login_regist_head_icon_size"
-            android:layout_height="@dimen/login_regist_head_icon_size"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/head_icon" />
+                <io.jchat.android.view.RoundImageView
+                    android:id="@+id/relogin_head_icon"
+                    android:layout_width="@dimen/login_regist_head_icon_size"
+                    android:layout_height="@dimen/login_regist_head_icon_size"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/head_icon" />
 
-        <TextView
-            android:id="@+id/username_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            android:text="exam***@gmail.com"
-            android:textSize="24sp"
-            android:textColor="#555555" />
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/username_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:text="exam***@gmail.com"
+                    android:textColor="#555555"
+                    android:textSize="24sp" />
+            </LinearLayout>
 
-    <TextView
-        android:id="@+id/username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="5dp"
-        android:textColor="@color/relogin_txt_color"
-        android:textSize="@dimen/login_email_txt_size"
-        android:textStyle="bold" />
-
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:layout_marginTop="10dp">
-
-        <ImageView
-            android:id="@+id/iv_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:src="@drawable/password" />
-
-        <EditText
-            android:id="@+id/relogin_password"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="5dp"
-            android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/text_cursor_bg"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp"
-            android:layout_toRightOf="@id/iv_password"
-            android:background="@null"
-            android:hint="@string/password_hit"
-            android:textColorHint="@color/chat_detail_item_content_color"
-            android:inputType="textPassword"
-            android:singleLine="true"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_alignParentBottom="true"
-            android:background="#C1D3EC" />
-    </RelativeLayout>
-
-    <Button
-        android:id="@+id/relogin_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:background="@drawable/login_btn_bg"
-        android:text="@string/login"
-        android:textColor="@android:color/white"
-        android:textSize="20sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_gravity="right"
-        android:text="忘记密码？"
-        android:textColor="#555555" />
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/relogin_txt_color"
+                android:textSize="@dimen/login_email_txt_size"
+                android:textStyle="bold" />
 
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:layout_marginTop="10dp">
 
-    <Button
-        android:id="@+id/register_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:background="@null"
-        android:drawableTop="@drawable/login_regist"
-        android:text="@string/register"
-        android:textColor="@color/relogin_txt_color" />
+                <ImageView
+                    android:id="@+id/iv_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/password" />
 
-    </RelativeLayout>
+                <EditText
+                    android:id="@+id/relogin_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@id/iv_password"
+                    android:background="@null"
+                    android:cursorVisible="true"
+                    android:hint="@string/password_hit"
+                    android:inputType="textPassword"
+                    android:padding="5dp"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/chat_detail_item_content_color"
+                    android:textCursorDrawable="@drawable/text_cursor_bg"
+                    android:textSize="18sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="#C1D3EC" />
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/relogin_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/login_btn_bg"
+                android:text="@string/login"
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="15dp"
+                android:text="忘记密码？"
+                android:textColor="#555555" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/register_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="20dp"
+                    android:background="@null"
+                    android:drawableTop="@drawable/login_regist"
+                    android:text="@string/register"
+                    android:textColor="@color/relogin_txt_color" />
+
+            </RelativeLayout>
 
         </LinearLayout>
 

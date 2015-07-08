@@ -32,6 +32,7 @@ public class ReloginActivity extends BaseActivity {
         mReloginView.initModule();
         fillContent();
         mReloginView.setListeners(mReloginController);
+        mReloginView.setListener(mReloginController);
     }
 
     private void fillContent() {
@@ -74,6 +75,7 @@ public class ReloginActivity extends BaseActivity {
     public void StartSwitchUser() {
         // TODO Auto-generated method stub
         Intent intent = new Intent();
+        intent.putExtra("fromSwitch", true);
         intent.setClass(this, LoginActivity.class);
         startActivity(intent);
     }

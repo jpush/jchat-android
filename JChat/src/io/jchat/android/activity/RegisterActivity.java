@@ -2,6 +2,7 @@ package io.jchat.android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 
 import io.jchat.android.R;
@@ -29,6 +30,7 @@ public class RegisterActivity extends BaseActivity {
 
 	//注册成功
 	public void OnRegistSuccess(){
+		mRegisterController.dismissDialog();
         Intent intent = new Intent();
         intent.setClass(this, FixProfileActivity.class);
         startActivity(intent);
@@ -38,6 +40,7 @@ public class RegisterActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         mRegisterController.dismissDialog();
-        super.onDestroy();
+		Log.i("RegisterActivity", "onDestroy!");
+		super.onDestroy();
     }
 }
