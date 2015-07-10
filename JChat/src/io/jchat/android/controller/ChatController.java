@@ -21,9 +21,11 @@ import android.widget.Toast;
 
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -85,17 +87,22 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                 //判断自己如果不在群聊中，隐藏群聊详情按钮
                 JMessageClient.getGroupMembers(mGroupID, new GetGroupMembersCallback() {
                     @Override
-                    public void gotResult(final int status, final String desc, final List<String> memberList) {
+
+                    public void gotResult(final int status, final String desc, final List<UserInfo> members) {
                         if (status == 0) {
+                            List<String> userNames = new ArrayList<String>();
+                            for(UserInfo info:members){
+                                userNames.add(info.getUserName());
+                            }
                             //群主解散后，返回memberList为空
-                            if (memberList.isEmpty()) {
+                            if (userNames.isEmpty()) {
                                 mChatView.dismissRightBtn();
                                 //判断自己如果不在memberList中，则隐藏聊天详情按钮
-                            } else if (!memberList.contains(JMessageClient.getMyInfo().getUserName()))
+                            } else if (!userNames.contains(JMessageClient.getMyInfo().getUserName()))
                                 mChatView.dismissRightBtn();
                             else mChatView.showRightBtn();
                         } else {
-                            if (null == memberList || memberList.isEmpty()) {
+                            if (null == members || members.isEmpty()) {
                                 mChatView.dismissRightBtn();
                             }
                             HandleResponseCode.onHandle(mContext, status);

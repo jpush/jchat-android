@@ -11,7 +11,7 @@ import io.jchat.android.R;
 import io.jchat.android.controller.ContactsController;
 import io.jchat.android.view.ContactsView;
 
-public class ContactsFragment extends Fragment{
+public class ContactsFragment extends BaseFragment{
 	private View mRootView;
 	private ContactsView mContactsView;
 	private ContactsController mContactsController;
