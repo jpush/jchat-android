@@ -10,6 +10,7 @@ import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.activity.RegisterActivity;
 import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.LoadingDialog;
 import io.jchat.android.view.LoginDialog;
 import io.jchat.android.view.RegisterView;
@@ -107,13 +108,10 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
         }
         int h = mAfterMeasureSize - mPreMeasureSize;
         if (h > 300) {
-            SharedPreferences sp = mContext.getSharedPreferences("JPushDemo", Context.MODE_PRIVATE);
-            boolean writable = sp.getBoolean("writable", true);
+            boolean writable = SharePreferenceManager.getCachedWritableFlag();
             if (writable) {
-                SharedPreferences.Editor editor = sp.edit();
-                editor.putInt("SoftKeyboardHeight", h);
-                editor.putBoolean("writable", false);
-                editor.commit();
+                SharePreferenceManager.setCachedKeyboardHeight(h);
+                SharePreferenceManager.setCachedWritableFlag(false);
             }
         }
     }

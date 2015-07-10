@@ -49,6 +49,7 @@ public class ReloginView extends LinearLayout {
         mRegisterBtn = (Button) findViewById(R.id.register_btn);
         mUserAvatarIv = (RoundImageView) findViewById(R.id.relogin_head_icon);
         mTitle.setText(mContext.getString(R.string.app_name));
+        mRegisterBtn.requestFocus();
     }
 
     public void setListener(Listener listener){

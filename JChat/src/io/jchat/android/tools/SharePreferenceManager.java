@@ -54,4 +54,33 @@ public class SharePreferenceManager {
         }
         return false;
     }
+
+    private static final String SOFT_KEYBOARD_HEIGHT = "SoftKeyboardHeight";
+
+    public static void setCachedKeyboardHeight(int height){
+        if(null != sp){
+            sp.edit().putInt(SOFT_KEYBOARD_HEIGHT, height).commit();
+        }
+    }
+
+    public static int getCachedKeyboardHeight(){
+        if(null != sp){
+            return sp.getInt(SOFT_KEYBOARD_HEIGHT, 0);
+        }
+        return 0;
+    }
+
+    private static final String WRITABLE_FLAG = "writable";
+    public static void setCachedWritableFlag(boolean value){
+        if(null != sp){
+            sp.edit().putBoolean(WRITABLE_FLAG, value).commit();
+        }
+    }
+
+    public static boolean getCachedWritableFlag(){
+        if(null != sp){
+            return sp.getBoolean(WRITABLE_FLAG, true);
+        }
+        return true;
+    }
 }

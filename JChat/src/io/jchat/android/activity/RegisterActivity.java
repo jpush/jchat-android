@@ -30,7 +30,6 @@ public class RegisterActivity extends BaseActivity {
 
 	//注册成功
 	public void OnRegistSuccess(){
-		mRegisterController.dismissDialog();
         Intent intent = new Intent();
         intent.setClass(this, FixProfileActivity.class);
         startActivity(intent);

@@ -251,9 +251,11 @@ public class MeFragment extends Fragment {
             super.handleMessage(msg);
             switch (msg.what) {
                 case 1:
-                    File file = JMessageClient.getMyInfo().getAvatar();
-                    if (file != null)
-                        mMeView.showPhoto(file.getAbsolutePath());
+                    if(JMessageClient.getMyInfo() != null){
+                        File file = JMessageClient.getMyInfo().getAvatar();
+                        if (file != null)
+                            mMeView.showPhoto(file.getAbsolutePath());
+                    }
                     break;
                 case 2:
                     HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"));
