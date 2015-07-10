@@ -53,7 +53,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        style="@style/default_input_style"/>
+        style="@style/default_input_style_with_bg"/>
 
     <TextView
         android:id="@+id/text_count_tv"

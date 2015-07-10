@@ -16,7 +16,6 @@ import java.lang.reflect.Method;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
 import io.jchat.android.activity.LoginActivity;
-import io.jchat.android.tools.ActivityManager;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.DialogCreator;
@@ -38,7 +37,6 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
         switch (v.getId()) {
             case R.id.return_btn:
                 mContext.finish();
-                ActivityManager.removeActivity(mContext);
                 break;
             case R.id.login_btn:
                 //隐藏软键盘

@@ -30,7 +30,7 @@
 
         <EditText
             android:id="@+id/nick_name_et"
-            style="@style/default_input_style"
+            style="@style/default_input_style_with_bg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="45dp"

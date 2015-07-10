@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import io.jchat.android.R;
 import io.jchat.android.controller.LoginController;
-import io.jchat.android.tools.ActivityManager;
 import io.jchat.android.view.LoginView;
 
 public class LoginActivity extends BaseActivity {
@@ -17,7 +16,6 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        ActivityManager.addActivity(this);
         mLoginView = (LoginView) findViewById(R.id.login_view);
         mLoginView.initModule();
         mLoginController = new LoginController(mLoginView, this);
@@ -61,9 +59,9 @@ public class LoginActivity extends BaseActivity {
 
     public void StartMainActivity() {
         Intent intent = new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setClass(getContext(), MainActivity.class);
         startActivity(intent);
-        ActivityManager.clearList();
     }
 
     public void StartRegisterActivity() {

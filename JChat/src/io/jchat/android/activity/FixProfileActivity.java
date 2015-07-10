@@ -117,7 +117,6 @@ public class FixProfileActivity extends BaseActivity {
                     showSetAvatarDialog();
                     break;
                 case R.id.finish_btn:
-                    SharePreferenceManager.setCachedFixProfileFlag(false);
                     String nickName = mNickNameEt.getText().toString().trim();
                     if (nickName != null && !nickName.equals("")) {
                         final ProgressDialog dialog = new ProgressDialog(mContext);
@@ -131,6 +130,8 @@ public class FixProfileActivity extends BaseActivity {
                                 FixProfileActivity.this.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        //更新跳转标志
+                                        SharePreferenceManager.setCachedFixProfileFlag(false);
                                         if (dialog.isShowing()) {
                                             dialog.dismiss();
                                         }

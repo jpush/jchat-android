@@ -122,6 +122,7 @@
     <string name="area">地区</string>
     <string name="sign">个性签名</string>
     <string name="commit">确认</string>
+    <string name="confirm">确定</string>
     <string name="finish">完成</string>
     <string name="upload_avatar_title">请选择上传头像方式</string>
     <string name="setting">系统设置</string>
@@ -146,7 +147,7 @@
     <string name="input_password_error_toast">输入密码错误，请重新输入</string>
     <string name="change_password_title">设置密码</string>
     <string name="change_old_password_hit">原密码</string>
-    <string name="new_password">新密码</string>
+    <string name="password">密码</string>
     <string name="hint_reset_password">请设置登录密码</string>
     <string name="hint_confirm_password">请再次输入</string>
     <string name="confirm_password">确认密码</string>
@@ -165,6 +166,7 @@
     <string name="disturb_description">开启后，在设定时间段内收到新消息将不会响铃或震动</string>
     <string name="begin_time">开始时间</string>
     <string name="end_time">结束时间</string>
+    <string name="logout_confirm">确定退出登录？</string>
 
     <!--聊天详情-->
     <string name="friend_request_title">新朋友</string>
@@ -231,6 +233,9 @@
     <string name="server_808004">群组名长度超出上限</string>
     <string name="server_810003">用户不属于该群组</string>
     <string name="server_810005">要添加的用户尚未注册</string>
+    <string name="server_810008">讨论组的成员数量已达上限，添加失败</string>
+    <string name="server_810009">该用户拥有的讨论组数量已达上限，添加失败</string>
+    <string name="server_811003">用户不在该讨论组中，删除成员失败</string>
     <string name="sdk_http_899001">用户已存在</string>
     <string name="sdk_http_899006">该群已被删除</string>
     <string name="sdk_http_898005">uid不存在</string>
