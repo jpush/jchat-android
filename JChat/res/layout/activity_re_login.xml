@@ -107,6 +107,7 @@
                 android:id="@+id/relogin_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:focusable="true"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/login_btn_bg"
                 android:text="@string/login"

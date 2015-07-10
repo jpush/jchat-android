@@ -37,6 +37,7 @@ public class RegisterView extends LinearLayout {
         mPassword = (EditText) findViewById(R.id.password);
         mRegistBtn = (Button) findViewById(R.id.regist_btn);
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
+        mUserId.requestFocus();
     }
 
     public String getUserId() {

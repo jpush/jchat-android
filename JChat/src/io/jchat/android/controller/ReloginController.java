@@ -84,7 +84,10 @@ public class ReloginController implements ReloginView.Listener, OnClickListener 
     @Override
     public void onSoftKeyboardShown(int softKeyboardHeight) {
         if (softKeyboardHeight > 300) {
+            mReloginView.setRegisterBtnVisible(View.INVISIBLE);
             mReloginView.setToBottom();
+        }else {
+            mReloginView.setRegisterBtnVisible(View.VISIBLE);
         }
     }
 

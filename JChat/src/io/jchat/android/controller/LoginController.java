@@ -3,7 +3,6 @@ package io.jchat.android.controller;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,11 +13,12 @@ import android.widget.CompoundButton;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
+import io.jchat.android.R;
 import io.jchat.android.activity.LoginActivity;
 import io.jchat.android.tools.ActivityManager;
 import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.DialogCreator;
 import io.jchat.android.view.LoginView;
 import cn.jpush.im.api.BasicCallback;
@@ -92,14 +92,11 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
         if (softKeyboardHeight > 300) {
             mLoginView.setRegistBtnVisable(View.INVISIBLE);
             Log.i("LoginController", "softKeyboardHeight h: " + softKeyboardHeight);
-            SharedPreferences sp = mContext.getSharedPreferences("JPushDemo", Context.MODE_PRIVATE);
-            boolean writable = sp.getBoolean("writable", true);
+            boolean writable = SharePreferenceManager.getCachedWritableFlag();
             if (writable) {
                 Log.i("LoginController", "commit h: " + softKeyboardHeight);
-                SharedPreferences.Editor editor = sp.edit();
-                editor.putInt("SoftKeyboardHeight", softKeyboardHeight);
-                editor.putBoolean("writable", false);
-                editor.commit();
+                SharePreferenceManager.setCachedKeyboardHeight(softKeyboardHeight);
+                SharePreferenceManager.setCachedWritableFlag(false);
             }
         } else {
             mLoginView.setRegistBtnVisable(View.VISIBLE);
