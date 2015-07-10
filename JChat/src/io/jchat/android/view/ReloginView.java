@@ -83,12 +83,16 @@ public class ReloginView extends LinearLayout {
         mUserAvatarIv.setImageBitmap(bitmap);
     }
 
+    public void setRegisterBtnVisible(int visibility){
+        mRegisterBtn.setVisibility(visibility);
+    }
+
     public void setToBottom() {
         mScrollView.post(new Runnable() {
             @Override
             public void run() {
                 Log.i("ReloginView", "set to bottom");
-                mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                mScrollView.scrollTo(0, 200);
             }
         });
     }

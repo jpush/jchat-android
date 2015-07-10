@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.jchat.android"
-    android:versionCode="29"
+    android:versionCode="30"
     android:versionName="1.2.1">
 
     <uses-sdk
@@ -135,7 +135,7 @@
         <activity
             android:name="io.jchat.android.activity.RegisterActivity"
             android:theme="@style/notitle"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="io.jchat.android.activity.MeInfoActivity"
             android:theme="@style/notitle" />
@@ -145,7 +145,7 @@
             android:windowSoftInputMode="adjustNothing" />
         <activity android:name="io.jchat.android.activity.ReloginActivity"
             android:theme="@style/notitle"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden"/>
         <activity
             android:name="io.jchat.android.activity.ChatDetailActivity"
             android:theme="@style/notitle" />

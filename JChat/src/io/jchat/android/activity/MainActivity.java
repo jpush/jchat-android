@@ -18,7 +18,6 @@ import java.io.File;
 
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MainController;
-import io.jchat.android.receiver.UserLogoutEventReceiver;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.MainView;
 
