@@ -1,16 +1,13 @@
 package io.jchat.android.activity;
 
-import android.app.Activity;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import java.io.File;
 
@@ -21,24 +18,27 @@ import io.jchat.android.R;
 import io.jchat.android.view.DialogCreator;
 
 /**
- * Created by Ken on 2015/3/13.
+ * A simple {@link Fragment} subclass.
  */
-public class BaseActivity extends Activity {
-    private static final String TAG = "BaseActivity";
+public class BaseFragment extends Fragment {
 
-    protected BaseHandler mHandler;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        mHandler = new BaseHandler();
-        JMessageClient.registerEventReceiver(this);
-    }
+    private static final String TAG = "BaseFragment";
 
     private Dialog dialog;
 
     private UserInfo myInfo;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        JMessageClient.registerEventReceiver(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        JMessageClient.unRegisterEventReceiver(this);
+        super.onDestroy();
+    }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -53,10 +53,10 @@ public class BaseActivity extends Activity {
                 }
                 Log.i(TAG, "userName " + myInfo.getUserName());
                 JMessageClient.logout();
-                intent.setClass(BaseActivity.this, ReloginActivity.class);
+                intent.setClass(BaseFragment.this.getActivity(), ReloginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
-                BaseActivity.this.finish();
+                BaseFragment.this.getActivity().finish();
             } else {
                 Log.d(TAG, "user info is null!");
             }
@@ -64,7 +64,7 @@ public class BaseActivity extends Activity {
     };
 
     public void onEventMainThread(UserLogoutEvent event) {
-        Context context = BaseActivity.this;
+        Context context = BaseFragment.this.getActivity();
         String title = context.getString(R.string.user_logout_dialog_title);
         String msg = context.getString(R.string.user_logout_dialog_message);
         dialog = DialogCreator.createBaseCostomDialog(context, title, msg, onClickListener);
@@ -72,22 +72,5 @@ public class BaseActivity extends Activity {
         dialog.show();
     }
 
-
-    @Override
-    protected void onDestroy() {
-        JMessageClient.unRegisterEventReceiver(this);
-        super.onDestroy();
-    }
-
-    public class BaseHandler extends Handler {
-
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            handleMsg(msg);
-        }
-    }
-
-    public void handleMsg(Message message) {
-    }
 
 }

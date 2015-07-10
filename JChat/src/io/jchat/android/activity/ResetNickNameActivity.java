@@ -19,7 +19,7 @@ import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
 
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.LoadingDialog;
+import io.jchat.android.view.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
 
 /**
@@ -31,7 +31,7 @@ public class ResetNickNameActivity extends BaseActivity {
     private TextView mTitleTv;
     private Button mCommitBtn;
     private EditText mNickNameEt;
-    private LoadingDialog mLD;
+    private DialogCreator mLD;
     private Dialog mDialog;
     private Context mContext;
 
@@ -65,7 +65,7 @@ public class ResetNickNameActivity extends BaseActivity {
                 if (oldNickName.equals(nickName)) {
                     return;
                 } else {
-                    mLD = new LoadingDialog();
+                    mLD = new DialogCreator();
                     mDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.modifying_hint));
                     mDialog.show();
                     UserInfo myUserInfo = JMessageClient.getMyInfo();

@@ -44,7 +44,7 @@ import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ChatDetailView;
-import io.jchat.android.view.LoadingDialog;
+import io.jchat.android.view.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
 
 public class ChatDetailController implements OnClickListener,
@@ -64,7 +64,7 @@ public class ChatDetailController implements OnClickListener,
     private boolean mIsCreator = false;
     private long mGroupID;
     private String mTargetID;
-    private LoadingDialog mLD;
+    private DialogCreator mLD;
     private Dialog mLoadingDialog = null;
     private boolean mIsShowDelete = false;
     private static final int GET_GROUP_MEMBER = 2047;
@@ -130,12 +130,16 @@ public class ChatDetailController implements OnClickListener,
             JMessageClient
                     .getGroupMembers(mGroupID, new GetGroupMembersCallback() {
                         @Override
-                        public void gotResult(int status, String desc, List<String> members) {
+                        public void gotResult(int status, String desc, List<UserInfo> members) {
                             if (status == 0) {
                                 android.os.Message msg = handler.obtainMessage();
                                 msg.what = GET_GROUP_MEMBER;
                                 Bundle bundle = new Bundle();
-                                bundle.putStringArrayList("memberList", (ArrayList) members);
+                                List<String> userNames = new ArrayList<String>();
+                                for (UserInfo info : members) {
+                                    userNames.add(info.getUserName());
+                                }
+                                bundle.putStringArrayList("memberList", (ArrayList) userNames);
                                 msg.setData(bundle);
                                 msg.sendToTarget();
                             }
@@ -152,11 +156,11 @@ public class ChatDetailController implements OnClickListener,
         }
     }
 
-    private String getGroupName(long groupID){
+    private String getGroupName(long groupID) {
         Conversation conv = JMessageClient.getGroupConversation(groupID);
         if (conv != null) {
             return conv.getDisplayName();
-        }else return null;
+        } else return null;
     }
 
     private void initAdapter() {
@@ -242,7 +246,7 @@ public class ChatDetailController implements OnClickListener,
      * 删除并退出
      */
     private void deleteAndExit() {
-        mLD = new LoadingDialog();
+        mLD = new DialogCreator();
         mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.exiting_group_toast));
         mLoadingDialog.show();
         JMessageClient.exitGroup(mGroupID, new BasicCallback(false) {
@@ -301,7 +305,7 @@ public class ChatDetailController implements OnClickListener,
                     return;
                 } else {
                     // 删除某个群成员
-                    mLD = new LoadingDialog();
+                    mLD = new DialogCreator();
                     mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.deleting_hint));
                     List<String> delList = new ArrayList<String>();
                     //之所以要传一个List，考虑到之后可能支持同时删除多人功能，现在List中只有一个元素
@@ -351,7 +355,7 @@ public class ChatDetailController implements OnClickListener,
                             Toast.makeText(mContext, mContext.getString(R.string.username_not_null_toast), Toast.LENGTH_SHORT).show();
                             break;
                         } else if (!mMemberIDList.contains(targetID)) {
-                            mLD = new LoadingDialog();
+                            mLD = new DialogCreator();
                             mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.searching_user));
                             mLoadingDialog.show();
                             JMessageClient.getUserInfo(targetID, new GetUserInfoCallback(false) {
@@ -409,11 +413,12 @@ public class ChatDetailController implements OnClickListener,
 
     /**
      * 增加群成员
+     *
      * @param list 要增加的成员的用户名，目前一次只能增加一个
      */
     private void addMember(final ArrayList<String> list) {
         try {
-            mLD = new LoadingDialog();
+            mLD = new DialogCreator();
             mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.adding_hint));
             mLoadingDialog.show();
             JMessageClient.addGroupMembers(mGroupID, list,
@@ -460,7 +465,8 @@ public class ChatDetailController implements OnClickListener,
 
     /**
      * 删除成员
-     * @param list 被删除的用户名List
+     *
+     * @param list     被删除的用户名List
      * @param position 删除的位置
      */
     private void delMember(List<String> list, final int position) {
@@ -514,7 +520,7 @@ public class ChatDetailController implements OnClickListener,
                     // 判断是否为群主
                     if (groupOwnerID != null && groupOwnerID.equals(JMessageClient.getMyInfo().getUserName()))
                         mIsCreator = true;
-                    Log.d(TAG,"groupOwnerID = " + groupOwnerID + "isCreator = " + true);
+                    Log.d(TAG, "groupOwnerID = " + groupOwnerID + "isCreator = " + true);
                     mChatDetailView.setMyName(JMessageClient.getMyInfo().getUserName());
                     if (mGridAdapter != null) {
                         mGridAdapter.setCreator(mIsCreator);
@@ -575,10 +581,11 @@ public class ChatDetailController implements OnClickListener,
 
     /**
      * 在单聊中点击增加按钮触发事件，创建群聊
+     *
      * @param newMember 要增加的成员
      */
     private void addMemberAndCreateGroup(final String newMember) {
-        mLD = new LoadingDialog();
+        mLD = new DialogCreator();
         mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
         mLoadingDialog.show();
         JMessageClient.createGroup("", "", new CreateGroupCallback(false) {
@@ -632,6 +639,7 @@ public class ChatDetailController implements OnClickListener,
 
     /**
      * 当收到群成员变化的Event后，刷新成员列表
+     *
      * @param groupID 群组ID
      */
     public void refresh(long groupID) {
@@ -639,9 +647,13 @@ public class ChatDetailController implements OnClickListener,
         if (mGroupID == groupID) {
             JMessageClient.getGroupMembers(groupID, new GetGroupMembersCallback() {
                 @Override
-                public void gotResult(int status, String s, List<String> memberList) {
+                public void gotResult(int status, String s, List<UserInfo> memberList) {
                     if (status == 0) {
-                        mMemberIDList = memberList;
+                        List<String> userNames = new ArrayList<String>();
+                        for (UserInfo info : memberList) {
+                            userNames.add(info.getUserName());
+                        }
+                        mMemberIDList = userNames;
                         mCurrentNum = mMemberIDList.size();
                         mGridAdapter.refreshGroupMember(mMemberIDList);
                     }

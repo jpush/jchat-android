@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import cn.jpush.im.android.api.content.EventNotificationContent;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import com.squareup.picasso.Picasso;
@@ -131,11 +132,17 @@ public class MsgListAdapter extends BaseAdapter {
             //初始化用户ID List
             JMessageClient.getGroupMembers(groupID, new GetGroupMembersCallback() {
                 @Override
-                public void gotResult(int status, String desc, List<String> members) {
+                public void gotResult(int status, String desc, List<UserInfo> members) {
                     android.os.Message msg = handler.obtainMessage();
                     msg.what = 1;
                     Bundle bundle = new Bundle();
-                    bundle.putStringArrayList("memberList", (ArrayList) members);
+                    if(0 == status){
+                        List<String> userNames = new ArrayList<String>();
+                        for(UserInfo info:members){
+                            userNames.add(info.getUserName());
+                        }
+                        bundle.putStringArrayList("memberList", (ArrayList) userNames);
+                    }
                     msg.setData(bundle);
                     msg.sendToTarget();
                 }

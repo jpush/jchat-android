@@ -8,7 +8,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -49,7 +48,7 @@ public class MeInfoView extends LinearLayout{
 	private LinearLayout mSettingLayout;
 	private LinearLayout mLogoutLayout;
 	
-	private LoadingDialog mLD = null;
+	private DialogCreator mLD = null;
 	private Dialog mLoadingDialog = null;
 
 	private RelativeLayout mEditLayout;

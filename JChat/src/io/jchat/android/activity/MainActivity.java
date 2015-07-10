@@ -13,9 +13,12 @@ import android.widget.Toast;
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
+
 import java.io.File;
+
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MainController;
+import io.jchat.android.receiver.UserLogoutEventReceiver;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.MainView;
 
@@ -39,7 +42,7 @@ public class MainActivity extends FragmentActivity {
             }
             startActivity(intent);
             finish();
-        }else if(TextUtils.isEmpty(JMessageClient.getMyInfo().getNickname()) && flag){
+        } else if (TextUtils.isEmpty(JMessageClient.getMyInfo().getNickname()) && flag) {
             Intent intent = new Intent();
             intent.setClass(this, FixProfileActivity.class);
             startActivity(intent);
