@@ -29,6 +29,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //第一次登录需要设置昵称
         boolean flag = SharePreferenceManager.getCachedFixProfileFlag();
         if (JMessageClient.getMyInfo() == null) {
             Intent intent = new Intent();

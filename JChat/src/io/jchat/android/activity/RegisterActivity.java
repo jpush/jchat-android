@@ -8,7 +8,6 @@ import android.util.Log;
 import io.jchat.android.R;
 
 import io.jchat.android.controller.RegisterController;
-import io.jchat.android.tools.ActivityManager;
 import io.jchat.android.view.RegisterView;
 
 public class RegisterActivity extends BaseActivity {
@@ -20,7 +19,6 @@ public class RegisterActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_regist);
-		ActivityManager.addActivity(this);
 		mRegisterView = (RegisterView) findViewById(R.id.regist_view);
 		mRegisterView.initModule();
 		mRegisterController = new RegisterController(mRegisterView,this);
@@ -31,9 +29,9 @@ public class RegisterActivity extends BaseActivity {
 	//注册成功
 	public void OnRegistSuccess(){
         Intent intent = new Intent();
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setClass(this, FixProfileActivity.class);
         startActivity(intent);
-		ActivityManager.clearList();
 	}
 
     @Override

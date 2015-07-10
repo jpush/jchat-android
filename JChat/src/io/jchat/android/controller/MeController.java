@@ -1,10 +1,18 @@
 package io.jchat.android.controller;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.graphics.Color;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
 
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.Conversation;
 import io.jchat.android.R;
 
 import io.jchat.android.activity.MeFragment;
@@ -102,8 +110,8 @@ public class MeController implements OnClickListener, View.OnTouchListener {
         }
     }
 
-    private boolean onSingleTapConfirmed(View view) {
-        switch (view.getId()){
+    private boolean onSingleTapConfirmed(View v) {
+        switch (v.getId()){
             case R.id.user_info_rl:
                 mContext.StartMeInfoActivity();
                 break;
@@ -112,10 +120,36 @@ public class MeController implements OnClickListener, View.OnTouchListener {
                 break;
 //			//退出登录 清除Notification，清除缓存
             case R.id.logout_rl:
-                mContext.Logout();
-                mContext.cancelNotification();
-                NativeImageLoader.getInstance().releaseCache();
-                mContext.getActivity().finish();
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext.getActivity());
+                View view = LayoutInflater.from(mContext.getActivity()).inflate(R.layout.dialog_resend_msg, null);
+                builder.setView(view);
+                TextView title = (TextView) view.findViewById(R.id.title);
+                title.setText(mContext.getString(R.string.logout_confirm));
+                title.setTextColor(Color.parseColor("#000000"));
+                final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
+                final Button commit = (Button) view.findViewById(R.id.resend_btn);
+                commit.setText(mContext.getString(R.string.confirm));
+                final Dialog dialog = builder.create();
+                dialog.show();
+                View.OnClickListener listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        switch (view.getId()) {
+                            case R.id.cancel_btn:
+                                dialog.cancel();
+                                break;
+                            case R.id.resend_btn:
+                                mContext.Logout();
+                                mContext.cancelNotification();
+                                NativeImageLoader.getInstance().releaseCache();
+                                mContext.getActivity().finish();
+                                dialog.cancel();
+                                break;
+                        }
+                    }
+                };
+                cancel.setOnClickListener(listener);
+                commit.setOnClickListener(listener);
                 break;
         }
         return false;

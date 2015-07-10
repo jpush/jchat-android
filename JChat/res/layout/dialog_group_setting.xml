@@ -35,7 +35,7 @@
         android:layout_marginRight="10dp"
         android:cursorVisible="true"
         android:textCursorDrawable="@drawable/text_cursor_bg"
-        style="@style/default_input_style"/>
+        style="@style/default_input_style_with_bg"/>
 
     <LinearLayout
         android:layout_width="match_parent"
