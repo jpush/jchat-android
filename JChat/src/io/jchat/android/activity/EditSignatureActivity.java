@@ -18,7 +18,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import cn.jpush.im.android.api.JMessageClient;
-import io.jchat.android.view.LoadingDialog;
+import io.jchat.android.view.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
 
 /**
@@ -35,7 +35,7 @@ public class EditSignatureActivity extends BaseActivity {
     private Button mCommitBtn;
     private EditText mSignatureEt;
     private TextView mTextCountTv;
-    private LoadingDialog mLD;
+    private DialogCreator mLD;
     private Dialog mDialog;
     private Context mContext;
 
@@ -67,7 +67,7 @@ public class EditSignatureActivity extends BaseActivity {
                     Toast.makeText(mContext, mContext.getString(R.string.input_signature_toast), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                mLD = new LoadingDialog();
+                mLD = new DialogCreator();
                 mDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.modifying_hint));
                 mDialog.show();
                 UserInfo myUserInfo = JMessageClient.getMyInfo();

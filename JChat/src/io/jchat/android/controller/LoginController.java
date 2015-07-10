@@ -19,7 +19,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.activity.LoginActivity;
 import io.jchat.android.tools.ActivityManager;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.LoadingDialog;
+import io.jchat.android.view.DialogCreator;
 import io.jchat.android.view.LoginView;
 import cn.jpush.im.api.BasicCallback;
 
@@ -59,7 +59,7 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
                     mLoginView.passwordError(mContext);
                     break;
                 }
-                LoadingDialog ld = new LoadingDialog();
+                DialogCreator ld = new DialogCreator();
                 final Dialog dialog = ld.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
                 dialog.show();
                 JMessageClient.login(userId, password,

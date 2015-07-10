@@ -97,6 +97,11 @@
         <item name="android:background">@drawable/arrow</item>
     </style>
 
+    <style name="BaseDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
     <style name="SexSettingDialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowFrame">@null</item>

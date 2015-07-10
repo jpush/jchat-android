@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +33,7 @@ import io.jchat.android.controller.MeController;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MeView;
 
-public class MeFragment extends Fragment {
+public class MeFragment extends BaseFragment {
 
     private static final String TAG = MeFragment.class.getSimpleName();
 

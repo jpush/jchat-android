@@ -25,10 +25,9 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.activity.ChatActivity;
-import io.jchat.android.activity.ChatDetailActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.LoadingDialog;
+import io.jchat.android.view.DialogCreator;
 import io.jchat.android.view.MenuItemView;
 
 /**
@@ -39,7 +38,7 @@ public class MenuItemController implements View.OnClickListener {
     private MenuItemView mMenuItemView;
     private ConversationListFragment mContext;
     private ConversationListController mController;
-    private LoadingDialog mLD = new LoadingDialog();
+    private DialogCreator mLD = new DialogCreator();
     private Dialog mLoadingDialog;
 
     public MenuItemController(MenuItemView view, ConversationListFragment context, ConversationListController controller) {
@@ -113,27 +112,22 @@ public class MenuItemController implements View.OnClickListener {
                                     mLoadingDialog = mLD.createLoadingDialog(mContext.getActivity(), mContext.getString(R.string.adding_hint));
                                     mLoadingDialog.show();
                                     dismissSoftInput();
-                                    JMessageClient.getUserInfo(targetID, new GetUserInfoCallback(false) {
+                                    JMessageClient.getUserInfo(targetID, new GetUserInfoCallback() {
                                         @Override
                                         public void gotResult(final int status, String desc, final UserInfo userInfo) {
-                                            mContext.getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    if (mLoadingDialog != null)
-                                                        mLoadingDialog.dismiss();
-                                                    if (status == 0) {
-                                                        List<Conversation> list = JMessageClient.getConversationList();
-                                                        Conversation conv = Conversation.createConversation(ConversationType.single, targetID);
-                                                        list.add(conv);
-                                                        if (userInfo.getAvatar() != null) {
-                                                            mController.loadAvatarAndRefresh(targetID, userInfo.getAvatar().getAbsolutePath());
-                                                        } else mController.refreshConvList();
-                                                        dialog.cancel();
-                                                    } else {
-                                                        HandleResponseCode.onHandle(mContext.getActivity(), status);
-                                                    }
-                                                }
-                                            });
+                                            if (mLoadingDialog != null)
+                                                mLoadingDialog.dismiss();
+                                            if (status == 0) {
+                                                List<Conversation> list = JMessageClient.getConversationList();
+                                                Conversation conv = Conversation.createConversation(ConversationType.single, targetID);
+                                                list.add(conv);
+                                                if (userInfo.getAvatar() != null) {
+                                                    mController.loadAvatarAndRefresh(targetID, userInfo.getAvatar().getAbsolutePath());
+                                                } else mController.refreshConvList();
+                                                dialog.cancel();
+                                            } else {
+                                                HandleResponseCode.onHandle(mContext.getActivity(), status);
+                                            }
                                         }
                                     });
 
