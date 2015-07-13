@@ -28,11 +28,10 @@
     </style>
 
     <style name="ActionBarItem">
-        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
         <item name="android:gravity">center_horizontal</item>
-        <item name="android:padding">5dp</item>
+        <item name="android:paddingTop">5dp</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:background">#3C3C3C</item>
         <item name="android:textSize">@dimen/text_minimum_size</item>

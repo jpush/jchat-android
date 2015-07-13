@@ -124,6 +124,7 @@
     </LinearLayout>
 
     <View
+        android:id="@+id/group_num_dividing_line"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/chat_detail_split_line_color" />

@@ -78,6 +78,7 @@ public class ConversationListController implements OnClickListener,
         final Intent intent = new Intent();
         String targetID = mDatas.get(position).getTargetId();
         intent.putExtra("targetID", targetID);
+        mDatas.get(position).resetUnreadCount();
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
             intent.putExtra("isGroup", true);
@@ -90,6 +91,17 @@ public class ConversationListController implements OnClickListener,
         intent.setClass(mContext.getActivity(), ChatActivity.class);
         mContext.startActivity(intent);
 
+        checkHasNewMessage();
+    }
+
+    public void checkHasNewMessage() {
+        for(Conversation conv : mDatas){
+            if(conv.getUnReadMsgCnt() != 0){
+                mContext.mListener.onNewMsgReceived();
+                return;
+            }
+        }
+        mContext.mListener.onClearNewMsgFlag();
     }
 
     /*
@@ -99,7 +111,12 @@ public class ConversationListController implements OnClickListener,
         mDatas = JMessageClient.getConversationList();
         SortConvList sortList = new SortConvList();
         Collections.sort(mDatas, sortList);
-        mListAdapter.refresh(mDatas);
+        mContext.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mListAdapter.refresh(mDatas);
+            }
+        });
     }
 
     /**

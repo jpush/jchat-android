@@ -36,6 +36,7 @@ public class ChatDetailView extends LinearLayout{
 	private TextView mMyName;
 	private GridView mGridView;
     private Context mContext;
+	private View mDividingLine;
 
 	public ChatDetailView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -55,6 +56,7 @@ public class ChatDetailView extends LinearLayout{
 		mDelGroupBtn = (Button) findViewById(R.id.chat_detail_del_group);
 		mGroupName = (TextView) findViewById(R.id.chat_detail_group_name);
 		mGroupNum = (TextView) findViewById(R.id.chat_detail_group_num);
+		mDividingLine = findViewById(R.id.group_num_dividing_line);
 		mMyName = (TextView) findViewById(R.id.chat_detail_my_name);
 		mGridView = (GridView) findViewById(R.id.chat_detail_group_gv);
 		
@@ -105,6 +107,7 @@ public class ChatDetailView extends LinearLayout{
 	public void setSingleView() {
 		mGroupNameRL.setVisibility(View.GONE);
 		mGroupNumRL.setVisibility(View.GONE);
+		mDividingLine.setVisibility(View.GONE);
 		mMyNameLL.setVisibility(View.GONE);
 		mDelGroupBtn.setVisibility(View.GONE);
 	}

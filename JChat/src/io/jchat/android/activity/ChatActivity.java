@@ -169,7 +169,8 @@ public class ChatActivity extends BaseActivity {
                     }
                     break;
                 case KeyEvent.KEYCODE_MENU:
-                    // 处理自己的逻辑break;
+                    // 处理自己的逻辑
+                    break;
                 default:
                     break;
             }

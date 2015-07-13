@@ -10,9 +10,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.Conversation;
 import io.jchat.android.R;
 
 import io.jchat.android.activity.MeFragment;
@@ -95,13 +92,11 @@ public class MeController implements OnClickListener, View.OnTouchListener {
         switch (e.getAction()){
             case MotionEvent.ACTION_DOWN:
                 startY = e.getY();
-                Log.i("MeController", "startY " + startY);
                 return false;
             case MotionEvent.ACTION_MOVE:
                  return mMeView.touchEvent(e);
             case MotionEvent.ACTION_UP:
                 float endY = e.getY();
-                Log.i("MeController", "endY - startY = " + (int)(endY - startY));
                 if(endY - startY > 10)
                     return mMeView.touchEvent(e);
                 else return onSingleTapConfirmed(view);
