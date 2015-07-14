@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -127,7 +128,11 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             mConv = Conversation.createConversation(ConversationType.single, mTargetID);
         }
         if (mConv != null) {
-            mChatView.setChatTitle(mConv.getDisplayName());
+            if(TextUtils.isEmpty(mConv.getDisplayName())){
+                mChatView.setChatTitle(mContext.getString(R.string.group));
+            }else {
+                mChatView.setChatTitle(mConv.getDisplayName());
+            }
             mConv.resetUnreadCount();
         }
         mChatAdapter = new MsgListAdapter(mContext, mIsGroup, mTargetID, mGroupID);

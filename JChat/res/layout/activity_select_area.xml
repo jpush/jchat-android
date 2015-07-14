@@ -39,7 +39,7 @@
             android:layout_centerVertical="true"
             android:text="保存"
             android:textColor="#FFFFFF"
-            android:background="#6FD66B"/>
+            android:background="@drawable/login_btn_bg"/>
     </RelativeLayout>
 
     <EditText

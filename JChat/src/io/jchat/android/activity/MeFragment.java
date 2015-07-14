@@ -124,7 +124,7 @@ public class MeFragment extends BaseFragment {
         UserInfo info = JMessageClient.getMyInfo();
         if (null != info) {
             intent.putExtra("userName", info.getUserName());
-            File avatar = info.getAvatar();
+            File avatar = info.getAvatarFile();
             if (null != avatar && avatar.exists()) {
                 intent.putExtra("userAvatar", avatar.getAbsolutePath());
             }
@@ -234,7 +234,7 @@ public class MeFragment extends BaseFragment {
     }
 
     public void startBrowserAvatar() {
-        File file = JMessageClient.getMyInfo().getAvatar();
+        File file = JMessageClient.getMyInfo().getAvatarFile();
         if (file != null && file.exists()) {
             Intent intent = new Intent();
             intent.putExtra("browserAvatar", true);
@@ -251,7 +251,7 @@ public class MeFragment extends BaseFragment {
             switch (msg.what) {
                 case 1:
                     if(JMessageClient.getMyInfo() != null){
-                        File file = JMessageClient.getMyInfo().getAvatar();
+                        File file = JMessageClient.getMyInfo().getAvatarFile();
                         if (file != null)
                             mMeView.showPhoto(file.getAbsolutePath());
                     }

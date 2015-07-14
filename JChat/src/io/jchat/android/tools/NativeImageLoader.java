@@ -70,7 +70,7 @@ public class NativeImageLoader {
         for (final String userID : userIDList) {
             //若为CurrentUser，直接获取本地的头像（CurrentUser本地头像为最新）
             if (userID.equals(JMessageClient.getMyInfo().getUserName())) {
-                File file = JMessageClient.getMyInfo().getAvatar();
+                File file = JMessageClient.getMyInfo().getAvatarFile();
                 if (file == null || !file.exists()) {
                     continue;
                 } else {
@@ -87,7 +87,7 @@ public class NativeImageLoader {
                     @Override
                     public void gotResult(int i, String s, UserInfo userInfo) {
                         if (i == 0) {
-                            File file = userInfo.getAvatar();
+                            File file = userInfo.getAvatarFile();
                             if (file != null) {
                                 Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), length, length);
                                 addBitmapToMemoryCache(userID, bitmap);
@@ -130,7 +130,7 @@ public class NativeImageLoader {
             @Override
             public void gotResult(int status, String desc, UserInfo userInfo) {
                 if (status == 0) {
-                    File file = userInfo.getAvatar();
+                    File file = userInfo.getAvatarFile();
                     if (file != null) {
                         Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), length, length);
                         addBitmapToMemoryCache(userName, bitmap);

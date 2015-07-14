@@ -95,8 +95,10 @@ public class GroupMemberGridAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        // TODO Auto-generated method stub
-        return mCurrentNum + mRestNum + 2;
+        //如果是普通成员，并且只有3个群成员，特殊处理
+        if(mCurrentNum == 3 && !mIsCreator)
+            return 4;
+        else return mCurrentNum + mRestNum + 2;
     }
 
     @Override

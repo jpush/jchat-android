@@ -179,20 +179,24 @@
             android:theme="@style/notitle" />
         <activity
             android:name="io.jchat.android.activity.ResetPasswordActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
         <activity
             android:name="io.jchat.android.activity.FixProfileActivity"
             android:theme="@style/notitle"
             android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
         <activity
             android:name="io.jchat.android.activity.ResetNickNameActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
         <activity
             android:name="io.jchat.android.activity.SelectAreaActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
         <activity
             android:name="io.jchat.android.activity.EditSignatureActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
 
     </application>
 

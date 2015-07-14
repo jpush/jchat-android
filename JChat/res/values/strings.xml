@@ -172,6 +172,7 @@
     <string name="friend_request_title">新朋友</string>
     <string name="friend_info">好友信息</string>
     <string name="group">群聊</string>
+    <string name="unnamed">未命名</string>
     <string name="added">已添加</string>
     <string name="chat_peoples_num">目前已有1名参与人</string>
     <string name="chat_detail_del">删除</string>

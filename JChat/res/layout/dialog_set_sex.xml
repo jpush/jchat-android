@@ -29,7 +29,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:layout_margin="5dp">
+        android:layout_margin="5dp"
+        android:background="@drawable/me_item_bg">
 
         <TextView
             android:layout_width="wrap_content"
@@ -61,7 +62,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp">
+        android:layout_marginRight="5dp"
+        android:background="@drawable/me_item_bg">
 
         <TextView
             android:layout_width="wrap_content"

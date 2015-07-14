@@ -58,7 +58,7 @@ public class MeView extends LinearLayout {
         mScrollView.setHeader(mAvatarIv);
         if(userInfo != null){
             mUserNameTv.setText(userInfo.getUserName());
-            File file = userInfo.getAvatar();
+            File file = userInfo.getAvatarFile();
             if(file != null && file.isFile()){
                 Log.i("MeView", "file.getAbsolutePath() " + file.getAbsolutePath());
                 DisplayMetrics dm = new DisplayMetrics();

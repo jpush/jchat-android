@@ -21,7 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cn.jpush.im.android.api.callback.GetUserAvatarCallback;
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.R;
 
@@ -139,20 +139,20 @@ public class ChatDetailController implements OnClickListener,
                                 List<String> userNames = new ArrayList<String>();
                                 for (UserInfo info : members) {
                                     userNames.add(info.getUserName());
-                                    File file = info.getAvatar();
+                                    File file = info.getAvatarFile();
                                     final String userID = info.getUserName();
                                     //如果图片存在，缓存到内存
                                     if(file != null && file.isFile()){
                                         NativeImageLoader.getInstance().putUserAvatar(userID, file.getAbsolutePath(),(int) (50 * mDensity));
                                         //如果图片不存在，开启线程下载图片
                                     }else {
-                                        info.getAvatarAsync(new GetUserAvatarCallback() {
+                                        info.getAvatarFileAsync(new DownloadAvatarCallback() {
                                             @Override
                                             public void gotResult(int status, String desc, File file) {
-                                                if(status == 0){
-                                                    if(file.isFile()){
+                                                if (status == 0) {
+                                                    if (file.isFile()) {
                                                         NativeImageLoader.getInstance().putUserAvatar(userID, file.getAbsolutePath(), (int) (50 * mDensity));
-                                                        if(mGridAdapter != null){
+                                                        if (mGridAdapter != null) {
                                                             mContext.runOnUiThread(new Runnable() {
                                                                 @Override
                                                                 public void run() {
@@ -161,7 +161,7 @@ public class ChatDetailController implements OnClickListener,
                                                             });
                                                         }
                                                     }
-                                                }else {
+                                                } else {
                                                     HandleResponseCode.onHandle(mContext, status);
                                                 }
                                             }
@@ -188,7 +188,9 @@ public class ChatDetailController implements OnClickListener,
     private String getGroupName(long groupID) {
         Conversation conv = JMessageClient.getGroupConversation(groupID);
         if (conv != null) {
-            return conv.getDisplayName();
+           if(TextUtils.isEmpty(conv.getDisplayName())){
+               return mContext.getString(R.string.unnamed);
+           }else return conv.getDisplayName();
         } else return null;
     }
 
@@ -392,7 +394,7 @@ public class ChatDetailController implements OnClickListener,
                                 public void gotResult(final int status, String desc, UserInfo userInfo) {
                                     if (status == 0) {
                                         //缓存头像
-                                        File file = userInfo.getAvatar();
+                                        File file = userInfo.getAvatarFile();
                                         if (file != null) {
                                             Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
                                                     (int) (50 * mDensity), (int) (50 * mDensity));

@@ -123,7 +123,7 @@ public class MenuItemController implements View.OnClickListener {
                                                 Conversation conv = Conversation.createConversation(ConversationType.single, targetID);
                                                 list.add(conv);
                                                 if (userInfo.getAvatar() != null) {
-                                                    mController.loadAvatarAndRefresh(targetID, userInfo.getAvatar().getAbsolutePath());
+                                                    mController.loadAvatarAndRefresh(targetID, userInfo.getAvatarFile().getAbsolutePath());
                                                 } else mController.refreshConvList();
                                                 dialog.cancel();
                                             } else {

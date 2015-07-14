@@ -52,7 +52,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">50dp</item>
         <item name="android:padding">5dp</item>
-        <item name="android:background">#ffffff</item>
+        <item name="android:background">@drawable/me_item_bg</item>
         <item name="android:orientation">horizontal </item>
     </style>
 
