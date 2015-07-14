@@ -47,7 +47,8 @@ public class ConversationListFragment extends BaseFragment {
     private View mMenuView;
     private MenuItemView mMenuItemView;
     private MenuItemController mMenuController;
-    public Listener mListener;
+    //MainActivity要实现的接口，用来显示或者隐藏ActionBar中新消息提示
+    public OnNewMsgReceiverListener mListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,7 +84,7 @@ public class ConversationListFragment extends BaseFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try{
-            mListener = (Listener) activity;
+            mListener = (OnNewMsgReceiverListener) activity;
         }catch (ClassCastException e){
             throw new ClassCastException(activity.toString() + "must implement OnNewMsgReceiverListener");
         }
@@ -204,7 +205,7 @@ public class ConversationListFragment extends BaseFragment {
         startActivity(intent);
     }
 
-    public interface Listener {
+    public interface OnNewMsgReceiverListener {
         void onNewMsgReceived();
         void onClearNewMsgFlag();
     }

@@ -171,11 +171,11 @@ public class NativeImageLoader {
 
 
     /**
-     * 此方法来加载本地图片，这里的mPoint是用来封装ImageView的宽和高，我们会根据length来裁剪Bitmap
+     * 此方法来加载本地图片，我们会根据length来裁剪Bitmap
      *
-     * @param path
-     * @param length
-     * @param callBack
+     * @param path 图片路径
+     * @param length 图片宽高
+     * @param callBack 回调
      * @return
      */
     public Bitmap loadNativeImage(final String path, final int length, final NativeImageCallBack callBack) {

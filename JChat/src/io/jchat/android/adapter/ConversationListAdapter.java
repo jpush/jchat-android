@@ -1,6 +1,7 @@
 package io.jchat.android.adapter;
 
 import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetGroupMembersCallback;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.io.File;
@@ -129,8 +133,30 @@ public class ConversationListAdapter extends BaseAdapter {
         // 群聊
         else {
             viewHolder.headIcon.setImageResource(R.drawable.head_icon);
-            final String displayName = convItem.getDisplayName();
-            viewHolder.groupName.setText(displayName);
+            //如果未设置昵称
+            if(TextUtils.isEmpty(convItem.getDisplayName())){
+                long groupID = Long.parseLong(convItem.getTargetId());
+                JMessageClient.getGroupMembers(groupID, new GetGroupMembersCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, List<UserInfo> list) {
+                        String displayName = "";
+                        if (status == 0) {
+                            if (list.size() <= 3) {
+                                for(UserInfo userInfo : list){
+                                    displayName += userInfo.getNickname();
+                                }
+                            } else {
+                                displayName = list.get(0).getNickname() + list.get(1).getNickname() + list.get(2).getNickname() + "...";
+                            }
+                            viewHolder.groupName.setText(displayName);
+
+                        }
+                    }
+                });
+            }else {
+                String displayName  = convItem.getDisplayName();
+                viewHolder.groupName.setText(displayName);
+            }
         }
 
         // TODO 更新Message的数量,

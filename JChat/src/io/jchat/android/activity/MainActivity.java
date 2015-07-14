@@ -21,7 +21,7 @@ import io.jchat.android.controller.MainController;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.MainView;
 
-public class MainActivity extends FragmentActivity implements ConversationListFragment.Listener {
+public class MainActivity extends FragmentActivity implements ConversationListFragment.OnNewMsgReceiverListener {
     private MainController mMainController;
     private MainView mMainView;
 

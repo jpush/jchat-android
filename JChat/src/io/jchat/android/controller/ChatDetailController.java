@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.callback.GetUserAvatarCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.R;
 
@@ -138,6 +139,34 @@ public class ChatDetailController implements OnClickListener,
                                 List<String> userNames = new ArrayList<String>();
                                 for (UserInfo info : members) {
                                     userNames.add(info.getUserName());
+                                    File file = info.getAvatar();
+                                    final String userID = info.getUserName();
+                                    //如果图片存在，缓存到内存
+                                    if(file != null && file.isFile()){
+                                        NativeImageLoader.getInstance().putUserAvatar(userID, file.getAbsolutePath(),(int) (50 * mDensity));
+                                        //如果图片不存在，开启线程下载图片
+                                    }else {
+                                        info.getAvatarAsync(new GetUserAvatarCallback() {
+                                            @Override
+                                            public void gotResult(int status, String desc, File file) {
+                                                if(status == 0){
+                                                    if(file.isFile()){
+                                                        NativeImageLoader.getInstance().putUserAvatar(userID, file.getAbsolutePath(), (int) (50 * mDensity));
+                                                        if(mGridAdapter != null){
+                                                            mContext.runOnUiThread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    mGridAdapter.notifyDataSetChanged();
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                }else {
+                                                    HandleResponseCode.onHandle(mContext, status);
+                                                }
+                                            }
+                                        });
+                                    }
                                 }
                                 bundle.putStringArrayList("memberList", (ArrayList) userNames);
                                 msg.setData(bundle);
@@ -544,21 +573,21 @@ public class ChatDetailController implements OnClickListener,
                 case GET_GROUP_MEMBER:
                     mMemberIDList = msg.getData().getStringArrayList("memberList");
                     Log.i(TAG, "GroupMember: " + mMemberIDList.toString());
-                    NativeImageLoader.getInstance().setAvatarCache(mMemberIDList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
-                        @Override
-                        public void onCacheAvatarCallBack(int status) {
-                            if (status == 0) {
-                                mContext.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Log.i(TAG, "init group members' avatar succeed");
-                                        if (mGridAdapter != null)
-                                            mGridAdapter.notifyDataSetChanged();
-                                    }
-                                });
-                            }
-                        }
-                    });
+//                    NativeImageLoader.getInstance().setAvatarCache(mMemberIDList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
+//                        @Override
+//                        public void onCacheAvatarCallBack(int status) {
+//                            if (status == 0) {
+//                                mContext.runOnUiThread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        Log.i(TAG, "init group members' avatar succeed");
+//                                        if (mGridAdapter != null)
+//                                            mGridAdapter.notifyDataSetChanged();
+//                                    }
+//                                });
+//                            }
+//                        }
+//                    });
                     initAdapter();
                     break;
                 // 添加成员
