@@ -190,7 +190,7 @@ public class ChatDetailActivity extends BaseActivity {
                 break;
             case JPushDemoApplication.REFRESH_GROUP_NAME:
                 Log.i(TAG, "Refresh GroupName Or user name");
-                mChatDetailController.NotifyGroupInfoChange();
+                mChatDetailController.NotifyGroupNameChange();
                 break;
         }
     }
@@ -212,7 +212,7 @@ public class ChatDetailActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-//        mChatDetailController.NotifyGroupInfoChange();
+        mChatDetailController.NotifyGroupInfoChange();
         super.onResume();
     }
 
@@ -275,7 +275,7 @@ public class ChatDetailActivity extends BaseActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mChatDetailController.NotifyGroupInfoChange();
+                                mChatDetailController.NotifyGroupNameChange();
                             }
                         });
                         //否则从Conversation拿

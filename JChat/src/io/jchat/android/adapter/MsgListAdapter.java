@@ -37,6 +37,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -67,6 +69,7 @@ import cn.jpush.im.android.api.enums.MessageDirect;
 import io.jchat.android.activity.BrowserViewPagerActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
+import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.TimeFormat;
@@ -417,7 +420,49 @@ public class MsgListAdapter extends BaseAdapter {
             if (bitmap != null)
                 holder.headIcon.setImageBitmap(bitmap);
             else {
-                holder.headIcon.setImageResource(R.drawable.head_icon);
+                final UserInfo userInfo = JMessageClient.getUserInfoFromLocal(msg.getFromID());
+                //如果本地存在用户信息
+                if(userInfo != null){
+                    File file = userInfo.getAvatarFile();
+                    if(file != null && file.isFile()){
+                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                        NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
+                        holder.headIcon.setImageBitmap(bitmap);
+                        //本地不存在头像，从服务器拿
+                    }else {
+                        userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, File file) {
+                                if (status == 0) {
+                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                                    NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
+                                    holder.headIcon.setImageBitmap(bitmap);
+                                }else {
+                                    holder.headIcon.setImageResource(R.drawable.head_icon);
+                                }
+                            }
+                        });
+                    }
+                    //本地不存在用户信息，从服务器拿
+                }else {
+                    Log.i(TAG, "Get UserInfo from server, UserName: " + msg.getFromName());
+                    JMessageClient.getUserInfo(msg.getFromID(), new GetUserInfoCallback() {
+                        @Override
+                        public void gotResult(int status, String desc, UserInfo userInfo) {
+                            if(status == 0){
+                                File file = userInfo.getAvatarFile();
+                                if(file != null && file.isFile()){
+                                    Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                                    NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap1);
+                                    holder.headIcon.setImageBitmap(bitmap1);
+                                }
+                            }else {
+                                holder.headIcon.setImageResource(R.drawable.head_icon);
+                            }
+                        }
+                    });
+                }
+
             }
             // 点击头像跳转到个人信息界面
             holder.headIcon.setOnClickListener(new OnClickListener() {

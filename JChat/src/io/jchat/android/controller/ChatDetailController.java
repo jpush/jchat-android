@@ -148,7 +148,7 @@ public class ChatDetailController implements OnClickListener,
                     if (status == 0) {
                         mMemberIDList.add(userInfo);
                         initAdapter();
-                   }
+                    }
                 }
             });
             // 设置单聊界面
@@ -159,9 +159,9 @@ public class ChatDetailController implements OnClickListener,
     private String getGroupName(long groupID) {
         Conversation conv = JMessageClient.getGroupConversation(groupID);
         if (conv != null) {
-           if(TextUtils.isEmpty(conv.getDisplayName())){
-               return mContext.getString(R.string.unnamed);
-           }else return conv.getDisplayName();
+            if (TextUtils.isEmpty(conv.getDisplayName())) {
+                return mContext.getString(R.string.unnamed);
+            } else return conv.getDisplayName();
         } else return null;
     }
 
@@ -414,13 +414,14 @@ public class ChatDetailController implements OnClickListener,
 
     /**
      * 添加成员时检查是否存在该群成员
+     *
      * @param targetID 要添加的用户
      * @return
      */
     private boolean checkIfNotContainUser(String targetID) {
-        if(mMemberIDList != null){
-            for (UserInfo userInfo : mMemberIDList){
-                if(userInfo.getUserName().equals(targetID))
+        if (mMemberIDList != null) {
+            for (UserInfo userInfo : mMemberIDList) {
+                if (userInfo.getUserName().equals(targetID))
                     return false;
             }
             return true;
@@ -429,7 +430,6 @@ public class ChatDetailController implements OnClickListener,
     }
 
     /**
-     *
      * @param userInfo 要增加的成员的用户名，目前一次只能增加一个
      */
     private void addAMember(final UserInfo userInfo) {
@@ -531,7 +531,7 @@ public class ChatDetailController implements OnClickListener,
                     Log.i(TAG, "Adding Group Member, got UserInfo");
                     if (mLoadingDialog != null)
                         mLoadingDialog.dismiss();
-                    final UserInfo userInfo = (UserInfo)msg.obj;
+                    final UserInfo userInfo = (UserInfo) msg.obj;
                     if (mIsGroup)
                         addAMember(userInfo);
                         //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
@@ -645,7 +645,7 @@ public class ChatDetailController implements OnClickListener,
     }
 
     //刷新群名称
-    public void NotifyGroupInfoChange() {
+    public void NotifyGroupNameChange() {
         if (mGridAdapter != null)
             mGridAdapter.notifyDataSetChanged();
         if (mIsGroup && mGroupID != 0) {
@@ -654,5 +654,19 @@ public class ChatDetailController implements OnClickListener,
                 mChatDetailView.refreshGroupName(conv.getDisplayName());
             Log.i(TAG, "Fresh group name completed");
         }
+    }
+
+    //刷新群组信息
+    public void NotifyGroupInfoChange() {
+        JMessageClient.getGroupMembers(mGroupID, new GetGroupMembersCallback() {
+            @Override
+            public void gotResult(int status, String desc, List<UserInfo> members) {
+                if (status == 0) {
+                    mMemberIDList = members;
+                    if(mGridAdapter != null)
+                        mGridAdapter.refreshGroupMember(mMemberIDList);
+                }
+            }
+        });
     }
 }

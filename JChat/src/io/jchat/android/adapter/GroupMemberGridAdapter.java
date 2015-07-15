@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
-import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
@@ -41,7 +40,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private int[] mRestArray = new int[]{2, 1, 0, 3};
     //用群成员项数余4得到，作为下标查找mRestArray，得到空白项
     private int mRestNum;
-    private double mDensity;
+    private int mDefaultSize;
 
     public GroupMemberGridAdapter(Context context, List<UserInfo> memberList,
                                   boolean isCreator, boolean isGroup) {
@@ -52,7 +51,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         initBlankItem();
         DisplayMetrics dm = new DisplayMetrics();
         ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDensity = dm.density;
+        mDefaultSize = (int )(50 * dm.density);
     }
 
     public void initBlankItem() {
@@ -148,7 +147,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 else{
                     File file = userInfo.getAvatarFile();
                     if(file != null && file.isFile()){
-                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
+                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
                         NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
                         viewTag.icon.setImageBitmap(bitmap);
                     }else viewTag.icon.setImageResource(R.drawable.head_icon);
@@ -173,7 +172,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 else{
                     File file = userInfo.getAvatarFile();
                     if(file != null && file.isFile()){
-                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
+                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),  mDefaultSize,  mDefaultSize);
                         NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
                         viewTag.icon.setImageBitmap(bitmap);
                     }else {
@@ -182,7 +181,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                             @Override
                             public void gotResult(int status, String desc, File file) {
                                 if(status == 0){
-                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
+                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),  mDefaultSize,  mDefaultSize);
                                     NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
                                     notifyDataSetChanged();
                                 }
