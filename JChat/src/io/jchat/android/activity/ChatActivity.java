@@ -63,7 +63,7 @@ public class ChatActivity extends BaseActivity {
 
 	}
 
-    // 更新发送图片消息和群名变更的广播
+    // 更新群名变更的广播
 	private void initReceiver() {
 		mReceiver = new GroupNameChangedReceiver();
 		IntentFilter filter = new IntentFilter();

@@ -79,6 +79,9 @@ public class HandleResponseCode {
             case 810005:
                 Toast.makeText(context, context.getString(R.string.server_810005), Toast.LENGTH_SHORT).show();
                 break;
+            case 810007:
+                Toast.makeText(context, context.getString(R.string.server_810007), Toast.LENGTH_SHORT).show();
+                break;
             case 810008:
                 Toast.makeText(context, context.getString(R.string.server_810008), Toast.LENGTH_SHORT).show();
                 break;

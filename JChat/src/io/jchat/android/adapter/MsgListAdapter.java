@@ -129,24 +129,6 @@ public class MsgListAdapter extends BaseAdapter {
             mTargetID = String.valueOf(groupID);
             this.mConv = JMessageClient.getGroupConversation(groupID);
             this.mMsgList = mConv.getAllMessage();
-            //初始化用户ID List
-            JMessageClient.getGroupMembers(groupID, new GetGroupMembersCallback() {
-                @Override
-                public void gotResult(int status, String desc, List<UserInfo> members) {
-                    android.os.Message msg = handler.obtainMessage();
-                    msg.what = 1;
-                    Bundle bundle = new Bundle();
-                    if(0 == status){
-                        List<String> userNames = new ArrayList<String>();
-                        for(UserInfo info:members){
-                            userNames.add(info.getUserName());
-                        }
-                        bundle.putStringArrayList("memberList", (ArrayList) userNames);
-                    }
-                    msg.setData(bundle);
-                    msg.sendToTarget();
-                }
-            });
         } else {
             this.mConv = JMessageClient.getSingleConversation(mTargetID);
             this.mMsgList = mConv.getAllMessage();
@@ -294,20 +276,6 @@ public class MsgListAdapter extends BaseAdapter {
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case 1:
-                    ArrayList<String> memberList = msg.getData().getStringArrayList("memberList");
-                    NativeImageLoader.getInstance().setAvatarCache(memberList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
-                        @Override
-                        public void onCacheAvatarCallBack(int status) {
-                            mActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    notifyDataSetChanged();
-                                }
-                            });
-                        }
-                    });
-                    break;
                 case UPDATE_IMAGEVIEW:
                     Bundle bundle = msg.getData();
                     ViewHolder holder = (ViewHolder) msg.obj;
@@ -448,7 +416,9 @@ public class MsgListAdapter extends BaseAdapter {
             Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(msg.getFromID());
             if (bitmap != null)
                 holder.headIcon.setImageBitmap(bitmap);
-            else holder.headIcon.setImageResource(R.drawable.head_icon);
+            else {
+                holder.headIcon.setImageResource(R.drawable.head_icon);
+            }
             // 点击头像跳转到个人信息界面
             holder.headIcon.setOnClickListener(new OnClickListener() {
 

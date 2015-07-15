@@ -26,7 +26,8 @@
     <LinearLayout
         android:id="@+id/copy_msg_ll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/me_item_bg">
 
         <TextView
             android:id="@+id/copy_msg_tv"
@@ -49,7 +50,8 @@
     <LinearLayout
         android:id="@+id/forward_msg_ll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/me_item_bg">
 
         <TextView
             android:id="@+id/forward_msg_tv"
@@ -72,7 +74,8 @@
     <LinearLayout
         android:id="@+id/delete_msg_ll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/me_item_bg">
 
         <TextView
             android:id="@+id/delete_msg_tv"
