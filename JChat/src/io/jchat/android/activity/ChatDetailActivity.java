@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.List;
@@ -84,6 +87,7 @@ public class ChatDetailActivity extends BaseActivity {
             title.setText(mContext.getString(R.string.group_name_hit));
             title.setTextColor(Color.parseColor("#000000"));
             final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
+            pwdEt.setInputType(InputType.TYPE_CLASS_TEXT);
             pwdEt.setHint(groupName);
             pwdEt.setHintTextColor(getResources().getColor(R.color.chat_detail_item_content_color));
             final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
