@@ -16,7 +16,7 @@ import io.jchat.android.activity.MeFragment;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.MeView;
 
-public class MeController implements OnClickListener, View.OnTouchListener {
+public class MeController implements OnClickListener {
 
     private MeView mMeView;
     private MeFragment mContext;
@@ -37,76 +37,6 @@ public class MeController implements OnClickListener, View.OnTouchListener {
             case R.id.take_photo_iv:
                 mContext.showSetAvatarDialog();
                 break;
-//            case R.id.user_info_rl:
-//                mContext.StartMeInfoActivity();
-//                break;
-//            case R.id.setting_rl:
-//                mContext.StartSettingActivity();
-//                break;
-////			//退出登录 清除Notification，清除缓存
-//            case R.id.logout_rl:
-//                mContext.Logout();
-//                mContext.cancelNotification();
-//                NativeImageLoader.getInstance().releaseCache();
-//                mContext.getActivity().finish();
-//                break;
-
-//		case R.id.birthday:
-//			Calendar calendar = Calendar.getInstance();
-//			String dateStr = mBirthday.getText().toString().trim();
-//			this.mDatePickerDialog = new DatePickerDialog(this.getActivity(), new OnDateSetListener() {
-//
-//				@Override
-//				public void onDateSet(DatePicker arg0, int year, int month, int dayOfMonth) {
-//					final String birthday = year + "-" + (month + 1) + "-" + dayOfMonth;
-//					mBirthday.setText(birthday);
-//					birthdayStr = birthday;
-//				}
-//			}, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-//			this.mDatePickerDialog.show();
-//			break;
-//		case R.id.name:
-//			mType = ChangeType.NICKNAME;
-//			showInput(this.mNameLayout);
-//			break;
-//		case R.id.sign:
-//			mType = ChangeType.SIGNATURE;
-//			showInput(this.mSignatureLayout);
-//			break;
-//		case R.id.location:
-//
-//			mType = ChangeType.LOCATION;
-//			showInput(this.mLocationLayout);
-//			break;
-//		case R.id.edit_layout:
-//			showAllLayout();
-//			saveInfo();
-//			break;
-//		default:
-//			break;
-        }
-    }
-
-    @Override
-    public boolean onTouch(View view, MotionEvent e) {
-        switch (e.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                startY = e.getY();
-                return false;
-            case MotionEvent.ACTION_MOVE:
-                 return mMeView.touchEvent(e);
-            case MotionEvent.ACTION_UP:
-                float endY = e.getY();
-                if(endY - startY > 10)
-                    return mMeView.touchEvent(e);
-                else return onSingleTapConfirmed(view);
-            default:
-                return false;
-        }
-    }
-
-    private boolean onSingleTapConfirmed(View v) {
-        switch (v.getId()){
             case R.id.user_info_rl:
                 mContext.StartMeInfoActivity();
                 break;
@@ -146,8 +76,75 @@ public class MeController implements OnClickListener, View.OnTouchListener {
                 cancel.setOnClickListener(listener);
                 commit.setOnClickListener(listener);
                 break;
+
+//		case R.id.birthday:
+//			Calendar calendar = Calendar.getInstance();
+//			String dateStr = mBirthday.getText().toString().trim();
+//			this.mDatePickerDialog = new DatePickerDialog(this.getActivity(), new OnDateSetListener() {
+//
+//				@Override
+//				public void onDateSet(DatePicker arg0, int year, int month, int dayOfMonth) {
+//					final String birthday = year + "-" + (month + 1) + "-" + dayOfMonth;
+//					mBirthday.setText(birthday);
+//					birthdayStr = birthday;
+//				}
+//			}, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+//			this.mDatePickerDialog.show();
+//			break;
+//		case R.id.name:
+//			mType = ChangeType.NICKNAME;
+//			showInput(this.mNameLayout);
+//			break;
+//		case R.id.sign:
+//			mType = ChangeType.SIGNATURE;
+//			showInput(this.mSignatureLayout);
+//			break;
+//		case R.id.location:
+//
+//			mType = ChangeType.LOCATION;
+//			showInput(this.mLocationLayout);
+//			break;
+//		case R.id.edit_layout:
+//			showAllLayout();
+//			saveInfo();
+//			break;
+//		default:
+//			break;
         }
-        return false;
     }
+
+//    @Override
+//    public boolean onTouch(View view, MotionEvent e) {
+//        switch (e.getAction()){
+//            case MotionEvent.ACTION_DOWN:
+//                startY = e.getY();
+//                return false;
+//            case MotionEvent.ACTION_MOVE:
+//                 return mMeView.touchEvent(e);
+//            case MotionEvent.ACTION_UP:
+//                float endY = e.getY();
+//                if(endY - startY > 10)
+//                    return mMeView.touchEvent(e);
+//                else return onSingleTapConfirmed(view);
+//            default:
+//                return false;
+//        }
+//    }
+
+//    private boolean onSingleTapConfirmed(View v) {
+//        switch (v.getId()){
+//            case R.id.user_info_rl:
+//                mContext.StartMeInfoActivity();
+//                break;
+//            case R.id.setting_rl:
+//                mContext.StartSettingActivity();
+//                break;
+////			//退出登录 清除Notification，清除缓存
+//            case R.id.logout_rl:
+//
+//                break;
+//        }
+//        return false;
+//    }
 
 }

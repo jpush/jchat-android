@@ -53,6 +53,7 @@
     <string name="forward_msg">转发</string>
     <string name="copy_toast">已复制</string>
     <string name="delete">删除</string>
+    <string name="delete_conv">删除该聊天</string>
     <string name="create_file_failed">创建文件失败</string>
     <string name="record_voice_hint">按住 说话</string>
     <string name="cancel_record_voice_hint">松开手指，取消发送</string>

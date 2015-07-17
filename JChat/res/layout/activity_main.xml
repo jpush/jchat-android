@@ -12,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="#3C3C3C">
 
         <FrameLayout
             android:layout_width="0dp"
@@ -44,9 +45,11 @@
             <Button
                 android:id="@+id/actionbar_contact_btn"
                 style="@style/ActionBarItem"
-                android:layout_weight="1"
                 android:drawableTop="@drawable/actionbar_contact_drawable_bg"
                 android:text="@string/actionbar_contact" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </FrameLayout>
 
@@ -58,7 +61,6 @@
             <Button
                 android:id="@+id/actionbar_me_btn"
                 style="@style/ActionBarItem"
-                android:layout_weight="1"
                 android:drawableTop="@drawable/actionbar_me_drawable_bg"
                 android:text="@string/actionbar_me" />
 

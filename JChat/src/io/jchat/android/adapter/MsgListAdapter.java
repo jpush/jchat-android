@@ -497,8 +497,7 @@ public class MsgListAdapter extends BaseAdapter {
                         .findViewById(R.id.copy_msg_ll);
                 LinearLayout forwardLl = (LinearLayout) view
                         .findViewById(R.id.forward_msg_ll);
-                LinearLayout deleteLl = (LinearLayout) view
-                        .findViewById(R.id.delete_msg_ll);
+                Button deleteBtn = (Button) view.findViewById(R.id.delete_msg_btn);
                 final TextView title = (TextView) view
                         .findViewById(R.id.dialog_title);
                 if (msg.getContentType().equals(ContentType.voice)) {
@@ -552,7 +551,7 @@ public class MsgListAdapter extends BaseAdapter {
                             case R.id.forward_msg_ll:
                                 dialog.dismiss();
                                 break;
-                            case R.id.delete_msg_ll:
+                            case R.id.delete_msg_btn:
                                 mConv.deleteMessage(msg.getId());
                                 mMsgList.remove(position);
                                 notifyDataSetChanged();
@@ -563,7 +562,7 @@ public class MsgListAdapter extends BaseAdapter {
                 };
                 copyLl.setOnClickListener(listener);
                 forwardLl.setOnClickListener(listener);
-                deleteLl.setOnClickListener(listener);
+                deleteBtn.setOnClickListener(listener);
                 return true;
             }
         };
@@ -804,8 +803,7 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.copy_msg_ll);
                     LinearLayout forwardLl = (LinearLayout) view
                             .findViewById(R.id.forward_msg_ll);
-                    LinearLayout deleteLl = (LinearLayout) view
-                            .findViewById(R.id.delete_msg_ll);
+                    Button deleteBtn = (Button) view.findViewById(R.id.delete_msg_btn);
                     final TextView title = (TextView) view
                             .findViewById(R.id.dialog_title);
                     copyLl.setVisibility(View.GONE);
@@ -825,7 +823,7 @@ public class MsgListAdapter extends BaseAdapter {
                                 case R.id.forward_msg_ll:
                                     dialog.dismiss();
                                     break;
-                                case R.id.delete_msg_ll:
+                                case R.id.delete_msg_btn:
                                     mConv.deleteMessage(msg.getId());
                                     mMsgList.remove(position);
                                     notifyDataSetChanged();
@@ -836,7 +834,7 @@ public class MsgListAdapter extends BaseAdapter {
                     };
                     copyLl.setOnClickListener(listener);
                     forwardLl.setOnClickListener(listener);
-                    deleteLl.setOnClickListener(listener);
+                    deleteBtn.setOnClickListener(listener);
                     return true;
                 }
             });
@@ -1020,8 +1018,8 @@ public class MsgListAdapter extends BaseAdapter {
                 }
                 holder.voice.setImageResource(R.drawable.receive_3);
                 // 收到语音，设置未读
-                if (msg.getContent().getExtra("isReaded") == null
-                        || !(Boolean) msg.getContent().getExtra("isReaded")) {
+                if (msg.getContent().getBooleanExtra("isReaded") == null
+                        || !msg.getContent().getBooleanExtra("isReaded")) {
                     mConv.updateMessageExtra(msg, "isReaded", false);
                     holder.readStatus.setVisibility(View.VISIBLE);
                     if (mIndexList.size() > 0) {
@@ -1039,7 +1037,7 @@ public class MsgListAdapter extends BaseAdapter {
                         Log.d("", "nextPlayPosition = " + nextPlayPosition);
                         playVoiceThenRefresh(position, holder);
                     }
-                } else if (msg.getContent().getExtra("isReaded").equals(true)) {
+                } else if (msg.getContent().getBooleanExtra("isReaded").equals(true)) {
                     holder.readStatus.setVisibility(View.GONE);
                 }
                 break;
@@ -1136,7 +1134,7 @@ public class MsgListAdapter extends BaseAdapter {
                             // 否则开始播放另一条录音
                         } else {
                             // 选中的录音是否已经播放过，如果未播放，自动连续播放这条语音之后未播放的语音
-                            if (msg.getContent().getExtra("isReaded") == null || (Boolean) msg.getContent().getExtra("isReaded") == false) {
+                            if (msg.getContent().getBooleanExtra("isReaded") == null || msg.getContent().getBooleanExtra("isReaded") == false) {
                                 autoPlay = true;
                                 playVoiceThenRefresh(position, holder);
                                 // 否则直接播放选中的语音

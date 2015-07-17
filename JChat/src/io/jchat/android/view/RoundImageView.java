@@ -33,7 +33,7 @@ public class RoundImageView extends ImageView {
 	private Context mContext;
 
 	// default border color
-	private final int DEFAULT_COLOR = 0xFFFFFFFF;
+	private final int DEFAULT_COLOR = 0x38b0deFF;
 	private final int DEFAUTL_BORDER_THICKNESS = 0;
 	// border thickness
 	private int mBorderThickness = 0;

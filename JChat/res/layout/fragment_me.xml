@@ -11,28 +11,26 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
 
         <ImageView
             android:id="@+id/my_avatar_iv"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_marginTop="-100dp"
+            android:layout_height="200dp"
             android:scaleType="fitXY"
             android:src="@drawable/friends_sends_pictures_no" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:layout_marginTop="20dp">
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical">
 
-            <ImageButton
+            <io.jchat.android.view.RoundImageView
                 android:id="@+id/take_photo_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:background="@drawable/take_photo_me"
                 android:layout_gravity="center" />
 
@@ -48,13 +46,12 @@
                 android:visibility="gone" />
         </LinearLayout>
 
-        <io.jchat.android.view.PullScrollView
+    </FrameLayout>
+
+        <ScrollView
             android:id="@+id/scroll_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="120dp"
-            app:headerHeight="300dp"
-            app:headerVisibleHeight="150dp"
             android:fillViewport="true">
 
             <LinearLayout
@@ -177,8 +174,6 @@
 
             </LinearLayout>
 
-        </io.jchat.android.view.PullScrollView>
-
-    </FrameLayout>
+        </ScrollView>
 
 </io.jchat.android.view.MeView>

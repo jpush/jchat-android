@@ -171,6 +171,9 @@ public class ChatActivity extends BaseActivity {
                 case KeyEvent.KEYCODE_MENU:
                     // 处理自己的逻辑
                     break;
+                case  KeyEvent.KEYCODE_ESCAPE:
+                    Log.i(TAG, "KeyCode: escape");
+                    break;
                 default:
                     break;
             }

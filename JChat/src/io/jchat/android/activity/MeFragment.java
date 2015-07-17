@@ -57,8 +57,6 @@ public class MeFragment extends BaseFragment {
         mMeView.initModule();
         mMeController = new MeController(mMeView, this);
         mMeView.setListeners(mMeController);
-        mMeView.setOnTouchListener(mMeController);
-        getMyUserInfo();
     }
 
     private void getMyUserInfo() {
@@ -106,7 +104,7 @@ public class MeFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-        if (isGetMeInfoFailed) {
+        if (isGetMeInfoFailed && !(mMeView.getAvatarFlag())) {
             getMyUserInfo();
         }
         super.onResume();
@@ -235,7 +233,8 @@ public class MeFragment extends BaseFragment {
 
     public void startBrowserAvatar() {
         File file = JMessageClient.getMyInfo().getAvatarFile();
-        if (file != null && file.exists()) {
+        Log.i("MeFragment", "file.getAbsolutePath() " + file.getAbsolutePath());
+        if (file != null && file.isFile()) {
             Intent intent = new Intent();
             intent.putExtra("browserAvatar", true);
             intent.putExtra("avatarPath", file.getAbsolutePath());

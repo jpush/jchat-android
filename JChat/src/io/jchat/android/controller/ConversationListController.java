@@ -11,7 +11,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.LinearLayout;
+import android.widget.Button;
 import android.widget.TextView;
 
 import io.jchat.android.R;
@@ -143,11 +143,11 @@ public class ConversationListController implements OnClickListener,
                 R.layout.dialog_delete_conv, null);
         builder.setView(v);
         final TextView title = (TextView) v.findViewById(R.id.dialog_title);
-        final LinearLayout deleteLl = (LinearLayout) v.findViewById(R.id.del_chat_ll);
+        final Button deleteBtn = (Button) v.findViewById(R.id.delete_conv_btn);
         title.setText(conv.getDisplayName());
         final Dialog dialog = builder.create();
         dialog.show();
-        deleteLl.setOnClickListener(new OnClickListener() {
+        deleteBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (conv.getType().equals(ConversationType.group))

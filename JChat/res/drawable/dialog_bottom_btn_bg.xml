@@ -3,7 +3,7 @@
 
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/contacts_pinner_txt" />
+            <solid android:color="@color/item_click_bg_color" />
             <corners android:bottomLeftRadius="5dp" android:bottomRightRadius="5dp" />
         </shape>
     </item>

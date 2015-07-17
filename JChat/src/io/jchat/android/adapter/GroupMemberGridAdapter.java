@@ -101,9 +101,9 @@ public class GroupMemberGridAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        //如果是普通成员，并且只有3个群成员，特殊处理
-        if(mCurrentNum == 3 && !mIsCreator)
-            return 4;
+        //如果是普通成员，并且群组成员余4等于3，特殊处理
+        if(mCurrentNum % 4 == 3 && !mIsCreator)
+            return mCurrentNum + 1;
         else return mCurrentNum + mRestNum + 2;
     }
 
