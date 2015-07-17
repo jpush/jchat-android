@@ -195,7 +195,6 @@ public class MsgListAdapter extends BaseAdapter {
             mMsgList = mConv.getAllMessage();
             notifyDataSetChanged();
         }
-        Log.d(TAG, "mConv.toString() " + mConv.toString());
     }
 
     public void releaseMediaPlayer() {
@@ -641,7 +640,7 @@ public class MsgListAdapter extends BaseAdapter {
                         @Override
                         public void run() {
                             if (status != 0)
-                                HandleResponseCode.onHandle(mContext, status);
+                                HandleResponseCode.onHandle(mContext, status, false);
                             refresh();
                         }
 
@@ -907,7 +906,7 @@ public class MsgListAdapter extends BaseAdapter {
                 @Override
                 public void gotResult(final int status, String desc) {
                     if (status != 0) {
-                        HandleResponseCode.onHandle(mContext, status);
+                        HandleResponseCode.onHandle(mContext, status, false);
                         holder.sendingIv.clearAnimation();
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
@@ -952,7 +951,7 @@ public class MsgListAdapter extends BaseAdapter {
                         mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                HandleResponseCode.onHandle(mContext, status);
+                                HandleResponseCode.onHandle(mContext, status, false);
                                 Picasso.with(mContext).load(new File(path)).into(viewHolder.picture);
                                 Log.i("Send picture", "update: ");
                                 refresh();

@@ -75,7 +75,7 @@ public class MenuItemController implements View.OnClickListener {
                                     intent.setClass(mContext.getActivity(), ChatActivity.class);
                                     mContext.startActivity(intent);
                                 } else {
-                                    HandleResponseCode.onHandle(mContext.getActivity(), status);
+                                    HandleResponseCode.onHandle(mContext.getActivity(), status, false);
                                     Log.i("CreateGroupController", "status : " + status);
                                 }
                             }
@@ -127,7 +127,7 @@ public class MenuItemController implements View.OnClickListener {
                                                 } else mController.refreshConvList();
                                                 dialog.cancel();
                                             } else {
-                                                HandleResponseCode.onHandle(mContext.getActivity(), status);
+                                                HandleResponseCode.onHandle(mContext.getActivity(), status, true);
                                             }
                                         }
                                     });

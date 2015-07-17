@@ -126,7 +126,7 @@ public class ChatDetailActivity extends BaseActivity {
                                                     Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
                                                 }else {
                                                     Log.i(TAG, "desc :" + desc);
-                                                    HandleResponseCode.onHandle(mContext, status);
+                                                    HandleResponseCode.onHandle(mContext, status, false);
                                                 }
                                             }
                                         });

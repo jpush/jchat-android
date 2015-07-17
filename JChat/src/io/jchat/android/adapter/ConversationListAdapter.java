@@ -132,7 +132,7 @@ public class ConversationListAdapter extends BaseAdapter {
         }
         // 群聊
         else {
-            viewHolder.headIcon.setImageResource(R.drawable.head_icon);
+            viewHolder.headIcon.setImageResource(R.drawable.group);
             //如果未设置昵称
             if(TextUtils.isEmpty(convItem.getDisplayName())){
                 long groupID = Long.parseLong(convItem.getTargetId());

@@ -251,12 +251,12 @@ public class MeFragment extends BaseFragment {
                 case 1:
                     if(JMessageClient.getMyInfo() != null){
                         File file = JMessageClient.getMyInfo().getAvatarFile();
-                        if (file != null)
+                        if (file != null && mMeView != null)
                             mMeView.showPhoto(file.getAbsolutePath());
                     }
                     break;
                 case 2:
-                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"));
+                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"), false);
                     break;
             }
         }

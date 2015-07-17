@@ -96,7 +96,7 @@ public class MainController implements OnClickListener, OnPageChangeListener{
                             Log.i("MeFragment", "Update avatar succeed path " + path);
                             loadUserAvatar(path);
                         } else {
-                            HandleResponseCode.onHandle(mContext, status);
+                            HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });

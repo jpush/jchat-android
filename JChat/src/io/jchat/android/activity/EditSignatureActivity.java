@@ -1,5 +1,6 @@
 package io.jchat.android.activity;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,8 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -18,6 +21,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import cn.jpush.im.android.api.JMessageClient;
+import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
 
@@ -86,7 +90,8 @@ public class EditSignatureActivity extends BaseActivity {
                                     setResult(1, intent);
                                     finish();
                                 } else {
-                                    Toast.makeText(mContext, desc, Toast.LENGTH_SHORT).show();
+                                    dismissSoftInput();
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
@@ -132,4 +137,15 @@ public class EditSignatureActivity extends BaseActivity {
         }
 
     };
+
+    private void dismissSoftInput() {
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        //隐藏软键盘
+        InputMethodManager imm = ((InputMethodManager) mContext
+                .getSystemService(Activity.INPUT_METHOD_SERVICE));
+        if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
+            if (getCurrentFocus() != null)
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
 }

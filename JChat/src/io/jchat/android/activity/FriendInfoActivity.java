@@ -109,7 +109,7 @@ public class FriendInfoActivity extends BaseActivity {
                     mFriendInfoView.initInfo(mUserInfo, density);
                     break;
                 case 2:
-                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"));
+                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"), false);
                     break;
             }
         }

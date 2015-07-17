@@ -80,7 +80,7 @@ public class ResetPasswordActivity extends BaseActivity {
                                             if(status == 0){
                                                 finish();
                                             }else{
-                                                HandleResponseCode.onHandle(mContext, status);
+                                                HandleResponseCode.onHandle(mContext, status, false);
                                             }
                                         }
                                     });

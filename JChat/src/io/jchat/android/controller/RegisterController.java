@@ -72,14 +72,14 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
                                                     @Override
                                                     public void run() {
                                                         mLoginDialog.dismiss();
-                                                        HandleResponseCode.onHandle(mContext, status);
+                                                        HandleResponseCode.onHandle(mContext, status, false);
                                                     }
                                                 });
                                             }
                                         }
                                     });
                                 } else {
-                                    HandleResponseCode.onHandle(mContext, status);
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
