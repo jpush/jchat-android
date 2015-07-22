@@ -27,7 +27,6 @@
             android:layout_toRightOf="@id/return_btn"
             android:layout_centerVertical="true"
             android:layout_marginLeft="15dp"
-            android:text="3/6"
             android:textSize="20sp"
             android:textColor="#FFFFFF"
             />
@@ -57,10 +56,13 @@
         android:layout_height="match_parent"/>
     
     <Button
-        android:id="@+id/load_image"
+        android:id="@+id/load_image_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="10dp"
         android:text="@string/load_origin_image"

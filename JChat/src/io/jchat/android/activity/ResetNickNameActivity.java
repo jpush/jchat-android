@@ -100,7 +100,7 @@ public class ResetNickNameActivity extends BaseActivity {
 
     public void dismissSoftInput() {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        //Òş²ØÈí¼üÅÌ
+        //éšè—è½¯é”®ç›˜
         InputMethodManager imm = ((InputMethodManager) mContext
                 .getSystemService(Activity.INPUT_METHOD_SERVICE));
         if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {

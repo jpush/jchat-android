@@ -35,6 +35,8 @@
     <ListView
         android:id="@+id/conv_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:dividerHeight="1dp"
+        android:divider="@color/conv_list_split_line_color">
     </ListView>
 </LinearLayout>

@@ -77,7 +77,7 @@
     <string name="resend_commit">重发</string>
     <string name="cancel">取消</string>
     <string name="picture_num_limit_toast">你最多只能同时发送9张图片</string>
-    <string name="load_origin_image">显示大图</string>
+    <string name="load_origin_image">查看原图</string>
     <string name="downloading_hint">正在下载</string>
     <string name="download_completed_toast">下载完成</string>
     <string name="choose_album_title">选择相册</string>

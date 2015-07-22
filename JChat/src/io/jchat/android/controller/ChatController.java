@@ -20,7 +20,9 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -85,6 +87,21 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                 if (mTargetID != null)
                     mGroupID = Long.parseLong(mTargetID);
                 mConv = JMessageClient.getGroupConversation(mGroupID);
+                mChatView.setChatTitle(mContext.getString(R.string.group));
+                //设置群聊聊天标题
+                JMessageClient.getGroupInfo(mGroupID, new GetGroupInfoCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, GroupInfo groupInfo) {
+                        if(status == 0){
+                            if(!TextUtils.isEmpty(groupInfo.getGroupName())){
+                                Log.i("ChatController", "GroupMember size: " + groupInfo.getGroupMembers().size());
+                                mChatView.setChatTitle(groupInfo.getGroupName() + "(" + groupInfo.getGroupMembers().size() + ")");
+                            }else {
+                                mChatView.setChatTitle(mContext.getString(R.string.group) + "(" + groupInfo.getGroupMembers().size() + ")");
+                            }
+                        }
+                    }
+                });
                 //判断自己如果不在群聊中，隐藏群聊详情按钮
                 JMessageClient.getGroupMembers(mGroupID, new GetGroupMembersCallback() {
                     @Override
@@ -413,7 +430,6 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     }
 
     public void refresh() {
-        mChatView.setChatTitle(mConv.getDisplayName());
         mChatAdapter.refresh();
     }
 }

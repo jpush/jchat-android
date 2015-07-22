@@ -4,9 +4,11 @@ package io.jchat.android.view;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -31,11 +33,13 @@ public class MeView extends LinearLayout {
     private LinearLayout mContentLl;
     private RelativeLayout mUserInfoRl;
     private TextView mUserNameTv;
+    private TextView mNickNameTv;
     private RelativeLayout mSettingRl;
     private RelativeLayout mLogoutRl;
-    private TextView mLogoutTv;
     private Context mContext;
     private boolean mLoadAvatarSuccess = false;
+    private int mWidth;
+    private int mHeight;
 
     public MeView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -49,26 +53,29 @@ public class MeView extends LinearLayout {
         mContentLl = (LinearLayout) findViewById(R.id.content_list_ll);
         mAvatarIv = (ImageView) findViewById(R.id.my_avatar_iv);
         mTakePhotoBtn = (RoundImageView) findViewById(R.id.take_photo_iv);
+        mNickNameTv = (TextView) findViewById(R.id.nick_name_tv);
         mUserInfoRl = (RelativeLayout) findViewById(R.id.user_info_rl);
         mUserNameTv = (TextView) findViewById(R.id.user_name_tv);
         mSettingRl = (RelativeLayout) findViewById(R.id.setting_rl);
         mLogoutRl = (RelativeLayout) findViewById(R.id.logout_rl);
+        DisplayMetrics dm = new DisplayMetrics();
+        ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
+        double density = dm.density;
+        mWidth = dm.widthPixels;
+        mHeight = (int)(300 * density);
         if(userInfo != null){
             mUserNameTv.setText(userInfo.getUserName());
             File file = userInfo.getAvatarFile();
             if(file != null && file.isFile()){
                 Log.i("MeView", "file.getAbsolutePath() " + file.getAbsolutePath());
-                DisplayMetrics dm = new DisplayMetrics();
-                ((Activity)mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
-                double density = dm.density;
-                Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), dm.widthPixels, (int)(density * 300));
-                mAvatarIv.setImageBitmap(BitmapLoader.BoxBlurFilter(bitmap));
-                mTakePhotoBtn.setImageBitmap(bitmap);
+                showPhoto(file.getAbsolutePath());
                 loadAvatarSuccess(true);
             }else {
                 mAvatarIv.setImageResource(R.drawable.friends_sends_pictures_no);
                 loadAvatarSuccess(false);
             }
+            if(!TextUtils.isEmpty(userInfo.getNickname()))
+                mNickNameTv.setText(userInfo.getNickname());
         }
     }
 
@@ -94,13 +101,15 @@ public class MeView extends LinearLayout {
         mLogoutRl.setOnTouchListener(listener);
     }
 
+
     public void showPhoto(final String path) {
         Log.i("MeView", "updated path:  " + path);
         ((Activity)mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mAvatarIv.getWidth(), mAvatarIv.getHeight());
+                Bitmap bitmap = BitmapLoader.getBitmapFromFile(path,  mWidth, mHeight);
                 mAvatarIv.setImageBitmap(BitmapLoader.BoxBlurFilter(bitmap));
+                mAvatarIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 mTakePhotoBtn.setImageBitmap(bitmap);
             }
         });

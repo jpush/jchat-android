@@ -90,7 +90,6 @@ public class MenuItemController implements View.OnClickListener {
                 final Dialog dialog = builder.create();
                 dialog.show();
                 final EditText userNameEt = (EditText) view.findViewById(R.id.user_name_et);
-                userNameEt.requestFocus();
                 final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
                 final Button commit = (Button) view.findViewById(R.id.commit_btn);
                 View.OnClickListener listener = new View.OnClickListener() {

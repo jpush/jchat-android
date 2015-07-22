@@ -101,15 +101,10 @@ public class ChatDetailController implements OnClickListener,
                         @Override
                         public void gotResult(final int status, final String desc, GroupInfo group) {
                             if (status == 0) {
-                                Bundle bundle = new Bundle();
-                                android.os.Message msg = handler
-                                        .obtainMessage();
+                                android.os.Message msg = handler.obtainMessage();
                                 msg.what = 0;
+                                msg.obj = group;
                                 Log.i(TAG, "Group owner is " + group.getGroupOwner());
-                                bundle.putString("groupOwnerID",
-                                        group.getGroupOwner());
-                                bundle.putString("groupName", group.getGroupName());
-                                msg.setData(bundle);
                                 msg.sendToTarget();
                             } else {
                                 mContext.runOnUiThread(new Runnable() {
@@ -509,14 +504,20 @@ public class ChatDetailController implements OnClickListener,
             switch (msg.what) {
                 // 初始化群组
                 case 0:
-                    String groupOwnerID = msg.getData().getString("groupOwnerID");
-                    mGroupName = msg.getData().getString("groupName");
+                    GroupInfo groupInfo = (GroupInfo) msg.obj;
+                    mChatDetailView.setTitle(groupInfo.getGroupMembers().size());
+                    String groupOwnerID = groupInfo.getGroupOwner();
+                    mGroupName = groupInfo.getGroupName();
+                    if(TextUtils.isEmpty(mGroupName)){
+                        mChatDetailView.setGroupName(mContext.getString(R.string.unnamed));
+                    }else {
+                        mChatDetailView.setGroupName(mGroupName);
+                    }
                     // 判断是否为群主
                     if (groupOwnerID != null && groupOwnerID.equals(JMessageClient.getMyInfo().getUserName()))
                         mIsCreator = true;
                     Log.d(TAG, "groupOwnerID = " + groupOwnerID + "isCreator = " + true);
                     mChatDetailView.setMyName(JMessageClient.getMyInfo().getUserName());
-                    mChatDetailView.setGroupName(mGroupName);
                     if (mGridAdapter != null) {
                         mGridAdapter.setCreator(mIsCreator);
                     }

@@ -20,15 +20,15 @@ public class BitmapLoader {
     /**
      * 水平方向模糊度
      */
-    private static float hRadius = 10;
+    private static float hRadius = 5;
     /**
      * 竖直方向模糊度
      */
-    private static float vRadius = 10;
+    private static float vRadius = 5;
     /**
      * 模糊迭代度
      */
-    private static int iterations = 7;
+    private static int iterations = 2;
 
 
     public static Bitmap getBitmapFromFile(String path, int width, int height) {
