@@ -57,8 +57,6 @@ public class MeFragment extends BaseFragment {
         mMeView.initModule();
         mMeController = new MeController(mMeView, this);
         mMeView.setListeners(mMeController);
-        mMeView.setOnTouchListener(mMeController);
-        getMyUserInfo();
     }
 
     private void getMyUserInfo() {
@@ -106,7 +104,7 @@ public class MeFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-        if (isGetMeInfoFailed) {
+        if (isGetMeInfoFailed && !(mMeView.getAvatarFlag())) {
             getMyUserInfo();
         }
         super.onResume();
@@ -124,7 +122,7 @@ public class MeFragment extends BaseFragment {
         UserInfo info = JMessageClient.getMyInfo();
         if (null != info) {
             intent.putExtra("userName", info.getUserName());
-            File avatar = info.getAvatar();
+            File avatar = info.getAvatarFile();
             if (null != avatar && avatar.exists()) {
                 intent.putExtra("userAvatar", avatar.getAbsolutePath());
             }
@@ -234,8 +232,9 @@ public class MeFragment extends BaseFragment {
     }
 
     public void startBrowserAvatar() {
-        File file = JMessageClient.getMyInfo().getAvatar();
-        if (file != null && file.exists()) {
+        File file = JMessageClient.getMyInfo().getAvatarFile();
+        Log.i("MeFragment", "file.getAbsolutePath() " + file.getAbsolutePath());
+        if (file != null && file.isFile()) {
             Intent intent = new Intent();
             intent.putExtra("browserAvatar", true);
             intent.putExtra("avatarPath", file.getAbsolutePath());
@@ -251,13 +250,13 @@ public class MeFragment extends BaseFragment {
             switch (msg.what) {
                 case 1:
                     if(JMessageClient.getMyInfo() != null){
-                        File file = JMessageClient.getMyInfo().getAvatar();
-                        if (file != null)
+                        File file = JMessageClient.getMyInfo().getAvatarFile();
+                        if (file != null && mMeView != null)
                             mMeView.showPhoto(file.getAbsolutePath());
                     }
                     break;
                 case 2:
-                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"));
+                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"), false);
                     break;
             }
         }

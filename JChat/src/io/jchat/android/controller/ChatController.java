@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -71,7 +72,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         Log.i("ChatController", "mTargetID " + mTargetID);
         mGroupID = intent.getLongExtra("groupID", 0);
         mIsGroup = intent.getBooleanExtra("isGroup", false);
-        boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
+        final boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
         // 如果是群组，特别处理
         if (mIsGroup) {
             Log.i("Tag", "mGroupID is " + mGroupID);
@@ -105,7 +106,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                             if (null == members || members.isEmpty()) {
                                 mChatView.dismissRightBtn();
                             }
-                            HandleResponseCode.onHandle(mContext, status);
+                            HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });
@@ -127,7 +128,11 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             mConv = Conversation.createConversation(ConversationType.single, mTargetID);
         }
         if (mConv != null) {
-            mChatView.setChatTitle(mConv.getDisplayName());
+            if(TextUtils.isEmpty(mConv.getDisplayName())){
+                mChatView.setChatTitle(mContext.getString(R.string.group));
+            }else {
+                mChatView.setChatTitle(mConv.getDisplayName());
+            }
             mConv.resetUnreadCount();
         }
         mChatAdapter = new MsgListAdapter(mContext, mIsGroup, mTargetID, mGroupID);
@@ -200,7 +205,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                             mContext.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    HandleResponseCode.onHandle(mContext, status);
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             });
                         }

@@ -90,7 +90,7 @@ public class MeInfoActivity extends BaseActivity {
                                     } else MeInfoActivity.this.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            HandleResponseCode.onHandle(MeInfoActivity.this, status);
+                                            HandleResponseCode.onHandle(MeInfoActivity.this, status, false);
                                         }
                                     });
                                 }
@@ -116,7 +116,7 @@ public class MeInfoActivity extends BaseActivity {
                                     } else MeInfoActivity.this.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            HandleResponseCode.onHandle(MeInfoActivity.this, status);
+                                            HandleResponseCode.onHandle(MeInfoActivity.this, status, false);
                                         }
                                     });
                                 }

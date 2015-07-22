@@ -47,6 +47,8 @@ public class ConversationListFragment extends BaseFragment {
     private View mMenuView;
     private MenuItemView mMenuItemView;
     private MenuItemController mMenuController;
+    //MainActivity要实现的接口，用来显示或者隐藏ActionBar中新消息提示
+    public OnNewMsgReceiverListener mListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,6 +78,16 @@ public class ConversationListFragment extends BaseFragment {
         // TODO Auto-generated method stub
         super.onActivityCreated(savedInstanceState);
 
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try{
+            mListener = (OnNewMsgReceiverListener) activity;
+        }catch (ClassCastException e){
+            throw new ClassCastException(activity.toString() + "must implement OnNewMsgReceiverListener");
+        }
     }
 
     //显示下拉菜单
@@ -127,6 +139,7 @@ public class ConversationListFragment extends BaseFragment {
         if (conv != null && convType == ConversationType.single) {
             //如果缓存了头像，直接刷新会话列表
             if (NativeImageLoader.getInstance().getBitmapFromMemCache(targetID) != null) {
+                Log.i("Test", "conversation ");
                 mConvListController.refreshConvList();
                 //没有头像，从Conversation拿
             } else {
@@ -140,6 +153,9 @@ public class ConversationListFragment extends BaseFragment {
         } else {
             mConvListController.refreshConvList();
         }
+
+        mListener.onNewMsgReceived();
+
     }
 
     @Override
@@ -165,6 +181,7 @@ public class ConversationListFragment extends BaseFragment {
             dismissPopWindow();
             mConvListController.refreshConvList();
         }
+        mConvListController.checkHasNewMessage();
         super.onResume();
     }
 
@@ -186,6 +203,11 @@ public class ConversationListFragment extends BaseFragment {
         Intent intent = new Intent();
         intent.setClass(getActivity(), CreateGroupActivity.class);
         startActivity(intent);
+    }
+
+    public interface OnNewMsgReceiverListener {
+        void onNewMsgReceived();
+        void onClearNewMsgFlag();
     }
 
 

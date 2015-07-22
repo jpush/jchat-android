@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:baselineAligned="false"
-    android:background="@drawable/msg_item_bg">
+    android:background="@drawable/list_item_bg">
 
 
     <LinearLayout
@@ -85,6 +85,6 @@
             android:layout_below="@+id/msg_item_ll"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/main_view_split_line_color" />
+            android:background="@color/conv_list_split_line_color" />
 
 </RelativeLayout>

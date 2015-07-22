@@ -52,7 +52,7 @@ public class FriendInfoView extends LinearLayout{
 	}
 
     public void initInfo(UserInfo userInfo, double density){
-        File file = userInfo.getAvatar();
+        File file = userInfo.getAvatarFile();
         if(file != null){
             Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(100 * density), (int)(100 * density));
             mAvatarIv.setImageBitmap(bitmap);

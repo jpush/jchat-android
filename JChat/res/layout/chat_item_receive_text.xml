@@ -34,13 +34,9 @@
             android:id="@+id/display_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            style="@style/chat_display_name_style"
             android:layout_toRightOf="@id/avatar_iv"
-            android:ems="5"
-            android:singleLine="true"
-            android:textColor="#555555"
-            android:textSize="10sp"
-            android:visibility="gone" />
+            />
 
         <TextView
             android:id="@+id/msg_content"

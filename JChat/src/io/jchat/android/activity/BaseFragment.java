@@ -47,7 +47,7 @@ public class BaseFragment extends Fragment {
             Intent intent = new Intent();
             if (null != myInfo) {
                 intent.putExtra("userName", myInfo.getUserName());
-                File avatar = myInfo.getAvatar();
+                File avatar = myInfo.getAvatarFile();
                 if (null != avatar && avatar.exists()) {
                     intent.putExtra("userAvatar", avatar.getAbsolutePath());
                 }

@@ -59,10 +59,7 @@
             android:textColorHint="@color/chat_detail_item_content_color"
             android:singleLine="true"
             android:textSize="@dimen/text_medium_size"
-            android:textColor="@color/black" >
-
-            <requestFocus />
-        </EditText>
+            android:textColor="@color/black" />
 
         <View
             android:layout_width="match_parent"

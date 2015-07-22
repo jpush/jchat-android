@@ -1,7 +1,9 @@
 package io.jchat.android.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,14 +11,17 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
 
+import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.RoundImageView;
 
@@ -24,7 +29,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
 
     private LayoutInflater mInflater;
     //群成员列表
-    private List<String> mMemberList = new ArrayList<String>();
+    private List<UserInfo> mMemberList = new ArrayList<UserInfo>();
     //空白项列表
     private ArrayList<String> mBlankList = new ArrayList<String>();
     private boolean mIsCreator = false;
@@ -35,15 +40,18 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private int[] mRestArray = new int[]{2, 1, 0, 3};
     //用群成员项数余4得到，作为下标查找mRestArray，得到空白项
     private int mRestNum;
+    private int mDefaultSize;
 
-
-    public GroupMemberGridAdapter(Context context, List<String> memberList,
+    public GroupMemberGridAdapter(Context context, List<UserInfo> memberList,
                                   boolean isCreator, boolean isGroup) {
         this.mMemberList = memberList;
         this.mIsCreator = isCreator;
         mInflater = LayoutInflater.from(context);
         mIsShowDelete = false;
         initBlankItem();
+        DisplayMetrics dm = new DisplayMetrics();
+        ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mDefaultSize = (int )(50 * dm.density);
     }
 
     public void initBlankItem() {
@@ -55,18 +63,16 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         }
     }
 
-    public void refreshGroupMember(List<String> memberList) {
+    public void refreshGroupMember(List<UserInfo> memberList) {
         mMemberList.clear();
         mMemberList = memberList;
         initBlankItem();
         notifyDataSetChanged();
     }
 
-    public void addMemberToList(ArrayList<String> mUserIDs) {
-        for (String userName : mUserIDs) {
-            if (!mMemberList.contains(userName)) {
-                mMemberList.add(userName);
-            }
+    public void addMemberToList(UserInfo userInfo) {
+        if (!mMemberList.contains(userInfo)) {
+            mMemberList.add(userInfo);
         }
         initBlankItem();
         notifyDataSetChanged();
@@ -95,8 +101,10 @@ public class GroupMemberGridAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        // TODO Auto-generated method stub
-        return mCurrentNum + mRestNum + 2;
+        //如果是普通成员，并且群组成员余4等于3，特殊处理，隐藏下面一栏空白
+        if(mCurrentNum % 4 == 3 && !mIsCreator)
+            return mCurrentNum + 1;
+        else return mCurrentNum + mRestNum + 2;
     }
 
     @Override
@@ -127,20 +135,24 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         //是Delete状态
         if (mIsShowDelete) {
             if (position < mCurrentNum) {
-                Conversation convItem = JMessageClient.getSingleConversation(mMemberList.get(position));
                 //群主不能删除自己
-                if (mMemberList.get(position).equals(JMessageClient.getMyInfo().getUserName()))
+                UserInfo userInfo = mMemberList.get(position);
+                if (userInfo.getUserName().equals(JMessageClient.getMyInfo().getUserName()))
                     viewTag.deleteIcon.setVisibility(View.GONE);
                 else viewTag.deleteIcon.setVisibility(View.VISIBLE);
                 viewTag = (ItemViewTag) convertView.getTag();
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mMemberList.get(position));
+                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
                 if (bitmap != null)
                     viewTag.icon.setImageBitmap(bitmap);
-                else
-                    viewTag.icon.setImageResource(R.drawable.head_icon);
-                if (convItem != null)
-                    viewTag.name.setText(convItem.getDisplayName());
-                else viewTag.name.setText(mMemberList.get(position));
+                else{
+                    File file = userInfo.getAvatarFile();
+                    if(file != null && file.isFile()){
+                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
+                        NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
+                        viewTag.icon.setImageBitmap(bitmap);
+                    }else viewTag.icon.setImageResource(R.drawable.head_icon);
+                }
+                viewTag.name.setText(userInfo.getNickname());
             } else {
                 viewTag.deleteIcon.setVisibility(View.INVISIBLE);
                 viewTag.icon.setVisibility(View.INVISIBLE);
@@ -151,16 +163,33 @@ public class GroupMemberGridAdapter extends BaseAdapter {
             viewTag.deleteIcon.setVisibility(View.INVISIBLE);
             //群成员
             if (position < mCurrentNum) {
-                Conversation convItem = JMessageClient.getSingleConversation(mMemberList.get(position));
+                final UserInfo userInfo = mMemberList.get(position);
                 viewTag = (ItemViewTag) convertView.getTag();
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mMemberList.get(position));
+                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
                 if (bitmap != null)
                     viewTag.icon.setImageBitmap(bitmap);
-                else
-                    viewTag.icon.setImageResource(R.drawable.head_icon);
-                if (convItem != null)
-                    viewTag.name.setText(convItem.getDisplayName());
-                else viewTag.name.setText(mMemberList.get(position));
+                //如果内存中不存在头像缓存
+                else{
+                    File file = userInfo.getAvatarFile();
+                    if(file != null && file.isFile()){
+                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),  mDefaultSize,  mDefaultSize);
+                        NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
+                        viewTag.icon.setImageBitmap(bitmap);
+                    }else {
+                        viewTag.icon.setImageResource(R.drawable.head_icon);
+                        userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, File file) {
+                                if(status == 0){
+                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),  mDefaultSize,  mDefaultSize);
+                                    NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
+                                    notifyDataSetChanged();
+                                }
+                            }
+                        });
+                    }
+                }
+                viewTag.name.setText(userInfo.getNickname());
                 viewTag.name.setVisibility(View.VISIBLE);
                 //设置增加群成员按钮
             } else if (position == mCurrentNum) {

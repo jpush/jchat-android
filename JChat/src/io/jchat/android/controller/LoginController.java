@@ -72,7 +72,7 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
                                             mContext.StartMainActivity();
                                         } else {
                                             Log.i("LoginController", "status = " + status);
-                                            HandleResponseCode.onHandle(mContext, status);
+                                            HandleResponseCode.onHandle(mContext, status, false);
                                         }
                                     }
                                 });

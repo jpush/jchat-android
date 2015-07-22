@@ -11,7 +11,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.LinearLayout;
+import android.widget.Button;
 import android.widget.TextView;
 
 import io.jchat.android.R;
@@ -78,6 +78,7 @@ public class ConversationListController implements OnClickListener,
         final Intent intent = new Intent();
         String targetID = mDatas.get(position).getTargetId();
         intent.putExtra("targetID", targetID);
+        mDatas.get(position).resetUnreadCount();
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
             intent.putExtra("isGroup", true);
@@ -90,6 +91,17 @@ public class ConversationListController implements OnClickListener,
         intent.setClass(mContext.getActivity(), ChatActivity.class);
         mContext.startActivity(intent);
 
+        checkHasNewMessage();
+    }
+
+    public void checkHasNewMessage() {
+        for(Conversation conv : mDatas){
+            if(conv.getUnReadMsgCnt() != 0){
+                mContext.mListener.onNewMsgReceived();
+                return;
+            }
+        }
+        mContext.mListener.onClearNewMsgFlag();
     }
 
     /*
@@ -99,7 +111,12 @@ public class ConversationListController implements OnClickListener,
         mDatas = JMessageClient.getConversationList();
         SortConvList sortList = new SortConvList();
         Collections.sort(mDatas, sortList);
-        mListAdapter.refresh(mDatas);
+        mContext.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mListAdapter.refresh(mDatas);
+            }
+        });
     }
 
     /**
@@ -126,11 +143,11 @@ public class ConversationListController implements OnClickListener,
                 R.layout.dialog_delete_conv, null);
         builder.setView(v);
         final TextView title = (TextView) v.findViewById(R.id.dialog_title);
-        final LinearLayout deleteLl = (LinearLayout) v.findViewById(R.id.del_chat_ll);
+        final Button deleteBtn = (Button) v.findViewById(R.id.delete_conv_btn);
         title.setText(conv.getDisplayName());
         final Dialog dialog = builder.create();
         dialog.show();
-        deleteLl.setOnClickListener(new OnClickListener() {
+        deleteBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (conv.getType().equals(ConversationType.group))

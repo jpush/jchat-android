@@ -62,7 +62,7 @@ public class ReloginController implements ReloginView.Listener, OnClickListener 
                                 if (status == 0) {
                                     mContext.StartRelogin();
                                 } else {
-                                    HandleResponseCode.onHandle(mContext, status);
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });

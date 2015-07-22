@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.jchat.android"
-    android:versionCode="30"
+    android:versionCode="31"
     android:versionName="1.2.1">
 
     <uses-sdk
@@ -179,20 +179,24 @@
             android:theme="@style/notitle" />
         <activity
             android:name="io.jchat.android.activity.ResetPasswordActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
         <activity
             android:name="io.jchat.android.activity.FixProfileActivity"
             android:theme="@style/notitle"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
         <activity
             android:name="io.jchat.android.activity.ResetNickNameActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
         <activity
             android:name="io.jchat.android.activity.SelectAreaActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
         <activity
             android:name="io.jchat.android.activity.EditSignatureActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
 
     </application>
 

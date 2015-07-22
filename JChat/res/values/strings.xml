@@ -53,6 +53,7 @@
     <string name="forward_msg">转发</string>
     <string name="copy_toast">已复制</string>
     <string name="delete">删除</string>
+    <string name="delete_conv">删除该聊天</string>
     <string name="create_file_failed">创建文件失败</string>
     <string name="record_voice_hint">按住 说话</string>
     <string name="cancel_record_voice_hint">松开手指，取消发送</string>
@@ -172,6 +173,7 @@
     <string name="friend_request_title">新朋友</string>
     <string name="friend_info">好友信息</string>
     <string name="group">群聊</string>
+    <string name="unnamed">未命名</string>
     <string name="added">已添加</string>
     <string name="chat_peoples_num">目前已有1名参与人</string>
     <string name="chat_detail_del">删除</string>
@@ -233,6 +235,7 @@
     <string name="server_808004">群组名长度超出上限</string>
     <string name="server_810003">用户不属于该群组</string>
     <string name="server_810005">要添加的用户尚未注册</string>
+    <string name="server_810007">用户已存在</string>
     <string name="server_810008">讨论组的成员数量已达上限，添加失败</string>
     <string name="server_810009">该用户拥有的讨论组数量已达上限，添加失败</string>
     <string name="server_811003">用户不在该讨论组中，删除成员失败</string>

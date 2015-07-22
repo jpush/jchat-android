@@ -76,15 +76,15 @@ public class MainController implements OnClickListener, OnPageChangeListener{
         mDialog.show();
         //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
         if (BitmapLoader.verifyPictureSize(originPath))
-            updateAvatar(originPath, originPath);
+            updateAvatar(originPath);
         else {
             Bitmap bitmap = BitmapLoader.getBitmapFromFile(originPath, 720, 1280);
             String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-            updateAvatar(tempPath, originPath);
+            updateAvatar(tempPath);
         }
     }
 
-    private void updateAvatar(final String path, final String originPath) {
+    private void updateAvatar(final String path) {
         JMessageClient.updateUserAvatar(new File(path), new BasicCallback(false) {
             @Override
             public void gotResult(final int status, final String desc) {
@@ -94,9 +94,9 @@ public class MainController implements OnClickListener, OnPageChangeListener{
                         mDialog.dismiss();
                         if (status == 0) {
                             Log.i("MeFragment", "Update avatar succeed path " + path);
-                            loadUserAvatar(originPath);
+                            loadUserAvatar(path);
                         } else {
-                            HandleResponseCode.onHandle(mContext, status);
+                            HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });

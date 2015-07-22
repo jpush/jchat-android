@@ -28,11 +28,11 @@
     </style>
 
     <style name="ActionBarItem">
-        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
         <item name="android:gravity">center_horizontal</item>
-        <item name="android:padding">5dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">7dp</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:background">#3C3C3C</item>
         <item name="android:textSize">@dimen/text_minimum_size</item>
@@ -43,7 +43,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">15dp</item>
-        <item name="android:background">@drawable/me_item_bg </item>
+        <item name="android:background">@drawable/list_item_bg</item>
         <item name="android:clickable">true</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal </item>
@@ -53,7 +53,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">50dp</item>
         <item name="android:padding">5dp</item>
-        <item name="android:background">#ffffff</item>
+        <item name="android:background">@drawable/list_item_bg</item>
         <item name="android:orientation">horizontal </item>
     </style>
 
@@ -61,31 +61,41 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerVertical">true</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/chat_detail_item_hit_color</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="ChatDetailItemContent">
-        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:maxWidth">150dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/chat_detail_item_content_color</item>
         <item name="android:textColorHint">@color/chat_detail_item_content_color</item>
         <item name="android:layout_centerInParent">true</item>
-        <item name="android:gravity">right</item>
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:layout_marginRight">10dp</item>
+    </style>
+
+    <style name="MeInfoItemContent">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:maxWidth">150dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_marginRight">20dp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#808080</item>
     </style>
 
     <style name="ChatDetailItem">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingTop">15dp</item>
-        <item name="android:paddingBottom">15dp</item>
+        <item name="android:padding">20dp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:paddingLeft">15dp</item>
-        <item name="android:paddingRight">15dp</item>
-        <item name="android:background">@drawable/chat_detail_item_bg</item>
+        <item name="android:background">@drawable/list_item_bg</item>
         <item name="android:clickable">true</item>
     </style>
 
@@ -138,7 +148,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingBottom">15dp</item>
         <item name="android:paddingTop">15dp</item>
-        <item name="android:background">@drawable/me_item_bg</item>
+        <item name="android:background">@drawable/list_item_bg</item>
     </style>
 
     <style name="SettingItemHit">
@@ -157,7 +167,7 @@
     <style name="ChatItemOptionItem">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/me_item_bg</item>
+        <item name="android:background">@drawable/list_item_bg</item>
         <item name="android:clickable">true</item>
         <item name="android:padding">15dp</item>
     </style>
@@ -167,19 +177,28 @@
         <item name="android:paddingRight">5dp</item>
         <item name="android:paddingTop">2dp</item>
         <item name="android:paddingBottom">2dp</item>
-        <item name="android:textColor">#555555</item>
+        <item name="android:textColor">#555756</item>
         <item name="android:textSize">12sp</item>
     </style>
 
     <style name="chat_content_style">
         <item name="android:minHeight">50dp</item>
         <item name="android:gravity">left|center</item>
-        <item name="android:textColor">#000000</item>
+        <item name="android:textColor">#373334</item>
         <item name="android:textSize">15sp</item>
         <item name="android:lineSpacingExtra">2dp</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:background">#bfbfbf</item>
+    </style>
+
+    <style name="chat_display_name_style">
+        <item name="android:ems">5</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">#545454</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:visibility">gone</item>
     </style>
 
     <style name="msg_text_style">
@@ -252,6 +271,7 @@
         <item name="android:textSize">20sp</item>
         <item name="android:maxLines">2</item>
         <item name="android:maxLength">64</item>
+        <item name="android:focusable">true</item>
         <item name="android:background">@drawable/default_input_bg</item>
     </style>
 

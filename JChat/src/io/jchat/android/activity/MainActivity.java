@@ -21,7 +21,7 @@ import io.jchat.android.controller.MainController;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.MainView;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements ConversationListFragment.OnNewMsgReceiverListener {
     private MainController mMainController;
     private MainView mMainView;
 
@@ -76,7 +76,6 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
-        // TODO Auto-generated method stub
         super.onDestroy();
     }
 
@@ -119,5 +118,15 @@ public class MainActivity extends FragmentActivity {
                 }
             }
         }
+    }
+
+    @Override
+    public void onNewMsgReceived() {
+        mMainView.showNewMsgReceivedFlag();
+    }
+
+    @Override
+    public void onClearNewMsgFlag() {
+        mMainView.dismissUnreadFlag();
     }
 }

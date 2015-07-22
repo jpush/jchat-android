@@ -64,7 +64,7 @@ public class FriendInfoActivity extends BaseActivity {
                         }
                     });
                     if (status == 0) {
-                        File file = userInfo.getAvatar();
+                        File file = userInfo.getAvatarFile();
                         if (file != null && file.isFile()) {
                             Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
                             //更新头像缓存
@@ -109,7 +109,7 @@ public class FriendInfoActivity extends BaseActivity {
                     mFriendInfoView.initInfo(mUserInfo, density);
                     break;
                 case 2:
-                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"));
+                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"), false);
                     break;
             }
         }
@@ -118,11 +118,11 @@ public class FriendInfoActivity extends BaseActivity {
     //点击头像预览大图，若此时UserInfo还是空，则再取一次
     public void startBrowserAvatar() {
         if (mUserInfo != null) {
-            File file = mUserInfo.getAvatar();
+            File file = mUserInfo.getAvatarFile();
             if (file != null && file.exists()) {
                 Intent intent = new Intent();
                 intent.putExtra("browserAvatar", true);
-                intent.putExtra("avatarPath", mUserInfo.getAvatar().getAbsolutePath());
+                intent.putExtra("avatarPath", mUserInfo.getAvatarFile().getAbsolutePath());
                 intent.setClass(this, BrowserViewPagerActivity.class);
                 startActivity(intent);
             }
@@ -131,7 +131,7 @@ public class FriendInfoActivity extends BaseActivity {
                 @Override
                 public void gotResult(int status, String desc, UserInfo userInfo) {
                     if (status == 0) {
-                        File file = userInfo.getAvatar();
+                        File file = userInfo.getAvatarFile();
                         if (file != null && file.isFile()) {
                             Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
                             //更新头像缓存

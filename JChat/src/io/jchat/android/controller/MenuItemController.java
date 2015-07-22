@@ -75,7 +75,7 @@ public class MenuItemController implements View.OnClickListener {
                                     intent.setClass(mContext.getActivity(), ChatActivity.class);
                                     mContext.startActivity(intent);
                                 } else {
-                                    HandleResponseCode.onHandle(mContext.getActivity(), status);
+                                    HandleResponseCode.onHandle(mContext.getActivity(), status, false);
                                     Log.i("CreateGroupController", "status : " + status);
                                 }
                             }
@@ -90,6 +90,7 @@ public class MenuItemController implements View.OnClickListener {
                 final Dialog dialog = builder.create();
                 dialog.show();
                 final EditText userNameEt = (EditText) view.findViewById(R.id.user_name_et);
+                userNameEt.requestFocus();
                 final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
                 final Button commit = (Button) view.findViewById(R.id.commit_btn);
                 View.OnClickListener listener = new View.OnClickListener() {
@@ -122,11 +123,11 @@ public class MenuItemController implements View.OnClickListener {
                                                 Conversation conv = Conversation.createConversation(ConversationType.single, targetID);
                                                 list.add(conv);
                                                 if (userInfo.getAvatar() != null) {
-                                                    mController.loadAvatarAndRefresh(targetID, userInfo.getAvatar().getAbsolutePath());
+                                                    mController.loadAvatarAndRefresh(targetID, userInfo.getAvatarFile().getAbsolutePath());
                                                 } else mController.refreshConvList();
                                                 dialog.cancel();
                                             } else {
-                                                HandleResponseCode.onHandle(mContext.getActivity(), status);
+                                                HandleResponseCode.onHandle(mContext.getActivity(), status, true);
                                             }
                                         }
                                     });

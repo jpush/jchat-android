@@ -549,7 +549,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     break;
                 case 4:
                     mProgressDialog.dismiss();
-                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"));
+                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"), false);
                     break;
                 case 5:
                     Intent intent = new Intent();

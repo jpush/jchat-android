@@ -13,8 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -63,12 +61,12 @@ public class FixProfileActivity extends BaseActivity {
         mFinishBtn = (Button) findViewById(R.id.finish_btn);
         mAvatarIv.setOnClickListener(listener);
         mFinishBtn.setOnClickListener(listener);
-        mNickNameEt.addTextChangedListener(watcher);
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
         JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), null);
         SharePreferenceManager.setCachedFixProfileFlag(true);
+        mNickNameEt.requestFocus();
     }
 
     @Override
@@ -76,38 +74,6 @@ public class FixProfileActivity extends BaseActivity {
         savedInstancedState.putString("savedNickName", mNickNameEt.getText().toString());
         super.onSaveInstanceState(savedInstancedState);
     }
-
-
-    private TextWatcher watcher = new TextWatcher() {
-        private CharSequence temp = "";
-
-        @Override
-        public void afterTextChanged(Editable arg0) {
-            // TODO Auto-generated method stub
-            if (temp.length() > 0) {
-                mFinishBtn.setClickable(true);
-                mFinishBtn.setBackgroundColor(getResources().getColor(R.color.finish_btn_clickable_color));
-            } else {
-                mFinishBtn.setClickable(false);
-                mFinishBtn.setBackgroundColor(getResources().getColor(R.color.finish_btn_unclickable_color));
-            }
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-                                      int arg3) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int count,
-                                  int after) {
-            // TODO Auto-generated method stub
-            temp = s;
-        }
-
-    };
 
     private View.OnClickListener listener = new View.OnClickListener() {
         @Override

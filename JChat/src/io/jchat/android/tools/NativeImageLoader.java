@@ -70,7 +70,7 @@ public class NativeImageLoader {
         for (final String userID : userIDList) {
             //若为CurrentUser，直接获取本地的头像（CurrentUser本地头像为最新）
             if (userID.equals(JMessageClient.getMyInfo().getUserName())) {
-                File file = JMessageClient.getMyInfo().getAvatar();
+                File file = JMessageClient.getMyInfo().getAvatarFile();
                 if (file == null || !file.exists()) {
                     continue;
                 } else {
@@ -87,7 +87,7 @@ public class NativeImageLoader {
                     @Override
                     public void gotResult(int i, String s, UserInfo userInfo) {
                         if (i == 0) {
-                            File file = userInfo.getAvatar();
+                            File file = userInfo.getAvatarFile();
                             if (file != null) {
                                 Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), length, length);
                                 addBitmapToMemoryCache(userID, bitmap);
@@ -130,7 +130,7 @@ public class NativeImageLoader {
             @Override
             public void gotResult(int status, String desc, UserInfo userInfo) {
                 if (status == 0) {
-                    File file = userInfo.getAvatar();
+                    File file = userInfo.getAvatarFile();
                     if (file != null) {
                         Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), length, length);
                         addBitmapToMemoryCache(userName, bitmap);
@@ -171,11 +171,11 @@ public class NativeImageLoader {
 
 
     /**
-     * 此方法来加载本地图片，这里的mPoint是用来封装ImageView的宽和高，我们会根据length来裁剪Bitmap
+     * 此方法来加载本地图片，我们会根据length来裁剪Bitmap
      *
-     * @param path
-     * @param length
-     * @param callBack
+     * @param path 图片路径
+     * @param length 图片宽高
+     * @param callBack 回调
      * @return
      */
     public Bitmap loadNativeImage(final String path, final int length, final NativeImageCallBack callBack) {

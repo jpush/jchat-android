@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -18,6 +20,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.tools.HandleResponseCode;
 
 
 /**
@@ -77,6 +80,9 @@ public class SelectAreaActivity extends BaseActivity {
                                         intent.putExtra("region", region);
                                         setResult(1, intent);
                                         finish();
+                                    }else {
+                                        dismissSoftInput();
+                                        HandleResponseCode.onHandle(mContext, status, false);
                                     }
                                 }
                             });
@@ -85,5 +91,16 @@ public class SelectAreaActivity extends BaseActivity {
                 }
             }
         });
+    }
+
+    private void dismissSoftInput() {
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        //Òþ²ØÈí¼üÅÌ
+        InputMethodManager imm = ((InputMethodManager) mContext
+                .getSystemService(Activity.INPUT_METHOD_SERVICE));
+        if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
+            if (getCurrentFocus() != null)
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 }

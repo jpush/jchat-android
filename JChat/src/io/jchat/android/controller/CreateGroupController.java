@@ -63,7 +63,7 @@ public class CreateGroupController implements OnClickListener {
                                         if (status == 0) {
                                             mContext.StartChatActivity(groupID, mGroupName);
                                         } else {
-                                            HandleResponseCode.onHandle(mContext, status);
+                                            HandleResponseCode.onHandle(mContext, status, false);
                                             Log.i("CreateGroupController", "status : " + status);
                                         }
                                     }
