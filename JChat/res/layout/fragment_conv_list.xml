@@ -3,38 +3,38 @@
     android:id="@+id/conv_fragment_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
-    <RelativeLayout 
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/jpush_blue"
-        >
-        <TextView 
-        android:id="@+id/main_title_bar_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Title"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/text_medium_size"
-            />
-        
-        <ImageButton
-            android:id="@+id/create_group_btn"
+        android:background="@color/jpush_blue">
+
+        <TextView
+            android:id="@+id/main_title_bar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="7dp"
+            android:text="Title"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_medium_size" />
+
+        <ImageButton
+            android:id="@+id/create_group_btn"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
             android:layout_alignParentRight="true"
-            android:background="@drawable/msg_title_bar_right_btn_bg" />
-        
+            android:layout_centerVertical="true"
+            android:background="@drawable/msg_title_bar_right_btn_bg"
+            android:src="@drawable/msg_titlebar_right_btn" />
+
     </RelativeLayout>
 
     <ListView
         android:id="@+id/conv_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </ListView>
+        android:layout_height="match_parent"
+        android:divider="@color/conv_list_split_line_color"
+        android:dividerHeight="1dp"/>
 </LinearLayout>

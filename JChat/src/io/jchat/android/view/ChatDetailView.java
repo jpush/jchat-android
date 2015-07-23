@@ -121,4 +121,8 @@ public class ChatDetailView extends LinearLayout{
             mGroupName.setText(groupName);
         }
     }
+
+	public void setTitle(int size) {
+		mTitle.setText(mContext.getString(R.string.chat_detail_title) + "(" + size + ")");
+	}
 }

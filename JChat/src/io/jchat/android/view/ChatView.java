@@ -263,7 +263,7 @@ public class ChatView extends RelativeLayout{
 	}
 
 	public void setGroupIcon() {
-		mRightBtn.setBackgroundResource(R.drawable.group_small);
+		mRightBtn.setImageResource(R.drawable.group_chat_detail);
 	}
 
 

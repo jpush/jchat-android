@@ -50,7 +50,7 @@ public class PickPictureActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.pick_picture_detail);
+        setContentView(R.layout.activity_pick_picture_detail);
         mSendPictureBtn = (Button) findViewById(R.id.pick_picture_send_btn);
         mReturnBtn = (ImageButton) findViewById(R.id.pick_picture_detail_return_btn);
         mGridView = (GridView) findViewById(R.id.child_grid);

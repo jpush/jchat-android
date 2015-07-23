@@ -842,6 +842,7 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     private void sendingImage(final ViewHolder holder, Animation sendingAnim, Message msg, final String path) {
+        holder.picture.setAlpha(0.8f);
         holder.sendingIv.setVisibility(View.VISIBLE);
         holder.sendingIv.startAnimation(sendingAnim);
         holder.progressTv.setVisibility(View.VISIBLE);
