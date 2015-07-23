@@ -13,8 +13,8 @@
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:paddingBottom="5dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:paddingTop="5dp">
 
         <FrameLayout
@@ -43,6 +43,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginLeft="5dp"
             android:padding="5dp">
 
             <LinearLayout
@@ -66,6 +67,7 @@
                     android:id="@+id/msg_item_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
                     android:maxLength="10"
                     android:singleLine="true"
                     android:text=""
@@ -78,7 +80,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
-                android:text=""
                 android:textColor="#808080" />
         </RelativeLayout>
     </LinearLayout>

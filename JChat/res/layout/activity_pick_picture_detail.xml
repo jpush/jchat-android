@@ -12,11 +12,10 @@
 
         <ImageButton
             android:id="@+id/pick_picture_detail_return_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
+            android:src="@drawable/back_btn"
             android:background="@drawable/back_btn_bg" />
         
         <Button

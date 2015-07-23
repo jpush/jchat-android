@@ -18,6 +18,7 @@
     <!-- 主页面 -->
     <color name="actionbar_sel_color">#1c1c1c</color>
     <color name="actionbar_pres_color">#3f80dc</color>
+    <color name="menu_item_back_pres_color">#3773cb</color>
     <color name="actionbar_def_color">#3C3C3C</color>
     <color name="jpush_blue">#3F80DC</color>
     <color name="main_view_split_line_color">#C8C8C8</color>

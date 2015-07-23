@@ -74,7 +74,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.pick_picture_total);
+		setContentView(R.layout.activity_pick_picture_total);
 		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
 		mTitle = (TextView) findViewById(R.id.title);
 		mMenuBtn = (ImageButton) findViewById(R.id.right_btn);

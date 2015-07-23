@@ -5,42 +5,7 @@
     android:orientation="vertical"
     android:background="#FFFFFF">
 
-    <RelativeLayout
-        android:id="@+id/menu_title_bar"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/jpush_blue"
-        android:orientation="vertical" >
-
-        <ImageButton
-            android:id="@+id/return_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:background="@drawable/back_btn_bg" />
-
-        <TextView
-            android:id="@+id/title_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Title"
-            android:textColor="#FFFFFF"
-            android:layout_centerInParent="true"
-            android:textSize="20sp"/>
-
-        <Button
-            android:id="@+id/commit_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_margin="7dp"
-            android:layout_centerVertical="true"
-            android:text="保存"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/login_btn_bg"/>
-    </RelativeLayout>
+    <include layout="@layout/menu_title_bar_with_button"/>
 
     <EditText
         android:id="@+id/edit_area_et"
