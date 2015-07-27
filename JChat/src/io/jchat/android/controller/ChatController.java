@@ -95,9 +95,9 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                         if(status == 0){
                             if(!TextUtils.isEmpty(groupInfo.getGroupName())){
                                 Log.i("ChatController", "GroupMember size: " + groupInfo.getGroupMembers().size());
-                                mChatView.setChatTitle(groupInfo.getGroupName() + "(" + groupInfo.getGroupMembers().size() + ")");
+                                mChatView.setChatTitle(groupInfo.getGroupName(), groupInfo.getGroupMembers().size());
                             }else {
-                                mChatView.setChatTitle(mContext.getString(R.string.group) + "(" + groupInfo.getGroupMembers().size() + ")");
+                                mChatView.setChatTitle(mContext.getString(R.string.group), groupInfo.getGroupMembers().size());
                             }
                         }
                     }

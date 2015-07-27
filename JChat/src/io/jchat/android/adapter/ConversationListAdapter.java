@@ -36,7 +36,7 @@ public class ConversationListAdapter extends BaseAdapter {
         double density = dm.density;
         for (Conversation conv : mDatas) {
             if (conv.getType().equals(ConversationType.single)){
-                File file = conv.getAvatar();
+                File file = conv.getAvatarFile();
                 if(file != null){
                     Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * density), (int)(50 * density));
                     NativeImageLoader.getInstance().updateBitmapFromCache(conv.getTargetId(), bitmap);

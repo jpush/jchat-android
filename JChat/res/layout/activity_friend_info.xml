@@ -11,11 +11,10 @@
 
         <ImageButton
             android:id="@+id/friend_info_return_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
+            android:src="@drawable/back_btn"
             android:background="@drawable/back_btn_bg" />
         
      <TextView
@@ -86,34 +85,36 @@
                 </LinearLayout>
             </FrameLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/name"
-                style="@style/MeItemStyle"
-                android:visibility="gone">
+                style="@style/MeItemStyle">
 
                 <ImageView
+                    android:id="@+id/note_name_icon_iv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:background="@drawable/note_info" />
                 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/note_name_icon_iv"
+                    android:layout_marginLeft="5dp"
                     android:textColor="#555555"
                     android:text="@string/note_name"
                     />
 
                 <TextView
                     android:id="@+id/note_name_tv"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
+                    android:maxWidth="200dp"
                     android:layout_height="wrap_content"
-                    android:gravity="right"
-                    android:layout_weight="1"
-                    android:paddingLeft="5dp"
-                    android:textColor="#555555" />
-            </LinearLayout>
+                    android:layout_alignParentRight="true"
+                    android:textSize="16sp"
+                    android:textColor="@color/friend_content_text_color" />
+            </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -220,34 +221,37 @@
                 android:layout_height="1dp"
                 android:background="@color/me_split_line_color" />
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/sign"
                 style="@style/MeItemStyle" >
 
                 <ImageView
+                    android:id="@+id/signature_icon_iv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:layout_centerVertical="true"
                     android:background="@drawable/sign" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/signature_icon_iv"
+                    android:layout_marginLeft="5dp"
                     android:text="@string/sign"
                     android:textColor="#555555" />
 
                 <TextView
                     android:id="@+id/signature_tv"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:maxWidth="200dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
                     android:singleLine="false"
-                    android:textColor="#808080" />
-            </LinearLayout>
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/friend_content_text_color"
+                    android:textSize="16sp"/>
+            </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"

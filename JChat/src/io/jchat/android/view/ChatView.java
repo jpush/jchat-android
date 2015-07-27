@@ -241,6 +241,12 @@ public class ChatView extends RelativeLayout{
 		mChatTitle.setText(targetId);
 	}
 
+	//设置群聊名字
+	public void setChatTitle(String name, int count){
+		String title = name + mContext.getString(R.string.combine_title);
+		mChatTitle.setText(String.format(title, count));
+	}
+
 	public void clearInput() {
 		mChatInputEt.setText("");
 	}

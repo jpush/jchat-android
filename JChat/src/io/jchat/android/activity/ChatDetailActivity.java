@@ -284,7 +284,7 @@ public class ChatDetailActivity extends BaseActivity {
                         });
                         //否则从Conversation拿
                     }else if(conv != null){
-                        final File file = conv.getAvatar();
+                        final File file = conv.getAvatarFile();
                         if(file != null){
                             runOnUiThread(new Runnable() {
                                 @Override

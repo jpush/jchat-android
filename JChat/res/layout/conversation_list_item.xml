@@ -57,7 +57,7 @@
                     android:id="@+id/conv_item_group_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:ems="8"
+                    android:ems="6"
                     android:singleLine="true"
                     android:textColor="#3F80DD"
                     android:textSize="@dimen/text_medium_size"

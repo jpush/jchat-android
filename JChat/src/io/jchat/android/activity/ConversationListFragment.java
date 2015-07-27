@@ -111,7 +111,7 @@ public class ConversationListFragment extends BaseFragment {
         Log.i(TAG, "ConversationRefreshEvent execute");
         Conversation conv = conversationRefreshEvent.getConversation();
         if (conv.getType() == ConversationType.single) {
-            File file = conv.getAvatar();
+            File file = conv.getAvatarFile();
             if (file != null) {
                 mConvListController.loadAvatarAndRefresh(conv.getTargetId(), file.getAbsolutePath());
             }
@@ -143,7 +143,7 @@ public class ConversationListFragment extends BaseFragment {
                 mConvListController.refreshConvList();
                 //没有头像，从Conversation拿
             } else {
-                File file = conv.getAvatar();
+                File file = conv.getAvatarFile();
                 //拿到后缓存并刷新
                 if (file != null) {
                     mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());

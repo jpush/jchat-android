@@ -343,6 +343,7 @@ public class ChatActivity extends BaseActivity {
                     });
                 }
             }
+            mHandler.sendEmptyMessage(JPushDemoApplication.REFRESH_GROUP_NAME);
         }
         //刷新消息
         mHandler.sendEmptyMessage(JPushDemoApplication.UPDATE_CHAT_LIST_VIEW);

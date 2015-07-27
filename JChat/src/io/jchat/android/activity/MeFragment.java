@@ -106,6 +106,11 @@ public class MeFragment extends BaseFragment {
     public void onResume() {
         if (isGetMeInfoFailed && !(mMeView.getAvatarFlag())) {
             getMyUserInfo();
+        }else {
+            File file = JMessageClient.getMyInfo().getAvatarFile();
+            if(file != null && file.isFile()){
+                mMeView.showPhoto(file.getAbsolutePath());
+            }
         }
         super.onResume();
     }
@@ -233,8 +238,8 @@ public class MeFragment extends BaseFragment {
 
     public void startBrowserAvatar() {
         File file = JMessageClient.getMyInfo().getAvatarFile();
-        Log.i("MeFragment", "file.getAbsolutePath() " + file.getAbsolutePath());
         if (file != null && file.isFile()) {
+            Log.i("MeFragment", "file.getAbsolutePath() " + file.getAbsolutePath());
             Intent intent = new Intent();
             intent.putExtra("browserAvatar", true);
             intent.putExtra("avatarPath", file.getAbsolutePath());
