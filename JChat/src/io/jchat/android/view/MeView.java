@@ -62,7 +62,7 @@ public class MeView extends LinearLayout {
         ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
         double density = dm.density;
         mWidth = dm.widthPixels;
-        mHeight = (int)(300 * density);
+        mHeight = (int)(190 * density);
         if(userInfo != null){
             mUserNameTv.setText(userInfo.getUserName());
             File file = userInfo.getAvatarFile();

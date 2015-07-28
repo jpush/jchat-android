@@ -22,8 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.util.List;
 
@@ -194,7 +192,7 @@ public class ChatDetailActivity extends BaseActivity {
                 break;
             case JPushDemoApplication.REFRESH_GROUP_NAME:
                 Log.i(TAG, "Refresh GroupName Or user name");
-                mChatDetailController.NotifyGroupNameChange();
+                mChatDetailController.NotifyGroupChange();
                 break;
         }
     }
@@ -216,7 +214,7 @@ public class ChatDetailActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-        mChatDetailController.NotifyGroupInfoChange();
+//        mChatDetailController.refresh(mChatDetailController.refresh());
         super.onResume();
     }
 
@@ -279,7 +277,7 @@ public class ChatDetailActivity extends BaseActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mChatDetailController.NotifyGroupNameChange();
+                                mChatDetailController.NotifyGroupChange();
                             }
                         });
                         //否则从Conversation拿

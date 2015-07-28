@@ -51,7 +51,7 @@
     
     <style name="SettingItemStyle">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_height">55dp</item>
         <item name="android:padding">5dp</item>
         <item name="android:background">@drawable/list_item_bg</item>
         <item name="android:orientation">horizontal </item>
@@ -61,7 +61,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerVertical">true</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/chat_detail_item_hit_color</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -70,6 +70,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:maxWidth">150dp</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_medium_size</item>
         <item name="android:textColor">@color/chat_detail_item_content_color</item>
         <item name="android:textColorHint">@color/chat_detail_item_content_color</item>
         <item name="android:layout_centerInParent">true</item>
@@ -182,7 +183,6 @@
     </style>
 
     <style name="chat_content_style">
-        <item name="android:minHeight">50dp</item>
         <item name="android:gravity">left|center</item>
         <item name="android:textColor">#373334</item>
         <item name="android:textSize">15sp</item>
@@ -203,7 +203,6 @@
 
     <style name="msg_text_style">
         <item name="android:maxWidth">225dp</item>
-        <item name="android:minHeight">50dp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>

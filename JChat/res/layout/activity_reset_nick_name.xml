@@ -14,6 +14,7 @@
         android:layout_marginTop="20dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:paddingBottom="5dp"
         android:cursorVisible="true"
         android:textSize="20sp"
         android:textColor="@color/me_info_edit_color"

@@ -47,10 +47,8 @@
             android:layout_marginLeft="3dp"
             android:layout_toRightOf="@id/avatar_iv"
             android:background="@drawable/msg_receive_bg"
-            android:paddingBottom="10dp"
             android:paddingLeft="15dp"
             android:paddingRight="10dp"
-            android:paddingTop="10dp"
             android:textColor="#363333" />
 
     </RelativeLayout>

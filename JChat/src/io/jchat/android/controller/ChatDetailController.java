@@ -632,6 +632,7 @@ public class ChatDetailController implements OnClickListener,
                     if (status == 0) {
                         mMemberIDList = memberList;
                         mCurrentNum = mMemberIDList.size();
+                        mChatDetailView.setTitle(mCurrentNum);
                         mGridAdapter.refreshGroupMember(mMemberIDList);
                     }
                 }
@@ -640,29 +641,10 @@ public class ChatDetailController implements OnClickListener,
         }
     }
 
-    //刷新群名称
-    public void NotifyGroupNameChange() {
+    //刷新
+    public void NotifyGroupChange() {
         if (mGridAdapter != null)
             mGridAdapter.notifyDataSetChanged();
-        if (mIsGroup && mGroupID != 0) {
-            Conversation conv = JMessageClient.getGroupConversation(mGroupID);
-            if (conv != null)
-                mChatDetailView.refreshGroupName(conv.getDisplayName());
-            Log.i(TAG, "Fresh group name completed");
-        }
     }
 
-    //刷新群组信息
-    public void NotifyGroupInfoChange() {
-        JMessageClient.getGroupMembers(mGroupID, new GetGroupMembersCallback() {
-            @Override
-            public void gotResult(int status, String desc, List<UserInfo> members) {
-                if (status == 0) {
-                    mMemberIDList = members;
-                    if(mGridAdapter != null)
-                        mGridAdapter.refreshGroupMember(mMemberIDList);
-                }
-            }
-        });
-    }
 }

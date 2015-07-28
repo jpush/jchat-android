@@ -7,7 +7,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/title_bar_height"
         android:background="@color/jpush_blue">
 
         <TextView
@@ -22,7 +22,7 @@
 
         <ImageButton
             android:id="@+id/create_group_btn"
-            android:layout_width="50dp"
+            android:layout_width="55dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"

@@ -842,7 +842,7 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     private void sendingImage(final ViewHolder holder, Animation sendingAnim, Message msg, final String path) {
-        holder.picture.setAlpha(0.8f);
+        holder.picture.setAlpha(0.7f);
         holder.sendingIv.setVisibility(View.VISIBLE);
         holder.sendingIv.startAnimation(sendingAnim);
         holder.progressTv.setVisibility(View.VISIBLE);
@@ -926,7 +926,7 @@ public class MsgListAdapter extends BaseAdapter {
         final String path = imgContent.getLocalThumbnailPath();
         viewHolder.sendingIv.setVisibility(View.VISIBLE);
         viewHolder.sendingIv.startAnimation(sendingAnim);
-        viewHolder.picture.setAlpha(0.8f);
+        viewHolder.picture.setAlpha(0.7f);
         viewHolder.resend.setVisibility(View.GONE);
         viewHolder.progressTv.setVisibility(View.VISIBLE);
         try {
@@ -1145,19 +1145,24 @@ public class MsgListAdapter extends BaseAdapter {
                                 mp.reset();
                                 // 记录播放录音的位置
                                 mPosition = position;
-                                try {
-                                    mFIS = new FileInputStream(content
-                                            .getLocalPath());
-                                    mFD = mFIS.getFD();
-                                    mp.setDataSource(mFD);
-                                    mFIS.close();
-                                    mp.prepare();
-                                    playVoice();
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                if(content.getLocalPath() != null){
+                                    try {
+                                        mFIS = new FileInputStream(content
+                                                .getLocalPath());
+                                        mFD = mFIS.getFD();
+                                        mp.setDataSource(mFD);
+                                        mFIS.close();
+                                        mp.prepare();
+                                        playVoice();
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }else {
+                                    Toast.makeText(mContext, mContext.getString(R.string.voice_fetch_failed_toast), Toast.LENGTH_SHORT).show();
                                 }
+
                             }
                         }
                     } catch (IllegalArgumentException e) {

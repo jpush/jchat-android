@@ -55,7 +55,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="2dp"
                 android:background="@drawable/receive_msg"
-                android:minHeight="50dp"
                 android:maxWidth="220dp"
                  />
 

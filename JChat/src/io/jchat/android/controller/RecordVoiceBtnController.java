@@ -502,9 +502,11 @@ public class RecordVoiceBtnController extends Button {
             switch (msg.what) {
                 case 6:
                     int status = msg.getData().getInt("status", -1);
-                    HandleResponseCode.onHandle(mContext, status, false);
-                    Log.i("RecordVoiceController", "desc：" + msg.getData().getString("desc"));
-                    Log.i("RecordVoiceController", "refreshing!");
+                    if(status != 0){
+                        HandleResponseCode.onHandle(mContext, status, false);
+                        Log.i("RecordVoiceController", "desc：" + msg.getData().getString("desc"));
+                        Log.i("RecordVoiceController", "refreshing!");
+                    }
                     mMsgListAdapter.refresh();
                     break;
                 case 7:

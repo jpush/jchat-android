@@ -42,7 +42,7 @@ public class MeFragment extends BaseFragment {
     private MeController mMeController;
     private Context mContext;
     private String mPath;
-    private boolean isGetMeInfoFailed = false;
+    private boolean isGetMeInfoFailed = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

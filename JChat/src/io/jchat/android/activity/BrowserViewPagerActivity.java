@@ -186,6 +186,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 } catch (Exception e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
                 }
+                if(mViewPager != null && mViewPager.getAdapter() != null){
+                    mViewPager.getAdapter().notifyDataSetChanged();
+                }
             //预览聊天界面中的图片
             } else {
                 initImgPathList();

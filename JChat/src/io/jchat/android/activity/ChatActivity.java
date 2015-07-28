@@ -13,12 +13,14 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.event.ConversationRefreshEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import io.jchat.android.R;
 
@@ -96,8 +98,10 @@ public class ChatActivity extends BaseActivity {
                 mChatController.getAdapter().refresh();
                 break;
             case JPushDemoApplication.REFRESH_GROUP_NAME:
-                if(mChatController.getConversation() != null)
-                    mChatView.setChatTitle(mChatController.getConversation().getDisplayName());
+                if(mChatController.getConversation() != null){
+                    int num = msg.getData().getInt("membersCount");
+                    mChatView.setChatTitle(mChatController.getConversation().getDisplayName(), num);
+                }
                 break;
         }
     }
@@ -342,8 +346,20 @@ public class ChatActivity extends BaseActivity {
                         }
                     });
                 }
+                JMessageClient.getGroupInfo(mChatController.getGroupID(), new GetGroupInfoCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, GroupInfo groupInfo) {
+                        if (status == 0) {
+                            android.os.Message handleMessage = mHandler.obtainMessage();
+                            handleMessage.what = JPushDemoApplication.REFRESH_GROUP_NAME;
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("membersCount", groupInfo.getGroupMembers().size());
+                            handleMessage.setData(bundle);
+                            handleMessage.sendToTarget();
+                        }
+                    }
+                });
             }
-            mHandler.sendEmptyMessage(JPushDemoApplication.REFRESH_GROUP_NAME);
         }
         //刷新消息
         mHandler.sendEmptyMessage(JPushDemoApplication.UPDATE_CHAT_LIST_VIEW);

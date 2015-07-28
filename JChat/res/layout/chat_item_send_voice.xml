@@ -33,6 +33,7 @@
             android:id="@+id/voice_fl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_toLeftOf="@id/avatar_iv"
             android:gravity="right">
 
@@ -40,11 +41,8 @@
                 android:id="@+id/msg_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
                 android:layout_marginRight="3dp"
                 android:background="@drawable/msg_send_bg"
-                android:minHeight="50dp"
                 android:maxWidth="220dp" />
 
             <ImageView

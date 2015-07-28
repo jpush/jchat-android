@@ -3,6 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:layout_marginRight="5dp"
     android:paddingBottom="10dp"
     android:paddingTop="10dp">
 
@@ -47,10 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="3dp"
             android:background="@drawable/msg_send_bg"
-            android:paddingBottom="10dp"
             android:paddingLeft="10dp"
-            android:paddingRight="15dp"
-            android:paddingTop="10dp" />
+            android:paddingRight="15dp" />
 
         <io.jchat.android.view.RoundImageView
             android:id="@+id/avatar_iv"
