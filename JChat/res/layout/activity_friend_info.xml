@@ -7,7 +7,7 @@
    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/title_bar_height"
-        android:background="#6599E4" >
+        android:background="@color/jpush_blue" >
 
         <ImageButton
             android:id="@+id/friend_info_return_btn"
