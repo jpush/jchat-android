@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.jchat.android"
-    android:versionCode="32"
+    android:versionCode="33"
     android:versionName="1.2.1">
 
     <uses-sdk
@@ -25,6 +25,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
 
     <!-- JMessage Demo required for record audio-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -197,6 +198,9 @@
             android:name="io.jchat.android.activity.EditSignatureActivity"
             android:theme="@style/notitle"
             android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
+        <activity
+            android:name="io.jchat.android.activity.EditNoteNameActivity"
+            android:theme="@style/notitle"/>
 
     </application>
 

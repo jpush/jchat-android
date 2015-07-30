@@ -75,7 +75,7 @@
 
                     <TextView
                         android:id="@+id/nick_name_tv"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:layout_gravity="center_horizontal"
@@ -86,7 +86,7 @@
             </FrameLayout>
 
             <RelativeLayout
-                android:id="@+id/name"
+                android:id="@+id/name_rl"
                 style="@style/MeItemStyle">
 
                 <ImageView
@@ -110,6 +110,7 @@
                     android:id="@+id/note_name_tv"
                     android:layout_width="wrap_content"
                     android:maxWidth="200dp"
+                    android:ems="10"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:textSize="16sp"

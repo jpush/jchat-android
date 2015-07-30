@@ -28,6 +28,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -59,6 +60,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     private long mGroupID;
     private boolean mIsGroup;
     private String mPhotoPath = null;
+    private final MyHandler myHandler = new MyHandler(this);
 
     public ChatController(ChatView mChatView, ChatActivity context) {
         this.mChatView = mChatView;
@@ -227,7 +229,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                             });
                         }
                         // 发送成功或失败都要刷新一次
-                        android.os.Message msg = handler.obtainMessage();
+                        android.os.Message msg = myHandler.obtainMessage();
                         msg.what = UPDATE_CHAT_LISTVIEW;
                         Bundle bundle = new Bundle();
                         bundle.putString("desc", desc);
@@ -376,23 +378,31 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         mChatAdapter.releaseMediaPlayer();
     }
 
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler{
+        private final WeakReference<ChatController> mController;
+
+        public MyHandler(ChatController controller){
+            mController = new WeakReference<ChatController>(controller);
+        }
 
         @Override
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case UPDATE_LAST_PAGE_LISTVIEW:
-                    Log.i("Tag", "收到更新消息列表的消息");
-                    mChatAdapter.refresh();
-                    mChatView.removeHeadView();
-                    break;
-                case UPDATE_CHAT_LISTVIEW:
-                    mChatAdapter.refresh();
-                    break;
+            ChatController controller = mController.get();
+            if(controller != null){
+                switch (msg.what) {
+                    case UPDATE_LAST_PAGE_LISTVIEW:
+                        Log.i("Tag", "收到更新消息列表的消息");
+                        controller.mChatAdapter.refresh();
+                        controller.mChatView.removeHeadView();
+                        break;
+                    case UPDATE_CHAT_LISTVIEW:
+                        controller.mChatAdapter.refresh();
+                        break;
+                }
             }
         }
-    };
+    }
 
 
     @Override

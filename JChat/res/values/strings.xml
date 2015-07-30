@@ -134,6 +134,7 @@
     <string name="setting_username_big_hit">更改名字</string>
     <string name="reset_nickname_hint">好名字可以让你的朋友更加容易记住你。</string>
     <string name="note_name">备注名</string>
+    <string name="description">描述</string>
     <string name="setting_location_hit">地区</string>
     <string name="input_location_title">输入地区</string>
     <string name="input_area_error">请输入您所在的地区</string>
@@ -142,6 +143,7 @@
     <string name="input_signature_toast">请输入您的个性签名</string>
     <string name="edit_signature_title">编辑个性签名</string>
     <string name="edit_signature_count">30</string>
+    <string name="edit_friend_info_count">200</string>
     <string name="save">保存</string>
     <string name="man">男</string>
     <string name="woman">女</string>

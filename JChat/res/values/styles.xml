@@ -193,13 +193,11 @@
     </style>
 
     <style name="chat_item_receive_layout">
-        <item name="android:paddingTop">10dp</item>
         <item name="android:paddingBottom">10dp</item>
         <item name="android:orientation">vertical</item>
     </style>
 
     <style name="chat_item_send_layout">
-        <item name="android:paddingTop">10dp</item>
         <item name="android:paddingBottom">10dp</item>
         <item name="android:orientation">vertical</item>
     </style>
@@ -310,6 +308,15 @@
         <item name="android:maxLines">2</item>
         <item name="android:maxLength">64</item>
         <item name="android:background">@drawable/invisible_input_bg</item>
+    </style>
+
+    <style name="edit_note_name_txt_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#d0cecf</item>
     </style>
 
 </resources>
