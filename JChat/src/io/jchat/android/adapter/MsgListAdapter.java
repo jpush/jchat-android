@@ -108,6 +108,8 @@ public class MsgListAdapter extends BaseAdapter {
     private final int TYPE_RECEIVER_VOICE = 7;
     //群成员变动
     private final int TYPE_GROUP_CHANGE = 8;
+    //自定义消息
+    private final int TYPE_CUSTOM_TXT = 9;
     private final MediaPlayer mp = new MediaPlayer();
     private AnimationDrawable mVoiceAnimation;
     private FileInputStream mFIS;
@@ -232,14 +234,16 @@ public class MsgListAdapter extends BaseAdapter {
                     : TYPE_RECEIVER_VOICE;
         } else if (msg.getContentType().equals(ContentType.eventNotification)) {
             return TYPE_GROUP_CHANGE;
-        }else {
+        }else if(msg.getContentType().equals(ContentType.location)) {
             return msg.getDirect().equals(MessageDirect.send) ? TYPE_SEND_LOCATION
                     : TYPE_RECEIVER_LOCATION;
+        }else {
+            return TYPE_CUSTOM_TXT;
         }
     }
 
     public int getViewTypeCount() {
-        return 10;
+        return 11;
     }
 
     private View createViewByType(Message msg, int position) {
@@ -261,10 +265,12 @@ public class MsgListAdapter extends BaseAdapter {
             case eventNotification:
                 if (getItemViewType(position) == TYPE_GROUP_CHANGE)
                     return mInflater.inflate(R.layout.chat_item_group_change, null);
-            default:
+            case text:
                 return getItemViewType(position) == TYPE_SEND_TXT ? mInflater
                         .inflate(R.layout.chat_item_send_text, null) : mInflater
                         .inflate(R.layout.chat_item_receive_text, null);
+            default:
+                return mInflater.inflate(R.layout.chat_item_group_change, null);
         }
     }
 
@@ -356,7 +362,7 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.group_content);
                 } catch (Exception e) {
                 }
-            } else {
+            } else if(contentType.equals(ContentType.location)) {
                 try {
                     holder.headIcon = (RoundImageView) convertView
                             .findViewById(R.id.avatar_iv);
@@ -368,6 +374,12 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.sending_iv);
                     holder.resend = (ImageButton) convertView
                             .findViewById(R.id.fail_resend_ib);
+                } catch (Exception e) {
+                }
+            }else {
+                try {
+                    holder.groupChange = (TextView) convertView
+                            .findViewById(R.id.group_content);
                 } catch (Exception e) {
                 }
             }
@@ -393,7 +405,7 @@ public class MsgListAdapter extends BaseAdapter {
                 handleGroupChangeMsg(msg, holder);
                 break;
             default:
-//                handleCustomMsg(msg, holder);
+                handleCustomMsg(holder);
         }
         //显示时间
         TextView msgTime = (TextView) convertView
@@ -577,6 +589,10 @@ public class MsgListAdapter extends BaseAdapter {
         String content = ((EventNotificationContent)msg.getContent()).getEventText();
         holder.groupChange.setText(content);
         holder.groupChange.setVisibility(View.VISIBLE);
+    }
+
+    private void handleCustomMsg(ViewHolder holder){
+        holder.groupChange.setVisibility(View.GONE);
     }
 
     private void handleTextMsg(final Message msg, final ViewHolder holder,

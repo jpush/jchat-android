@@ -202,12 +202,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     //如果发送方上传了原图
                     if(ic.getBooleanExtra("originalPicture")){
                         mLoadBtn.setVisibility(View.VISIBLE);
-                        NumberFormat ddf1 = NumberFormat.getNumberInstance();
-                        //保留小数点后两位
-                        ddf1.setMaximumFractionDigits(2);
-                        double size = ic.getFileSize() / 1048576.0;
-                        String fileSize = "(" + ddf1.format(size) + "M" + ")";
-                        mLoadBtn.setText(mContext.getString(R.string.load_origin_image) + fileSize);
+                        setLoadBtnText(ic);
                     }
                     //如果点击的是第一张图片并且图片未下载过，则显示大图
                     if (ic.getLocalPath() == null && mMsgIDList.indexOf(mMsg.getId()) == 0) {
@@ -241,6 +236,15 @@ public class BrowserViewPagerActivity extends BaseActivity {
             mPictureSelectedCb.setChecked(mSelectMap.get(currentItem));
             showTotalSize();
         }
+    }
+
+    private void setLoadBtnText(ImageContent ic) {
+        NumberFormat ddf1 = NumberFormat.getNumberInstance();
+        //保留小数点后两位
+        ddf1.setMaximumFractionDigits(2);
+        double size = ic.getFileSize() / 1048576.0;
+        String fileSize = "(" + ddf1.format(size) + "M" + ")";
+        mLoadBtn.setText(mContext.getString(R.string.load_origin_image) + fileSize);
     }
 
     /**
@@ -326,7 +330,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
 //                    mLoadBtn.setVisibility(View.VISIBLE);
                     downloadImage();
                 } else if(ic.getBooleanExtra("hasDownloaded") != null && !ic.getBooleanExtra("hasDownloaded")){
+                    setLoadBtnText(ic);
                     mLoadBtn.setVisibility(View.VISIBLE);
+                }else {
+                    mLoadBtn.setVisibility(View.GONE);
                 }
             } else {
                 mNumberTv.setText(i + 1 + "/" + mPathList.size());

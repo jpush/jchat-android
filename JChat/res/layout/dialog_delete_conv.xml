@@ -12,7 +12,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="hello"
+        android:ems="7"
+        android:singleLine="true"
         android:textColor="#3F81DF"
         android:textSize="24sp" />
 
