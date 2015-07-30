@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import io.jchat.android.R;
@@ -23,6 +24,7 @@ public class FriendInfoView extends LinearLayout{
 
     private TextView mNickNameTv;
 	private TextView mNoteName;
+    private RelativeLayout mNameRl;
 	private ImageButton mReturnBtn;
     private RoundImageView mAvatarIv;
 	private Button mSendMsgBtn;
@@ -41,6 +43,7 @@ public class FriendInfoView extends LinearLayout{
 	public void initModule(String targetID){
         mNickNameTv = (TextView) findViewById(R.id.nick_name_tv);
 		mNoteName = (TextView) findViewById(R.id.note_name_tv);
+        mNameRl = (RelativeLayout) findViewById(R.id.name_rl);
 		mReturnBtn = (ImageButton) findViewById(R.id.friend_info_return_btn);
         mAvatarIv = (RoundImageView) findViewById(R.id.friend_detail_avatar);
 		mSendMsgBtn = (Button) findViewById(R.id.friend_send_msg_btn);
@@ -74,7 +77,7 @@ public class FriendInfoView extends LinearLayout{
 
 	public void setListeners(OnClickListener onClickListener) {
 		mReturnBtn.setOnClickListener(onClickListener);
-		mNoteName.setOnClickListener(onClickListener);
+		mNameRl.setOnClickListener(onClickListener);
 		mSendMsgBtn.setOnClickListener(onClickListener);
         mAvatarIv.setOnClickListener(onClickListener);
 	}

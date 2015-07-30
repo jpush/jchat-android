@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.application.JPushDemoApplication;
@@ -42,7 +44,8 @@ public class MeFragment extends BaseFragment {
     private MeController mMeController;
     private Context mContext;
     private String mPath;
-    private boolean isGetMeInfoFailed = false;
+    private boolean isGetMeInfoFailed = true;
+    private final MyHandler myHandler = new MyHandler(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,10 +79,10 @@ public class MeFragment extends BaseFragment {
                     });
                     if (status == 0) {
                         isGetMeInfoFailed = false;
-                        handler.sendEmptyMessage(1);
+                        myHandler.sendEmptyMessage(1);
                     } else {
                         isGetMeInfoFailed = true;
-                        android.os.Message msg = handler.obtainMessage();
+                        android.os.Message msg = myHandler.obtainMessage();
                         msg.what = 2;
                         Bundle bundle = new Bundle();
                         bundle.putInt("status", status);
@@ -106,6 +109,11 @@ public class MeFragment extends BaseFragment {
     public void onResume() {
         if (isGetMeInfoFailed && !(mMeView.getAvatarFlag())) {
             getMyUserInfo();
+        }else {
+            File file = JMessageClient.getMyInfo().getAvatarFile();
+            if(file != null && file.isFile()){
+                mMeView.showPhoto(file.getAbsolutePath());
+            }
         }
         super.onResume();
     }
@@ -233,8 +241,8 @@ public class MeFragment extends BaseFragment {
 
     public void startBrowserAvatar() {
         File file = JMessageClient.getMyInfo().getAvatarFile();
-        Log.i("MeFragment", "file.getAbsolutePath() " + file.getAbsolutePath());
         if (file != null && file.isFile()) {
+            Log.i("MeFragment", "file.getAbsolutePath() " + file.getAbsolutePath());
             Intent intent = new Intent();
             intent.putExtra("browserAvatar", true);
             intent.putExtra("avatarPath", file.getAbsolutePath());
@@ -243,22 +251,31 @@ public class MeFragment extends BaseFragment {
         }
     }
 
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler{
+        private final WeakReference<MeFragment> mFragment;
+
+        public MyHandler(MeFragment fragment){
+            mFragment = new WeakReference<MeFragment>(fragment);
+        }
+
         @Override
-        public void handleMessage(android.os.Message msg) {
+        public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case 1:
-                    if(JMessageClient.getMyInfo() != null){
-                        File file = JMessageClient.getMyInfo().getAvatarFile();
-                        if (file != null && mMeView != null)
-                            mMeView.showPhoto(file.getAbsolutePath());
-                    }
-                    break;
-                case 2:
-                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"), false);
-                    break;
+            MeFragment fragment = mFragment.get();
+            if (fragment != null){
+                switch (msg.what) {
+                    case 1:
+                        if(JMessageClient.getMyInfo() != null){
+                            File file = JMessageClient.getMyInfo().getAvatarFile();
+                            if (file != null && fragment.mMeView != null)
+                                fragment.mMeView.showPhoto(file.getAbsolutePath());
+                        }
+                        break;
+                    case 2:
+                        HandleResponseCode.onHandle(fragment.mContext, msg.getData().getInt("status"), false);
+                        break;
+                }
             }
         }
-    };
+    }
 }

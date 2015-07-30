@@ -12,16 +12,21 @@ import io.jchat.android.view.FriendInfoView;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
+import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import io.jchat.android.R;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 public class FriendInfoActivity extends BaseActivity {
 
@@ -31,6 +36,7 @@ public class FriendInfoActivity extends BaseActivity {
     private UserInfo mUserInfo;
     private double mDensity;
     private Context mContext;
+    private final MyHandler myHandler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,12 +76,12 @@ public class FriendInfoActivity extends BaseActivity {
                             //更新头像缓存
                             NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
                         }
-                        android.os.Message msg = handler.obtainMessage();
+                        android.os.Message msg = myHandler.obtainMessage();
                         msg.what = 1;
                         msg.obj = userInfo;
                         msg.sendToTarget();
                     } else {
-                        android.os.Message msg = handler.obtainMessage();
+                        android.os.Message msg = myHandler.obtainMessage();
                         msg.what = 2;
                         Bundle bundle = new Bundle();
                         bundle.putInt("status", status);
@@ -96,24 +102,34 @@ public class FriendInfoActivity extends BaseActivity {
         finish();
     }
 
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler{
+        private final WeakReference<FriendInfoActivity> mActivity;
+
+        public  MyHandler(FriendInfoActivity activity){
+            mActivity = new WeakReference<FriendInfoActivity>(activity);
+        }
+
         @Override
-        public void handleMessage(android.os.Message msg) {
+        public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case 1:
-                    DisplayMetrics dm = new DisplayMetrics();
-                    FriendInfoActivity.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
-                    double density = dm.density;
-                    mUserInfo = (UserInfo) msg.obj;
-                    mFriendInfoView.initInfo(mUserInfo, density);
-                    break;
-                case 2:
-                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"), false);
-                    break;
+            FriendInfoActivity activity = mActivity.get();
+            if(activity != null){
+                switch (msg.what) {
+                    case 1:
+                        DisplayMetrics dm = new DisplayMetrics();
+                        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+                        double density = dm.density;
+                        activity.mUserInfo = (UserInfo) msg.obj;
+                        activity.mFriendInfoView.initInfo(activity.mUserInfo, density);
+                        break;
+                    case 2:
+                        HandleResponseCode.onHandle(activity, msg.getData().getInt("status"), false);
+                        break;
+                }
             }
         }
-    };
+    }
+
 
     //点击头像预览大图，若此时UserInfo还是空，则再取一次
     public void startBrowserAvatar() {
@@ -137,12 +153,12 @@ public class FriendInfoActivity extends BaseActivity {
                             //更新头像缓存
                             NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
                         }
-                        android.os.Message msg = handler.obtainMessage();
+                        android.os.Message msg = myHandler.obtainMessage();
                         msg.what = 1;
                         msg.obj = userInfo;
                         msg.sendToTarget();
                     } else {
-                        android.os.Message msg = handler.obtainMessage();
+                        android.os.Message msg = myHandler.obtainMessage();
                         msg.what = 2;
                         Bundle bundle = new Bundle();
                         bundle.putInt("status", status);

@@ -50,6 +50,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -91,7 +92,7 @@ public class MsgListAdapter extends BaseAdapter {
     private boolean mIsGroup = false;
     private long mGroupID;
     private int mPosition = -1;// 和mSetData一起组成判断播放哪条录音的依据
-    private final int UPDATE_IMAGEVIEW = 1999;
+    private static final int UPDATE_IMAGEVIEW = 1999;
     private final int UPDATE_PROGRESS = 1998;
     // 9种Item的类型
     // 文本
@@ -108,12 +109,14 @@ public class MsgListAdapter extends BaseAdapter {
     private final int TYPE_RECEIVER_VOICE = 7;
     //群成员变动
     private final int TYPE_GROUP_CHANGE = 8;
+    //自定义消息
+    private final int TYPE_CUSTOM_TXT = 9;
     private final MediaPlayer mp = new MediaPlayer();
     private AnimationDrawable mVoiceAnimation;
     private FileInputStream mFIS;
     private FileDescriptor mFD;
     private Activity mActivity;
-
+    private final MyHandler myHandler = new MyHandler(this);
     private boolean autoPlay = false;
 
     private int nextPlayPosition = 0;
@@ -232,14 +235,16 @@ public class MsgListAdapter extends BaseAdapter {
                     : TYPE_RECEIVER_VOICE;
         } else if (msg.getContentType().equals(ContentType.eventNotification)) {
             return TYPE_GROUP_CHANGE;
-        }else {
+        }else if(msg.getContentType().equals(ContentType.location)) {
             return msg.getDirect().equals(MessageDirect.send) ? TYPE_SEND_LOCATION
                     : TYPE_RECEIVER_LOCATION;
+        }else {
+            return TYPE_CUSTOM_TXT;
         }
     }
 
     public int getViewTypeCount() {
-        return 10;
+        return 11;
     }
 
     private View createViewByType(Message msg, int position) {
@@ -261,10 +266,12 @@ public class MsgListAdapter extends BaseAdapter {
             case eventNotification:
                 if (getItemViewType(position) == TYPE_GROUP_CHANGE)
                     return mInflater.inflate(R.layout.chat_item_group_change, null);
-            default:
+            case text:
                 return getItemViewType(position) == TYPE_SEND_TXT ? mInflater
                         .inflate(R.layout.chat_item_send_text, null) : mInflater
                         .inflate(R.layout.chat_item_receive_text, null);
+            default:
+                return mInflater.inflate(R.layout.chat_item_group_change, null);
         }
     }
 
@@ -273,22 +280,31 @@ public class MsgListAdapter extends BaseAdapter {
         return mMsgList.get(position);
     }
 
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler{
+        private final WeakReference<MsgListAdapter> mAdapter;
+
+        public MyHandler(MsgListAdapter adapter){
+            mAdapter = new WeakReference<MsgListAdapter>(adapter);
+        }
+
         @Override
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case UPDATE_IMAGEVIEW:
-                    Bundle bundle = msg.getData();
-                    ViewHolder holder = (ViewHolder) msg.obj;
-                    String path = bundle.getString("path");
-                    Picasso.with(mContext).load(new File(path)).into(holder.picture);
-                    refresh();
-                    Log.i(TAG, "Refresh Received picture");
-                    break;
+            MsgListAdapter adapter = mAdapter.get();
+            if(adapter != null){
+                switch (msg.what) {
+                    case UPDATE_IMAGEVIEW:
+                        Bundle bundle = msg.getData();
+                        ViewHolder holder = (ViewHolder) msg.obj;
+                        String path = bundle.getString("path");
+                        Picasso.with(adapter.mContext).load(new File(path)).into(holder.picture);
+                        adapter.refresh();
+                        Log.i(TAG, "Refresh Received picture");
+                        break;
+                }
             }
         }
-    };
+    }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
@@ -356,7 +372,7 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.group_content);
                 } catch (Exception e) {
                 }
-            } else {
+            } else if(contentType.equals(ContentType.location)) {
                 try {
                     holder.headIcon = (RoundImageView) convertView
                             .findViewById(R.id.avatar_iv);
@@ -368,6 +384,12 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.sending_iv);
                     holder.resend = (ImageButton) convertView
                             .findViewById(R.id.fail_resend_ib);
+                } catch (Exception e) {
+                }
+            }else {
+                try {
+                    holder.groupChange = (TextView) convertView
+                            .findViewById(R.id.group_content);
                 } catch (Exception e) {
                 }
             }
@@ -393,7 +415,7 @@ public class MsgListAdapter extends BaseAdapter {
                 handleGroupChangeMsg(msg, holder);
                 break;
             default:
-//                handleCustomMsg(msg, holder);
+                handleCustomMsg(holder);
         }
         //显示时间
         TextView msgTime = (TextView) convertView
@@ -579,6 +601,10 @@ public class MsgListAdapter extends BaseAdapter {
         holder.groupChange.setVisibility(View.VISIBLE);
     }
 
+    private void handleCustomMsg(ViewHolder holder){
+        holder.groupChange.setVisibility(View.GONE);
+    }
+
     private void handleTextMsg(final Message msg, final ViewHolder holder,
                                final int position) {
         final String content = ((TextContent) msg.getContent()).getText();
@@ -697,13 +723,11 @@ public class MsgListAdapter extends BaseAdapter {
                             @Override
                             public void onComplete(int status, String desc, File file) {
                                 if (status == 0) {
-                                    android.os.Message handleMsg = handler
-                                            .obtainMessage();
+                                    android.os.Message handleMsg = myHandler.obtainMessage();
                                     handleMsg.what = UPDATE_IMAGEVIEW;
                                     handleMsg.obj = holder;
                                     Bundle bundle = new Bundle();
-                                    bundle.putString("path",
-                                            file.getAbsolutePath());
+                                    bundle.putString("path", file.getAbsolutePath());
                                     handleMsg.setData(bundle);
                                     handleMsg.sendToTarget();
                                 }
@@ -842,7 +866,7 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     private void sendingImage(final ViewHolder holder, Animation sendingAnim, Message msg, final String path) {
-        holder.picture.setAlpha(0.8f);
+        holder.picture.setAlpha(0.7f);
         holder.sendingIv.setVisibility(View.VISIBLE);
         holder.sendingIv.startAnimation(sendingAnim);
         holder.progressTv.setVisibility(View.VISIBLE);
@@ -926,7 +950,7 @@ public class MsgListAdapter extends BaseAdapter {
         final String path = imgContent.getLocalThumbnailPath();
         viewHolder.sendingIv.setVisibility(View.VISIBLE);
         viewHolder.sendingIv.startAnimation(sendingAnim);
-        viewHolder.picture.setAlpha(0.8f);
+        viewHolder.picture.setAlpha(0.7f);
         viewHolder.resend.setVisibility(View.GONE);
         viewHolder.progressTv.setVisibility(View.VISIBLE);
         try {
@@ -1107,7 +1131,6 @@ public class MsgListAdapter extends BaseAdapter {
                                     .getLocalPath());
                             mFD = mFIS.getFD();
                             mp.setDataSource(mFD);
-                            mFIS.close();
                             mp.prepare();
                             playVoice();
                         }
@@ -1123,6 +1146,14 @@ public class MsgListAdapter extends BaseAdapter {
                     } catch (IOException e) {
                         Toast.makeText(mActivity, mContext.getString(R.string.file_not_found_toast),
                                 Toast.LENGTH_SHORT).show();
+                    }finally {
+                        try {
+                            if(mFIS != null){
+                                mFIS.close();
+                            }
+                        }catch (IOException e){
+                            e.printStackTrace();
+                        }
                     }
                     // 语音接收方特殊处理，自动连续播放未读语音
                 } else {
@@ -1140,24 +1171,35 @@ public class MsgListAdapter extends BaseAdapter {
                                 // 否则直接播放选中的语音
                             } else {
                                 holder.voice.setImageResource(R.anim.voice_receive);
-                                mVoiceAnimation = (AnimationDrawable) holder.voice
-                                        .getDrawable();
+                                mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
                                 mp.reset();
                                 // 记录播放录音的位置
                                 mPosition = position;
-                                try {
-                                    mFIS = new FileInputStream(content
-                                            .getLocalPath());
-                                    mFD = mFIS.getFD();
-                                    mp.setDataSource(mFD);
-                                    mFIS.close();
-                                    mp.prepare();
-                                    playVoice();
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                if(content.getLocalPath() != null){
+                                    try {
+                                        mFIS = new FileInputStream(content
+                                                .getLocalPath());
+                                        mFD = mFIS.getFD();
+                                        mp.setDataSource(mFD);
+                                        mp.prepare();
+                                        playVoice();
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }finally {
+                                        try {
+                                            if(mFIS != null){
+                                                mFIS.close();
+                                            }
+                                        }catch (IOException e){
+                                           e.printStackTrace();
+                                        }
+                                    }
+                                }else {
+                                    Toast.makeText(mContext, mContext.getString(R.string.voice_fetch_failed_toast), Toast.LENGTH_SHORT).show();
                                 }
+
                             }
                         }
                     } catch (IllegalArgumentException e) {
@@ -1217,7 +1259,6 @@ public class MsgListAdapter extends BaseAdapter {
             mFIS = new FileInputStream(vc.getLocalPath());
             mFD = mFIS.getFD();
             mp.setDataSource(mFD);
-            mFIS.close();
             mp.prepare();
             mp.setOnPreparedListener(new OnPreparedListener() {
                 @Override
@@ -1251,6 +1292,14 @@ public class MsgListAdapter extends BaseAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
+        }finally {
+            try {
+                if(mFIS != null){
+                    mFIS.close();
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
         }
     }
 

@@ -2,9 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
+    style="@style/chat_item_receive_layout">
 
     <TextView
         android:id="@+id/send_time_txt"
@@ -20,12 +18,7 @@
 
         <io.jchat.android.view.RoundImageView
             android:id="@+id/avatar_iv"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="3dp"
-            android:src="@drawable/head_icon"
-            android:scaleType="fitXY" />
+            style="@style/chat_item_receiver_avatar_style"/>
 
         <TextView
             android:id="@+id/display_name_tv"

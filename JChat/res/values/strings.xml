@@ -60,6 +60,7 @@
     <string name="send_voice_hint">松开 结束</string>
     <string name="move_to_cancel_hint">手指上滑，取消发送</string>
     <string name="rest_record_time_hint">还可以说%s秒</string>
+    <string name="combine_title">(%s)</string>
     <string name="file_not_found_toast">文件丢失</string>
     <string name="not_select_photo">你没有选择照片，请重新选择</string>
     <string name="picture_not_found">没有找到您想要的图片</string>
@@ -126,12 +127,14 @@
     <string name="confirm">确定</string>
     <string name="finish">完成</string>
     <string name="upload_avatar_title">请选择上传头像方式</string>
-    <string name="setting">系统设置</string>
+    <string name="setting">设置</string>
     <string name="login_out">退出登录</string>
     <string name="add_to_friend">加为好友</string>
     <string name="setting_username_hit">昵称</string>
     <string name="setting_username_big_hit">更改名字</string>
+    <string name="reset_nickname_hint">好名字可以让你的朋友更加容易记住你。</string>
     <string name="note_name">备注名</string>
+    <string name="description">描述</string>
     <string name="setting_location_hit">地区</string>
     <string name="input_location_title">输入地区</string>
     <string name="input_area_error">请输入您所在的地区</string>
@@ -139,6 +142,8 @@
     <string name="setting_signature_hit">个信签名</string>
     <string name="input_signature_toast">请输入您的个性签名</string>
     <string name="edit_signature_title">编辑个性签名</string>
+    <string name="edit_signature_count">30</string>
+    <string name="edit_friend_info_count">200</string>
     <string name="save">保存</string>
     <string name="man">男</string>
     <string name="woman">女</string>

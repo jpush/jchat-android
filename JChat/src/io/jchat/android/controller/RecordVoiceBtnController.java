@@ -32,6 +32,7 @@ import io.jchat.android.R;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Timer;
@@ -77,6 +78,7 @@ public class RecordVoiceBtnController extends Button {
     private Timer mCountTimer;
     private boolean isTimerCanceled = false;
     private boolean mTimeUp = false;
+    private final MyHandler myHandler = new MyHandler(this);
 
     public RecordVoiceBtnController(Context context) {
         super(context);
@@ -125,7 +127,7 @@ public class RecordVoiceBtnController extends Button {
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            android.os.Message msg = handler.obtainMessage();
+                            android.os.Message msg = myHandler.obtainMessage();
                             msg.what = 7;
                             msg.sendToTarget();
                         }
@@ -275,7 +277,7 @@ public class RecordVoiceBtnController extends Button {
                             @Override
                             public void gotResult(int status, String desc) {
                                 //Callback返回时刷新界面
-                                android.os.Message msg = handler.obtainMessage();
+                                android.os.Message msg = myHandler.obtainMessage();
                                 msg.what = 6;
                                 Bundle bundle = new Bundle();
                                 bundle.putInt("status", status);
@@ -494,24 +496,34 @@ public class RecordVoiceBtnController extends Button {
         }
     }
 
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler{
+        private final WeakReference<RecordVoiceBtnController> mController;
+
+        public MyHandler(RecordVoiceBtnController controller){
+            mController = new WeakReference<RecordVoiceBtnController>(controller);
+        }
 
         @Override
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case 6:
-                    int status = msg.getData().getInt("status", -1);
-                    HandleResponseCode.onHandle(mContext, status, false);
-                    Log.i("RecordVoiceController", "desc：" + msg.getData().getString("desc"));
-                    Log.i("RecordVoiceController", "refreshing!");
-                    mMsgListAdapter.refresh();
-                    break;
-                case 7:
-                    if (mIsPressed)
-                        initDialogAndStartRecord();
-                    break;
+            RecordVoiceBtnController controller = mController.get();
+            if (controller != null){
+                switch (msg.what) {
+                    case 6:
+                        int status = msg.getData().getInt("status", -1);
+                        if(status != 0){
+                            HandleResponseCode.onHandle(controller.mContext, status, false);
+                            Log.i("RecordVoiceController", "desc：" + msg.getData().getString("desc"));
+                            Log.i("RecordVoiceController", "refreshing!");
+                        }
+                        controller.mMsgListAdapter.refresh();
+                        break;
+                    case 7:
+                        if (mIsPressed)
+                            controller.initDialogAndStartRecord();
+                        break;
+                }
             }
         }
-    };
+    }
 }

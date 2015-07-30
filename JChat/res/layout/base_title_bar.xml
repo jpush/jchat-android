@@ -28,7 +28,7 @@
             android:gravity="center"
             android:text="@string/app_name"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/text_medium_size" />
+            android:textSize="@dimen/text_large_size" />
 
         <TextView
             android:id="@+id/title_bar_subtitle"

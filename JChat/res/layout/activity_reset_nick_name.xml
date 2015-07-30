@@ -9,22 +9,25 @@
 
     <EditText
         android:id="@+id/nick_name_et"
-        style="@style/default_input_style_with_bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_marginTop="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="5dp"
         android:cursorVisible="true"
-        android:textColorHint="@color/chat_detail_item_content_color"
-        android:textCursorDrawable="@drawable/text_cursor_bg" />
+        android:textSize="20sp"
+        android:textColor="@color/me_info_edit_color"
+        android:textColorHint="@color/me_info_hint_color"
+        android:textCursorDrawable="@drawable/text_cursor_bg"
+        android:background="@drawable/default_input_bg"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="5dp"
-        android:text="好名字可以让你更容易被记住"
+        android:text="@string/reset_nickname_hint"
         android:textColor="#808080" />
 
 </LinearLayout>

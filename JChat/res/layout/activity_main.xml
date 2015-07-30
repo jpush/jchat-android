@@ -32,8 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="3dp"
-                android:layout_marginLeft="13dp"
-                android:background="@drawable/voice_unread"/>
+                android:layout_marginLeft="13dp"/>
 
         </FrameLayout>
 

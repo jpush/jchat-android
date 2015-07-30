@@ -28,6 +28,7 @@ import io.jchat.android.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +78,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private boolean mIsGroup;
     private Long mGroupID;
     private int[] mMsgIDs;
+    private final MyHandler myHandler = new MyHandler(this);
     /**
      * 用来存储图片的选中情况
      */
@@ -176,6 +178,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
         if (mFromChatActivity) {
             titleBarRl.setVisibility(View.GONE);
             checkBoxRl.setVisibility(View.GONE);
+            if(mViewPager != null && mViewPager.getAdapter() != null){
+                mViewPager.getAdapter().notifyDataSetChanged();
+            }
             //预览头像
             if (browserAvatar) {
                 mPathList.add(intent.getStringExtra("avatarPath"));
@@ -199,12 +204,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     //如果发送方上传了原图
                     if(ic.getBooleanExtra("originalPicture")){
                         mLoadBtn.setVisibility(View.VISIBLE);
-                        NumberFormat ddf1 = NumberFormat.getNumberInstance();
-                        //保留小数点后两位
-                        ddf1.setMaximumFractionDigits(2);
-                        double size = ic.getFileSize() / 1048576.0;
-                        String fileSize = "(" + ddf1.format(size) + "M" + ")";
-                        mLoadBtn.setText(mContext.getString(R.string.load_origin_image) + fileSize);
+                        setLoadBtnText(ic);
                     }
                     //如果点击的是第一张图片并且图片未下载过，则显示大图
                     if (ic.getLocalPath() == null && mMsgIDList.indexOf(mMsg.getId()) == 0) {
@@ -238,6 +238,15 @@ public class BrowserViewPagerActivity extends BaseActivity {
             mPictureSelectedCb.setChecked(mSelectMap.get(currentItem));
             showTotalSize();
         }
+    }
+
+    private void setLoadBtnText(ImageContent ic) {
+        NumberFormat ddf1 = NumberFormat.getNumberInstance();
+        //保留小数点后两位
+        ddf1.setMaximumFractionDigits(2);
+        double size = ic.getFileSize() / 1048576.0;
+        String fileSize = "(" + ddf1.format(size) + "M" + ")";
+        mLoadBtn.setText(mContext.getString(R.string.load_origin_image) + fileSize);
     }
 
     /**
@@ -323,7 +332,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
 //                    mLoadBtn.setVisibility(View.VISIBLE);
                     downloadImage();
                 } else if(ic.getBooleanExtra("hasDownloaded") != null && !ic.getBooleanExtra("hasDownloaded")){
+                    setLoadBtnText(ic);
                     mLoadBtn.setVisibility(View.VISIBLE);
+                }else {
+                    mLoadBtn.setVisibility(View.GONE);
                 }
             } else {
                 mNumberTv.setText(i + 1 + "/" + mPathList.size());
@@ -391,7 +403,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                 Log.i(TAG, "发送缩略图");
                                 getThumbnailPictures(pathList, mPosition);
                             }
-                            handler.sendEmptyMessage(5);
+                            myHandler.sendEmptyMessage(5);
                         }
                     });
                     thread.start();
@@ -411,7 +423,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
             mMsg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
                 @Override
                 public void onProgressUpdate(double progress) {
-                    android.os.Message msg = handler.obtainMessage();
+                    android.os.Message msg = myHandler.obtainMessage();
                     Bundle bundle = new Bundle();
                     if (progress < 1.0) {
                         msg.what = 6;
@@ -431,7 +443,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         imgContent.setBooleanExtra("hasDownloaded", true);
                     }else{
                         imgContent.setBooleanExtra("hasDownloaded", false);
-                        android.os.Message msg = handler.obtainMessage();
+                        android.os.Message msg = myHandler.obtainMessage();
                         msg.what = 4;
                         Bundle bundle = new Bundle();
                         bundle.putInt("status", status);
@@ -553,7 +565,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
                     @Override
                     public void onProgressUpdate(double progress) {
-                        android.os.Message msg = handler.obtainMessage();
+                        android.os.Message msg = myHandler.obtainMessage();
                         Bundle bundle = new Bundle();
                         if (progress < 1.0) {
                             msg.what = 2;
@@ -573,7 +585,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                             public void onComplete(int status, String desc, File file) {
                                 mDownloading = false;
                                 if (status == 0) {
-                                    android.os.Message msg = handler.obtainMessage();
+                                    android.os.Message msg = myHandler.obtainMessage();
                                     msg.what = 1;
                                     Bundle bundle = new Bundle();
                                     bundle.putString("path", file.getAbsolutePath());
@@ -582,7 +594,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                     msg.setData(bundle);
                                     msg.sendToTarget();
                                 } else {
-                                    android.os.Message msg = handler.obtainMessage();
+                                    android.os.Message msg = myHandler.obtainMessage();
                                     msg.what = 4;
                                     Bundle bundle = new Bundle();
                                     bundle.putInt("status", status);
@@ -595,60 +607,61 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
     }
 
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler{
+        private final WeakReference<BrowserViewPagerActivity> mActivity;
+
+        public MyHandler(BrowserViewPagerActivity activity){
+            mActivity = new WeakReference<BrowserViewPagerActivity>(activity);
+        }
 
         @Override
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case 1:
-                    //更新图片并显示
-                    Bundle bundle = msg.getData();
-                    mPathList.set(bundle.getInt("position"), bundle.getString("path"));
-                    mViewPager.getAdapter().notifyDataSetChanged();
-                    mLoadBtn.setVisibility(View.GONE);
-                    break;
-                case 2:
-                    mProgressDialog.setProgress(msg.getData().getInt("progress"));
-                    break;
-                case 3:
-                    mProgressDialog.dismiss();
-                    break;
-                case 4:
-                    if(mProgressDialog != null){
-                        mProgressDialog.dismiss();
-                    }
-                    HandleResponseCode.onHandle(mContext, msg.getData().getInt("status"), false);
-                    break;
-                case 5:
-                    Intent intent = new Intent();
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("sendPicture", true);
-                    intent.putExtra("targetID", mTargetID);
-                    intent.putExtra("isGroup", mIsGroup);
-                    intent.putExtra("groupID", mGroupID);
-                    intent.putExtra("msgIDs", mMsgIDs);
-                    intent.setClass(BrowserViewPagerActivity.this, ChatActivity.class);
-                    startActivity(intent);
-                    finish();
-                    break;
-                //显示下载原图进度
-                case 6:
-                    mLoadBtn.setText(msg.getData().getInt("progress") + "%");
-                    break;
-                case 7:
-                    mLoadBtn.setText(mContext.getString(R.string.download_completed_toast));
-                    final Timer timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            mLoadBtn.setVisibility(View.GONE);
+            BrowserViewPagerActivity activity = mActivity.get();
+            if(activity != null){
+                switch (msg.what) {
+                    case 1:
+                        //更新图片并显示
+                        Bundle bundle = msg.getData();
+                        activity.mPathList.set(bundle.getInt("position"), bundle.getString("path"));
+                        activity.mViewPager.getAdapter().notifyDataSetChanged();
+                        activity.mLoadBtn.setVisibility(View.GONE);
+                        break;
+                    case 2:
+                        activity.mProgressDialog.setProgress(msg.getData().getInt("progress"));
+                        break;
+                    case 3:
+                        activity.mProgressDialog.dismiss();
+                        break;
+                    case 4:
+                        if(activity.mProgressDialog != null){
+                            activity.mProgressDialog.dismiss();
                         }
-                    }, 1000);
-                    break;
+                        HandleResponseCode.onHandle(activity, msg.getData().getInt("status"), false);
+                        break;
+                    case 5:
+                        Intent intent = new Intent();
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra("sendPicture", true);
+                        intent.putExtra("targetID", activity.mTargetID);
+                        intent.putExtra("isGroup", activity.mIsGroup);
+                        intent.putExtra("groupID", activity.mGroupID);
+                        intent.putExtra("msgIDs", activity.mMsgIDs);
+                        intent.setClass(activity, ChatActivity.class);
+                        activity.startActivity(intent);
+                        activity.finish();
+                        break;
+                    //显示下载原图进度
+                    case 6:
+                        activity.mLoadBtn.setText(msg.getData().getInt("progress") + "%");
+                        break;
+                    case 7:
+                        activity.mLoadBtn.setText(activity.getString(R.string.download_completed_toast));
+                        activity.mLoadBtn.setVisibility(View.GONE);
+                        break;
+                }
             }
         }
-
-    };
+    }
 
 }

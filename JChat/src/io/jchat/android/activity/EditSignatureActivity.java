@@ -3,6 +3,7 @@ package io.jchat.android.activity;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -14,6 +15,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,12 +34,13 @@ import cn.jpush.im.api.BasicCallback;
 /*
 编辑个性签名界面
  */
-public class EditSignatureActivity extends BaseActivity {
+public class EditSignatureActivity extends BaseActivity implements View.OnClickListener{
 
     private ImageButton mReturnBtn;
     private TextView mTitle;
     private Button mCommitBtn;
     private EditText mSignatureEt;
+    private ImageButton mDeleteBtn;
     private TextView mTextCountTv;
     private DialogCreator mLD;
     private Dialog mDialog;
@@ -52,20 +55,70 @@ public class EditSignatureActivity extends BaseActivity {
         mTitle = (TextView) findViewById(R.id.title_tv);
         mCommitBtn = (Button) findViewById(R.id.commit_btn);
         mTextCountTv = (TextView) findViewById(R.id.text_count_tv);
+        mDeleteBtn = (ImageButton) findViewById(R.id.delete_iv);
         mSignatureEt = (EditText) findViewById(R.id.signature_et);
+        mDeleteBtn.setOnClickListener(this);
+        mCommitBtn.setOnClickListener(this);
+        mReturnBtn.setOnClickListener(this);
         mSignatureEt.setHint(getIntent().getStringExtra("OldSignature"));
         mSignatureEt.addTextChangedListener(watcher);
         mTitle.setText(this.getString(R.string.edit_signature_title));
-        mReturnBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+    }
 
-        mCommitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+    TextWatcher watcher = new TextWatcher() {
+        private CharSequence temp;
+        private int editStart;
+        private int editEnd;
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int arg1, int arg2,
+                                      int arg3) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int count,
+                                  int after) {
+            // TODO Auto-generated method stub
+            temp = s;
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            editStart = mSignatureEt.getSelectionStart();
+            editEnd = mSignatureEt.getSelectionEnd();
+            if (temp.length() >= 0) {
+                mTextCountTv.setText("" + (30 - temp.length()) + "");
+            }
+            if (temp.length() > 30) {
+                s.delete(editStart - 1, editEnd);
+                int tempSelection = editStart;
+                mSignatureEt.setText(s);
+                mSignatureEt.setSelection(tempSelection);
+            }
+        }
+
+    };
+
+    private void dismissSoftInput() {
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        //隐藏软键盘
+        InputMethodManager imm = ((InputMethodManager) mContext
+                .getSystemService(Activity.INPUT_METHOD_SERVICE));
+        if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
+            if (getCurrentFocus() != null)
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.return_btn:
+                finish();
+                break;
+            case R.id.commit_btn:
                 final String signature = mSignatureEt.getText().toString().trim();
                 if (TextUtils.isEmpty(signature)) {
                     Toast.makeText(mContext, mContext.getString(R.string.input_signature_toast), Toast.LENGTH_SHORT).show();
@@ -97,55 +150,10 @@ public class EditSignatureActivity extends BaseActivity {
                         });
                     }
                 });
-
-            }
-        });
-    }
-
-    TextWatcher watcher = new TextWatcher() {
-        private CharSequence temp;
-        private int editStart;
-        private int editEnd;
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int arg1, int arg2,
-                                      int arg3) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int count,
-                                  int after) {
-            // TODO Auto-generated method stub
-            temp = s;
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            editStart = mSignatureEt.getSelectionStart();
-            editEnd = mSignatureEt.getSelectionEnd();
-            if (temp.length() > 0) {
-                mTextCountTv.setText("" + (30 - temp.length()) + "");
-            }
-            if (temp.length() > 30) {
-                s.delete(editStart - 1, editEnd);
-                int tempSelection = editStart;
-                mSignatureEt.setText(s);
-                mSignatureEt.setSelection(tempSelection);
-            }
-        }
-
-    };
-
-    private void dismissSoftInput() {
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        //隐藏软键盘
-        InputMethodManager imm = ((InputMethodManager) mContext
-                .getSystemService(Activity.INPUT_METHOD_SERVICE));
-        if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
-            if (getCurrentFocus() != null)
-                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                break;
+            case R.id.delete_iv:
+                mSignatureEt.setText("");
+                break;
         }
     }
 }

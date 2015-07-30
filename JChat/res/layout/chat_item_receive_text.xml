@@ -2,9 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="10dp"
-    android:paddingTop="10dp">
+    style="@style/chat_item_receive_layout">
 
 
     <TextView
@@ -22,13 +20,7 @@
 
         <io.jchat.android.view.RoundImageView
             android:id="@+id/avatar_iv"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="3dp"
-            android:focusable="false"
-            android:src="@drawable/head_icon" />
+            style="@style/chat_item_receiver_avatar_style"/>
 
         <TextView
             android:id="@+id/display_name_tv"
@@ -47,10 +39,10 @@
             android:layout_marginLeft="3dp"
             android:layout_toRightOf="@id/avatar_iv"
             android:background="@drawable/msg_receive_bg"
-            android:paddingBottom="10dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
             android:paddingLeft="15dp"
             android:paddingRight="10dp"
-            android:paddingTop="10dp"
             android:textColor="#363333" />
 
     </RelativeLayout>

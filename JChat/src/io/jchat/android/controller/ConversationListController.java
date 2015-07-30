@@ -91,17 +91,6 @@ public class ConversationListController implements OnClickListener,
         intent.setClass(mContext.getActivity(), ChatActivity.class);
         mContext.startActivity(intent);
 
-        checkHasNewMessage();
-    }
-
-    public void checkHasNewMessage() {
-        for(Conversation conv : mDatas){
-            if(conv.getUnReadMsgCnt() != 0){
-                mContext.mListener.onNewMsgReceived();
-                return;
-            }
-        }
-        mContext.mListener.onClearNewMsgFlag();
     }
 
     /*
