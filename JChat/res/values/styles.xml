@@ -61,7 +61,8 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerVertical">true</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:layout_marginLeft">15dp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/chat_detail_item_hit_color</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -92,8 +93,8 @@
 
     <style name="ChatDetailItem">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">20dp</item>
+        <item name="android:layout_height">55dp</item>
+        <item name="android:padding">5dp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:background">@drawable/list_item_bg</item>

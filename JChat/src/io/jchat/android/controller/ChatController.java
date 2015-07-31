@@ -146,11 +146,6 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             mConv = Conversation.createConversation(ConversationType.single, mTargetID);
         }
         if (mConv != null) {
-            if(TextUtils.isEmpty(mConv.getTitle())){
-                mChatView.setChatTitle(mContext.getString(R.string.group));
-            }else {
-                mChatView.setChatTitle(mConv.getTitle());
-            }
             mConv.resetUnreadCount();
         }
         mChatAdapter = new MsgListAdapter(mContext, mIsGroup, mTargetID, mGroupID);

@@ -160,7 +160,7 @@
             android:layout_marginRight="20dp"
             android:layout_height="50dp"
             android:background="@drawable/chat_detail_btn_bg"
-            android:textSize="@dimen/text_large_size"
+            android:textSize="18sp"
             android:text="@string/group_exit_btn"
             android:textColor="@color/white" />
     </LinearLayout>
