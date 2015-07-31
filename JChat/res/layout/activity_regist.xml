@@ -27,7 +27,7 @@
             android:layout_centerVertical="true"
             android:text="@string/app_name"
             android:textColor="#ffffff"
-            android:textSize="18sp"/>
+            android:textSize="@dimen/text_large_size"/>
 
     </RelativeLayout>
 

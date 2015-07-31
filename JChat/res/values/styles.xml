@@ -285,11 +285,13 @@
     </style>
     
     <style name="round_check_box_style" parent="@android:style/Widget.CompoundButton.CheckBox">
-        <item name="android:button">@drawable/round_check_box_bg</item>
+        <item name="android:background">@drawable/round_check_box_bg</item>
+        <item name="android:button">@null</item>
     </style>
     
     <style name="default_check_box_style" parent="@android:style/Widget.CompoundButton.CheckBox">
-        <item name="android:button">@drawable/default_check_box_style</item>
+        <item name="android:background">@drawable/default_check_box_style</item>
+        <item name="android:button">@null</item>
     </style>
 
     <style name="default_input_style_with_bg">

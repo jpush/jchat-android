@@ -159,7 +159,9 @@ public class MsgListAdapter extends BaseAdapter {
         AudioManager audioManager = (AudioManager) mContext
                 .getSystemService(Context.AUDIO_SERVICE);
         audioManager.setMode(AudioManager.MODE_NORMAL);
-        audioManager.setSpeakerphoneOn(true);
+        if(audioManager.isSpeakerphoneOn()){
+            audioManager.setSpeakerphoneOn(true);
+        }else audioManager.setSpeakerphoneOn(false);
         mp.setAudioStreamType(AudioManager.STREAM_RING);
         mp.setOnErrorListener(new OnErrorListener() {
 
@@ -518,12 +520,16 @@ public class MsgListAdapter extends BaseAdapter {
                         .findViewById(R.id.copy_msg_ll);
                 LinearLayout forwardLl = (LinearLayout) view
                         .findViewById(R.id.forward_msg_ll);
+                View line1 = view.findViewById(R.id.forward_split_line);
+                View line2 = view.findViewById(R.id.delete_split_line);
                 Button deleteBtn = (Button) view.findViewById(R.id.delete_msg_btn);
                 final TextView title = (TextView) view
                         .findViewById(R.id.dialog_title);
                 if (msg.getContentType().equals(ContentType.voice)) {
                     copyLl.setVisibility(View.GONE);
                     forwardLl.setVisibility(View.GONE);
+                    line1.setVisibility(View.GONE);
+                    line2.setVisibility(View.GONE);
                 }
                 String name;
                 name = msg.getFromName();
@@ -826,11 +832,15 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.copy_msg_ll);
                     LinearLayout forwardLl = (LinearLayout) view
                             .findViewById(R.id.forward_msg_ll);
+                    View line1 = view.findViewById(R.id.forward_split_line);
+                    View line2 = view.findViewById(R.id.delete_split_line);
                     Button deleteBtn = (Button) view.findViewById(R.id.delete_msg_btn);
                     final TextView title = (TextView) view
                             .findViewById(R.id.dialog_title);
                     copyLl.setVisibility(View.GONE);
                     forwardLl.setVisibility(View.GONE);
+                    line1.setVisibility(View.GONE);
+                    line2.setVisibility(View.GONE);
                     String name;
                     name = msg.getFromName();
                     title.setText(name);
