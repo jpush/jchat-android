@@ -121,6 +121,7 @@ public class MsgListAdapter extends BaseAdapter {
 
     private int nextPlayPosition = 0;
     private double mDensity;
+    private boolean mIsEarPhoneOn;
 
     public MsgListAdapter(Context context, boolean isGroup, String targetID, long groupID) {
         this.mContext = context;
@@ -280,6 +281,27 @@ public class MsgListAdapter extends BaseAdapter {
     @Override
     public Message getItem(int position) {
         return mMsgList.get(position);
+    }
+
+    public void setAudioPlayByEarPhone(int state) {
+        AudioManager audioManager = (AudioManager) mContext
+                .getSystemService(Context.AUDIO_SERVICE);
+        int currVolume = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+        audioManager.setMode(AudioManager.MODE_IN_CALL);
+        if(state == 0){
+            mIsEarPhoneOn = false;
+            audioManager.setSpeakerphoneOn(true);
+            audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                    audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
+                    AudioManager.STREAM_VOICE_CALL);
+            Log.i(TAG, "set SpeakerphoneOn true!");
+        }else {
+            mIsEarPhoneOn = true;
+            audioManager.setSpeakerphoneOn(false);
+            audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, currVolume,
+                    AudioManager.STREAM_VOICE_CALL);
+            Log.i(TAG, "set SpeakerphoneOn false!");
+        }
     }
 
     private static class MyHandler extends Handler{
@@ -1141,6 +1163,12 @@ public class MsgListAdapter extends BaseAdapter {
                                     .getLocalPath());
                             mFD = mFIS.getFD();
                             mp.setDataSource(mFD);
+                            if(mIsEarPhoneOn){
+                                mp.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+                            }else {
+                                mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                            }
+
                             mp.prepare();
                             playVoice();
                         }
