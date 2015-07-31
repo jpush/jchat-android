@@ -16,8 +16,8 @@
         android:paddingRight="10dp">
 
         <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="55dp"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical">
 
             <io.jchat.android.view.RoundImageView
@@ -33,6 +33,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_gravity="top|right"
+                android:layout_marginTop="3dp"
                 android:background="@drawable/red_circle"
                 android:gravity="center"
                 android:text="15"
@@ -67,7 +68,7 @@
                     android:id="@+id/msg_item_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ems="5"
+                    android:ems="10"
                     android:singleLine="true"
                     android:text=""
                     android:textSize="16sp"
