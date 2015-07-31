@@ -71,7 +71,6 @@ public class MenuItemController implements View.OnClickListener {
                                     intent.putExtra("fromGroup", true);
                                     intent.putExtra("groupID", groupID);
                                     intent.putExtra("targetID", String.valueOf(groupID));
-                                    intent.putExtra("groupName", conv.getDisplayName());
                                     intent.setClass(mContext.getActivity(), ChatActivity.class);
                                     mContext.startActivity(intent);
                                 } else {

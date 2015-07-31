@@ -3,6 +3,7 @@ package io.jchat.android.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -132,27 +133,59 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         } else {
             viewTag = (ItemViewTag) convertView.getTag();
         }
-        //是Delete状态
-        if (mIsShowDelete) {
-            if (position < mCurrentNum) {
-                //群主不能删除自己
-                UserInfo userInfo = mMemberList.get(position);
-                if (userInfo.getUserName().equals(JMessageClient.getMyInfo().getUserName()))
-                    viewTag.deleteIcon.setVisibility(View.GONE);
-                else viewTag.deleteIcon.setVisibility(View.VISIBLE);
-                viewTag = (ItemViewTag) convertView.getTag();
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
-                if (bitmap != null)
-                    viewTag.icon.setImageBitmap(bitmap);
-                else{
+
+        if(position < mCurrentNum){
+            UserInfo userInfo = mMemberList.get(position);
+            viewTag = (ItemViewTag) convertView.getTag();
+            viewTag.icon.setVisibility(View.VISIBLE);
+            viewTag.name.setVisibility(View.VISIBLE);
+            bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
+            if (bitmap != null)
+                viewTag.icon.setImageBitmap(bitmap);
+            else{
+                //如果mediaID为空，表明用户没有设置过头像，用默认头像
+                if(TextUtils.isEmpty(userInfo.getAvatar())){
+                    viewTag.icon.setImageResource(R.drawable.head_icon);
+                }else {
                     File file = userInfo.getAvatarFile();
+                    //如果本地存在头像
                     if(file != null && file.isFile()){
                         bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
                         NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
                         viewTag.icon.setImageBitmap(bitmap);
-                    }else viewTag.icon.setImageResource(R.drawable.head_icon);
+                        //从网上拿头像
+                    }else {
+                        viewTag.icon.setImageResource(R.drawable.head_icon);
+                        final String userName = userInfo.getUserName();
+                        userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, File file) {
+                                if(status == 0){
+                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),  mDefaultSize,  mDefaultSize);
+                                    NativeImageLoader.getInstance().updateBitmapFromCache(userName, bitmap);
+                                    notifyDataSetChanged();
+                                }
+                            }
+                        });
+                    }
                 }
+            }
+
+            if(TextUtils.isEmpty(userInfo.getNickname())){
+                viewTag.name.setText(userInfo.getUserName());
+            }else {
                 viewTag.name.setText(userInfo.getNickname());
+            }
+        }
+        //是Delete状态
+        if (mIsShowDelete) {
+            if (position < mCurrentNum) {
+                UserInfo userInfo = mMemberList.get(position);
+                //群主不能删除自己
+                if (userInfo.getUserName().equals(JMessageClient.getMyInfo().getUserName()))
+                    viewTag.deleteIcon.setVisibility(View.GONE);
+                else viewTag.deleteIcon.setVisibility(View.VISIBLE);
+
             } else {
                 viewTag.deleteIcon.setVisibility(View.INVISIBLE);
                 viewTag.icon.setVisibility(View.INVISIBLE);
@@ -161,38 +194,10 @@ public class GroupMemberGridAdapter extends BaseAdapter {
             //非Delete状态
         } else {
             viewTag.deleteIcon.setVisibility(View.INVISIBLE);
-            //群成员
-            if (position < mCurrentNum) {
-                final UserInfo userInfo = mMemberList.get(position);
-                viewTag = (ItemViewTag) convertView.getTag();
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
-                if (bitmap != null)
-                    viewTag.icon.setImageBitmap(bitmap);
-                //如果内存中不存在头像缓存
-                else{
-                    File file = userInfo.getAvatarFile();
-                    if(file != null && file.isFile()){
-                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),  mDefaultSize,  mDefaultSize);
-                        NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
-                        viewTag.icon.setImageBitmap(bitmap);
-                    }else {
-                        viewTag.icon.setImageResource(R.drawable.head_icon);
-                        userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
-                            @Override
-                            public void gotResult(int status, String desc, File file) {
-                                if(status == 0){
-                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),  mDefaultSize,  mDefaultSize);
-                                    NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
-                                    notifyDataSetChanged();
-                                }
-                            }
-                        });
-                    }
-                }
-                viewTag.name.setText(userInfo.getNickname());
+            if(position < mCurrentNum){
+                viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
-                //设置增加群成员按钮
-            } else if (position == mCurrentNum) {
+            }else if (position == mCurrentNum) {
                 viewTag = (ItemViewTag) convertView.getTag();
                 viewTag.icon.setImageResource(R.drawable.chat_detail_add);
                 viewTag.icon.setVisibility(View.VISIBLE);

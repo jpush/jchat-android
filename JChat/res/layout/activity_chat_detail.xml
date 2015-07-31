@@ -29,7 +29,7 @@
             android:horizontalSpacing="10dp"
             android:numColumns="4"
             android:stretchMode="columnWidth"
-            android:verticalSpacing="10dp" >
+            android:verticalSpacing="10dp">
         </io.jchat.android.view.GroupGridView>
 
 

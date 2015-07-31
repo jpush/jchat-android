@@ -33,8 +33,6 @@ public class FriendInfoController implements OnClickListener {
             case R.id.friend_info_return_btn:
                 mContext.finish();
                 break;
-            case R.id.friend_more_btn:
-                break;
             case R.id.friend_send_msg_btn:
                 mContext.StartChatActivity();
                 break;
@@ -42,11 +40,11 @@ public class FriendInfoController implements OnClickListener {
                 mContext.startBrowserAvatar();
                 break;
             case R.id.name_rl:
-                Intent intent = new Intent();
-                intent.setClass(mContext, EditNoteNameActivity.class);
-                intent.putExtra("noteName", "ddsklf");
-                intent.putExtra("friendDescription", "kjdkjdlkj");
-                mContext.startActivity(intent);
+//                Intent intent = new Intent();
+//                intent.setClass(mContext, EditNoteNameActivity.class);
+//                intent.putExtra("noteName", "ddsklf");
+//                intent.putExtra("friendDescription", "kjdkjdlkj");
+//                mContext.startActivity(intent);
                 break;
         }
     }

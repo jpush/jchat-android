@@ -133,7 +133,7 @@ public class ConversationListController implements OnClickListener,
         builder.setView(v);
         final TextView title = (TextView) v.findViewById(R.id.dialog_title);
         final Button deleteBtn = (Button) v.findViewById(R.id.delete_conv_btn);
-        title.setText(conv.getDisplayName());
+        title.setText(conv.getTitle());
         final Dialog dialog = builder.create();
         dialog.show();
         deleteBtn.setOnClickListener(new OnClickListener() {

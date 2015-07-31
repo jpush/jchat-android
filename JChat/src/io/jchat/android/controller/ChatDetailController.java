@@ -515,7 +515,6 @@ public class ChatDetailController implements OnClickListener,
                     // 初始化群组
                     case 0:
                         GroupInfo groupInfo = (GroupInfo) msg.obj;
-                        controller.mChatDetailView.setTitle(groupInfo.getGroupMembers().size());
                         String groupOwnerID = groupInfo.getGroupOwner();
                         controller.mGroupName = groupInfo.getGroupName();
                         if(TextUtils.isEmpty(controller.mGroupName)){
@@ -550,6 +549,7 @@ public class ChatDetailController implements OnClickListener,
                     // 获取成员列表，缓存头像，更新GridView
                     case GET_GROUP_MEMBER:
                         Log.i(TAG, "GroupMember: " + controller.mMemberIDList.toString());
+                        controller.mChatDetailView.setTitle(controller.mMemberIDList.size());
                         controller.initAdapter();
                         break;
                     // 添加成员
@@ -594,9 +594,9 @@ public class ChatDetailController implements OnClickListener,
                                 mLoadingDialog.dismiss();
                             Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
                             if (status == 0) {
-                                mContext.StartChatActivity(groupID, conv.getDisplayName());
+                                mContext.StartChatActivity(groupID, conv.getTitle());
                             } else {
-                                mContext.StartChatActivity(groupID, conv.getDisplayName());
+                                mContext.StartChatActivity(groupID, conv.getTitle());
                                 Toast.makeText(mContext, desc, Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -627,6 +627,10 @@ public class ChatDetailController implements OnClickListener,
             }
         }
         return true;
+    }
+
+    public long getGroupID(){
+        return mGroupID;
     }
 
     /**

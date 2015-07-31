@@ -38,10 +38,6 @@
                 android:background="@drawable/arrow"/>
         </RelativeLayout>
         
-        <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/me_split_line_color" />
 
         <RelativeLayout
             android:id="@+id/change_password_rl"

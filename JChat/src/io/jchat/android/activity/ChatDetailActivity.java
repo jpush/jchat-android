@@ -214,7 +214,7 @@ public class ChatDetailActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-//        mChatDetailController.refresh(mChatDetailController.refresh());
+        mChatDetailController.refresh(mChatDetailController.getGroupID());
         super.onResume();
     }
 
