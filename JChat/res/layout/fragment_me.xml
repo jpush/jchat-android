@@ -76,15 +76,9 @@
 
                     <TextView
                         android:id="@+id/user_name_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/info_left_txt_style"
                         android:layout_toRightOf="@id/avatar_iv"
-                        android:layout_centerVertical="true"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="10dp"
-                        android:text="Minion"
-                        android:textSize="@dimen/text_medium_size"
-                        android:textColor="#555555" />
+                        android:text="Minion" />
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -113,15 +107,9 @@
                         android:background="@drawable/setting" />
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/info_left_txt_style"
                         android:layout_toRightOf="@id/setting_iv"
-                        android:layout_centerVertical="true"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="10dp"
-                        android:text="@string/setting"
-                        android:textSize="@dimen/text_medium_size"
-                        android:textColor="#555555" />
+                        android:text="@string/setting"/>
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -151,15 +139,9 @@
 
                     <TextView
                         android:id="@+id/logout_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/info_left_txt_style"
                         android:layout_toRightOf="@id/exit_iv"
-                        android:layout_centerVertical="true"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="10dp"
-                        android:text="@string/login_out"
-                        android:textSize="@dimen/text_medium_size"
-                        android:textColor="#555555" />
+                        android:text="@string/login_out"/>
 
                     <ImageView
                         android:layout_width="wrap_content"

@@ -28,18 +28,16 @@
             android:layout_marginLeft="15dp"
             android:textSize="20sp"
             android:textColor="#FFFFFF"
+            android:visibility="gone"
             />
 
         <Button
             android:id="@+id/pick_picture_send_btn"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:gravity="center"
+            android:layout_height="match_parent"
             android:padding="5dp"
-            android:layout_marginRight="10dp"
             android:layout_alignParentRight="true"
-            android:layout_centerInParent="true"
-            android:background="@color/green"
+            android:background="@drawable/send_picture_btn_bg"
             android:text="@string/send"/>
     </RelativeLayout>
     
@@ -82,7 +80,7 @@
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
            android:layout_centerVertical="true"
-           android:layout_marginLeft="5dp"
+           android:layout_marginLeft="15dp"
            style="@style/round_check_box_style"
 
            />
@@ -105,7 +103,7 @@
                android:layout_height="wrap_content"
                android:layout_alignParentRight="true"
                android:layout_centerVertical="true"
-               android:layout_marginRight="5dp"
+               android:layout_marginRight="15dp"
                android:text="@string/choose"
                android:textColor="#FFFFFF"
                android:textSize="20sp"

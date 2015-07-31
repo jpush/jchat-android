@@ -8,6 +8,7 @@ import io.jchat.android.tools.NativeImageLoader;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -60,7 +61,11 @@ public class FriendInfoView extends LinearLayout{
             Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(100 * density), (int)(100 * density));
             mAvatarIv.setImageBitmap(bitmap);
         }
-        mNickNameTv.setText(userInfo.getNickname());
+        if(TextUtils.isEmpty(userInfo.getNickname())){
+            mNickNameTv.setText(userInfo.getUserName());
+        }else {
+            mNickNameTv.setText(userInfo.getNickname());
+        }
         mNoteName.setText(userInfo.getNotename());
         if(userInfo.getGender() == UserInfo.Gender.male){
             mGenderTv.setText(mContext.getString(R.string.man));

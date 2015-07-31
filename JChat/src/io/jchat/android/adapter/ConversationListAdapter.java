@@ -120,7 +120,7 @@ public class ConversationListAdapter extends BaseAdapter {
 //		viewHolder.headIcon.setImageResource(R.drawable.head_icon);
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
-            viewHolder.groupName.setText(convItem.getDisplayName());
+            viewHolder.groupName.setText(convItem.getTitle());
             Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(convItem.getTargetId());
             if (bitmap != null)
                 viewHolder.headIcon.setImageBitmap(bitmap);
@@ -129,7 +129,7 @@ public class ConversationListAdapter extends BaseAdapter {
         // 群聊
         else {
             viewHolder.headIcon.setImageResource(R.drawable.group);
-            viewHolder.groupName.setText(convItem.getDisplayName());
+            viewHolder.groupName.setText(convItem.getTitle());
         }
 
         // TODO 更新Message的数量,

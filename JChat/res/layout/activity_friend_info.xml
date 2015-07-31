@@ -7,7 +7,7 @@
    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/title_bar_height"
-        android:background="#6599E4" >
+        android:background="@color/jpush_blue" >
 
         <ImageButton
             android:id="@+id/friend_info_return_btn"
@@ -27,16 +27,6 @@
             android:textColor="@color/white"
             android:textSize="20sp"/>
         
-     <ImageButton 
-         android:id="@+id/friend_more_btn"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_marginRight="10dp"
-         android:layout_centerVertical="true"
-         android:layout_alignParentRight="true"
-         android:background="@drawable/add_btn_bg"
-         android:visibility="invisible"
-         />
     </RelativeLayout>
     <ScrollView
         android:layout_width="match_parent"
@@ -97,12 +87,8 @@
                     android:background="@drawable/note_info" />
                 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
+                    style="@style/info_left_txt_style"
                     android:layout_toRightOf="@+id/note_name_icon_iv"
-                    android:layout_marginLeft="5dp"
-                    android:textColor="#555555"
                     android:text="@string/note_name"
                     />
 
@@ -167,12 +153,8 @@
                     android:src="@drawable/sex_man" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="10dp"
-                    android:text="@string/sex"
-                    android:textColor="#555555" />
+                    style="@style/info_left_txt_style"
+                    android:text="@string/sex" />
 
                 <TextView
                     android:id="@+id/gender_tv"
@@ -199,13 +181,8 @@
                     android:background="@drawable/area" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="10dp"
-                    android:text="@string/area"
-                    android:textColor="#555555" />
+                    style="@style/info_left_txt_style"
+                    android:text="@string/area" />
 
                 <TextView
                     android:id="@+id/region_tv"
@@ -234,13 +211,9 @@
                     android:background="@drawable/sign" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
+                    style="@style/info_left_txt_style"
                     android:layout_toRightOf="@+id/signature_icon_iv"
-                    android:layout_marginLeft="5dp"
-                    android:text="@string/sign"
-                    android:textColor="#555555" />
+                    android:text="@string/sign" />
 
                 <TextView
                     android:id="@+id/signature_tv"

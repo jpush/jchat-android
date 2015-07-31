@@ -82,8 +82,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             Log.i("Tag", "mGroupID is " + mGroupID);
             //判断是否从创建群组跳转过来
             if (fromGroup) {
-                String groupName = intent.getStringExtra("groupName");
-                mChatView.setChatTitle(groupName);
+                mChatView.setChatTitle(mContext.getString(R.string.group), 1);
                 mConv = JMessageClient.getGroupConversation(mGroupID);
             } else {
                 if (mTargetID != null)
@@ -96,9 +95,9 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                     public void gotResult(int status, String desc, GroupInfo groupInfo) {
                         if(status == 0){
                             if(!TextUtils.isEmpty(groupInfo.getGroupName())){
-                                Log.i("ChatController", "GroupMember size: " + groupInfo.getGroupMembers().size());
                                 mChatView.setChatTitle(groupInfo.getGroupName(), groupInfo.getGroupMembers().size());
                             }else {
+                                Log.i("ChatController", "GroupMember size: " + groupInfo.getGroupMembers().size());
                                 mChatView.setChatTitle(mContext.getString(R.string.group), groupInfo.getGroupMembers().size());
                             }
                         }
@@ -147,10 +146,10 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             mConv = Conversation.createConversation(ConversationType.single, mTargetID);
         }
         if (mConv != null) {
-            if(TextUtils.isEmpty(mConv.getDisplayName())){
+            if(TextUtils.isEmpty(mConv.getTitle())){
                 mChatView.setChatTitle(mContext.getString(R.string.group));
             }else {
-                mChatView.setChatTitle(mConv.getDisplayName());
+                mChatView.setChatTitle(mConv.getTitle());
             }
             mConv.resetUnreadCount();
         }

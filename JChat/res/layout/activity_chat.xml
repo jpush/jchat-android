@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/send_msg_layout"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="@dimen/title_bar_height"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true">
 

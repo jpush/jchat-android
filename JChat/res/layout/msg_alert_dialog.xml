@@ -43,6 +43,7 @@
     </LinearLayout>
 
     <View
+        android:id="@+id/forward_split_line"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#cbc9ca" />
@@ -67,6 +68,7 @@
     </LinearLayout>
 
     <View
+        android:id="@+id/delete_split_line"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#cbc9ca" />

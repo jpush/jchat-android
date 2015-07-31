@@ -68,6 +68,7 @@
         android:background="@drawable/fix_profile_btn_bg"
         android:clickable="false"
         android:text="@string/finish"
+        android:textSize="@dimen/text_large_size"
         android:textColor="#ffffff" />
 
 </LinearLayout>

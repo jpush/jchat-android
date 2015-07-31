@@ -18,7 +18,7 @@
             android:layout_centerVertical="true"
             android:text="Title"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/text_medium_size" />
+            android:textSize="@dimen/text_large_size" />
 
         <ImageButton
             android:id="@+id/create_group_btn"

@@ -22,6 +22,7 @@ import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.io.File;
@@ -100,7 +101,7 @@ public class ChatActivity extends BaseActivity {
             case JPushDemoApplication.REFRESH_GROUP_NAME:
                 if(mChatController.getConversation() != null){
                     int num = msg.getData().getInt("membersCount");
-                    mChatView.setChatTitle(mChatController.getConversation().getDisplayName(), num);
+                    mChatView.setChatTitle(mChatController.getConversation().getTitle(), num);
                 }
                 break;
         }
@@ -315,17 +316,16 @@ public class ChatActivity extends BaseActivity {
      */
     public void onEvent(MessageEvent event) {
         Message msg = event.getMessage();
-        //若为群聊相关事件，如添加、删除群成员，退出群聊
+        //若为群聊相关事件，如添加、删除群成员
+        Log.i(TAG, event.getMessage().toString());
         if(msg.getContentType() == ContentType.eventNotification){
-            //退出群聊
-            if(((EventNotificationContent)msg.getContent()).getEventNotificationType().equals(EventNotificationContent.EventNotificationType.group_member_exit)){
-                //群成员退群事件已经弃用
-
-            }else if(((EventNotificationContent)msg.getContent()).getEventNotificationType().equals(EventNotificationContent.EventNotificationType.group_member_removed)){
+            UserInfo myInfo = JMessageClient.getMyInfo();
+            EventNotificationContent.EventNotificationType type = ((EventNotificationContent)msg.getContent()).getEventNotificationType();
+            if(type.equals(EventNotificationContent.EventNotificationType.group_member_removed)){
                 //删除群成员事件
                 List<String> userNames = ((EventNotificationContent)msg.getContent()).getUserNames();
                 //群主删除了当前用户，则隐藏聊天详情按钮
-                if(userNames.contains(JMessageClient.getMyInfo().getUserName())){
+                if(userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -338,7 +338,7 @@ public class ChatActivity extends BaseActivity {
                 //添加群成员事件
                 List<String> userNames = ((EventNotificationContent)msg.getContent()).getUserNames();
                 //群主把当前用户添加到群聊，则显示聊天详情按钮
-                if(userNames.contains(JMessageClient.getMyInfo().getUserName())){
+                if(userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
