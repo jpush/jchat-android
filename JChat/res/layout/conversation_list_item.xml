@@ -12,20 +12,20 @@
         android:layout_height="wrap_content"
         android:baselineAligned="false"
         android:orientation="horizontal"
-        android:paddingBottom="5dp"
         android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="5dp">
+        android:paddingRight="10dp">
 
         <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="55dp"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical">
 
             <io.jchat.android.view.RoundImageView
                 android:id="@+id/msg_item_head_icon"
                 android:layout_width="@dimen/item_head_icon_size"
                 android:layout_height="@dimen/item_head_icon_size"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:src="@drawable/head_icon" />
 
             <TextView
@@ -33,6 +33,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_gravity="top|right"
+                android:layout_marginTop="3dp"
                 android:background="@drawable/red_circle"
                 android:gravity="center"
                 android:text="15"
@@ -43,6 +44,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginTop="5dp"
             android:layout_marginLeft="5dp"
             android:padding="5dp">
 
@@ -60,18 +62,16 @@
                     android:ems="6"
                     android:singleLine="true"
                     android:textColor="#3F80DD"
-                    android:textSize="@dimen/text_medium_size"
-                    android:textStyle="bold" />
+                    android:textSize="@dimen/text_medium_size" />
 
                 <TextView
                     android:id="@+id/msg_item_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:ems="5"
+                    android:ems="10"
                     android:singleLine="true"
                     android:text=""
-                    android:textSize="@dimen/text_medium_size"
+                    android:textSize="16sp"
                     android:textColor="#808080" />
             </LinearLayout>
 

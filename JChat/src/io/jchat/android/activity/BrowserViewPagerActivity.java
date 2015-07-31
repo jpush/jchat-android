@@ -203,7 +203,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     ImageContent ic = (ImageContent) mMsg.getContent();
                     //如果发送方上传了原图
                     if(ic.getBooleanExtra("originalPicture")){
-                        mLoadBtn.setVisibility(View.VISIBLE);
+                        mLoadBtn.setVisibility(View.GONE);
                         setLoadBtnText(ic);
                     }
                     //如果点击的是第一张图片并且图片未下载过，则显示大图
@@ -333,7 +333,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     downloadImage();
                 } else if(ic.getBooleanExtra("hasDownloaded") != null && !ic.getBooleanExtra("hasDownloaded")){
                     setLoadBtnText(ic);
-                    mLoadBtn.setVisibility(View.VISIBLE);
+                    mLoadBtn.setVisibility(View.GONE);
                 }else {
                     mLoadBtn.setVisibility(View.GONE);
                 }

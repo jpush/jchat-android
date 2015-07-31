@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -71,6 +72,7 @@ public class ChatActivity extends BaseActivity {
 		mReceiver = new GroupNameChangedReceiver();
 		IntentFilter filter = new IntentFilter();
         filter.addAction(JPushDemoApplication.UPDATE_GROUP_NAME_ACTION);
+        filter.addAction(Intent.ACTION_HEADSET_PLUG);
 		registerReceiver(mReceiver, filter);
 	}
 
@@ -83,6 +85,8 @@ public class ChatActivity extends BaseActivity {
                 if(data.getAction().equals(
                     JPushDemoApplication.UPDATE_GROUP_NAME_ACTION)){
                     mChatView.setChatTitle(data.getStringExtra("newGroupName"));
+                }else if(data.getAction().equals(Intent.ACTION_HEADSET_PLUG)){
+                    mChatController.getAdapter().setAudioPlayByEarPhone(data.getIntExtra("state", 0));
                 }
             }
 		}
