@@ -110,9 +110,12 @@ public class MeFragment extends BaseFragment {
         if (isGetMeInfoFailed && !(mMeView.getAvatarFlag())) {
             getMyUserInfo();
         }else {
-            File file = JMessageClient.getMyInfo().getAvatarFile();
-            if(file != null && file.isFile()){
-                mMeView.showPhoto(file.getAbsolutePath());
+            UserInfo myInfo = JMessageClient.getMyInfo();
+            if(myInfo != null){
+                File file = JMessageClient.getMyInfo().getAvatarFile();
+                if(file != null && file.isFile()){
+                    mMeView.showPhoto(file.getAbsolutePath());
+                }
             }
         }
         super.onResume();
