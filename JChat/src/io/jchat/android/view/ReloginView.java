@@ -52,12 +52,12 @@ public class ReloginView extends LinearLayout {
         mRegisterBtn.requestFocus();
     }
 
-    public void setListener(Listener listener){
+    public void setListener(Listener listener) {
         this.mListener = listener;
     }
 
     public interface Listener {
-        void onSoftKeyboardShown(int softKeyboardHeight);
+        void onSoftKeyboardShown(int w, int h, int oldw, int oldh);
     }
 
     public void setListeners(OnClickListener onClickListener) {
@@ -83,7 +83,7 @@ public class ReloginView extends LinearLayout {
         mUserAvatarIv.setImageBitmap(bitmap);
     }
 
-    public void setRegisterBtnVisible(int visibility){
+    public void setRegisterBtnVisible(int visibility) {
         mRegisterBtn.setVisibility(visibility);
     }
 
@@ -91,26 +91,17 @@ public class ReloginView extends LinearLayout {
         mScrollView.post(new Runnable() {
             @Override
             public void run() {
-                Log.i("ReloginView", "set to bottom");
                 mScrollView.scrollTo(0, 200);
             }
         });
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = MeasureSpec.getSize(heightMeasureSpec);
-        Rect rect = new Rect();
-        Activity activity = (Activity)getContext();
-        activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
-        int statusBarHeight = rect.top;
-        DisplayMetrics dm = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        int screenHeight = dm.heightPixels;
-        int diff = (screenHeight - statusBarHeight) - height;
-        if(mListener != null){
-            mListener.onSoftKeyboardShown(diff);
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (mListener != null) {
+            mListener.onSoftKeyboardShown(w, h, oldw, oldh);
         }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
+
 }

@@ -56,7 +56,7 @@
             android:layout_toRightOf="@id/iv_username"
             android:background="@null"
             android:hint="@string/register_username_hit"
-            android:textColorHint="@color/chat_detail_item_content_color"
+            android:textColorHint="@color/login_txt_hint_color"
             android:singleLine="true"
             android:textSize="@dimen/text_medium_size"
             android:textColor="@color/black" />
@@ -65,7 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_alignParentBottom="true"
-            android:background="@color/login_split_line_color" />
+            android:background="@color/register_split_line_color" />
     </RelativeLayout>
 
 
@@ -94,7 +94,7 @@
             android:layout_toRightOf="@id/iv_password"
             android:background="@null"
             android:hint="@string/password_hit"
-            android:textColorHint="@color/chat_detail_item_content_color"
+            android:textColorHint="@color/login_txt_hint_color"
             android:password="true"
             android:singleLine="true"
             android:textSize="18sp"
@@ -104,7 +104,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_alignParentBottom="true"
-            android:background="@color/login_split_line_color" />
+            android:background="@color/register_split_line_color" />
     </RelativeLayout>
 
     <Button

@@ -37,8 +37,8 @@
             android:layout_toLeftOf="@+id/avatar_iv"
             android:background="@null"
             android:hint="输入您的昵称"
-            android:textColor="#555555"
-            android:textColorHint="@color/chat_detail_item_content_color"
+            android:textColor="@color/login_txt_hint_color"
+            android:textColorHint="@color/login_txt_hint_color"
             android:textCursorDrawable="@drawable/text_cursor_bg"
             android:inputType="textMultiLine"
             android:focusable="true"/>
@@ -48,7 +48,7 @@
             android:layout_height="1dp"
             android:layout_below="@+id/avatar_iv"
             android:layout_toLeftOf="@+id/avatar_iv"
-            android:background="@color/login_split_line_color" />
+            android:background="#c1d2ec" />
 
         <io.jchat.android.view.RoundImageView
             android:id="@+id/avatar_iv"

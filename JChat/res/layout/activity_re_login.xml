@@ -11,11 +11,11 @@
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingLeft="@dimen/view_left_right_padding"
             android:paddingRight="@dimen/view_left_right_padding">
@@ -49,7 +49,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="10dp"
-                    android:text="exam***@gmail.com"
                     android:textColor="#555555"
                     android:textSize="24sp" />
             </LinearLayout>
@@ -59,17 +58,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="10dp"
                 android:layout_marginTop="5dp"
                 android:textColor="@color/relogin_txt_color"
                 android:textSize="@dimen/login_email_txt_size"
                 android:textStyle="bold" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                android:background="@color/login_split_line_color" />
+
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="38dp"
-                android:layout_marginTop="10dp">
+                android:layout_height="wrap_content">
 
                 <ImageView
                     android:id="@+id/iv_password"
@@ -83,13 +86,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@id/iv_password"
                     android:background="@null"
                     android:cursorVisible="true"
                     android:hint="@string/password_hit"
                     android:inputType="textPassword"
-                    android:padding="5dp"
+                    android:paddingBottom="20dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="20dp"
                     android:singleLine="true"
                     android:textColor="@color/black"
                     android:textColorHint="@color/chat_detail_item_content_color"
@@ -100,16 +104,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_alignParentBottom="true"
-                    android:background="#C1D3EC" />
+                    android:background="@color/login_split_line_color" />
             </RelativeLayout>
 
             <Button
                 android:id="@+id/relogin_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="true"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/login_btn_bg"
+                android:focusable="true"
                 android:text="@string/login"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
@@ -133,7 +137,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="40dp"
                     android:background="@null"
                     android:drawableTop="@drawable/login_regist"
                     android:text="@string/register"
