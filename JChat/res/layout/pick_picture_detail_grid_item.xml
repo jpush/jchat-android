@@ -14,11 +14,12 @@
 
     <CheckBox
         android:id="@+id/child_checkbox"
-        android:layout_gravity="right"
+        android:layout_gravity="top|right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
-        android:button="@drawable/pictures_select_icon" />
+        android:layout_marginRight="10dp"
+        android:background="@drawable/pictures_select_icon"
+        android:button="@null"/>
 
 </FrameLayout>

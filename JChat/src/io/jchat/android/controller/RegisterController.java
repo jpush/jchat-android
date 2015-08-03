@@ -1,8 +1,6 @@
 package io.jchat.android.controller;
 
 import android.app.Dialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -10,7 +8,8 @@ import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.activity.RegisterActivity;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.LoadingDialog;
+import io.jchat.android.tools.SharePreferenceManager;
+import io.jchat.android.view.DialogCreator;
 import io.jchat.android.view.LoginDialog;
 import io.jchat.android.view.RegisterView;
 import cn.jpush.im.api.BasicCallback;
@@ -48,7 +47,7 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
                     break;
                 }
 
-                LoadingDialog ld = new LoadingDialog();
+                DialogCreator ld = new DialogCreator();
                 final Dialog dialog = ld.createLoadingDialog(mContext, mContext.getString(R.string.registering_hint));
                 dialog.show();
                 JMessageClient.register(userId, password, new BasicCallback() {
@@ -73,19 +72,22 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
                                                     @Override
                                                     public void run() {
                                                         mLoginDialog.dismiss();
-                                                        HandleResponseCode.onHandle(mContext, status);
+                                                        HandleResponseCode.onHandle(mContext, status, false);
                                                     }
                                                 });
                                             }
                                         }
                                     });
                                 } else {
-                                    HandleResponseCode.onHandle(mContext, status);
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
                     }
                 });
+                break;
+            case R.id.return_btn:
+                mContext.finish();
                 break;
         }
     }
@@ -104,13 +106,10 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
         }
         int h = mAfterMeasureSize - mPreMeasureSize;
         if (h > 300) {
-            SharedPreferences sp = mContext.getSharedPreferences("JPushDemo", Context.MODE_PRIVATE);
-            boolean writable = sp.getBoolean("writable", true);
+            boolean writable = SharePreferenceManager.getCachedWritableFlag();
             if (writable) {
-                SharedPreferences.Editor editor = sp.edit();
-                editor.putInt("SoftKeyboardHeight", h);
-                editor.putBoolean("writable", false);
-                editor.commit();
+                SharePreferenceManager.setCachedKeyboardHeight(h);
+                SharePreferenceManager.setCachedWritableFlag(false);
             }
         }
     }

@@ -32,6 +32,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import io.jchat.android.adapter.MsgListAdapter;
 import io.jchat.android.controller.ChatController;
 import io.jchat.android.controller.RecordVoiceBtnController;
+import io.jchat.android.tools.SharePreferenceManager;
 
 public class ChatView extends RelativeLayout{
 
@@ -99,8 +100,7 @@ public class ChatView extends RelativeLayout{
 	}
 
     public void setMoreMenuHeight() {
-        SharedPreferences sp = mContext.getSharedPreferences("JPushDemo", 0);
-        int softKeyboardHeight = sp.getInt("SoftKeyboardHeight", 0);
+        int softKeyboardHeight = SharePreferenceManager.getCachedKeyboardHeight();
         if(softKeyboardHeight > 0){
             mMoreMenuTl.setLayoutParams(new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, softKeyboardHeight));
         }
@@ -241,6 +241,12 @@ public class ChatView extends RelativeLayout{
 		mChatTitle.setText(targetId);
 	}
 
+	//设置群聊名字
+	public void setChatTitle(String name, int count){
+		String title = name + mContext.getString(R.string.combine_title);
+		mChatTitle.setText(String.format(title, count));
+	}
+
 	public void clearInput() {
 		mChatInputEt.setText("");
 	}
@@ -263,7 +269,7 @@ public class ChatView extends RelativeLayout{
 	}
 
 	public void setGroupIcon() {
-		mRightBtn.setBackgroundResource(R.drawable.group_small);
+		mRightBtn.setImageResource(R.drawable.group_chat_detail);
 	}
 
 

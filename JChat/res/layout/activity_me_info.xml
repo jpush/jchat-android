@@ -19,12 +19,6 @@
 
 			<include layout="@layout/menu_title_bar"/>"
 
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/me_split_line_color" />
-
             <RelativeLayout
                 android:id="@+id/nick_name_rl"
                 style="@style/MeItemStyle" >
@@ -37,25 +31,13 @@
                     android:background="@drawable/me_man" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/info_left_txt_style"
                     android:layout_toRightOf="@id/avatar_icon_iv"
-                    android:layout_marginLeft="5dp"
-                    android:layout_centerVertical="true"
-                    android:text="@string/nickname_hit"
-                    android:textColor="#555555" />
+                    android:text="@string/nickname_hit"/>
 
                 <TextView
                     android:id="@+id/nick_name_tv"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:gravity="right"
-                    android:layout_marginRight="20dp"
-                    android:textSize="14sp"
-                    android:singleLine="false"
-                    android:textColor="#555555" />
+                    style="@style/MeInfoItemContent" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -82,13 +64,9 @@
                     android:src="@drawable/sex_man" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/info_left_txt_style"
                     android:layout_toRightOf="@id/sex_icon"
-                    android:layout_marginLeft="5dp"
-                    android:layout_centerVertical="true"
-                    android:text="@string/sex"
-                    android:textColor="#555555" />
+                    android:text="@string/sex" />
 
                 <TextView
                     android:id="@+id/gender_tv"
@@ -126,24 +104,13 @@
 
                 <TextView
                     android:id="@+id/area_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/info_left_txt_style"
                     android:layout_toRightOf="@id/area_icon_iv"
-                    android:layout_marginLeft="5dp"
-                    android:layout_centerVertical="true"
-                    android:text="@string/area"
-                    android:textColor="#555555" />
+                    android:text="@string/area" />
 
                 <TextView
                     android:id="@+id/region_tv"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="20dp"
-                    android:gravity="right"
-                    android:singleLine="false"
-                    android:textColor="#808080" />
+                    style="@style/MeInfoItemContent" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -171,25 +138,13 @@
                     android:background="@drawable/sign" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/info_left_txt_style"
                     android:layout_toRightOf="@id/signature_icon_iv"
-                    android:layout_marginLeft="5dp"
-                    android:layout_centerVertical="true"
-                    android:text="@string/sign"
-                    android:textColor="#555555" />
+                    android:text="@string/sign" />
 
                 <TextView
                     android:id="@+id/signature_tv"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="20dp"
-                    android:gravity="right"
-                    android:singleLine="false"
-                    android:textColor="#808080"
-                    android:textSize="14sp"/>
+                    style="@style/MeInfoItemContent" />
 
                 <ImageView
                     android:layout_width="wrap_content"

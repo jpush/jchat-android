@@ -13,8 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,15 +26,11 @@ import android.widget.Toast;
 import io.jchat.android.R;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.api.callback.GetGroupIDListCallback;
-import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.RoundImageView;
 import cn.jpush.im.api.BasicCallback;
 
@@ -45,7 +39,6 @@ import cn.jpush.im.api.BasicCallback;
  */
 public class FixProfileActivity extends BaseActivity {
 
-    private ImageView mReturnBtn;
     private Button mFinishBtn;
     private EditText mNickNameEt;
     private ImageView mAvatarIv;
@@ -57,61 +50,35 @@ public class FixProfileActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(null != savedInstanceState){
+            String nickName = savedInstanceState.getString("savedNickName");
+            mNickNameEt.setText(nickName);
+        }
         setContentView(R.layout.activity_fix_profile);
         mContext = this;
-        mReturnBtn = (ImageView) findViewById(R.id.return_btn);
         mNickNameEt = (EditText) findViewById(R.id.nick_name_et);
         mAvatarIv = (RoundImageView) findViewById(R.id.avatar_iv);
         mFinishBtn = (Button) findViewById(R.id.finish_btn);
-        mReturnBtn.setOnClickListener(listener);
         mAvatarIv.setOnClickListener(listener);
         mFinishBtn.setOnClickListener(listener);
-        mNickNameEt.addTextChangedListener(watcher);
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
-
         JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), null);
+        SharePreferenceManager.setCachedFixProfileFlag(true);
+        mNickNameEt.requestFocus();
     }
 
-    private TextWatcher watcher = new TextWatcher() {
-        private CharSequence temp = "";
-
-        @Override
-        public void afterTextChanged(Editable arg0) {
-            // TODO Auto-generated method stub
-            if (temp.length() > 0) {
-                mFinishBtn.setClickable(true);
-                mFinishBtn.setBackgroundColor(getResources().getColor(R.color.finish_btn_clickable_color));
-            } else {
-                mFinishBtn.setClickable(false);
-                mFinishBtn.setBackgroundColor(getResources().getColor(R.color.finish_btn_unclickable_color));
-            }
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-                                      int arg3) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int count,
-                                  int after) {
-            // TODO Auto-generated method stub
-            temp = s;
-        }
-
-    };
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstancedState) {
+        savedInstancedState.putString("savedNickName", mNickNameEt.getText().toString());
+        super.onSaveInstanceState(savedInstancedState);
+    }
 
     private View.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             switch (view.getId()) {
-                case R.id.return_btn:
-                    finish();
-                    break;
                 case R.id.avatar_iv:
                     showSetAvatarDialog();
                     break;
@@ -129,7 +96,9 @@ public class FixProfileActivity extends BaseActivity {
                                 FixProfileActivity.this.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if(dialog.isShowing()) {
+                                        //更新跳转标志
+                                        SharePreferenceManager.setCachedFixProfileFlag(false);
+                                        if (dialog.isShowing()) {
                                             dialog.dismiss();
                                         }
                                         if (status != 0) {
@@ -271,7 +240,7 @@ public class FixProfileActivity extends BaseActivity {
         JMessageClient.updateUserAvatar(new File(path), new BasicCallback(false) {
             @Override
             public void gotResult(int status, final String desc) {
-                if(mDialog.isShowing()) {
+                if (mDialog.isShowing()) {
                     mDialog.dismiss();
                 }
                 if (status == 0) {
@@ -302,6 +271,7 @@ public class FixProfileActivity extends BaseActivity {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                mAvatarIv.setBackgroundResource(0);
                 mAvatarIv.setImageBitmap(bitmap);
             }
         });

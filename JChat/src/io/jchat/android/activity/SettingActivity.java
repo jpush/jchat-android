@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -92,7 +93,9 @@ public class SettingActivity extends BaseActivity implements OnClickListener{
                                     startActivity(intent);
                                     dialog.cancel();
                                 }else {
-                                    Toast.makeText(mContext, mContext.getString(R.string.input_password_error_toast), Toast.LENGTH_SHORT).show();
+                                    Toast toast = Toast.makeText(mContext, mContext.getString(R.string.input_password_error_toast), Toast.LENGTH_SHORT);
+                                    toast.setGravity(Gravity.CENTER, 0, 0);
+                                    toast.show();
                                 }
                                 break;
                         }

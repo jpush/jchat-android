@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="6dp">
+    style="@style/chat_item_receive_layout">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
+
+    <TextView
+        android:id="@+id/send_time_txt"
+        style="@style/chat_text_date_style"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
-
-        <TextView
-            android:id="@+id/send_time_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/chat_text_date_style" />
-
-    </LinearLayout>
+        android:layout_gravity="center"/>
 
 
     <RelativeLayout
@@ -27,38 +20,29 @@
 
         <io.jchat.android.view.RoundImageView
             android:id="@+id/avatar_iv"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentTop="true"
-            android:focusable="false"
-            android:layout_alignParentLeft="true"
-            android:src="@drawable/head_icon" />
+            style="@style/chat_item_receiver_avatar_style"/>
 
         <TextView
             android:id="@+id/display_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/chat_display_name_style"
             android:layout_toRightOf="@id/avatar_iv"
-            android:layout_marginLeft="10dp"
-            android:ems="5"
-            android:singleLine="true"
-            android:textSize="10sp"
-            android:textColor="#555555"
-            android:visibility="gone"/>
+            />
 
         <TextView
             android:id="@+id/msg_content"
+            style="@style/msg_text_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/avatar_iv"
             android:layout_below="@id/display_name_tv"
             android:layout_marginLeft="3dp"
+            android:layout_toRightOf="@id/avatar_iv"
+            android:background="@drawable/msg_receive_bg"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
             android:paddingLeft="15dp"
             android:paddingRight="10dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:background="@drawable/msg_receive_bg"
-            style="@style/msg_text_style"
             android:textColor="#363333" />
 
     </RelativeLayout>

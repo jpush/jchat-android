@@ -29,7 +29,7 @@ public class LoginDialog {
         RoundImageView avatarIv = (RoundImageView) v.findViewById(R.id.login_iv);
         UserInfo userInfo = JMessageClient.getMyInfo();
         if(userInfo != null){
-            File file = userInfo.getAvatar();
+            File file = userInfo.getAvatarFile();
             if (file != null){
                 DisplayMetrics dm = new DisplayMetrics();
                 ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(dm);

@@ -7,27 +7,25 @@
     
         <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/title_bar_height"
         android:background="#6599E4" >
 
         <ImageButton
             android:id="@+id/pick_picture_detail_return_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/title_bar_height"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
+            android:src="@drawable/back_btn"
             android:background="@drawable/back_btn_bg" />
         
         <Button
             android:id="@+id/pick_picture_send_btn"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="match_parent"
             android:padding="5dp"
-            android:layout_marginRight="10dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:background="@color/green"
+            android:background="@drawable/send_picture_btn_bg"
             android:text="发送"/>
     </RelativeLayout>
 

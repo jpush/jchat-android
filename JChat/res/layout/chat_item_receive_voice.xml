@@ -2,8 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingTop="13dp" >
+    style="@style/chat_item_receive_layout">
 
     <TextView
         android:id="@+id/send_time_txt"
@@ -19,25 +18,15 @@
 
         <io.jchat.android.view.RoundImageView
             android:id="@+id/avatar_iv"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="3dp"
-            android:src="@drawable/head_icon"
-            android:scaleType="fitXY" />
+            style="@style/chat_item_receiver_avatar_style" />
 
         <TextView
             android:id="@+id/display_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/chat_display_name_style"
             android:layout_toRightOf="@id/avatar_iv"
-            android:layout_marginLeft="10dp"
-            android:ems="5"
-            android:singleLine="true"
-            android:textSize="10sp"
-            android:textColor="#555555"
-            android:visibility="gone"/>
+            />
 
         <FrameLayout
             android:id="@+id/voice_fl"
@@ -58,7 +47,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="2dp"
                 android:background="@drawable/receive_msg"
-                android:minHeight="50dp"
                 android:maxWidth="220dp"
                  />
 

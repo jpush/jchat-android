@@ -4,9 +4,11 @@ package io.jchat.android.view;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -26,17 +28,18 @@ import io.jchat.android.tools.BitmapLoader;
 public class MeView extends LinearLayout {
 
     private TextView mTitleBarTitle;
-    private PullScrollView mScrollView;
     private ImageView mAvatarIv;
-    private ImageButton mTakePhotoBtn;
+    private RoundImageView mTakePhotoBtn;
     private LinearLayout mContentLl;
     private RelativeLayout mUserInfoRl;
     private TextView mUserNameTv;
+    private TextView mNickNameTv;
     private RelativeLayout mSettingRl;
     private RelativeLayout mLogoutRl;
-    private TextView mLogoutTv;
     private Context mContext;
-
+    private boolean mLoadAvatarSuccess = false;
+    private int mWidth;
+    private int mHeight;
 
     public MeView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -47,29 +50,42 @@ public class MeView extends LinearLayout {
         UserInfo userInfo = JMessageClient.getMyInfo();
         mTitleBarTitle = (TextView) findViewById(R.id.title_bar_title);
         mTitleBarTitle.setText(mContext.getString(R.string.actionbar_me));
-        mScrollView = (PullScrollView) findViewById(R.id.scroll_view);
         mContentLl = (LinearLayout) findViewById(R.id.content_list_ll);
         mAvatarIv = (ImageView) findViewById(R.id.my_avatar_iv);
-        mTakePhotoBtn = (ImageButton) findViewById(R.id.take_photo_iv);
+        mTakePhotoBtn = (RoundImageView) findViewById(R.id.take_photo_iv);
+        mNickNameTv = (TextView) findViewById(R.id.nick_name_tv);
         mUserInfoRl = (RelativeLayout) findViewById(R.id.user_info_rl);
         mUserNameTv = (TextView) findViewById(R.id.user_name_tv);
         mSettingRl = (RelativeLayout) findViewById(R.id.setting_rl);
         mLogoutRl = (RelativeLayout) findViewById(R.id.logout_rl);
-        mScrollView.setHeader(mAvatarIv);
+        DisplayMetrics dm = new DisplayMetrics();
+        ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
+        double density = dm.density;
+        mWidth = dm.widthPixels;
+        mHeight = (int)(190 * density);
         if(userInfo != null){
             mUserNameTv.setText(userInfo.getUserName());
-            File file = userInfo.getAvatar();
+            File file = userInfo.getAvatarFile();
             if(file != null && file.isFile()){
                 Log.i("MeView", "file.getAbsolutePath() " + file.getAbsolutePath());
-                DisplayMetrics dm = new DisplayMetrics();
-                ((Activity)mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
-                double density = dm.density;
-                Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), dm.widthPixels, (int)(density * 300));
-                mAvatarIv.setImageBitmap(bitmap);
-            }else mAvatarIv.setImageResource(R.drawable.friends_sends_pictures_no);
+                showPhoto(file.getAbsolutePath());
+                loadAvatarSuccess(true);
+            }else {
+                mAvatarIv.setImageResource(R.drawable.friends_sends_pictures_no);
+                loadAvatarSuccess(false);
+            }
+            if(!TextUtils.isEmpty(userInfo.getNickname()))
+                mNickNameTv.setText(userInfo.getNickname());
         }
     }
 
+    private void loadAvatarSuccess(boolean value) {
+        mLoadAvatarSuccess = value;
+    }
+
+    public boolean getAvatarFlag(){
+        return mLoadAvatarSuccess;
+    }
 
     public void setListeners(OnClickListener onClickListener) {
         mTakePhotoBtn.setOnClickListener(onClickListener);
@@ -85,19 +101,18 @@ public class MeView extends LinearLayout {
         mLogoutRl.setOnTouchListener(listener);
     }
 
+
     public void showPhoto(final String path) {
-//        Picasso.with(getContext()).load(new File(path)).into(mAvatarIv);
         Log.i("MeView", "updated path:  " + path);
         ((Activity)mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mAvatarIv.setImageBitmap(BitmapLoader.getBitmapFromFile(path, mAvatarIv.getWidth(), mAvatarIv.getHeight()));
+                Bitmap bitmap = BitmapLoader.getBitmapFromFile(path,  mWidth, mHeight);
+                mAvatarIv.setImageBitmap(BitmapLoader.BoxBlurFilter(bitmap));
+                mAvatarIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                mTakePhotoBtn.setImageBitmap(bitmap);
             }
         });
-    }
-
-    public boolean touchEvent(MotionEvent e) {
-        return mScrollView.onTouchEvent(e);
     }
 
 }

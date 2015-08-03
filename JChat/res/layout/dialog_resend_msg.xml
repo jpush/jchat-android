@@ -10,6 +10,7 @@
 
 
     <TextView
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
@@ -18,7 +19,7 @@
         android:layout_marginBottom="30dp"
         android:text="@string/resend_message_hint"
         android:textSize="24sp"
-        android:textColor="#555555"/>
+        android:textColor="#4e4e4e"/>
 
 
     <LinearLayout
@@ -31,7 +32,7 @@
             android:layout_width="0dip"
             android:layout_weight="1"
             android:text="@string/cancel"
-            android:textColor="#333336"
+            android:textColor="#28282a"
             android:background="@drawable/dialog_bottom_left_btn"
             />
 
@@ -41,7 +42,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:text="@string/resend_commit"
-            android:textColor="#333336"
+            android:textColor="#28282a"
             android:background="@drawable/dialog_bottom_right_btn"
             />
 

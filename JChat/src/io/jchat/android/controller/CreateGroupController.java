@@ -1,7 +1,6 @@
 package io.jchat.android.controller;
 
 import android.app.Dialog;
-import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -10,11 +9,10 @@ import io.jchat.android.R;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
-import io.jchat.android.activity.ChatDetailActivity;
 import io.jchat.android.activity.CreateGroupActivity;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.CreateGroupView;
-import io.jchat.android.view.LoadingDialog;
+import io.jchat.android.view.DialogCreator;
 
 public class CreateGroupController implements OnClickListener {
 
@@ -47,8 +45,8 @@ public class CreateGroupController implements OnClickListener {
                     mCreateGroupView.groupNameError(mContext);
                     return;
                 }
-                LoadingDialog loadingDialog = new LoadingDialog();
-                mDialog = loadingDialog.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
+                DialogCreator dialogCreator = new DialogCreator();
+                mDialog = dialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
                 final String desc = "";
                 mDialog.show();
                 JMessageClient.createGroup(
@@ -65,7 +63,7 @@ public class CreateGroupController implements OnClickListener {
                                         if (status == 0) {
                                             mContext.StartChatActivity(groupID, mGroupName);
                                         } else {
-                                            HandleResponseCode.onHandle(mContext, status);
+                                            HandleResponseCode.onHandle(mContext, status, false);
                                             Log.i("CreateGroupController", "status : " + status);
                                         }
                                     }

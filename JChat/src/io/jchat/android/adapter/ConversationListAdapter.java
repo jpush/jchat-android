@@ -36,7 +36,7 @@ public class ConversationListAdapter extends BaseAdapter {
         double density = dm.density;
         for (Conversation conv : mDatas) {
             if (conv.getType().equals(ConversationType.single)){
-                File file = conv.getAvatar();
+                File file = conv.getAvatarFile();
                 if(file != null){
                     Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * density), (int)(50 * density));
                     NativeImageLoader.getInstance().updateBitmapFromCache(conv.getTargetId(), bitmap);
@@ -74,11 +74,11 @@ public class ConversationListAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        Conversation convItem = mDatas.get(position);
+        final Conversation convItem = mDatas.get(position);
         final ViewHolder viewHolder;
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext.getActivity()).inflate(
-                    R.layout.conv_item_row, null);
+                    R.layout.conversation_list_item, null);
             viewHolder = new ViewHolder();
             viewHolder.headIcon = (RoundImageView) convertView
                     .findViewById(R.id.msg_item_head_icon);
@@ -102,13 +102,13 @@ public class ConversationListAdapter extends BaseAdapter {
         // 按照最后一条消息的消息类型进行处理
         switch (convItem.getLatestType()) {
             case image:
-                viewHolder.content.setText(mContext.getString(R.string.picture));
+                viewHolder.content.setText(mContext.getString(R.string.type_picture));
                 break;
             case voice:
-                viewHolder.content.setText(mContext.getString(R.string.voice));
+                viewHolder.content.setText(mContext.getString(R.string.type_voice));
                 break;
             case location:
-                viewHolder.content.setText(mContext.getString(R.string.location));
+                viewHolder.content.setText(mContext.getString(R.string.type_location));
                 break;
             case eventNotification:
                 viewHolder.content.setText(mContext.getString(R.string.group_notification));
@@ -120,7 +120,7 @@ public class ConversationListAdapter extends BaseAdapter {
 //		viewHolder.headIcon.setImageResource(R.drawable.head_icon);
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
-            viewHolder.groupName.setText(convItem.getDisplayName());
+            viewHolder.groupName.setText(convItem.getTitle());
             Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(convItem.getTargetId());
             if (bitmap != null)
                 viewHolder.headIcon.setImageBitmap(bitmap);
@@ -128,9 +128,8 @@ public class ConversationListAdapter extends BaseAdapter {
         }
         // 群聊
         else {
-            viewHolder.headIcon.setImageResource(R.drawable.head_icon);
-            final String displayName = convItem.getDisplayName();
-            viewHolder.groupName.setText(displayName);
+            viewHolder.headIcon.setImageResource(R.drawable.group);
+            viewHolder.groupName.setText(convItem.getTitle());
         }
 
         // TODO 更新Message的数量,

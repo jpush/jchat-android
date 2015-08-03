@@ -7,7 +7,9 @@ import android.content.Context;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import io.jchat.android.R;
@@ -18,6 +20,7 @@ public class MainView extends RelativeLayout{
 	private Button[] mBtnList;
 	private int[] mBtnListID;
 	List<Fragment> fragments;
+	private ImageView mMsgUnreadiv;
 	private ScrollControllViewPager mViewContainer;
 	
 	public MainView(Context context, AttributeSet attrs) {
@@ -31,6 +34,7 @@ public class MainView extends RelativeLayout{
 		for (int i = 0; i < 3; i++) {
 			mBtnList[i] = (Button)findViewById(mBtnListID[i]);
 		}
+		mMsgUnreadiv = (ImageView) findViewById(R.id.msg_unread_iv);
 		mViewContainer = (ScrollControllViewPager) findViewById(R.id.viewpager);
 		mBtnList[0].setTextColor(getResources().getColor(R.color.actionbar_pres_color));
         mBtnList[0].setSelected(true);
@@ -55,8 +59,6 @@ public class MainView extends RelativeLayout{
 	}
 
 	public void setButtonColor(int index) {
-//		int[] pictureSel = new int[]{R.drawable.actionbar_msg_sel, R.drawable.actionbar_contact_sel, R.drawable.actionbar_me_sel};
-//		int[] pictureDef = new int[]{R.drawable.actionbar_msg, R.drawable.actionbar_contact, R.drawable.actionbar_me};
 		for(int i = 0; i < 3; i++){
 			if(index == i){
                 mBtnList[i].setSelected(true);
@@ -67,23 +69,14 @@ public class MainView extends RelativeLayout{
                 mBtnList[i].setTextColor(getResources().getColor(R.color.white));
             }
 		}
-//        switch (index){
-//            case 0:
-//                mBtnList[0].setBackgroundResource(pictureSel[0]);
-//                mBtnList[1].setBackgroundResource(pictureDef[1]);
-//                mBtnList[2].setBackgroundResource(pictureDef[2]);
-//                break;
-//            case 1:
-//                mBtnList[1].setBackgroundResource(pictureSel[1]);
-//                mBtnList[0].setBackgroundResource(pictureDef[0]);
-//                mBtnList[2].setBackgroundResource(pictureDef[2]);
-//                break;
-//            case 2:
-//                mBtnList[2].setBackgroundResource(pictureSel[2]);
-//                mBtnList[0].setBackgroundResource(pictureDef[0]);
-//                mBtnList[1].setBackgroundResource(pictureDef[1]);
-//        }
 	}
 
-	
+
+	public void dismissUnreadFlag() {
+		mMsgUnreadiv.setVisibility(View.INVISIBLE);
+	}
+
+	public void showNewMsgReceivedFlag() {
+		mMsgUnreadiv.setVisibility(View.VISIBLE);
+	}
 }

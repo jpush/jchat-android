@@ -8,16 +8,15 @@
    <RelativeLayout
        	android:id="@+id/title_bar_rl"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/title_bar_height"
         android:background="#6599E4" >
 
         <ImageButton
             android:id="@+id/return_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_width="@dimen/title_bar_height"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="10dp"
+            android:src="@drawable/back_btn"
             android:background="@drawable/back_btn_bg" />
 
         <TextView
@@ -27,21 +26,18 @@
             android:layout_toRightOf="@id/return_btn"
             android:layout_centerVertical="true"
             android:layout_marginLeft="15dp"
-            android:text="3/6"
             android:textSize="20sp"
             android:textColor="#FFFFFF"
+            android:visibility="gone"
             />
 
         <Button
             android:id="@+id/pick_picture_send_btn"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:gravity="center"
+            android:layout_height="match_parent"
             android:padding="5dp"
-            android:layout_marginRight="10dp"
             android:layout_alignParentRight="true"
-            android:layout_centerInParent="true"
-            android:background="@color/green"
+            android:background="@drawable/send_picture_btn_bg"
             android:text="@string/send"/>
     </RelativeLayout>
     
@@ -57,10 +53,13 @@
         android:layout_height="match_parent"/>
     
     <Button
-        android:id="@+id/load_image"
+        android:id="@+id/load_image_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="10dp"
         android:text="@string/load_origin_image"
@@ -81,7 +80,7 @@
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
            android:layout_centerVertical="true"
-           android:layout_marginLeft="5dp"
+           android:layout_marginLeft="15dp"
            style="@style/round_check_box_style"
 
            />
@@ -104,7 +103,7 @@
                android:layout_height="wrap_content"
                android:layout_alignParentRight="true"
                android:layout_centerVertical="true"
-               android:layout_marginRight="5dp"
+               android:layout_marginRight="15dp"
                android:text="@string/choose"
                android:textColor="#FFFFFF"
                android:textSize="20sp"

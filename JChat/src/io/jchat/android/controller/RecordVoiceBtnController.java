@@ -32,6 +32,7 @@ import io.jchat.android.R;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Timer;
@@ -42,7 +43,7 @@ import io.jchat.android.tools.HandleResponseCode;
 import cn.jpush.im.api.BasicCallback;
 
 public class RecordVoiceBtnController extends Button {
-    
+
     private static final String TAG = "RecordVoiceBtnController";
 
     private File myRecAudioFile;
@@ -74,9 +75,10 @@ public class RecordVoiceBtnController extends Button {
     private Context mContext;
     private Conversation mConv;
     private Timer timer = new Timer();
-	private Timer mCountTimer;
+    private Timer mCountTimer;
     private boolean isTimerCanceled = false;
     private boolean mTimeUp = false;
+    private final MyHandler myHandler = new MyHandler(this);
 
     public RecordVoiceBtnController(Context context) {
         super(context);
@@ -107,6 +109,7 @@ public class RecordVoiceBtnController extends Button {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        Log.i(TAG, "onTouchEvent !!!! event = " + event.toString());
         this.setPressed(true);
         int action = event.getAction();
         switch (action) {
@@ -124,7 +127,7 @@ public class RecordVoiceBtnController extends Button {
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            android.os.Message msg = handler.obtainMessage();
+                            android.os.Message msg = myHandler.obtainMessage();
                             msg.what = 7;
                             msg.sendToTarget();
                         }
@@ -148,10 +151,10 @@ public class RecordVoiceBtnController extends Button {
                     return true;
                 } else if (time2 - time1 < 1000) {
                     cancelRecord();
-                } else if (mTouchY1 - mTouchY2 > MIN_CANCEL_DISTANCE){
+                } else if (mTouchY1 - mTouchY2 > MIN_CANCEL_DISTANCE) {
                     cancelRecord();
-				}else if(time2 - time1 < 60000)		
-					finishRecord();
+                } else if (time2 - time1 < 60000)
+                    finishRecord();
                 break;
             case MotionEvent.ACTION_MOVE:
                 mTouchY = event.getY();
@@ -171,6 +174,8 @@ public class RecordVoiceBtnController extends Button {
                 }
                 break;
             case MotionEvent.ACTION_CANCEL:// 当手指移动到view外面，会cancel
+                this.setText(mContext.getString(R.string.record_voice_hint));
+                cancelRecord();
 //			mTouchY = event.getY();
 //			if(mTouchY1 - mTouchY > MIN_CANCEL_DISTANCE){
 //				android.os.Message msg = handler.obtainMessage();
@@ -190,11 +195,11 @@ public class RecordVoiceBtnController extends Button {
             timer.cancel();
             timer.purge();
             isTimerCanceled = true;
-			}
-		if (mCountTimer != null){
-			mCountTimer.cancel();
-			mCountTimer.purge();
-		}
+        }
+        if (mCountTimer != null) {
+            mCountTimer.cancel();
+            mCountTimer.purge();
+        }
     }
 
     private Timer createTimer() {
@@ -254,7 +259,7 @@ public class RecordVoiceBtnController extends Button {
             myRecAudioFile.delete();
             return;
         } else {
-            if(myRecAudioFile != null && myRecAudioFile.exists()){
+            if (myRecAudioFile != null && myRecAudioFile.exists()) {
                 Log.i(TAG, "myRecAudioFile.getAbsolutePath(): " + myRecAudioFile.getAbsolutePath());
                 MediaPlayer mp = MediaPlayer.create(mContext, Uri.parse(myRecAudioFile.getAbsolutePath()));
                 //某些手机会限制录音，如果用户拒接使用录音，则需判断mp是否存在
@@ -262,9 +267,9 @@ public class RecordVoiceBtnController extends Button {
                     int duration = mp.getDuration() / 1000;//即为时长 是s
                     if (duration < 1)
                         duration = 1;
-                    else if(duration > 60)
+                    else if (duration > 60)
                         duration = 60;
-                    try{
+                    try {
                         VoiceContent content = new VoiceContent(myRecAudioFile, duration);
                         Message msg = mConv.createSendMessage(content);
                         msg.setOnSendCompleteCallback(new BasicCallback() {
@@ -272,7 +277,7 @@ public class RecordVoiceBtnController extends Button {
                             @Override
                             public void gotResult(int status, String desc) {
                                 //Callback返回时刷新界面
-                                android.os.Message msg = handler.obtainMessage();
+                                android.os.Message msg = myHandler.obtainMessage();
                                 msg.what = 6;
                                 Bundle bundle = new Bundle();
                                 bundle.putInt("status", status);
@@ -283,7 +288,7 @@ public class RecordVoiceBtnController extends Button {
                         });
                         JMessageClient.sendMessage(msg);
                         mMsgListAdapter.addMsgToList(msg);
-                    }catch (FileNotFoundException e){
+                    } catch (FileNotFoundException e) {
                         Log.i(TAG, "Enter unexpected exception, File Not Found");
                     }
                 } else {
@@ -293,7 +298,7 @@ public class RecordVoiceBtnController extends Button {
         }
     }
 
-   //取消录音，清除计时
+    //取消录音，清除计时
     private void cancelRecord() {
         //可能在消息队列中还存在HandlerMessage，移除剩余消息
         mVolumeHandler.removeMessages(56, null);
@@ -305,7 +310,7 @@ public class RecordVoiceBtnController extends Button {
         stopRecording();
         if (recordIndicator != null)
             recordIndicator.dismiss();
-        if(myRecAudioFile != null)
+        if (myRecAudioFile != null)
             myRecAudioFile.delete();
     }
 
@@ -344,14 +349,14 @@ public class RecordVoiceBtnController extends Button {
 
         } catch (IOException e) {
             e.printStackTrace();
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             cancelTimer();
             dismissDialog();
             if (mThread != null) {
                 mThread.exit();
                 mThread = null;
             }
-            if(myRecAudioFile != null)
+            if (myRecAudioFile != null)
                 myRecAudioFile.delete();
             recorder.release();
             recorder = null;
@@ -404,7 +409,7 @@ public class RecordVoiceBtnController extends Button {
                 if (recorder == null || !running) {
                     break;
                 }
-                try{
+                try {
                     int x = recorder.getMaxAmplitude();
                     if (x != 0) {
                         int f = (int) (10 * Math.log(x) / Math.log(10));
@@ -420,7 +425,7 @@ public class RecordVoiceBtnController extends Button {
                             mVolumeHandler.sendEmptyMessage(4);
                         }
                     }
-                }catch (RuntimeException e){
+                } catch (RuntimeException e) {
                     e.printStackTrace();
                 }
 
@@ -491,24 +496,34 @@ public class RecordVoiceBtnController extends Button {
         }
     }
 
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler{
+        private final WeakReference<RecordVoiceBtnController> mController;
+
+        public MyHandler(RecordVoiceBtnController controller){
+            mController = new WeakReference<RecordVoiceBtnController>(controller);
+        }
 
         @Override
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case 6:
-                    int status = msg.getData().getInt("status", -1);
-                    HandleResponseCode.onHandle(mContext, status);
-                    Log.i("RecordVoiceController", "desc：" + msg.getData().getString("desc"));
-                    Log.i("RecordVoiceController", "refreshing!");
-                    mMsgListAdapter.refresh();
-                    break;
-                case 7:
-                    if (mIsPressed)
-                        initDialogAndStartRecord();
-                    break;
+            RecordVoiceBtnController controller = mController.get();
+            if (controller != null){
+                switch (msg.what) {
+                    case 6:
+                        int status = msg.getData().getInt("status", -1);
+                        if(status != 0){
+                            HandleResponseCode.onHandle(controller.mContext, status, false);
+                            Log.i("RecordVoiceController", "desc：" + msg.getData().getString("desc"));
+                            Log.i("RecordVoiceController", "refreshing!");
+                        }
+                        controller.mMsgListAdapter.refresh();
+                        break;
+                    case 7:
+                        if (mIsPressed)
+                            controller.initDialogAndStartRecord();
+                        break;
+                }
             }
         }
-    };
+    }
 }

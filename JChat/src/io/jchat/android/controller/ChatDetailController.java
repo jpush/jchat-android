@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -25,6 +26,7 @@ import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.R;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +46,7 @@ import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ChatDetailView;
-import io.jchat.android.view.LoadingDialog;
+import io.jchat.android.view.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
 
 public class ChatDetailController implements OnClickListener,
@@ -55,7 +57,7 @@ public class ChatDetailController implements OnClickListener,
     private ChatDetailView mChatDetailView;
     private ChatDetailActivity mContext;
     private GroupMemberGridAdapter mGridAdapter;
-    private List<String> mMemberIDList = new ArrayList<String>();
+    private List<UserInfo> mMemberIDList = new ArrayList<UserInfo>();
     // 当前GridView群成员项数
     private int mCurrentNum;
     // 空白项的项数
@@ -64,13 +66,15 @@ public class ChatDetailController implements OnClickListener,
     private boolean mIsCreator = false;
     private long mGroupID;
     private String mTargetID;
-    private LoadingDialog mLD;
+    private DialogCreator mLD;
     private Dialog mLoadingDialog = null;
     private boolean mIsShowDelete = false;
     private static final int GET_GROUP_MEMBER = 2047;
     private static final int ADD_TO_GRIDVIEW = 2048;
     private static final int DELETE_FROM_GRIDVIEW = 2049;
     private double mDensity;
+    private String mGroupName;
+    private final MyHandler myHandler = new MyHandler(this);
 
     public ChatDetailController(ChatDetailView chatDetailView,
                                 ChatDetailActivity context) {
@@ -94,27 +98,22 @@ public class ChatDetailController implements OnClickListener,
         Log.i(TAG, "mTargetID: " + mTargetID);
         // 是群组
         if (mIsGroup) {
-            mChatDetailView.setGroupName(getGroupName(mGroupID));
             //获得群组基本信息：群主ID、群组名、群组人数
             JMessageClient.getGroupInfo(mGroupID,
                     new GetGroupInfoCallback(false) {
                         @Override
                         public void gotResult(final int status, final String desc, GroupInfo group) {
                             if (status == 0) {
-                                Bundle bundle = new Bundle();
-                                android.os.Message msg = handler
-                                        .obtainMessage();
+                                android.os.Message msg = myHandler.obtainMessage();
                                 msg.what = 0;
+                                msg.obj = group;
                                 Log.i(TAG, "Group owner is " + group.getGroupOwner());
-                                bundle.putString("groupOwnerID",
-                                        group.getGroupOwner());
-                                msg.setData(bundle);
                                 msg.sendToTarget();
                             } else {
                                 mContext.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        HandleResponseCode.onHandle(mContext, status);
+                                        HandleResponseCode.onHandle(mContext, status, false);
                                     }
                                 });
                             }
@@ -130,13 +129,11 @@ public class ChatDetailController implements OnClickListener,
             JMessageClient
                     .getGroupMembers(mGroupID, new GetGroupMembersCallback() {
                         @Override
-                        public void gotResult(int status, String desc, List<String> members) {
+                        public void gotResult(int status, String desc, List<UserInfo> members) {
                             if (status == 0) {
-                                android.os.Message msg = handler.obtainMessage();
+                                android.os.Message msg = myHandler.obtainMessage();
+                                mMemberIDList = members;
                                 msg.what = GET_GROUP_MEMBER;
-                                Bundle bundle = new Bundle();
-                                bundle.putStringArrayList("memberList", (ArrayList) members);
-                                msg.setData(bundle);
                                 msg.sendToTarget();
                             }
                         }
@@ -144,20 +141,20 @@ public class ChatDetailController implements OnClickListener,
 //                }
             // 是单聊
         } else {
-            mMemberIDList.add(mTargetID);
-            initAdapter();
-
+            JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int status, String desc, UserInfo userInfo) {
+                    if (status == 0) {
+                        mMemberIDList.add(userInfo);
+                        initAdapter();
+                    }
+                }
+            });
             // 设置单聊界面
             mChatDetailView.setSingleView();
         }
     }
 
-    private String getGroupName(long groupID){
-        Conversation conv = JMessageClient.getGroupConversation(groupID);
-        if (conv != null) {
-            return conv.getDisplayName();
-        }else return null;
-    }
 
     private void initAdapter() {
         mCurrentNum = mMemberIDList.size();
@@ -178,12 +175,12 @@ public class ChatDetailController implements OnClickListener,
 
             // 设置群组名称
             case R.id.group_name_rl:
-                mContext.showGroupNameSettingDialog(1, mGroupID, getGroupName(mGroupID));
+                mContext.showGroupNameSettingDialog(1, mGroupID, mGroupName);
                 break;
 
             // 设置我在群组的昵称
             case R.id.group_my_name_ll:
-                mContext.showGroupNameSettingDialog(2, mGroupID, getGroupName(mGroupID));
+                mContext.showGroupNameSettingDialog(2, mGroupID, mGroupName);
                 break;
 
             // 群组人数
@@ -242,7 +239,7 @@ public class ChatDetailController implements OnClickListener,
      * 删除并退出
      */
     private void deleteAndExit() {
-        mLD = new LoadingDialog();
+        mLD = new DialogCreator();
         mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.exiting_group_toast));
         mLoadingDialog.show();
         JMessageClient.exitGroup(mGroupID, new BasicCallback(false) {
@@ -257,7 +254,7 @@ public class ChatDetailController implements OnClickListener,
                             boolean deleted = JMessageClient.deleteGroupConversation(mGroupID);
                             Log.i(TAG, "deleted: " + deleted);
                             mContext.StartMainActivity();
-                        } else HandleResponseCode.onHandle(mContext, status);
+                        } else HandleResponseCode.onHandle(mContext, status, false);
                     }
                 });
             }
@@ -273,10 +270,10 @@ public class ChatDetailController implements OnClickListener,
             // 点击群成员项时
             if (position < mCurrentNum) {
                 Intent intent = new Intent();
-                if (mMemberIDList.get(position).equals(JMessageClient.getMyInfo().getUserName())) {
+                if (mMemberIDList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
                     intent.setClass(mContext, MeInfoActivity.class);
                 } else {
-                    intent.putExtra("targetID", mMemberIDList.get(position));
+                    intent.putExtra("targetID", mMemberIDList.get(position).getUserName());
                     intent.setClass(mContext, FriendInfoActivity.class);
                 }
                 mContext.startActivity(intent);
@@ -297,15 +294,15 @@ public class ChatDetailController implements OnClickListener,
             // 点击群成员Item时
             if (position < mCurrentNum) {
                 //如果群主删除自己
-                if (mMemberIDList.get(position).equals(JMessageClient.getMyInfo().getUserName())) {
+                if (mMemberIDList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
                     return;
                 } else {
                     // 删除某个群成员
-                    mLD = new LoadingDialog();
+                    mLD = new DialogCreator();
                     mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.deleting_hint));
                     List<String> delList = new ArrayList<String>();
                     //之所以要传一个List，考虑到之后可能支持同时删除多人功能，现在List中只有一个元素
-                    delList.add(mMemberIDList.get(position));
+                    delList.add(mMemberIDList.get(position).getUserName());
                     delMember(delList, position);
                     // 当前成员数为0，退出删除状态
                     if (mMemberIDList.size() == 0) {
@@ -350,8 +347,9 @@ public class ChatDetailController implements OnClickListener,
                         if (TextUtils.isEmpty(targetID)) {
                             Toast.makeText(mContext, mContext.getString(R.string.username_not_null_toast), Toast.LENGTH_SHORT).show();
                             break;
-                        } else if (!mMemberIDList.contains(targetID)) {
-                            mLD = new LoadingDialog();
+                            //检查群组中是否包含该用户
+                        } else if (checkIfNotContainUser(targetID)) {
+                            mLD = new DialogCreator();
                             mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.searching_user));
                             mLoadingDialog.show();
                             JMessageClient.getUserInfo(targetID, new GetUserInfoCallback(false) {
@@ -359,7 +357,7 @@ public class ChatDetailController implements OnClickListener,
                                 public void gotResult(final int status, String desc, UserInfo userInfo) {
                                     if (status == 0) {
                                         //缓存头像
-                                        File file = userInfo.getAvatar();
+                                        File file = userInfo.getAvatarFile();
                                         if (file != null) {
                                             Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
                                                     (int) (50 * mDensity), (int) (50 * mDensity));
@@ -371,11 +369,9 @@ public class ChatDetailController implements OnClickListener,
                                         // 要增加到群的成员ID集合
                                         ArrayList<String> userIDs = new ArrayList<String>();
                                         userIDs.add(targetID);
-                                        android.os.Message msg = handler.obtainMessage();
+                                        android.os.Message msg = myHandler.obtainMessage();
                                         msg.what = 1;
-                                        Bundle bundle = new Bundle();
-                                        bundle.putStringArrayList("userIDs", userIDs);
-                                        msg.setData(bundle);
+                                        msg.obj = userInfo;
                                         msg.sendToTarget();
                                     } else {
                                         mContext.runOnUiThread(new Runnable() {
@@ -383,7 +379,7 @@ public class ChatDetailController implements OnClickListener,
                                             public void run() {
                                                 if (mLoadingDialog != null)
                                                     mLoadingDialog.dismiss();
-                                                HandleResponseCode.onHandle(mContext, status);
+                                                HandleResponseCode.onHandle(mContext, status, true);
                                             }
                                         });
                                     }
@@ -408,59 +404,60 @@ public class ChatDetailController implements OnClickListener,
     }
 
     /**
-     * 增加群成员
-     * @param list 要增加的成员的用户名，目前一次只能增加一个
+     * 添加成员时检查是否存在该群成员
+     *
+     * @param targetID 要添加的用户
+     * @return 返回是否存在该用户
      */
-    private void addMember(final ArrayList<String> list) {
+    private boolean checkIfNotContainUser(String targetID) {
+        if (mMemberIDList != null) {
+            for (UserInfo userInfo : mMemberIDList) {
+                if (userInfo.getUserName().equals(targetID))
+                    return false;
+            }
+            return true;
+        }
+        return true;
+    }
+
+    /**
+     * @param userInfo 要增加的成员的用户名，目前一次只能增加一个
+     */
+    private void addAMember(final UserInfo userInfo) {
         try {
-            mLD = new LoadingDialog();
+            mLD = new DialogCreator();
             mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.adding_hint));
             mLoadingDialog.show();
+            ArrayList<String> list = new ArrayList<String>();
+            list.add(userInfo.getUserName());
             JMessageClient.addGroupMembers(mGroupID, list,
-                    new BasicCallback(false) {
+                    new BasicCallback() {
 
                         @Override
                         public void gotResult(final int status, final String desc) {
                             if (status == 0) {
-                                // 更新GridView
-
-                                android.os.Message msg = handler
-                                        .obtainMessage();
                                 // 添加群成员
-                                msg.what = ADD_TO_GRIDVIEW;
-                                Bundle bundle = new Bundle();
-                                Log.i(TAG, "list.toString() " + list.toString());
-                                bundle.putStringArrayList("memberList", list);
-                                msg.setData(bundle);
-                                msg.sendToTarget();
+                                ++mCurrentNum;
+                                mGridAdapter.addMemberToList(userInfo);
+                                Log.i("ADD_TO_GRIDVIEW", "已添加");
                                 mLoadingDialog.dismiss();
                             } else {
                                 mLoadingDialog.dismiss();
-                                mContext.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        HandleResponseCode.onHandle(mContext, status);
-                                    }
-                                });
+                                HandleResponseCode.onHandle(mContext, status, true);
                             }
                         }
                     });
         } catch (Exception e) {
             mLoadingDialog.dismiss();
             e.printStackTrace();
-            mContext.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(mContext, mContext.getString(R.string.unknown_error_toast), Toast.LENGTH_SHORT)
-                            .show();
-                }
-            });
+            Toast.makeText(mContext, mContext.getString(R.string.unknown_error_toast), Toast.LENGTH_SHORT).show();
         }
     }
 
     /**
      * 删除成员
-     * @param list 被删除的用户名List
+     *
+     * @param list     被删除的用户名List
      * @param position 删除的位置
      */
     private void delMember(List<String> list, final int position) {
@@ -474,8 +471,7 @@ public class ChatDetailController implements OnClickListener,
                         public void gotResult(final int status, final String desc) {
                             mLoadingDialog.dismiss();
                             if (status == 0) {
-                                android.os.Message msg = handler
-                                        .obtainMessage();
+                                android.os.Message msg = myHandler.obtainMessage();
                                 msg.what = DELETE_FROM_GRIDVIEW;
                                 Bundle bundle = new Bundle();
                                 bundle.putInt("position", position);
@@ -485,7 +481,7 @@ public class ChatDetailController implements OnClickListener,
                                 mContext.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        HandleResponseCode.onHandle(mContext, status);
+                                        HandleResponseCode.onHandle(mContext, status, false);
                                     }
                                 });
                             }
@@ -503,82 +499,85 @@ public class ChatDetailController implements OnClickListener,
         }
     }
 
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler{
+        private final WeakReference<ChatDetailController> mController;
+
+        public MyHandler(ChatDetailController controller){
+            mController = new WeakReference<ChatDetailController>(controller);
+        }
 
         @Override
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                // 初始化群组
-                case 0:
-                    String groupOwnerID = msg.getData().getString("groupOwnerID");
-                    // 判断是否为群主
-                    if (groupOwnerID != null && groupOwnerID.equals(JMessageClient.getMyInfo().getUserName()))
-                        mIsCreator = true;
-                    Log.d(TAG,"groupOwnerID = " + groupOwnerID + "isCreator = " + true);
-                    mChatDetailView.setMyName(JMessageClient.getMyInfo().getUserName());
-                    if (mGridAdapter != null) {
-                        mGridAdapter.setCreator(mIsCreator);
-                    }
-                    break;
-                //点击加人按钮并且用户信息返回正确
-                case 1:
-                    if (mLoadingDialog != null)
-                        mLoadingDialog.dismiss();
-                    final String newMember = msg.getData().getStringArrayList("userIDs").get(0);
-                    if (mIsGroup)
-                        addMember(msg.getData().getStringArrayList("userIDs"));
-                        //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
-                    else {
-                        if (newMember.equals(JMessageClient.getMyInfo().getUserName()) || newMember.equals(mTargetID))
-                            return;
-                        else addMemberAndCreateGroup(newMember);
-                    }
-                    break;
-                // 获取成员列表，缓存头像，更新GridView
-                case GET_GROUP_MEMBER:
-                    mMemberIDList = msg.getData().getStringArrayList("memberList");
-                    Log.i(TAG, "GroupMember: " + mMemberIDList.toString());
-                    NativeImageLoader.getInstance().setAvatarCache(mMemberIDList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
-                        @Override
-                        public void onCacheAvatarCallBack(int status) {
-                            if (status == 0) {
-                                mContext.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Log.i(TAG, "init group members' avatar succeed");
-                                        if (mGridAdapter != null)
-                                            mGridAdapter.notifyDataSetChanged();
-                                    }
-                                });
-                            }
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            ChatDetailController controller = mController.get();
+            if(controller != null){
+                switch (msg.what) {
+                    // 初始化群组
+                    case 0:
+                        GroupInfo groupInfo = (GroupInfo) msg.obj;
+                        String groupOwnerID = groupInfo.getGroupOwner();
+                        controller.mGroupName = groupInfo.getGroupName();
+                        if(TextUtils.isEmpty(controller.mGroupName)){
+                            controller.mChatDetailView.setGroupName(controller.mContext.getString(R.string.unnamed));
+                        }else {
+                            controller.mChatDetailView.setGroupName(controller.mGroupName);
                         }
-                    });
-                    initAdapter();
-                    break;
-                // 添加成员
-                case ADD_TO_GRIDVIEW:
-                    ++mCurrentNum;
-                    mGridAdapter.addMemberToList(msg.getData().getStringArrayList("memberList"));
-                    Log.i("ADD_TO_GRIDVIEW", "已添加");
-                    break;
-                // 删除成员
-                case DELETE_FROM_GRIDVIEW:
-                    // 更新GridView
-                    --mCurrentNum;
-                    int position = msg.getData().getInt("position");
-                    mGridAdapter.remove(position);
-                    Log.i("DELETE_FROM_GRIDVIEW", "已删除");
-                    break;
+                        // 判断是否为群主
+                        if (groupOwnerID != null && groupOwnerID.equals(JMessageClient.getMyInfo().getUserName()))
+                            controller.mIsCreator = true;
+                        Log.d(TAG, "groupOwnerID = " + groupOwnerID + "isCreator = " + true);
+                        controller.mChatDetailView.setMyName(JMessageClient.getMyInfo().getUserName());
+                        if (controller.mGridAdapter != null) {
+                            controller.mGridAdapter.setCreator(controller.mIsCreator);
+                        }
+                        break;
+                    //点击加人按钮并且用户信息返回正确
+                    case 1:
+                        Log.i(TAG, "Adding Group Member, got UserInfo");
+                        if (controller.mLoadingDialog != null)
+                            controller.mLoadingDialog.dismiss();
+                        final UserInfo userInfo = (UserInfo) msg.obj;
+                        if (controller.mIsGroup)
+                            controller.addAMember(userInfo);
+                            //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
+                        else {
+                            if (userInfo.getUserName().equals(JMessageClient.getMyInfo().getUserName()) || userInfo.getUserName().equals(controller.mTargetID))
+                                return;
+                            else controller.addMemberAndCreateGroup(userInfo.getUserName());
+                        }
+                        break;
+                    // 获取成员列表，缓存头像，更新GridView
+                    case GET_GROUP_MEMBER:
+                        Log.i(TAG, "GroupMember: " + controller.mMemberIDList.toString());
+                        controller.mChatDetailView.setTitle(controller.mMemberIDList.size());
+                        controller.initAdapter();
+                        break;
+                    // 添加成员
+                    case ADD_TO_GRIDVIEW:
+//                    ++mCurrentNum;
+//                    mGridAdapter.addMemberToList(msg.getData().getStringArrayList("memberList"));
+//                    Log.i("ADD_TO_GRIDVIEW", "已添加");
+                        break;
+                    // 删除成员
+                    case DELETE_FROM_GRIDVIEW:
+                        // 更新GridView
+                        --controller.mCurrentNum;
+                        int position = msg.getData().getInt("position");
+                        controller.mGridAdapter.remove(position);
+                        Log.i("DELETE_FROM_GRIDVIEW", "已删除");
+                        break;
+                }
             }
         }
-    };
+    }
 
     /**
      * 在单聊中点击增加按钮触发事件，创建群聊
+     *
      * @param newMember 要增加的成员
      */
     private void addMemberAndCreateGroup(final String newMember) {
-        mLD = new LoadingDialog();
+        mLD = new DialogCreator();
         mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
         mLoadingDialog.show();
         JMessageClient.createGroup("", "", new CreateGroupCallback(false) {
@@ -595,9 +594,9 @@ public class ChatDetailController implements OnClickListener,
                                 mLoadingDialog.dismiss();
                             Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
                             if (status == 0) {
-                                mContext.StartChatActivity(groupID, conv.getDisplayName());
+                                mContext.StartChatActivity(groupID, conv.getTitle());
                             } else {
-                                mContext.StartChatActivity(groupID, conv.getDisplayName());
+                                mContext.StartChatActivity(groupID, conv.getTitle());
                                 Toast.makeText(mContext, desc, Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -630,8 +629,13 @@ public class ChatDetailController implements OnClickListener,
         return true;
     }
 
+    public long getGroupID(){
+        return mGroupID;
+    }
+
     /**
      * 当收到群成员变化的Event后，刷新成员列表
+     *
      * @param groupID 群组ID
      */
     public void refresh(long groupID) {
@@ -639,10 +643,11 @@ public class ChatDetailController implements OnClickListener,
         if (mGroupID == groupID) {
             JMessageClient.getGroupMembers(groupID, new GetGroupMembersCallback() {
                 @Override
-                public void gotResult(int status, String s, List<String> memberList) {
+                public void gotResult(int status, String s, List<UserInfo> memberList) {
                     if (status == 0) {
                         mMemberIDList = memberList;
                         mCurrentNum = mMemberIDList.size();
+                        mChatDetailView.setTitle(mCurrentNum);
                         mGridAdapter.refreshGroupMember(mMemberIDList);
                     }
                 }
@@ -651,15 +656,10 @@ public class ChatDetailController implements OnClickListener,
         }
     }
 
-    //刷新群名称
-    public void NotifyGroupInfoChange() {
+    //刷新
+    public void NotifyGroupChange() {
         if (mGridAdapter != null)
             mGridAdapter.notifyDataSetChanged();
-        if (mIsGroup && mGroupID != 0) {
-            Conversation conv = JMessageClient.getGroupConversation(mGroupID);
-            if (conv != null)
-                mChatDetailView.refreshGroupName(conv.getDisplayName());
-            Log.i(TAG, "Fresh group name completed");
-        }
     }
+
 }

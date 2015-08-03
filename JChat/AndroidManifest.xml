@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.jchat.android"
-    android:versionCode="28"
-    android:versionName="1.2.0">
+    android:versionCode="34"
+    android:versionName="1.2.1">
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -26,12 +26,15 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
+
     <!-- JMessage Demo required for record audio-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="ANDROID.PERMISSION.MODIFY_AUDIO_SETTINGS"/>
 
     <application
         android:name="io.jchat.android.application.JPushDemoApplication"
         android:allowBackup="true"
+        android:configChanges="fontScale"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:screenOrientation="portrait">
@@ -135,7 +138,7 @@
         <activity
             android:name="io.jchat.android.activity.RegisterActivity"
             android:theme="@style/notitle"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="io.jchat.android.activity.MeInfoActivity"
             android:theme="@style/notitle" />
@@ -144,7 +147,8 @@
             android:theme="@style/notitle"
             android:windowSoftInputMode="adjustNothing" />
         <activity android:name="io.jchat.android.activity.ReloginActivity"
-            android:theme="@style/notitle"/>
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden"/>
         <activity
             android:name="io.jchat.android.activity.ChatDetailActivity"
             android:theme="@style/notitle" />
@@ -177,20 +181,27 @@
             android:theme="@style/notitle" />
         <activity
             android:name="io.jchat.android.activity.ResetPasswordActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
         <activity
             android:name="io.jchat.android.activity.FixProfileActivity"
             android:theme="@style/notitle"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
         <activity
             android:name="io.jchat.android.activity.ResetNickNameActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
         <activity
             android:name="io.jchat.android.activity.SelectAreaActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
         <activity
             android:name="io.jchat.android.activity.EditSignatureActivity"
-            android:theme="@style/notitle" />
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
+        <activity
+            android:name="io.jchat.android.activity.EditNoteNameActivity"
+            android:theme="@style/notitle"/>
 
     </application>
 

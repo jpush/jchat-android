@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -19,11 +20,16 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -54,6 +60,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     private long mGroupID;
     private boolean mIsGroup;
     private String mPhotoPath = null;
+    private final MyHandler myHandler = new MyHandler(this);
 
     public ChatController(ChatView mChatView, ChatActivity context) {
         this.mChatView = mChatView;
@@ -69,42 +76,56 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         Log.i("ChatController", "mTargetID " + mTargetID);
         mGroupID = intent.getLongExtra("groupID", 0);
         mIsGroup = intent.getBooleanExtra("isGroup", false);
-        boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
+        final boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
         // 如果是群组，特别处理
         if (mIsGroup) {
             Log.i("Tag", "mGroupID is " + mGroupID);
             //判断是否从创建群组跳转过来
             if (fromGroup) {
-                String groupName = intent.getStringExtra("groupName");
-                mChatView.setChatTitle(groupName);
+                mChatView.setChatTitle(mContext.getString(R.string.group), 1);
                 mConv = JMessageClient.getGroupConversation(mGroupID);
             } else {
                 if (mTargetID != null)
                     mGroupID = Long.parseLong(mTargetID);
                 mConv = JMessageClient.getGroupConversation(mGroupID);
+                mChatView.setChatTitle(mContext.getString(R.string.group));
+                //设置群聊聊天标题
+                JMessageClient.getGroupInfo(mGroupID, new GetGroupInfoCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, GroupInfo groupInfo) {
+                        if(status == 0){
+                            if(!TextUtils.isEmpty(groupInfo.getGroupName())){
+                                mChatView.setChatTitle(groupInfo.getGroupName(), groupInfo.getGroupMembers().size());
+                            }else {
+                                Log.i("ChatController", "GroupMember size: " + groupInfo.getGroupMembers().size());
+                                mChatView.setChatTitle(mContext.getString(R.string.group), groupInfo.getGroupMembers().size());
+                            }
+                        }
+                    }
+                });
                 //判断自己如果不在群聊中，隐藏群聊详情按钮
                 JMessageClient.getGroupMembers(mGroupID, new GetGroupMembersCallback() {
                     @Override
-                    public void gotResult(final int status, final String desc, final List<String> memberList) {
-//                        mContext.runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
+
+                    public void gotResult(final int status, final String desc, final List<UserInfo> members) {
                         if (status == 0) {
+                            List<String> userNames = new ArrayList<String>();
+                            for(UserInfo info:members){
+                                userNames.add(info.getUserName());
+                            }
                             //群主解散后，返回memberList为空
-                            if (memberList.isEmpty()) {
+                            if (userNames.isEmpty()) {
                                 mChatView.dismissRightBtn();
                                 //判断自己如果不在memberList中，则隐藏聊天详情按钮
-                            } else if (!memberList.contains(JMessageClient.getMyInfo().getUserName()))
+                            } else if (!userNames.contains(JMessageClient.getMyInfo().getUserName()))
                                 mChatView.dismissRightBtn();
                             else mChatView.showRightBtn();
                         } else {
-                            if (null == memberList || memberList.isEmpty()) {
+                            if (null == members || members.isEmpty()) {
                                 mChatView.dismissRightBtn();
                             }
-                            HandleResponseCode.onHandle(mContext, status);
+                            HandleResponseCode.onHandle(mContext, status, false);
                         }
-//                            }
-//                        });
                     }
                 });
             }
@@ -114,6 +135,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             // 用targetID得到会话
             Log.i("Tag", "targetID is " + mTargetID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
+            mChatView.setChatTitle(mConv.getTitle());
         }
 
         // 如果之前沒有会话记录并且是群聊
@@ -125,7 +147,6 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             mConv = Conversation.createConversation(ConversationType.single, mTargetID);
         }
         if (mConv != null) {
-            mChatView.setChatTitle(mConv.getDisplayName());
             mConv.resetUnreadCount();
         }
         mChatAdapter = new MsgListAdapter(mContext, mIsGroup, mTargetID, mGroupID);
@@ -198,12 +219,12 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                             mContext.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    HandleResponseCode.onHandle(mContext, status);
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             });
                         }
                         // 发送成功或失败都要刷新一次
-                        android.os.Message msg = handler.obtainMessage();
+                        android.os.Message msg = myHandler.obtainMessage();
                         msg.what = UPDATE_CHAT_LISTVIEW;
                         Bundle bundle = new Bundle();
                         bundle.putString("desc", desc);
@@ -352,23 +373,31 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         mChatAdapter.releaseMediaPlayer();
     }
 
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler{
+        private final WeakReference<ChatController> mController;
+
+        public MyHandler(ChatController controller){
+            mController = new WeakReference<ChatController>(controller);
+        }
 
         @Override
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case UPDATE_LAST_PAGE_LISTVIEW:
-                    Log.i("Tag", "收到更新消息列表的消息");
-                    mChatAdapter.refresh();
-                    mChatView.removeHeadView();
-                    break;
-                case UPDATE_CHAT_LISTVIEW:
-                    mChatAdapter.refresh();
-                    break;
+            ChatController controller = mController.get();
+            if(controller != null){
+                switch (msg.what) {
+                    case UPDATE_LAST_PAGE_LISTVIEW:
+                        Log.i("Tag", "收到更新消息列表的消息");
+                        controller.mChatAdapter.refresh();
+                        controller.mChatView.removeHeadView();
+                        break;
+                    case UPDATE_CHAT_LISTVIEW:
+                        controller.mChatAdapter.refresh();
+                        break;
+                }
             }
         }
-    };
+    }
 
 
     @Override
@@ -406,7 +435,6 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     }
 
     public void refresh() {
-        mChatView.setChatTitle(mConv.getDisplayName());
         mChatAdapter.refresh();
     }
 }

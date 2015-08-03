@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:cursorVisible="true"
         android:textCursorDrawable="@drawable/text_cursor_bg"
-        style="@style/default_input_style"
+        style="@style/default_input_style_with_bg"
         android:layout_margin="10dp"
         android:hint="输入群名"/>
 

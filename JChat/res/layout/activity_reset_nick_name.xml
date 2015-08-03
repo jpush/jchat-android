@@ -1,66 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:orientation="vertical">
 
-    <RelativeLayout
-        android:id="@+id/menu_title_bar"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/jpush_blue"
-        android:orientation="vertical" >
-
-        <ImageButton
-            android:id="@+id/return_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:background="@drawable/back_btn_bg" />
-
-        <TextView
-            android:id="@+id/title_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Title"
-            android:textColor="#FFFFFF"
-            android:layout_centerInParent="true"
-            android:textSize="20sp"/>
-
-        <Button
-            android:id="@+id/commit_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_margin="7dp"
-            android:layout_centerVertical="true"
-            android:text="保存"
-            android:textColor="#FFFFFF"
-            android:background="#6FD66B"/>
-    </RelativeLayout>
+    <include layout="@layout/menu_title_bar_with_button" />
 
     <EditText
         android:id="@+id/nick_name_et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:cursorVisible="true"
-        android:textCursorDrawable="@drawable/text_cursor_bg"
-        android:textColorHint="@color/chat_detail_item_content_color"
         android:layout_marginTop="20dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        style="@style/default_input_style"/>
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="5dp"
+        android:cursorVisible="true"
+        android:textSize="20sp"
+        android:textColor="@color/me_info_edit_color"
+        android:textColorHint="@color/me_info_hint_color"
+        android:textCursorDrawable="@drawable/text_cursor_bg"
+        android:background="@drawable/default_input_bg"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="5dp"
-        android:textColor="#808080"
-        android:text="好名字可以让你更容易被记住"
-        />
+        android:text="@string/reset_nickname_hint"
+        android:textColor="#808080" />
 
 </LinearLayout>

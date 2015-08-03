@@ -1,15 +1,9 @@
 package io.jchat.android.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-
-
 import io.jchat.android.R;
-
-import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.controller.LoginController;
 import io.jchat.android.view.LoginView;
 
@@ -28,6 +22,8 @@ public class LoginActivity extends BaseActivity {
         mLoginView.setListener(mLoginController);
         mLoginView.setListeners(mLoginController);
         mLoginView.setOnCheckedChangeListener(mLoginController);
+        Intent intent = this.getIntent();
+        mLoginView.isShowReturnBtn(intent.getBooleanExtra("fromSwitch", false));
     }
 
     @Override
@@ -48,13 +44,11 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        mLoginController.dismissDialog();
         super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
-        mLoginController.dismissDialog();
         finish();
         super.onBackPressed();
     }
@@ -63,34 +57,17 @@ public class LoginActivity extends BaseActivity {
         return this;
     }
 
-    //如果CurrentUser存在并且从切换用户或者从其他应用回来，重新登录
-//    public void SwitchToMainActivity() {
-//        Intent intent = new Intent();
-//        intent.setClass(getContext(), MainActivity.class);
-//        startActivity(intent);
-//        finish();
-//    }
-
     public void StartMainActivity() {
         Intent intent = new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setClass(getContext(), MainActivity.class);
         startActivity(intent);
-        finish();
-    }
-
-    public void StartMainActivity(boolean hasUserInfo){
-        if(!hasUserInfo){
-            Intent intent = new Intent();
-            intent.setClass(getContext(), MainActivity.class);
-            startActivity(intent);
-        }
     }
 
     public void StartRegisterActivity() {
         Intent intent = new Intent();
         intent.setClass(this, RegisterActivity.class);
         startActivity(intent);
-        finish();
     }
 
 }

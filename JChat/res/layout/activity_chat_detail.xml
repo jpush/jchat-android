@@ -23,21 +23,20 @@
             android:id="@+id/chat_detail_group_gv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="20dp"
             android:horizontalSpacing="10dp"
             android:numColumns="4"
             android:stretchMode="columnWidth"
-            android:verticalSpacing="10dp" >
+            android:verticalSpacing="10dp">
         </io.jchat.android.view.GroupGridView>
 
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:background="@color/chat_detail_split_line_color" />
 
     <RelativeLayout
@@ -124,6 +123,7 @@
     </LinearLayout>
 
     <View
+        android:id="@+id/group_num_dividing_line"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/chat_detail_split_line_color" />
@@ -160,6 +160,7 @@
             android:layout_marginRight="20dp"
             android:layout_height="50dp"
             android:background="@drawable/chat_detail_btn_bg"
+            android:textSize="18sp"
             android:text="@string/group_exit_btn"
             android:textColor="@color/white" />
     </LinearLayout>

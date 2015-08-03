@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -84,6 +85,7 @@ public class ChatDetailActivity extends BaseActivity {
             title.setText(mContext.getString(R.string.group_name_hit));
             title.setTextColor(Color.parseColor("#000000"));
             final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
+            pwdEt.setInputType(InputType.TYPE_CLASS_TEXT);
             pwdEt.setHint(groupName);
             pwdEt.setHintTextColor(getResources().getColor(R.color.chat_detail_item_content_color));
             final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
@@ -122,7 +124,7 @@ public class ChatDetailActivity extends BaseActivity {
                                                     Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
                                                 }else {
                                                     Log.i(TAG, "desc :" + desc);
-                                                    HandleResponseCode.onHandle(mContext, status);
+                                                    HandleResponseCode.onHandle(mContext, status, false);
                                                 }
                                             }
                                         });
@@ -190,7 +192,7 @@ public class ChatDetailActivity extends BaseActivity {
                 break;
             case JPushDemoApplication.REFRESH_GROUP_NAME:
                 Log.i(TAG, "Refresh GroupName Or user name");
-                mChatDetailController.NotifyGroupInfoChange();
+                mChatDetailController.NotifyGroupChange();
                 break;
         }
     }
@@ -212,7 +214,7 @@ public class ChatDetailActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
-//        mChatDetailController.NotifyGroupInfoChange();
+        mChatDetailController.refresh(mChatDetailController.getGroupID());
         super.onResume();
     }
 
@@ -275,12 +277,12 @@ public class ChatDetailActivity extends BaseActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mChatDetailController.NotifyGroupInfoChange();
+                                mChatDetailController.NotifyGroupChange();
                             }
                         });
                         //否则从Conversation拿
                     }else if(conv != null){
-                        final File file = conv.getAvatar();
+                        final File file = conv.getAvatarFile();
                         if(file != null){
                             runOnUiThread(new Runnable() {
                                 @Override

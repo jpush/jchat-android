@@ -2,9 +2,9 @@ package io.jchat.android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 
-import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
 
 import io.jchat.android.controller.RegisterController;
@@ -19,7 +19,6 @@ public class RegisterActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_regist);
-		
 		mRegisterView = (RegisterView) findViewById(R.id.regist_view);
 		mRegisterView.initModule();
 		mRegisterController = new RegisterController(mRegisterView,this);
@@ -30,23 +29,15 @@ public class RegisterActivity extends BaseActivity {
 	//注册成功
 	public void OnRegistSuccess(){
         Intent intent = new Intent();
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setClass(this, FixProfileActivity.class);
         startActivity(intent);
-        finish();
 	}
-
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent();
-        intent.setClass(this, LoginActivity.class);
-        startActivity(intent);
-        finish();
-        super.onBackPressed();
-    }
 
     @Override
     protected void onDestroy() {
         mRegisterController.dismissDialog();
-        super.onDestroy();
+		Log.i("RegisterActivity", "onDestroy!");
+		super.onDestroy();
     }
 }

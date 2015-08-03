@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -19,7 +21,7 @@ import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
 
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.LoadingDialog;
+import io.jchat.android.view.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
 
 /**
@@ -31,7 +33,7 @@ public class ResetNickNameActivity extends BaseActivity {
     private TextView mTitleTv;
     private Button mCommitBtn;
     private EditText mNickNameEt;
-    private LoadingDialog mLD;
+    private DialogCreator mLD;
     private Dialog mDialog;
     private Context mContext;
 
@@ -65,7 +67,7 @@ public class ResetNickNameActivity extends BaseActivity {
                 if (oldNickName.equals(nickName)) {
                     return;
                 } else {
-                    mLD = new LoadingDialog();
+                    mLD = new DialogCreator();
                     mDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.modifying_hint));
                     mDialog.show();
                     UserInfo myUserInfo = JMessageClient.getMyInfo();
@@ -83,7 +85,10 @@ public class ResetNickNameActivity extends BaseActivity {
                                         intent.putExtra("nickName", nickName);
                                         setResult(0, intent);
                                         finish();
-                                    } else HandleResponseCode.onHandle(mContext, status);
+                                    } else {
+                                        dismissSoftInput();
+                                        HandleResponseCode.onHandle(mContext, status, false);
+                                    }
                                 }
                             });
                         }
@@ -91,5 +96,16 @@ public class ResetNickNameActivity extends BaseActivity {
                 }
             }
         });
+    }
+
+    public void dismissSoftInput() {
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        //隐藏软键盘
+        InputMethodManager imm = ((InputMethodManager) mContext
+                .getSystemService(Activity.INPUT_METHOD_SERVICE));
+        if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
+            if (getCurrentFocus() != null)
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.RESULT_HIDDEN);
+        }
     }
 }

@@ -4,33 +4,67 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    android:orientation="vertical" >
-    
+    android:orientation="vertical">
+
 
     <LinearLayout
         android:id="@+id/actionbar_layout_tmp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:background="#3C3C3C">
 
-        <Button
-            android:id="@+id/actionbar_msg_btn"
-            style="@style/ActionBarItem"
-            android:drawableTop="@drawable/actionbar_msg_drawable_bg"
-            android:text="@string/actionbar_msg" />
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
 
-        <Button
-            android:id="@+id/actionbar_contact_btn"
-            style="@style/ActionBarItem"
-            android:drawableTop="@drawable/actionbar_contact_drawable_bg"
-            android:text="@string/actionbar_contact" />
+            <Button
+                android:id="@+id/actionbar_msg_btn"
+                style="@style/ActionBarItem"
+                android:drawableTop="@drawable/actionbar_msg_drawable_bg"
+                android:text="@string/actionbar_msg" />
 
-        <Button
-            android:id="@+id/actionbar_me_btn"
-            style="@style/ActionBarItem"
-            android:drawableTop="@drawable/actionbar_me_drawable_bg"
-            android:text="@string/actionbar_me" />
+            <ImageView
+                android:id="@+id/msg_unread_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="3dp"
+                android:layout_marginLeft="13dp"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/actionbar_contact_btn"
+                style="@style/ActionBarItem"
+                android:drawableTop="@drawable/actionbar_contact_drawable_bg"
+                android:text="@string/actionbar_contact" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/actionbar_me_btn"
+                style="@style/ActionBarItem"
+                android:drawableTop="@drawable/actionbar_me_drawable_bg"
+                android:text="@string/actionbar_me" />
+
+        </FrameLayout>
+
     </LinearLayout>
 
     <io.jchat.android.view.ScrollControllViewPager
@@ -39,7 +73,7 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/actionbar_layout_tmp"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" >
+        android:layout_alignParentTop="true">
 
     </io.jchat.android.view.ScrollControllViewPager>
 

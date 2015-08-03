@@ -13,11 +13,11 @@ import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.activity.ReloginActivity;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.LoadingDialog;
+import io.jchat.android.view.DialogCreator;
 import io.jchat.android.view.ReloginView;
 import cn.jpush.im.api.BasicCallback;
 
-public class ReloginController implements OnClickListener {
+public class ReloginController implements ReloginView.Listener, OnClickListener {
 
     private ReloginView mReloginView;
     private ReloginActivity mContext;
@@ -47,7 +47,7 @@ public class ReloginController implements OnClickListener {
                     mReloginView.passwordError(mContext);
                     break;
                 }
-                LoadingDialog ld = new LoadingDialog();
+                DialogCreator ld = new DialogCreator();
                 mLoadingDialog = ld.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
                 mLoadingDialog.show();
                 Log.i("ReloginController", "mUserName: " + mUserName);
@@ -62,7 +62,7 @@ public class ReloginController implements OnClickListener {
                                 if (status == 0) {
                                     mContext.StartRelogin();
                                 } else {
-                                    HandleResponseCode.onHandle(mContext, status);
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
@@ -79,6 +79,16 @@ public class ReloginController implements OnClickListener {
                 break;
         }
 
+    }
+
+    @Override
+    public void onSoftKeyboardShown(int softKeyboardHeight) {
+        if (softKeyboardHeight > 300) {
+            mReloginView.setRegisterBtnVisible(View.INVISIBLE);
+            mReloginView.setToBottom();
+        }else {
+            mReloginView.setRegisterBtnVisible(View.VISIBLE);
+        }
     }
 
 }

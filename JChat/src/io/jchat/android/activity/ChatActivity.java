@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -13,13 +14,16 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.event.ConversationRefreshEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.io.File;
@@ -63,11 +67,12 @@ public class ChatActivity extends BaseActivity {
 
 	}
 
-    // 更新发送图片消息和群名变更的广播
+    // 更新群名变更的广播
 	private void initReceiver() {
 		mReceiver = new GroupNameChangedReceiver();
 		IntentFilter filter = new IntentFilter();
         filter.addAction(JPushDemoApplication.UPDATE_GROUP_NAME_ACTION);
+        filter.addAction(Intent.ACTION_HEADSET_PLUG);
 		registerReceiver(mReceiver, filter);
 	}
 
@@ -80,6 +85,8 @@ public class ChatActivity extends BaseActivity {
                 if(data.getAction().equals(
                     JPushDemoApplication.UPDATE_GROUP_NAME_ACTION)){
                     mChatView.setChatTitle(data.getStringExtra("newGroupName"));
+                }else if(data.getAction().equals(Intent.ACTION_HEADSET_PLUG)){
+                    mChatController.getAdapter().setAudioPlayByEarPhone(data.getIntExtra("state", 0));
                 }
             }
 		}
@@ -96,8 +103,10 @@ public class ChatActivity extends BaseActivity {
                 mChatController.getAdapter().refresh();
                 break;
             case JPushDemoApplication.REFRESH_GROUP_NAME:
-                if(mChatController.getConversation() != null)
-                    mChatView.setChatTitle(mChatController.getConversation().getDisplayName());
+                if(mChatController.getConversation() != null){
+                    int num = msg.getData().getInt("membersCount");
+                    mChatView.setChatTitle(mChatController.getConversation().getTitle(), num);
+                }
                 break;
         }
     }
@@ -169,7 +178,11 @@ public class ChatActivity extends BaseActivity {
                     }
                     break;
                 case KeyEvent.KEYCODE_MENU:
-                    // 处理自己的逻辑break;
+                    // 处理自己的逻辑
+                    break;
+                case  KeyEvent.KEYCODE_ESCAPE:
+                    Log.i(TAG, "KeyCode: escape");
+                    break;
                 default:
                     break;
             }
@@ -307,17 +320,16 @@ public class ChatActivity extends BaseActivity {
      */
     public void onEvent(MessageEvent event) {
         Message msg = event.getMessage();
-        //若为群聊相关事件，如添加、删除群成员，退出群聊
+        //若为群聊相关事件，如添加、删除群成员
+        Log.i(TAG, event.getMessage().toString());
         if(msg.getContentType() == ContentType.eventNotification){
-            //退出群聊
-            if(((EventNotificationContent)msg.getContent()).getEventNotificationType().equals(EventNotificationContent.EventNotificationType.group_member_exit)){
-                //群成员退群事件已经弃用
-
-            }else if(((EventNotificationContent)msg.getContent()).getEventNotificationType().equals(EventNotificationContent.EventNotificationType.group_member_removed)){
+            UserInfo myInfo = JMessageClient.getMyInfo();
+            EventNotificationContent.EventNotificationType type = ((EventNotificationContent)msg.getContent()).getEventNotificationType();
+            if(type.equals(EventNotificationContent.EventNotificationType.group_member_removed)){
                 //删除群成员事件
                 List<String> userNames = ((EventNotificationContent)msg.getContent()).getUserNames();
                 //群主删除了当前用户，则隐藏聊天详情按钮
-                if(userNames.contains(JMessageClient.getMyInfo().getUserName())){
+                if(userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -330,7 +342,7 @@ public class ChatActivity extends BaseActivity {
                 //添加群成员事件
                 List<String> userNames = ((EventNotificationContent)msg.getContent()).getUserNames();
                 //群主把当前用户添加到群聊，则显示聊天详情按钮
-                if(userNames.contains(JMessageClient.getMyInfo().getUserName())){
+                if(userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -338,6 +350,19 @@ public class ChatActivity extends BaseActivity {
                         }
                     });
                 }
+                JMessageClient.getGroupInfo(mChatController.getGroupID(), new GetGroupInfoCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, GroupInfo groupInfo) {
+                        if (status == 0) {
+                            android.os.Message handleMessage = mHandler.obtainMessage();
+                            handleMessage.what = JPushDemoApplication.REFRESH_GROUP_NAME;
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("membersCount", groupInfo.getGroupMembers().size());
+                            handleMessage.setData(bundle);
+                            handleMessage.sendToTarget();
+                        }
+                    }
+                });
             }
         }
         //刷新消息

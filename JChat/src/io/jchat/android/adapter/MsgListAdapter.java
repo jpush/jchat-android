@@ -37,7 +37,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import com.squareup.picasso.Picasso;
@@ -47,6 +50,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -66,6 +70,7 @@ import cn.jpush.im.android.api.enums.MessageDirect;
 import io.jchat.android.activity.BrowserViewPagerActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
+import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.TimeFormat;
@@ -87,7 +92,7 @@ public class MsgListAdapter extends BaseAdapter {
     private boolean mIsGroup = false;
     private long mGroupID;
     private int mPosition = -1;// 和mSetData一起组成判断播放哪条录音的依据
-    private final int UPDATE_IMAGEVIEW = 1999;
+    private static final int UPDATE_IMAGEVIEW = 1999;
     private final int UPDATE_PROGRESS = 1998;
     // 9种Item的类型
     // 文本
@@ -104,16 +109,19 @@ public class MsgListAdapter extends BaseAdapter {
     private final int TYPE_RECEIVER_VOICE = 7;
     //群成员变动
     private final int TYPE_GROUP_CHANGE = 8;
+    //自定义消息
+    private final int TYPE_CUSTOM_TXT = 9;
     private final MediaPlayer mp = new MediaPlayer();
     private AnimationDrawable mVoiceAnimation;
     private FileInputStream mFIS;
     private FileDescriptor mFD;
     private Activity mActivity;
-
+    private final MyHandler myHandler = new MyHandler(this);
     private boolean autoPlay = false;
 
     private int nextPlayPosition = 0;
     private double mDensity;
+    private boolean mIsEarPhoneOn;
 
     public MsgListAdapter(Context context, boolean isGroup, String targetID, long groupID) {
         this.mContext = context;
@@ -128,18 +136,6 @@ public class MsgListAdapter extends BaseAdapter {
             mTargetID = String.valueOf(groupID);
             this.mConv = JMessageClient.getGroupConversation(groupID);
             this.mMsgList = mConv.getAllMessage();
-            //初始化用户ID List
-            JMessageClient.getGroupMembers(groupID, new GetGroupMembersCallback() {
-                @Override
-                public void gotResult(int status, String desc, List<String> members) {
-                    android.os.Message msg = handler.obtainMessage();
-                    msg.what = 1;
-                    Bundle bundle = new Bundle();
-                    bundle.putStringArrayList("memberList", (ArrayList) members);
-                    msg.setData(bundle);
-                    msg.sendToTarget();
-                }
-            });
         } else {
             this.mConv = JMessageClient.getSingleConversation(mTargetID);
             this.mMsgList = mConv.getAllMessage();
@@ -164,7 +160,9 @@ public class MsgListAdapter extends BaseAdapter {
         AudioManager audioManager = (AudioManager) mContext
                 .getSystemService(Context.AUDIO_SERVICE);
         audioManager.setMode(AudioManager.MODE_NORMAL);
-        audioManager.setSpeakerphoneOn(true);
+        if(audioManager.isSpeakerphoneOn()){
+            audioManager.setSpeakerphoneOn(true);
+        }else audioManager.setSpeakerphoneOn(false);
         mp.setAudioStreamType(AudioManager.STREAM_RING);
         mp.setOnErrorListener(new OnErrorListener() {
 
@@ -203,7 +201,6 @@ public class MsgListAdapter extends BaseAdapter {
             mMsgList = mConv.getAllMessage();
             notifyDataSetChanged();
         }
-        Log.d(TAG, "mConv.toString() " + mConv.toString());
     }
 
     public void releaseMediaPlayer() {
@@ -241,14 +238,16 @@ public class MsgListAdapter extends BaseAdapter {
                     : TYPE_RECEIVER_VOICE;
         } else if (msg.getContentType().equals(ContentType.eventNotification)) {
             return TYPE_GROUP_CHANGE;
-        }else {
+        }else if(msg.getContentType().equals(ContentType.location)) {
             return msg.getDirect().equals(MessageDirect.send) ? TYPE_SEND_LOCATION
                     : TYPE_RECEIVER_LOCATION;
+        }else {
+            return TYPE_CUSTOM_TXT;
         }
     }
 
     public int getViewTypeCount() {
-        return 10;
+        return 11;
     }
 
     private View createViewByType(Message msg, int position) {
@@ -270,10 +269,12 @@ public class MsgListAdapter extends BaseAdapter {
             case eventNotification:
                 if (getItemViewType(position) == TYPE_GROUP_CHANGE)
                     return mInflater.inflate(R.layout.chat_item_group_change, null);
-            default:
+            case text:
                 return getItemViewType(position) == TYPE_SEND_TXT ? mInflater
                         .inflate(R.layout.chat_item_send_text, null) : mInflater
                         .inflate(R.layout.chat_item_receive_text, null);
+            default:
+                return mInflater.inflate(R.layout.chat_item_group_change, null);
         }
     }
 
@@ -282,36 +283,52 @@ public class MsgListAdapter extends BaseAdapter {
         return mMsgList.get(position);
     }
 
-    Handler handler = new Handler() {
+    public void setAudioPlayByEarPhone(int state) {
+        AudioManager audioManager = (AudioManager) mContext
+                .getSystemService(Context.AUDIO_SERVICE);
+        int currVolume = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+        audioManager.setMode(AudioManager.MODE_IN_CALL);
+        if(state == 0){
+            mIsEarPhoneOn = false;
+            audioManager.setSpeakerphoneOn(true);
+            audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                    audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
+                    AudioManager.STREAM_VOICE_CALL);
+            Log.i(TAG, "set SpeakerphoneOn true!");
+        }else {
+            mIsEarPhoneOn = true;
+            audioManager.setSpeakerphoneOn(false);
+            audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, currVolume,
+                    AudioManager.STREAM_VOICE_CALL);
+            Log.i(TAG, "set SpeakerphoneOn false!");
+        }
+    }
+
+    private static class MyHandler extends Handler{
+        private final WeakReference<MsgListAdapter> mAdapter;
+
+        public MyHandler(MsgListAdapter adapter){
+            mAdapter = new WeakReference<MsgListAdapter>(adapter);
+        }
+
         @Override
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case 1:
-                    ArrayList<String> memberList = msg.getData().getStringArrayList("memberList");
-                    NativeImageLoader.getInstance().setAvatarCache(memberList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
-                        @Override
-                        public void onCacheAvatarCallBack(int status) {
-                            mActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    notifyDataSetChanged();
-                                }
-                            });
-                        }
-                    });
-                    break;
-                case UPDATE_IMAGEVIEW:
-                    Bundle bundle = msg.getData();
-                    ViewHolder holder = (ViewHolder) msg.obj;
-                    String path = bundle.getString("path");
-                    Picasso.with(mContext).load(new File(path)).into(holder.picture);
-                    refresh();
-                    Log.i(TAG, "Refresh Received picture");
-                    break;
+            MsgListAdapter adapter = mAdapter.get();
+            if(adapter != null){
+                switch (msg.what) {
+                    case UPDATE_IMAGEVIEW:
+                        Bundle bundle = msg.getData();
+                        ViewHolder holder = (ViewHolder) msg.obj;
+                        String path = bundle.getString("path");
+                        Picasso.with(adapter.mContext).load(new File(path)).into(holder.picture);
+                        adapter.refresh();
+                        Log.i(TAG, "Refresh Received picture");
+                        break;
+                }
             }
         }
-    };
+    }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
@@ -379,7 +396,7 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.group_content);
                 } catch (Exception e) {
                 }
-            } else {
+            } else if(contentType.equals(ContentType.location)) {
                 try {
                     holder.headIcon = (RoundImageView) convertView
                             .findViewById(R.id.avatar_iv);
@@ -391,6 +408,12 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.sending_iv);
                     holder.resend = (ImageButton) convertView
                             .findViewById(R.id.fail_resend_ib);
+                } catch (Exception e) {
+                }
+            }else {
+                try {
+                    holder.groupChange = (TextView) convertView
+                            .findViewById(R.id.group_content);
                 } catch (Exception e) {
                 }
             }
@@ -416,7 +439,7 @@ public class MsgListAdapter extends BaseAdapter {
                 handleGroupChangeMsg(msg, holder);
                 break;
             default:
-//                handleCustomMsg(msg, holder);
+                handleCustomMsg(holder);
         }
         //显示时间
         TextView msgTime = (TextView) convertView
@@ -441,7 +464,51 @@ public class MsgListAdapter extends BaseAdapter {
             Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(msg.getFromID());
             if (bitmap != null)
                 holder.headIcon.setImageBitmap(bitmap);
-            else holder.headIcon.setImageResource(R.drawable.head_icon);
+            else {
+                final UserInfo userInfo = JMessageClient.getUserInfoFromLocal(msg.getFromID());
+                //如果本地存在用户信息
+                if(userInfo != null){
+                    File file = userInfo.getAvatarFile();
+                    if(file != null && file.isFile()){
+                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                        NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
+                        holder.headIcon.setImageBitmap(bitmap);
+                        //本地不存在头像，从服务器拿
+                    }else {
+                        userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, File file) {
+                                if (status == 0) {
+                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                                    NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
+                                    holder.headIcon.setImageBitmap(bitmap);
+                                }else {
+                                    holder.headIcon.setImageResource(R.drawable.head_icon);
+                                }
+                            }
+                        });
+                    }
+                    //本地不存在用户信息，从服务器拿
+                }else {
+                    Log.i(TAG, "Get UserInfo from server, UserName: " + msg.getFromName());
+                    JMessageClient.getUserInfo(msg.getFromID(), new GetUserInfoCallback() {
+                        @Override
+                        public void gotResult(int status, String desc, UserInfo userInfo) {
+                            if(status == 0){
+                                File file = userInfo.getAvatarFile();
+                                if(file != null && file.isFile()){
+                                    Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                                    NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap1);
+                                    holder.headIcon.setImageBitmap(bitmap1);
+                                }
+                            }else {
+                                holder.headIcon.setImageResource(R.drawable.head_icon);
+                            }
+                        }
+                    });
+                }
+
+            }
             // 点击头像跳转到个人信息界面
             holder.headIcon.setOnClickListener(new OnClickListener() {
 
@@ -475,13 +542,16 @@ public class MsgListAdapter extends BaseAdapter {
                         .findViewById(R.id.copy_msg_ll);
                 LinearLayout forwardLl = (LinearLayout) view
                         .findViewById(R.id.forward_msg_ll);
-                LinearLayout deleteLl = (LinearLayout) view
-                        .findViewById(R.id.delete_msg_ll);
+                View line1 = view.findViewById(R.id.forward_split_line);
+                View line2 = view.findViewById(R.id.delete_split_line);
+                Button deleteBtn = (Button) view.findViewById(R.id.delete_msg_btn);
                 final TextView title = (TextView) view
                         .findViewById(R.id.dialog_title);
                 if (msg.getContentType().equals(ContentType.voice)) {
                     copyLl.setVisibility(View.GONE);
                     forwardLl.setVisibility(View.GONE);
+                    line1.setVisibility(View.GONE);
+                    line2.setVisibility(View.GONE);
                 }
                 String name;
                 name = msg.getFromName();
@@ -530,7 +600,7 @@ public class MsgListAdapter extends BaseAdapter {
                             case R.id.forward_msg_ll:
                                 dialog.dismiss();
                                 break;
-                            case R.id.delete_msg_ll:
+                            case R.id.delete_msg_btn:
                                 mConv.deleteMessage(msg.getId());
                                 mMsgList.remove(position);
                                 notifyDataSetChanged();
@@ -541,7 +611,7 @@ public class MsgListAdapter extends BaseAdapter {
                 };
                 copyLl.setOnClickListener(listener);
                 forwardLl.setOnClickListener(listener);
-                deleteLl.setOnClickListener(listener);
+                deleteBtn.setOnClickListener(listener);
                 return true;
             }
         };
@@ -557,6 +627,10 @@ public class MsgListAdapter extends BaseAdapter {
         String content = ((EventNotificationContent)msg.getContent()).getEventText();
         holder.groupChange.setText(content);
         holder.groupChange.setVisibility(View.VISIBLE);
+    }
+
+    private void handleCustomMsg(ViewHolder holder){
+        holder.groupChange.setVisibility(View.GONE);
     }
 
     private void handleTextMsg(final Message msg, final ViewHolder holder,
@@ -620,7 +694,7 @@ public class MsgListAdapter extends BaseAdapter {
                         @Override
                         public void run() {
                             if (status != 0)
-                                HandleResponseCode.onHandle(mContext, status);
+                                HandleResponseCode.onHandle(mContext, status, false);
                             refresh();
                         }
 
@@ -677,13 +751,11 @@ public class MsgListAdapter extends BaseAdapter {
                             @Override
                             public void onComplete(int status, String desc, File file) {
                                 if (status == 0) {
-                                    android.os.Message handleMsg = handler
-                                            .obtainMessage();
+                                    android.os.Message handleMsg = myHandler.obtainMessage();
                                     handleMsg.what = UPDATE_IMAGEVIEW;
                                     handleMsg.obj = holder;
                                     Bundle bundle = new Bundle();
-                                    bundle.putString("path",
-                                            file.getAbsolutePath());
+                                    bundle.putString("path", file.getAbsolutePath());
                                     handleMsg.setData(bundle);
                                     handleMsg.sendToTarget();
                                 }
@@ -782,12 +854,15 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.copy_msg_ll);
                     LinearLayout forwardLl = (LinearLayout) view
                             .findViewById(R.id.forward_msg_ll);
-                    LinearLayout deleteLl = (LinearLayout) view
-                            .findViewById(R.id.delete_msg_ll);
+                    View line1 = view.findViewById(R.id.forward_split_line);
+                    View line2 = view.findViewById(R.id.delete_split_line);
+                    Button deleteBtn = (Button) view.findViewById(R.id.delete_msg_btn);
                     final TextView title = (TextView) view
                             .findViewById(R.id.dialog_title);
                     copyLl.setVisibility(View.GONE);
                     forwardLl.setVisibility(View.GONE);
+                    line1.setVisibility(View.GONE);
+                    line2.setVisibility(View.GONE);
                     String name;
                     name = msg.getFromName();
                     title.setText(name);
@@ -803,7 +878,7 @@ public class MsgListAdapter extends BaseAdapter {
                                 case R.id.forward_msg_ll:
                                     dialog.dismiss();
                                     break;
-                                case R.id.delete_msg_ll:
+                                case R.id.delete_msg_btn:
                                     mConv.deleteMessage(msg.getId());
                                     mMsgList.remove(position);
                                     notifyDataSetChanged();
@@ -814,7 +889,7 @@ public class MsgListAdapter extends BaseAdapter {
                     };
                     copyLl.setOnClickListener(listener);
                     forwardLl.setOnClickListener(listener);
-                    deleteLl.setOnClickListener(listener);
+                    deleteBtn.setOnClickListener(listener);
                     return true;
                 }
             });
@@ -823,6 +898,7 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     private void sendingImage(final ViewHolder holder, Animation sendingAnim, Message msg, final String path) {
+        holder.picture.setAlpha(0.7f);
         holder.sendingIv.setVisibility(View.VISIBLE);
         holder.sendingIv.startAnimation(sendingAnim);
         holder.progressTv.setVisibility(View.VISIBLE);
@@ -887,7 +963,7 @@ public class MsgListAdapter extends BaseAdapter {
                 @Override
                 public void gotResult(final int status, String desc) {
                     if (status != 0) {
-                        HandleResponseCode.onHandle(mContext, status);
+                        HandleResponseCode.onHandle(mContext, status, false);
                         holder.sendingIv.clearAnimation();
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
@@ -906,7 +982,7 @@ public class MsgListAdapter extends BaseAdapter {
         final String path = imgContent.getLocalThumbnailPath();
         viewHolder.sendingIv.setVisibility(View.VISIBLE);
         viewHolder.sendingIv.startAnimation(sendingAnim);
-        viewHolder.picture.setAlpha(0.8f);
+        viewHolder.picture.setAlpha(0.7f);
         viewHolder.resend.setVisibility(View.GONE);
         viewHolder.progressTv.setVisibility(View.VISIBLE);
         try {
@@ -932,7 +1008,7 @@ public class MsgListAdapter extends BaseAdapter {
                         mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                HandleResponseCode.onHandle(mContext, status);
+                                HandleResponseCode.onHandle(mContext, status, false);
                                 Picasso.with(mContext).load(new File(path)).into(viewHolder.picture);
                                 Log.i("Send picture", "update: ");
                                 refresh();
@@ -998,8 +1074,8 @@ public class MsgListAdapter extends BaseAdapter {
                 }
                 holder.voice.setImageResource(R.drawable.receive_3);
                 // 收到语音，设置未读
-                if (msg.getContent().getExtra("isReaded") == null
-                        || !(Boolean) msg.getContent().getExtra("isReaded")) {
+                if (msg.getContent().getBooleanExtra("isReaded") == null
+                        || !msg.getContent().getBooleanExtra("isReaded")) {
                     mConv.updateMessageExtra(msg, "isReaded", false);
                     holder.readStatus.setVisibility(View.VISIBLE);
                     if (mIndexList.size() > 0) {
@@ -1017,7 +1093,7 @@ public class MsgListAdapter extends BaseAdapter {
                         Log.d("", "nextPlayPosition = " + nextPlayPosition);
                         playVoiceThenRefresh(position, holder);
                     }
-                } else if (msg.getContent().getExtra("isReaded").equals(true)) {
+                } else if (msg.getContent().getBooleanExtra("isReaded").equals(true)) {
                     holder.readStatus.setVisibility(View.GONE);
                 }
                 break;
@@ -1087,7 +1163,12 @@ public class MsgListAdapter extends BaseAdapter {
                                     .getLocalPath());
                             mFD = mFIS.getFD();
                             mp.setDataSource(mFD);
-                            mFIS.close();
+                            if(mIsEarPhoneOn){
+                                mp.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+                            }else {
+                                mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                            }
+
                             mp.prepare();
                             playVoice();
                         }
@@ -1103,6 +1184,14 @@ public class MsgListAdapter extends BaseAdapter {
                     } catch (IOException e) {
                         Toast.makeText(mActivity, mContext.getString(R.string.file_not_found_toast),
                                 Toast.LENGTH_SHORT).show();
+                    }finally {
+                        try {
+                            if(mFIS != null){
+                                mFIS.close();
+                            }
+                        }catch (IOException e){
+                            e.printStackTrace();
+                        }
                     }
                     // 语音接收方特殊处理，自动连续播放未读语音
                 } else {
@@ -1114,30 +1203,41 @@ public class MsgListAdapter extends BaseAdapter {
                             // 否则开始播放另一条录音
                         } else {
                             // 选中的录音是否已经播放过，如果未播放，自动连续播放这条语音之后未播放的语音
-                            if (msg.getContent().getExtra("isReaded") == null || (Boolean) msg.getContent().getExtra("isReaded") == false) {
+                            if (msg.getContent().getBooleanExtra("isReaded") == null || msg.getContent().getBooleanExtra("isReaded") == false) {
                                 autoPlay = true;
                                 playVoiceThenRefresh(position, holder);
                                 // 否则直接播放选中的语音
                             } else {
                                 holder.voice.setImageResource(R.anim.voice_receive);
-                                mVoiceAnimation = (AnimationDrawable) holder.voice
-                                        .getDrawable();
+                                mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
                                 mp.reset();
                                 // 记录播放录音的位置
                                 mPosition = position;
-                                try {
-                                    mFIS = new FileInputStream(content
-                                            .getLocalPath());
-                                    mFD = mFIS.getFD();
-                                    mp.setDataSource(mFD);
-                                    mFIS.close();
-                                    mp.prepare();
-                                    playVoice();
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                if(content.getLocalPath() != null){
+                                    try {
+                                        mFIS = new FileInputStream(content
+                                                .getLocalPath());
+                                        mFD = mFIS.getFD();
+                                        mp.setDataSource(mFD);
+                                        mp.prepare();
+                                        playVoice();
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }finally {
+                                        try {
+                                            if(mFIS != null){
+                                                mFIS.close();
+                                            }
+                                        }catch (IOException e){
+                                           e.printStackTrace();
+                                        }
+                                    }
+                                }else {
+                                    Toast.makeText(mContext, mContext.getString(R.string.voice_fetch_failed_toast), Toast.LENGTH_SHORT).show();
                                 }
+
                             }
                         }
                     } catch (IllegalArgumentException e) {
@@ -1197,7 +1297,6 @@ public class MsgListAdapter extends BaseAdapter {
             mFIS = new FileInputStream(vc.getLocalPath());
             mFD = mFIS.getFD();
             mp.setDataSource(mFD);
-            mFIS.close();
             mp.prepare();
             mp.setOnPreparedListener(new OnPreparedListener() {
                 @Override
@@ -1231,6 +1330,14 @@ public class MsgListAdapter extends BaseAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
+        }finally {
+            try {
+                if(mFIS != null){
+                    mFIS.close();
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
         }
     }
 

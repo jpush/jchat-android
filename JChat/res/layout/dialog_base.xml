@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_base_layout"
+    android:layout_width="260dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical|center_horizontal"
+    android:background="@drawable/dialog_default_style"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/dialog_base_title_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:textColor="@color/jpush_blue"
+        android:textSize="18sp"/>
+
+
+    <TextView
+        android:id="@+id/dialog_base_text_tv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp"
+        android:layout_margin="10dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#000000"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/chat_detail_split_line_color" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/dialog_base_confirm_btn"
+            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:text="确定"
+            android:textColor="#000000"
+            android:background="@drawable/dialog_bottom_btn_bg"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

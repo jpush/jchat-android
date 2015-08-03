@@ -17,23 +17,32 @@
     <color name="regist_photo_def_color">#555555</color>
     <!-- 主页面 -->
     <color name="actionbar_sel_color">#1c1c1c</color>
+    <color name="me_info_edit_color">#2d2d2d</color>
+    <color name="me_info_hint_color">#cfcdce</color>
     <color name="actionbar_pres_color">#3f80dc</color>
+    <color name="menu_item_back_pres_color">#3773cb</color>
     <color name="actionbar_def_color">#3C3C3C</color>
     <color name="jpush_blue">#3F80DC</color>
     <color name="main_view_split_line_color">#C8C8C8</color>
+    <color name="conv_list_split_line_color">#d6d6d6</color>
     <color name="contacts_pinner_bg">#F2F8F8F8</color>
     <color name="contacts_pinner_txt">#858585</color>
     <color name="contacts_txt_color">#0479FB</color>
-    <color name="me_split_line_color">#D0D0CF</color>
+    <color name="me_split_line_color">#d0d0d0</color>
     <color name="msg_list_item_sel_color">#A3C2EF</color>
+    <color name="item_click_bg_color">#dddddd</color>
     <color name="friend_request_acept">#808080</color>
+    <color name="friend_content_text_color">#7f7f7f</color>
+    <color name="chat_text_color">#373334</color>
     <color name="chat_detail_hit_color">#3C3C3C</color>
     <color name="chat_detail_item_hit_color">#555555</color>
     <color name="chat_detail_item_content_color">#808080</color>
-    <color name="chat_detail_split_line_color">#D0D0CF</color>
+    <color name="chat_detail_split_line_color">#d3d3d3</color>
     <color name="dialog_select_color">#d4d4d4</color>
     <color name="finish_btn_unclickable_color">#b9ebb8</color>
     <color name="finish_btn_clickable_color">#6fd66b</color>
+    <color name="default_cursor_color">#8db4eb</color>
+    <color name="menu_item_click_color">#346fc3</color>
     <!-- 黑色 -->
     <color name="black">#000000</color>
     <color name="gray">#808080</color>
