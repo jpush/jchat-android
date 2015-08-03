@@ -499,6 +499,10 @@ public class ChatDetailController implements OnClickListener,
         }
     }
 
+    public void refreshGroupName(String newName) {
+        mGroupName = newName;
+    }
+
     private static class MyHandler extends Handler{
         private final WeakReference<ChatDetailController> mController;
 

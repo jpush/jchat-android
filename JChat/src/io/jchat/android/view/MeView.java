@@ -71,7 +71,6 @@ public class MeView extends LinearLayout {
                 showPhoto(file.getAbsolutePath());
                 loadAvatarSuccess(true);
             }else {
-                mAvatarIv.setImageResource(R.drawable.friends_sends_pictures_no);
                 loadAvatarSuccess(false);
             }
             if(!TextUtils.isEmpty(userInfo.getNickname()))

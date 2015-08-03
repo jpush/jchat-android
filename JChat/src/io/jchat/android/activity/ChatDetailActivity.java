@@ -120,6 +120,7 @@ public class ChatDetailActivity extends BaseActivity {
                                                     mChatDetailView.updateGroupName(newName);
                                                     Intent intent = new Intent(JPushDemoApplication.UPDATE_GROUP_NAME_ACTION);
                                                     intent.putExtra("newGroupName", newName);
+                                                    mChatDetailController.refreshGroupName(newName);
                                                     sendBroadcast(intent);
                                                     Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
                                                 }else {
