@@ -107,7 +107,7 @@ public class MeView extends LinearLayout {
         ((Activity)mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Bitmap bitmap = BitmapLoader.getBitmapFromFile(path,  mWidth, mHeight);
+                Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
                 mAvatarIv.setImageBitmap(BitmapLoader.BoxBlurFilter(bitmap));
                 mAvatarIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 mTakePhotoBtn.setImageBitmap(bitmap);
@@ -115,4 +115,7 @@ public class MeView extends LinearLayout {
         });
     }
 
+    public void showNickName(String nickname) {
+        mNickNameTv.setText(nickname);
+    }
 }

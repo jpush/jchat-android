@@ -116,6 +116,7 @@ public class MeFragment extends BaseFragment {
                 if(file != null && file.isFile()){
                     mMeView.showPhoto(file.getAbsolutePath());
                 }
+                mMeView.showNickName(myInfo.getNickname());
             }
         }
         super.onResume();
