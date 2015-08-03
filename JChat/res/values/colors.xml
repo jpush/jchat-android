@@ -16,6 +16,7 @@
     <color name="regist_photo_focus_color">#3F80DD</color>
     <color name="regist_photo_def_color">#555555</color>
     <!-- 主页面 -->
+    <color name="action_bar_txt_color">#969696</color>
     <color name="actionbar_sel_color">#1c1c1c</color>
     <color name="me_info_edit_color">#2d2d2d</color>
     <color name="me_info_hint_color">#cfcdce</color>
