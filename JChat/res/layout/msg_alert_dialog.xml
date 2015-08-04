@@ -2,11 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginLeft="40dp"
+    android:layout_marginRight="40dp"
     android:layout_gravity="center_vertical|center_horizontal"
-    android:layout_marginLeft="30dp"
-    android:layout_marginRight="30dp"
     android:background="@drawable/dialog_default_style"
-    android:minWidth="200dp"
     android:orientation="vertical">
 
     <TextView
@@ -33,14 +32,8 @@
 
         <TextView
             android:id="@+id/copy_msg_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/copy"
-            android:textColor="#4E4E4E"
-            android:textSize="24sp" />
+            style="@style/dialog_msg_alert_txt_style"
+            android:text="@string/copy"/>
 
     </LinearLayout>
 
@@ -58,14 +51,8 @@
 
         <TextView
             android:id="@+id/forward_msg_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
             android:text="@string/forward_msg"
-            android:textColor="#4E4E4E"
-            android:textSize="24sp" />
+            style="@style/dialog_msg_alert_txt_style" />
 
     </LinearLayout>
 
@@ -90,7 +77,7 @@
             android:paddingTop="10dp"
             android:text="@string/delete"
             android:textColor="#4E4E4E"
-            android:textSize="24sp" />
+            android:textSize="@dimen/text_medium_size" />
 
     </LinearLayout>
 
