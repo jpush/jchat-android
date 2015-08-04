@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
@@ -59,7 +60,6 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
-import cn.jpush.im.android.api.callback.GetGroupMembersCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
@@ -74,7 +74,7 @@ import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.TimeFormat;
-import io.jchat.android.view.RoundImageView;
+import io.jchat.android.view.CircleImageView;
 import cn.jpush.im.api.BasicCallback;
 
 @SuppressLint("NewApi")
@@ -118,7 +118,7 @@ public class MsgListAdapter extends BaseAdapter {
     private Activity mActivity;
     private final MyHandler myHandler = new MyHandler(this);
     private boolean autoPlay = false;
-
+    private int mWidth;
     private int nextPlayPosition = 0;
     private double mDensity;
     private boolean mIsEarPhoneOn;
@@ -132,6 +132,7 @@ public class MsgListAdapter extends BaseAdapter {
         DisplayMetrics dm = new DisplayMetrics();
         mActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
+        mWidth = dm.widthPixels;
         if (mIsGroup) {
             mTargetID = String.valueOf(groupID);
             this.mConv = JMessageClient.getGroupConversation(groupID);
@@ -340,7 +341,7 @@ public class MsgListAdapter extends BaseAdapter {
             convertView = createViewByType(msg, position);
             if (contentType.equals(ContentType.text)) {
                 try {
-                    holder.headIcon = (RoundImageView) convertView
+                    holder.headIcon = (CircleImageView) convertView
                             .findViewById(R.id.avatar_iv);
                     holder.displayName = (TextView) convertView
                             .findViewById(R.id.display_name_tv);
@@ -356,7 +357,7 @@ public class MsgListAdapter extends BaseAdapter {
                 }
             } else if (contentType.equals(ContentType.image)) {
                 try {
-                    holder.headIcon = (RoundImageView) convertView
+                    holder.headIcon = (CircleImageView) convertView
                             .findViewById(R.id.avatar_iv);
                     holder.displayName = (TextView) convertView
                             .findViewById(R.id.display_name_tv);
@@ -372,7 +373,7 @@ public class MsgListAdapter extends BaseAdapter {
                 }
             } else if (contentType.equals(ContentType.voice)) {
                 try {
-                    holder.headIcon = (RoundImageView) convertView
+                    holder.headIcon = (CircleImageView) convertView
                             .findViewById(R.id.avatar_iv);
                     holder.displayName = (TextView) convertView
                             .findViewById(R.id.display_name_tv);
@@ -398,7 +399,7 @@ public class MsgListAdapter extends BaseAdapter {
                 }
             } else if(contentType.equals(ContentType.location)) {
                 try {
-                    holder.headIcon = (RoundImageView) convertView
+                    holder.headIcon = (CircleImageView) convertView
                             .findViewById(R.id.avatar_iv);
                     holder.displayName = (TextView) convertView
                             .findViewById(R.id.display_name_tv);
@@ -536,20 +537,20 @@ public class MsgListAdapter extends BaseAdapter {
                 // 长按文本弹出菜单
                 AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                 View view = LayoutInflater.from(mContext).inflate(
-                        R.layout.msg_alert_dialog, null);
+                        R.layout.dialog_msg_alert, null);
                 builder.setView(view);
-                LinearLayout copyLl = (LinearLayout) view
-                        .findViewById(R.id.copy_msg_ll);
-                LinearLayout forwardLl = (LinearLayout) view
-                        .findViewById(R.id.forward_msg_ll);
+                Button copyBtn = (Button) view
+                        .findViewById(R.id.copy_msg_btn);
+                Button forwardBtn = (Button) view
+                        .findViewById(R.id.forward_msg_btn);
                 View line1 = view.findViewById(R.id.forward_split_line);
                 View line2 = view.findViewById(R.id.delete_split_line);
                 Button deleteBtn = (Button) view.findViewById(R.id.delete_msg_btn);
                 final TextView title = (TextView) view
                         .findViewById(R.id.dialog_title);
                 if (msg.getContentType().equals(ContentType.voice)) {
-                    copyLl.setVisibility(View.GONE);
-                    forwardLl.setVisibility(View.GONE);
+                    copyBtn.setVisibility(View.GONE);
+                    forwardBtn.setVisibility(View.GONE);
                     line1.setVisibility(View.GONE);
                     line2.setVisibility(View.GONE);
                 }
@@ -558,6 +559,7 @@ public class MsgListAdapter extends BaseAdapter {
                 title.setText(name);
                 final Dialog dialog = builder.create();
                 dialog.show();
+                dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 OnClickListener listener = new OnClickListener() {
 
                     @Override
@@ -574,7 +576,7 @@ public class MsgListAdapter extends BaseAdapter {
                             default:
                         }
                         switch (v.getId()) {
-                            case R.id.copy_msg_ll:
+                            case R.id.copy_msg_btn:
                                 if (msg.getContentType().equals(ContentType.text)) {
                                     final String content = ((TextContent) msg.getContent()).getText();
                                     if (Build.VERSION.SDK_INT > 11) {
@@ -597,7 +599,7 @@ public class MsgListAdapter extends BaseAdapter {
                                     dialog.dismiss();
                                 }
                                 break;
-                            case R.id.forward_msg_ll:
+                            case R.id.forward_msg_btn:
                                 dialog.dismiss();
                                 break;
                             case R.id.delete_msg_btn:
@@ -609,8 +611,8 @@ public class MsgListAdapter extends BaseAdapter {
                         }
                     }
                 };
-                copyLl.setOnClickListener(listener);
-                forwardLl.setOnClickListener(listener);
+                copyBtn.setOnClickListener(listener);
+                forwardBtn.setOnClickListener(listener);
                 deleteBtn.setOnClickListener(listener);
                 return true;
             }
@@ -848,19 +850,19 @@ public class MsgListAdapter extends BaseAdapter {
                 public boolean onLongClick(View v) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                     View view = LayoutInflater.from(mContext).inflate(
-                            R.layout.msg_alert_dialog, null);
+                            R.layout.dialog_msg_alert, null);
                     builder.setView(view);
-                    LinearLayout copyLl = (LinearLayout) view
-                            .findViewById(R.id.copy_msg_ll);
-                    LinearLayout forwardLl = (LinearLayout) view
-                            .findViewById(R.id.forward_msg_ll);
+                    Button copyBtn = (Button) view
+                            .findViewById(R.id.copy_msg_btn);
+                    Button forwardBtn = (Button) view
+                            .findViewById(R.id.forward_msg_btn);
                     View line1 = view.findViewById(R.id.forward_split_line);
                     View line2 = view.findViewById(R.id.delete_split_line);
                     Button deleteBtn = (Button) view.findViewById(R.id.delete_msg_btn);
                     final TextView title = (TextView) view
                             .findViewById(R.id.dialog_title);
-                    copyLl.setVisibility(View.GONE);
-                    forwardLl.setVisibility(View.GONE);
+                    copyBtn.setVisibility(View.GONE);
+                    forwardBtn.setVisibility(View.GONE);
                     line1.setVisibility(View.GONE);
                     line2.setVisibility(View.GONE);
                     String name;
@@ -868,14 +870,15 @@ public class MsgListAdapter extends BaseAdapter {
                     title.setText(name);
                     final Dialog dialog = builder.create();
                     dialog.show();
+                    dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                     OnClickListener listener = new OnClickListener() {
 
                         @Override
                         public void onClick(View v) {
                             switch (v.getId()) {
-                                case R.id.copy_msg_ll:
+                                case R.id.copy_msg_btn:
                                     break;
-                                case R.id.forward_msg_ll:
+                                case R.id.forward_msg_btn:
                                     dialog.dismiss();
                                     break;
                                 case R.id.delete_msg_btn:
@@ -887,8 +890,8 @@ public class MsgListAdapter extends BaseAdapter {
                             }
                         }
                     };
-                    copyLl.setOnClickListener(listener);
-                    forwardLl.setOnClickListener(listener);
+                    copyBtn.setOnClickListener(listener);
+                    forwardBtn.setOnClickListener(listener);
                     deleteBtn.setOnClickListener(listener);
                     return true;
                 }
@@ -1356,7 +1359,7 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     public static class ViewHolder {
-        RoundImageView headIcon;
+        CircleImageView headIcon;
         TextView displayName;
         TextView txtContent;
         ImageView picture;

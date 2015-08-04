@@ -48,7 +48,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="15dp" />
 
-        <io.jchat.android.view.RoundImageView
+        <io.jchat.android.view.CircleImageView
             android:id="@+id/avatar_iv"
             style="@style/chat_item_sender_avatar_style" />
 

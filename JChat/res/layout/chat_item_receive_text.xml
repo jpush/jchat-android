@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp">
 
-        <io.jchat.android.view.RoundImageView
+        <io.jchat.android.view.CircleImageView
             android:id="@+id/avatar_iv"
             style="@style/chat_item_receiver_avatar_style"/>
 

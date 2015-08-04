@@ -135,7 +135,9 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             // 用targetID得到会话
             Log.i("Tag", "targetID is " + mTargetID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
-            mChatView.setChatTitle(mConv.getTitle());
+            if(mConv != null){
+                mChatView.setChatTitle(mConv.getTitle());
+            }
         }
 
         // 如果之前沒有会话记录并且是群聊
@@ -145,6 +147,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             // 是单聊
         } else if (mConv == null && !mIsGroup) {
             mConv = Conversation.createConversation(ConversationType.single, mTargetID);
+            mChatView.setChatTitle(mConv.getTitle());
         }
         if (mConv != null) {
             mConv.resetUnreadCount();

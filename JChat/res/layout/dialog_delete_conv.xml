@@ -3,19 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center_vertical|center_horizontal"
-    android:background="@drawable/dialog_default_style"
-    android:minWidth="220dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    style="@style/default_dialog_style">
 
-    <TextView
+    <Button
         android:id="@+id/dialog_title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:ems="7"
-        android:singleLine="true"
+        android:clickable="false"
+        style="@style/dialog_msg_alert_txt_style"
         android:textColor="#3F81DF"
-        android:textSize="24sp" />
+        android:background="@drawable/dialog_top_btn_bg"
+        />
 
     <View
         android:layout_width="match_parent"
@@ -25,15 +24,8 @@
 
     <Button
         android:id="@+id/delete_conv_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/dialog_msg_alert_txt_style"
         android:background="@drawable/dialog_bottom_btn_bg"
-        android:gravity="left"
-        android:paddingBottom="20dp"
-        android:paddingLeft="20dp"
-        android:paddingTop="10dp"
-        android:text="@string/delete_conv"
-        android:textColor="#4e4e4e"
-        android:textSize="24sp" />
+        android:text="@string/delete_conv"/>
 
 </LinearLayout>

@@ -26,7 +26,7 @@ public class LoginDialog {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_login, null);
         RelativeLayout layout = (RelativeLayout) v.findViewById(R.id.dialog_login_view);
-        RoundImageView avatarIv = (RoundImageView) v.findViewById(R.id.login_iv);
+        CircleImageView avatarIv = (CircleImageView) v.findViewById(R.id.login_iv);
         UserInfo userInfo = JMessageClient.getMyInfo();
         if(userInfo != null){
             File file = userInfo.getAvatarFile();

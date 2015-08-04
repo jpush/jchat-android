@@ -27,7 +27,7 @@ public class ReloginView extends LinearLayout {
     private TextView mTitle;
     private EditText mPassword;
     private Button mReloginBtn;
-    private RoundImageView mUserAvatarIv;
+    private CircleImageView mUserAvatarIv;
     private TextView mSwitchBtn;
     private TextView mUserNameTv;
     private Button mRegisterBtn;
@@ -47,7 +47,7 @@ public class ReloginView extends LinearLayout {
         mSwitchBtn = (TextView) findViewById(R.id.relogin_switch_user_btn);
         mUserNameTv = (TextView) findViewById(R.id.username_tv);
         mRegisterBtn = (Button) findViewById(R.id.register_btn);
-        mUserAvatarIv = (RoundImageView) findViewById(R.id.relogin_head_icon);
+        mUserAvatarIv = (CircleImageView) findViewById(R.id.relogin_head_icon);
         mTitle.setText(mContext.getString(R.string.app_name));
         mRegisterBtn.requestFocus();
     }

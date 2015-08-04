@@ -26,7 +26,7 @@
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
-            <io.jchat.android.view.RoundImageView
+            <io.jchat.android.view.CircleImageView
                 android:id="@+id/take_photo_iv"
                 android:layout_width="@dimen/me_head_icon_size"
                 android:layout_height="@dimen/me_head_icon_size"

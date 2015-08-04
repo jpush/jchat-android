@@ -10,7 +10,7 @@
         android:layout_width="50dp"
         android:layout_height="wrap_content" >
 
-        <io.jchat.android.view.RoundImageView
+        <io.jchat.android.view.CircleImageView
             android:id="@+id/grid_avatar"
             android:layout_width="50dp"
             android:layout_height="50dp"

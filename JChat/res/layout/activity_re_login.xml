@@ -36,7 +36,7 @@
                 android:layout_gravity="center_horizontal"
                 android:orientation="vertical">
 
-                <io.jchat.android.view.RoundImageView
+                <io.jchat.android.view.CircleImageView
                     android:id="@+id/relogin_head_icon"
                     android:layout_width="@dimen/login_regist_head_icon_size"
                     android:layout_height="@dimen/login_regist_head_icon_size"

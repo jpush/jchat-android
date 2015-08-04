@@ -198,7 +198,6 @@ public class ChatDetailController implements OnClickListener,
                 builder.setView(view);
                 TextView title = (TextView) view.findViewById(R.id.title_tv);
                 title.setText(mContext.getString(R.string.clear_history_confirm_title));
-                title.setTextColor(Color.parseColor("#000000"));
                 final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
                 pwdEt.setVisibility(View.GONE);
                 final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
