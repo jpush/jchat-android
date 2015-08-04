@@ -9,7 +9,7 @@
 
     <include layout="@layout/base_title_bar"/>
 
-    <io.jchat.android.view.RoundImageView
+    <io.jchat.android.view.CircleImageView
         android:id="@+id/login_iv"
         android:layout_width="100dp"
         android:layout_height="100dp"

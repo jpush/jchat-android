@@ -91,7 +91,7 @@
                     <io.jchat.android.controller.RecordVoiceBtnController
                         android:id="@+id/voice_btn"
                         android:layout_width="match_parent"
-                        android:layout_height="30dp"
+                        android:layout_height="35dp"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentTop="true"
                         android:background="@drawable/voice_bg"

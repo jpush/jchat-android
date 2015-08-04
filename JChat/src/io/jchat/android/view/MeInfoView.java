@@ -26,7 +26,7 @@ public class MeInfoView extends LinearLayout{
 
 	// private LinearLayout mTitleBarContainer;
 
-	private RoundImageView mUserAvatar;
+	private CircleImageView mUserAvatar;
 	private TextView mUsername;
 	private TextView mNicknameTv;
 	private ImageView mGenderIcon;

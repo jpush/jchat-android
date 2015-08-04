@@ -4,52 +4,37 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="50dp"
     android:layout_marginRight="50dp"
-    android:minHeight="100dp"
     android:layout_gravity="center_vertical|center_horizontal"
     android:orientation="vertical"
     android:background="@drawable/dialog_default_style">
 
-    <LinearLayout
-        android:id="@+id/pick_picture_ll"
+    <Button
+        android:id="@+id/pick_picture_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:layout_weight="1"
-        android:background="@drawable/default_linear_layout_bg">
-
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:text="@string/pick_picture_from_local"
-            android:textSize="20dp"
-            android:textColor="#4f4e4e"
-            />
-    </LinearLayout>
+        android:gravity="left|center_vertical"
+        android:paddingLeft="20dp"
+        android:text="@string/pick_picture_from_local"
+        android:textSize="20sp"
+        android:textColor="#4f4e4e"
+        android:background="@drawable/dialog_top_btn_bg"
+        />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#b5b5b5" />
+        android:background="@color/chat_detail_split_line_color" />
 
-    <LinearLayout
-        android:id="@+id/take_photo_ll"
+
+    <Button
+        android:id="@+id/take_photo_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:layout_weight="1"
-        android:background="@drawable/default_linear_layout_bg">
-
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:text="@string/take_new_photo"
-            android:textSize="20dp"
-            android:textColor="#4f4e4e"
-            />
-    </LinearLayout>
+        android:gravity="left|center_vertical"
+        android:paddingLeft="20dp"
+        android:text="@string/take_new_photo"
+        android:textSize="20sp"
+        android:textColor="#4f4e4e"
+        android:background="@drawable/dialog_bottom_btn_bg"/>
 
 </LinearLayout>

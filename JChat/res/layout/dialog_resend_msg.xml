@@ -13,12 +13,11 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="30dp"
-        android:layout_marginLeft="20dp"
         android:layout_marginBottom="30dp"
         android:text="@string/resend_message_hint"
-        android:textSize="24sp"
+        android:textSize="@dimen/text_medium_size"
         android:textColor="#4e4e4e"/>
 
 

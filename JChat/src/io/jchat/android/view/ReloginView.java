@@ -27,7 +27,7 @@ public class ReloginView extends LinearLayout {
     private TextView mTitle;
     private EditText mPassword;
     private Button mReloginBtn;
-    private RoundImageView mUserAvatarIv;
+    private CircleImageView mUserAvatarIv;
     private TextView mSwitchBtn;
     private TextView mUserNameTv;
     private Button mRegisterBtn;
@@ -47,17 +47,17 @@ public class ReloginView extends LinearLayout {
         mSwitchBtn = (TextView) findViewById(R.id.relogin_switch_user_btn);
         mUserNameTv = (TextView) findViewById(R.id.username_tv);
         mRegisterBtn = (Button) findViewById(R.id.register_btn);
-        mUserAvatarIv = (RoundImageView) findViewById(R.id.relogin_head_icon);
+        mUserAvatarIv = (CircleImageView) findViewById(R.id.relogin_head_icon);
         mTitle.setText(mContext.getString(R.string.app_name));
         mRegisterBtn.requestFocus();
     }
 
-    public void setListener(Listener listener){
+    public void setListener(Listener listener) {
         this.mListener = listener;
     }
 
     public interface Listener {
-        void onSoftKeyboardShown(int softKeyboardHeight);
+        void onSoftKeyboardShown(int w, int h, int oldw, int oldh);
     }
 
     public void setListeners(OnClickListener onClickListener) {
@@ -83,7 +83,7 @@ public class ReloginView extends LinearLayout {
         mUserAvatarIv.setImageBitmap(bitmap);
     }
 
-    public void setRegisterBtnVisible(int visibility){
+    public void setRegisterBtnVisible(int visibility) {
         mRegisterBtn.setVisibility(visibility);
     }
 
@@ -91,26 +91,17 @@ public class ReloginView extends LinearLayout {
         mScrollView.post(new Runnable() {
             @Override
             public void run() {
-                Log.i("ReloginView", "set to bottom");
                 mScrollView.scrollTo(0, 200);
             }
         });
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = MeasureSpec.getSize(heightMeasureSpec);
-        Rect rect = new Rect();
-        Activity activity = (Activity)getContext();
-        activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
-        int statusBarHeight = rect.top;
-        DisplayMetrics dm = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        int screenHeight = dm.heightPixels;
-        int diff = (screenHeight - statusBarHeight) - height;
-        if(mListener != null){
-            mListener.onSoftKeyboardShown(diff);
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (mListener != null) {
+            mListener.onSoftKeyboardShown(w, h, oldw, oldh);
         }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
+
 }

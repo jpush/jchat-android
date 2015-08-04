@@ -66,7 +66,7 @@ public class MainView extends RelativeLayout{
             }
 			else {
                 mBtnList[i].setSelected(false);
-                mBtnList[i].setTextColor(getResources().getColor(R.color.white));
+                mBtnList[i].setTextColor(getResources().getColor(R.color.action_bar_txt_color));
             }
 		}
 	}

@@ -83,7 +83,6 @@ public class ChatDetailActivity extends BaseActivity {
 		if(which == 1){
             TextView title = (TextView) view.findViewById(R.id.title_tv);
             title.setText(mContext.getString(R.string.group_name_hit));
-            title.setTextColor(Color.parseColor("#000000"));
             final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
             pwdEt.setInputType(InputType.TYPE_CLASS_TEXT);
             pwdEt.setHint(groupName);
@@ -120,6 +119,7 @@ public class ChatDetailActivity extends BaseActivity {
                                                     mChatDetailView.updateGroupName(newName);
                                                     Intent intent = new Intent(JPushDemoApplication.UPDATE_GROUP_NAME_ACTION);
                                                     intent.putExtra("newGroupName", newName);
+                                                    mChatDetailController.refreshGroupName(newName);
                                                     sendBroadcast(intent);
                                                     Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
                                                 }else {
