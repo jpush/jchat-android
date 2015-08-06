@@ -37,6 +37,7 @@
                 android:layout_height="match_parent"
                 app:siArrowPosition="right"
                 android:layout_gravity="center"
+                app:siRadius="5dp"
                 android:src="@drawable/fetch_failed"/>
 
             <TextView

@@ -23,6 +23,9 @@ public class BubbleShader extends ShaderHelper {
 
     private final Path path = new Path();
 
+    private int radius = 0;
+    private int bitmapRadius;
+
     private int triangleHeightPx;
     private ArrowPosition arrowPosition = ArrowPosition.LEFT;
 
@@ -33,15 +36,16 @@ public class BubbleShader extends ShaderHelper {
     public void init(Context context, AttributeSet attrs, int defStyle) {
         super.init(context, attrs, defStyle);
         borderWidth = 0;
-        if(attrs != null){
+        if (attrs != null) {
             TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ShaderImageView, defStyle, 0);
             triangleHeightPx = typedArray.getDimensionPixelSize(R.styleable.ShaderImageView_siTriangleHeight, 0);
             int arrowPositionInt = typedArray.getInt(R.styleable.ShaderImageView_siArrowPosition, ArrowPosition.LEFT.ordinal());
             arrowPosition = ArrowPosition.values()[arrowPositionInt];
+            radius = typedArray.getDimensionPixelSize(R.styleable.ShaderImageView_siRadius, radius);
             typedArray.recycle();
         }
 
-        if(triangleHeightPx == 0) {
+        if (triangleHeightPx == 0) {
             triangleHeightPx = dpToPx(context.getResources().getDisplayMetrics(), DEFAULT_HEIGHT_DP);
         }
     }
@@ -53,6 +57,7 @@ public class BubbleShader extends ShaderHelper {
         canvas.drawPath(path, imagePaint);
         canvas.restore();
     }
+
 
     @Override
     public void calculate(int bitmapWidth, int bitmapHeight,
@@ -67,16 +72,21 @@ public class BubbleShader extends ShaderHelper {
         float resultHeight = bitmapHeight + 2 * translateY;
 //        float centerY  = resultHeight / 2f +  y;
         float centerY;
+        if (scale < 1)
+            centerY = 40;
+        else if (scale < 2)
+            centerY = (bitmapHeight / scale) / 4f;
+        else if (bitmapHeight < 200)
+            centerY = (bitmapHeight / scale) / 4f;
+        else centerY = 40;
         path.setFillType(Path.FillType.EVEN_ODD);
         float rectLeft;
         float rectRight;
         switch (arrowPosition) {
             case LEFT:
-                centerY = (bitmapHeight / scale) / 4f;
                 rectLeft = scaledTriangleHeight + x;
                 rectRight = resultWidth + rectLeft;
                 path.addRect(rectLeft, y, rectRight, resultHeight + y, Path.Direction.CW);
-
                 path.moveTo(x, centerY);
                 path.lineTo(rectLeft, centerY - scaledTriangleHeight);
                 path.lineTo(rectLeft, centerY + scaledTriangleHeight);
@@ -84,10 +94,6 @@ public class BubbleShader extends ShaderHelper {
                 break;
             case RIGHT:
                 rectLeft = x;
-                Log.i("BubbleShader", "bitmapHeight: " + bitmapHeight);
-                if(bitmapHeight < 480)
-                    centerY = (bitmapHeight / scale) / 4f;
-                else centerY = (bitmapHeight / scale) / 8f;
                 float imgRight = resultWidth + rectLeft;
                 rectRight = imgRight - scaledTriangleHeight;
                 path.addRect(rectLeft, y, rectRight, resultHeight + y, Path.Direction.CW);
