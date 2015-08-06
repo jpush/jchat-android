@@ -19,6 +19,7 @@ import cn.jpush.im.android.api.content.ImageContent;
 import io.jchat.android.R;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +47,7 @@ public class PickPictureActivity extends BaseActivity {
     private ProgressDialog mDialog;
     private long mGroupID;
     private int[] mMsgIDs;
+    private final MyHandler myHandler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +128,7 @@ public class PickPictureActivity extends BaseActivity {
                             public void run() {
                                 final List<String> pathList = new ArrayList<String>();
                                 getThumbnailPictures(pathList);
-                                android.os.Message msg = handler.obtainMessage();
+                                android.os.Message msg = myHandler.obtainMessage();
                                 msg.what = 0;
                                 Bundle bundle = new Bundle();
                                 bundle.putStringArrayList("pathList", (ArrayList<String>) pathList);
@@ -195,27 +197,35 @@ public class PickPictureActivity extends BaseActivity {
         }
     }
 
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler{
+        private final WeakReference<PickPictureActivity> mActivity;
+
+        public MyHandler(PickPictureActivity activity){
+            mActivity = new WeakReference<PickPictureActivity>(activity);
+        }
 
         @Override
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
-            switch (msg.what) {
-                case 0:
-                    Intent intent = new Intent();
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("sendPicture", true);
-                    intent.putExtra("targetID", mTargetID);
-                    intent.putExtra("groupID", mGroupID);
-                    intent.putExtra("isGroup", mIsGroup);
-                    intent.putExtra("msgIDs", mMsgIDs);
-                    intent.setClass(PickPictureActivity.this, ChatActivity.class);
-                    startActivity(intent);
-                    if(mDialog != null)
-                        mDialog.dismiss();
-                    finish();
-                    break;
+            PickPictureActivity activity = mActivity.get();
+            if(activity != null){
+                switch (msg.what) {
+                    case 0:
+                        Intent intent = new Intent();
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra("sendPicture", true);
+                        intent.putExtra("targetID", activity.mTargetID);
+                        intent.putExtra("groupID", activity.mGroupID);
+                        intent.putExtra("isGroup", activity.mIsGroup);
+                        intent.putExtra("msgIDs", activity.mMsgIDs);
+                        intent.setClass(activity, ChatActivity.class);
+                        activity.startActivity(intent);
+                        if(activity.mDialog != null)
+                            activity.mDialog.dismiss();
+                        activity.finish();
+                        break;
+                }
             }
         }
-    };
+    }
 }

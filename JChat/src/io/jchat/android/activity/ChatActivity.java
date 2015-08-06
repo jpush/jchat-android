@@ -126,8 +126,13 @@ public class ChatActivity extends BaseActivity {
                 // 可能因为从其他界面回到聊天界面时，MsgListAdapter已经收到更新的消息了
                 // 但是ListView没有刷新消息，要重新new Adapter, 并把这个Adapter传到ChatController
                 // 保证ChatActivity和ChatController使用同一个Adapter
-                mChatController.setAdapter(new MsgListAdapter(
-                        ChatActivity.this, isGroup, mTargetID, groupID));
+                if(isGroup){
+                    mChatController.setAdapter(new MsgListAdapter(
+                            ChatActivity.this, groupID, mChatController.getGroupInfo()));
+                }else {
+                    mChatController.setAdapter(new MsgListAdapter(ChatActivity.this, mTargetID));
+                }
+
                 // 重新绑定Adapter
                 mChatView.setChatListAdapter(mChatController.getAdapter());
                 mChatController.getAdapter().setSendImg(data.getIntArrayExtra("msgIDs"));
@@ -135,7 +140,7 @@ public class ChatActivity extends BaseActivity {
         }else if(groupID != 0){
             if(groupID == mChatController.getGroupID()){
                 mChatController.setAdapter(new MsgListAdapter(
-                        ChatActivity.this, isGroup, null, groupID));
+                        ChatActivity.this, groupID, mChatController.getGroupInfo()));
                 // 重新绑定Adapter
                 mChatView.setChatListAdapter(mChatController.getAdapter());
                 mChatController.getAdapter().setSendImg(data.getIntArrayExtra("msgIDs"));
@@ -231,9 +236,9 @@ public class ChatActivity extends BaseActivity {
             mChatView.dismissRecordDialog();
         String targetID = getIntent().getStringExtra("targetID");
         boolean isGroup = getIntent().getBooleanExtra("isGroup", false);
-        if (isGroup && !TextUtils.isEmpty(targetID)) {
+        if (isGroup) {
             try {
-                JMessageClient.enterGroupConversation(Long.parseLong(targetID));
+                JMessageClient.enterGroupConversation(getIntent().getLongExtra("groupID", 0));
             }catch (NumberFormatException nfe){
                 nfe.printStackTrace();
             }
