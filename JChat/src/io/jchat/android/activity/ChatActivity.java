@@ -236,9 +236,9 @@ public class ChatActivity extends BaseActivity {
             mChatView.dismissRecordDialog();
         String targetID = getIntent().getStringExtra("targetID");
         boolean isGroup = getIntent().getBooleanExtra("isGroup", false);
-        if (isGroup && !TextUtils.isEmpty(targetID)) {
+        if (isGroup) {
             try {
-                JMessageClient.enterGroupConversation(Long.parseLong(targetID));
+                JMessageClient.enterGroupConversation(getIntent().getLongExtra("groupID", 0));
             }catch (NumberFormatException nfe){
                 nfe.printStackTrace();
             }
