@@ -6,6 +6,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 
@@ -91,6 +92,21 @@ public class BubbleShader extends ShaderHelper {
                 path.lineTo(rectLeft, centerY - scaledTriangleHeight);
                 path.lineTo(rectLeft, centerY + scaledTriangleHeight);
                 path.lineTo(x, centerY);
+                Log.i("Bubble", "centerY: " + centerY);
+                Log.i("Bubble", "viewHeight: " + viewHeight + " viewWidth: " + viewWidth);
+                Log.i("Bubble", "scaledTriangleHeight: " + scaledTriangleHeight);
+                //画左上圆角
+                path.moveTo(rectLeft, 5);
+                RectF rectF = new RectF(rectLeft, 0, rectLeft + 10, 10);
+                path.arcTo(rectF, 180, 90);
+                path.lineTo(rectLeft, 0);
+                path.lineTo(rectLeft, 5);
+                //画右上圆角
+                path.moveTo(resultWidth - 5, 5);
+                RectF rectF1 = new RectF(resultWidth - 10, 0, resultWidth, 10);
+                path.arcTo(rectF1, 270, 90);
+                path.lineTo(resultWidth, 0);
+                path.lineTo(resultWidth - 5, 0);
                 break;
             case RIGHT:
                 rectLeft = x;
