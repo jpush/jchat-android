@@ -40,6 +40,7 @@ import android.widget.Toast;
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
@@ -121,41 +122,46 @@ public class MsgListAdapter extends BaseAdapter {
     private int nextPlayPosition = 0;
     private double mDensity;
     private boolean mIsEarPhoneOn;
+    private GroupInfo mGroupInfo;
 
-    public MsgListAdapter(Context context, boolean isGroup, String targetID, long groupID) {
+    public MsgListAdapter(Context context, String targetID){
+        initData(context);
+        this.mTargetID = targetID;
+        this.mConv = JMessageClient.getSingleConversation(mTargetID);
+        this.mMsgList = mConv.getAllMessage();
+        List<String> userIDList = new ArrayList<String>();
+        userIDList.add(targetID);
+        userIDList.add(JMessageClient.getMyInfo().getUserName());
+        NativeImageLoader.getInstance().setAvatarCache(userIDList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
+            @Override
+            public void onCacheAvatarCallBack(int status) {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i(TAG, "init avatar succeed");
+                        notifyDataSetChanged();
+                    }
+                });
+            }
+        });
+    }
+
+    public MsgListAdapter(Context context, long groupID, GroupInfo groupInfo){
+        initData(context);
+        this.mGroupID = groupID;
+        this.mIsGroup = true;
+        this.mConv = JMessageClient.getGroupConversation(groupID);
+        this.mMsgList = mConv.getAllMessage();
+        this.mGroupInfo = groupInfo;
+    }
+
+    private void initData(Context context){
         this.mContext = context;
         mActivity = (Activity) context;
-        this.mIsGroup = isGroup;
-        this.mTargetID = targetID;
-        this.mGroupID = groupID;
         DisplayMetrics dm = new DisplayMetrics();
         mActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
         mWidth = dm.widthPixels;
-        if (mIsGroup) {
-            mTargetID = String.valueOf(groupID);
-            this.mConv = JMessageClient.getGroupConversation(groupID);
-            this.mMsgList = mConv.getAllMessage();
-        } else {
-            this.mConv = JMessageClient.getSingleConversation(mTargetID);
-            this.mMsgList = mConv.getAllMessage();
-            List<String> userIDList = new ArrayList<String>();
-            userIDList.add(targetID);
-            userIDList.add(JMessageClient.getMyInfo().getUserName());
-            NativeImageLoader.getInstance().setAvatarCache(userIDList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
-                @Override
-                public void onCacheAvatarCallBack(int status) {
-                    mActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.i(TAG, "init avatar succeed");
-                            notifyDataSetChanged();
-                        }
-                    });
-                }
-            });
-        }
-
         mInflater = LayoutInflater.from(mContext);
         AudioManager audioManager = (AudioManager) mContext
                 .getSystemService(Context.AUDIO_SERVICE);
@@ -302,6 +308,11 @@ public class MsgListAdapter extends BaseAdapter {
                     AudioManager.STREAM_VOICE_CALL);
             Log.i(TAG, "set SpeakerphoneOn false!");
         }
+    }
+
+    public void refreshGroupInfo(GroupInfo groupInfo) {
+        mGroupInfo = groupInfo;
+        notifyDataSetChanged();
     }
 
     private static class MyHandler extends Handler{
@@ -461,54 +472,66 @@ public class MsgListAdapter extends BaseAdapter {
         }
         //显示头像
         if (holder.headIcon != null) {
-            Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(msg.getFromID());
-            if (bitmap != null)
-                holder.headIcon.setImageBitmap(bitmap);
-            else {
-                final UserInfo userInfo = JMessageClient.getUserInfoFromLocal(msg.getFromID());
-                //如果本地存在用户信息
-                if(userInfo != null){
-                    File file = userInfo.getAvatarFile();
-                    if(file != null && file.isFile()){
-                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
-                        NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
-                        holder.headIcon.setImageBitmap(bitmap);
-                        //本地不存在头像，从服务器拿
+            Bitmap bitmap;
+            //群聊
+            if(mIsGroup){
+                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(msg.getFromID());
+                if (bitmap != null)
+                    holder.headIcon.setImageBitmap(bitmap);
+                else if(mGroupInfo != null){
+                    final UserInfo userInfo = mGroupInfo.getGroupMemberInfo(msg.getFromID());
+                    //如果本地存在用户信息
+                    if(userInfo != null){
+                        File file = userInfo.getAvatarFile();
+                        if(file != null && file.isFile()){
+                            bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                            NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
+                            holder.headIcon.setImageBitmap(bitmap);
+                            //本地不存在头像，从服务器拿
+                        }else {
+                            userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                                @Override
+                                public void gotResult(int status, String desc, File file) {
+                                    if (status == 0) {
+                                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                                        NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
+                                        holder.headIcon.setImageBitmap(bitmap);
+                                    }else {
+                                        holder.headIcon.setImageResource(R.drawable.head_icon);
+                                    }
+                                }
+                            });
+                        }
+                        //本地不存在用户信息，从服务器拿
                     }else {
-                        userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                        Log.i(TAG, "Get UserInfo from server, UserName: " + msg.getFromName());
+                        JMessageClient.getUserInfo(msg.getFromID(), new GetUserInfoCallback() {
                             @Override
-                            public void gotResult(int status, String desc, File file) {
-                                if (status == 0) {
-                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
-                                    NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
-                                    holder.headIcon.setImageBitmap(bitmap);
+                            public void gotResult(int status, String desc, UserInfo userInfo) {
+                                if(status == 0){
+                                    File file = userInfo.getAvatarFile();
+                                    if(file != null && file.isFile()){
+                                        Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                                        NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap1);
+                                        holder.headIcon.setImageBitmap(bitmap1);
+                                    }
                                 }else {
                                     holder.headIcon.setImageResource(R.drawable.head_icon);
                                 }
                             }
                         });
                     }
-                    //本地不存在用户信息，从服务器拿
-                }else {
-                    Log.i(TAG, "Get UserInfo from server, UserName: " + msg.getFromName());
-                    JMessageClient.getUserInfo(msg.getFromID(), new GetUserInfoCallback() {
-                        @Override
-                        public void gotResult(int status, String desc, UserInfo userInfo) {
-                            if(status == 0){
-                                File file = userInfo.getAvatarFile();
-                                if(file != null && file.isFile()){
-                                    Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
-                                    NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap1);
-                                    holder.headIcon.setImageBitmap(bitmap1);
-                                }
-                            }else {
-                                holder.headIcon.setImageResource(R.drawable.head_icon);
-                            }
-                        }
-                    });
                 }
-
+                //单聊
+            }else {
+                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(msg.getFromID());
+                if (bitmap != null)
+                    holder.headIcon.setImageBitmap(bitmap);
+                else holder.headIcon.setImageResource(R.drawable.head_icon);
             }
+
+
+
             // 点击头像跳转到个人信息界面
             holder.headIcon.setOnClickListener(new OnClickListener() {
 
