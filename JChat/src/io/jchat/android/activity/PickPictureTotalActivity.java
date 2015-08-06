@@ -21,7 +21,9 @@ import android.widget.Toast;
 import io.jchat.android.R;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +32,7 @@ import java.util.Map;
 
 import io.jchat.android.adapter.AlbumListAdapter;
 import io.jchat.android.entity.ImageBean;
+import io.jchat.android.tools.SortPictureList;
 
 /*
  * 本地图片集界面
@@ -48,28 +51,35 @@ public class PickPictureTotalActivity extends BaseActivity {
 	private TextView mTitle;
 	private ImageButton mMenuBtn;
 	private Intent mIntent;
+	private final MyHandler myHandler = new MyHandler(this);
 
-	private Handler mHandler = new Handler(){
+	private static class MyHandler extends Handler{
+		private final WeakReference<PickPictureTotalActivity> mActivity;
+
+		public MyHandler(PickPictureTotalActivity activity){
+			mActivity = new WeakReference<PickPictureTotalActivity>(activity);
+		}
 
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			switch (msg.what) {
-			case SCAN_OK:
-				//关闭进度条
-				mProgressDialog.dismiss();
-				
-				adapter = new AlbumListAdapter(PickPictureTotalActivity.this, list = subGroupOfImage(mGruopMap), mListView);
-				mListView.setAdapter(adapter);
-				break;
-                case SCAN_ERROR:
-                    mProgressDialog.dismiss();
-                    Toast.makeText(PickPictureTotalActivity.this, PickPictureTotalActivity.this.getString(R.string.sdcard_not_prepare_toast), Toast.LENGTH_SHORT).show();
-                    break;
+			PickPictureTotalActivity activity = mActivity.get();
+			if(activity != null){
+				switch (msg.what) {
+					case SCAN_OK:
+						//关闭进度条
+						activity.mProgressDialog.dismiss();
+						activity.adapter = new AlbumListAdapter(activity, activity.list = activity.subGroupOfImage(activity.mGruopMap), activity.mListView);
+						activity.mListView.setAdapter(activity.adapter);
+						break;
+					case SCAN_ERROR:
+						activity.mProgressDialog.dismiss();
+						Toast.makeText(activity, activity.getString(R.string.sdcard_not_prepare_toast), Toast.LENGTH_SHORT).show();
+						break;
+				}
 			}
 		}
-		
-	};
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -134,7 +144,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 								+ MediaStore.Images.Media.MIME_TYPE + "=?",
 						new String[] { "image/jpeg", "image/png" }, MediaStore.Images.Media.DATE_MODIFIED);
 				if(mCursor == null || mCursor.getCount() == 0){
-                    mHandler.sendEmptyMessage(SCAN_ERROR);
+					myHandler.sendEmptyMessage(SCAN_ERROR);
                 }else{
                     while (mCursor.moveToNext()) {
                         //获取图片的路径
@@ -157,7 +167,7 @@ public class PickPictureTotalActivity extends BaseActivity {
                     }
                     mCursor.close();
                     //通知Handler扫描图片完成
-                    mHandler.sendEmptyMessage(SCAN_OK);
+					myHandler.sendEmptyMessage(SCAN_OK);
                 }
 			}
 		}).start();
@@ -184,7 +194,8 @@ public class PickPictureTotalActivity extends BaseActivity {
 			ImageBean mImageBean = new ImageBean();
 			String key = entry.getKey();
 			List<String> value = entry.getValue();
-			
+			SortPictureList sortList = new SortPictureList();
+			Collections.sort(value, sortList);
 			mImageBean.setFolderName(key);
 			mImageBean.setImageCounts(value.size());
 			mImageBean.setTopImagePath(value.get(0));//获取该组的第一张图片

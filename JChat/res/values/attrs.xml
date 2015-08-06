@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="PullScrollView">
-        <attr name="header" format="reference" />
-        <attr name="headerHeight" format="dimension" />
-        <attr name="headerVisibleHeight" format="dimension" />
-    </declare-styleable>
-
-    <declare-styleable name="roundedimageview">
-        <attr name="border_thickness" format="dimension" />
-        <attr name="border_inside_thickness" format="dimension" />
-        <attr name="border_outside_thickness" format="dimension" />
-        <attr name="border_color" format="color" />
-        <attr name="border_inside_color" format="color" />
-        <attr name="border_outside_color" format="color" />
-    </declare-styleable>
     <declare-styleable name="HoloCircularProgressBar">
         <attr name="stroke_width" format="dimension" />
         <attr name="progress" format="float" />
@@ -25,39 +11,55 @@
         <attr name="marker_visible" format="boolean" />
         <attr name="android:gravity" />
     </declare-styleable>
-    <declare-styleable name="SwipeListView">
-        <attr name="swipeOpenOnLongPress" format="boolean" />
-        <attr name="swipeAnimationTime" format="integer" />
-        <attr name="swipeOffsetLeft" format="dimension" />
-        <attr name="swipeOffsetRight" format="dimension" />
-        <attr name="swipeOffset" format="dimension">
-            <enum name="wrap_content" value="-2" />
-        </attr>
-        <attr name="swipeCloseAllItemsWhenMoveList" format="boolean" />
-        <attr name="swipeFrontView" format="reference" />
-        <attr name="swipeBackView" format="reference" />
-        <attr name="swipeMode" format="enum">
-            <enum name="none" value="0" />
-            <enum name="both" value="1" />
-            <enum name="right" value="2" />
-            <enum name="left" value="3" />
-        </attr>
-        <attr name="swipeActionLeft" format="enum">
-            <enum name="reveal" value="0" />
-            <enum name="dismiss" value="1" />
-            <enum name="choice" value="2" />
-        </attr>
-        <attr name="swipeActionRight" format="enum">
-            <enum name="reveal" value="0" />
-            <enum name="dismiss" value="1" />
-            <enum name="choice" value="2" />
-        </attr>
-        <attr name="swipeActionOpenOne" format="boolean">
-        </attr>
-        <attr name="swipeDrawableChecked" format="reference" />
-        <attr name="swipeDrawableUnchecked" format="reference" />
-    </declare-styleable>
 
     <attr name="circularProgressBarStyle" format="reference" />
+
+    -
+    <attr name="siArrowPosition">
+        <enum name="left" value="0" />
+        <enum name="right" value="1" />
+    </attr>
+    -
+    <attr name="siBorderType">
+        <enum name="stroke" value="0" />
+        <enum name="fill" value="1" />
+    </attr>
+    -
+    <attr name="siStrokeCap">
+        <enum name="butt" value="0" />
+        <enum name="round" value="1" />
+        <enum name="square" value="2" />
+    </attr>
+    -
+    <attr name="siStrokeJoin">
+        <enum name="bevel" value="0" />
+        <enum name="miter" value="1" />
+        <enum name="round" value="2" />
+    </attr>
+    -
+    <declare-styleable name="ShaderImageView">
+        <attr name="siSquare" format="boolean" />
+        <attr name="siBorderColor" format="color" />
+        <attr name="siBorderWidth" format="dimension" />
+        <attr name="siBorderAlpha" format="float" />
+        <attr name="siForeground" format="integer|reference" />
+        - <!--  Rounded Image View
+  -->
+        <attr name="siRadius" format="dimension" />
+        - <!-- BubbleImageView
+  -->
+        <attr name="siArrowPosition" />
+        <attr name="siTriangleHeight" format="dimension" />
+        - <!-- PorterImageView
+  -->
+        <attr name="siShape" format="integer|reference" />
+        - <!-- ShaderImageView
+  -->
+        <attr name="siBorderType" />
+        <attr name="siStrokeCap" />
+        <attr name="siStrokeJoin" />
+        <attr name="siStrokeMiter" format="dimension" />
+    </declare-styleable>
+
 
 </resources>
