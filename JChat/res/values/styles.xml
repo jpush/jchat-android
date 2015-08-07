@@ -342,6 +342,7 @@
     <style name="info_right_txt_style">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxWidth">200dp</item>
         <item name="android:layout_marginRight">15dp</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/friend_content_text_color</item>

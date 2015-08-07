@@ -462,7 +462,9 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     }
 
     public int getGroupMembersCount(){
-        return mGroupInfo.getGroupMembers().size();
+        if (mGroupInfo != null)
+            return mGroupInfo.getGroupMembers().size();
+        else return 1;
     }
 
     public void refresh() {
