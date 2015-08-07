@@ -364,6 +364,7 @@ public class ChatActivity extends BaseActivity {
                     public void gotResult(int status, String desc, GroupInfo groupInfo) {
                         if (status == 0) {
                             if (!TextUtils.isEmpty(groupInfo.getGroupName())){
+                                mChatController.refreshGroupInfo(groupInfo);
                                 android.os.Message handleMessage = mHandler.obtainMessage();
                                 handleMessage.what = JPushDemoApplication.REFRESH_GROUP_NAME;
                                 Bundle bundle = new Bundle();
