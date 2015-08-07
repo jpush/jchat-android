@@ -651,7 +651,8 @@ public class ChatDetailController implements OnClickListener,
                         mMemberIDList = memberList;
                         mCurrentNum = mMemberIDList.size();
                         mChatDetailView.setTitle(mCurrentNum);
-                        mGridAdapter.refreshGroupMember(mMemberIDList);
+                        if (mGridAdapter != null)
+                            mGridAdapter.refreshGroupMember(mMemberIDList);
                     }
                 }
             });
