@@ -242,7 +242,10 @@ public class ChatActivity extends BaseActivity {
         boolean isGroup = getIntent().getBooleanExtra("isGroup", false);
         if (isGroup) {
             try {
-                JMessageClient.enterGroupConversation(getIntent().getLongExtra("groupID", 0));
+                long groupID = getIntent().getLongExtra("groupID", 0);
+                if (groupID == 0){
+                    JMessageClient.enterGroupConversation(Long.parseLong(targetID));
+                }else JMessageClient.enterGroupConversation(groupID);
             } catch (NumberFormatException nfe) {
                 nfe.printStackTrace();
             }
@@ -341,33 +344,33 @@ public class ChatActivity extends BaseActivity {
                 //删除群成员事件
                 List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
                 //群主删除了当前用户，则隐藏聊天详情按钮
-                if ((userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName()))
-                        && groupID == mChatController.getGroupID()) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mChatView.dismissRightBtn();
-                        }
-                    });
-                    Log.i(TAG, "You have been removed from group");
+                if (groupID == mChatController.getGroupID()) {
                     refreshGroupNum();
+                    if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mChatView.dismissRightBtn();
+                            }
+                        });
+                    }
                 }
             } else {
                 //添加群成员事件
                 List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
                 //群主把当前用户添加到群聊，则显示聊天详情按钮
-                if ((userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName()))
-                        && groupID == mChatController.getGroupID()) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mChatView.showRightBtn();
-                        }
-                    });
+                if (groupID == mChatController.getGroupID()) {
                     refreshGroupNum();
+                    if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mChatView.showRightBtn();
+                            }
+                        });
+                    }
                 }
             }
-
         }
         //刷新消息
         mHandler.sendEmptyMessage(JPushDemoApplication.UPDATE_CHAT_LIST_VIEW);
