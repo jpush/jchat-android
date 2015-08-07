@@ -71,7 +71,6 @@ public class BubbleShader extends ShaderHelper {
         float scaledTriangleHeight = triangleHeightPx / scale;
         float resultWidth = bitmapWidth + 2 * translateX;
         float resultHeight = bitmapHeight + 2 * translateY;
-//        float centerY  = resultHeight / 2f +  y;
         float centerY;
         if(scale < 2){
             if(viewHeight < 400){
