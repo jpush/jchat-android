@@ -387,6 +387,11 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         mChatAdapter.releaseMediaPlayer();
     }
 
+    public void refreshGroupInfo(GroupInfo groupInfo) {
+        mGroupInfo = groupInfo;
+        mChatAdapter.refreshGroupInfo(groupInfo);
+    }
+
     private static class MyHandler extends Handler{
         private final WeakReference<ChatController> mController;
 
