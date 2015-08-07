@@ -1008,7 +1008,7 @@ public class MsgListAdapter extends BaseAdapter {
         JMessageClient.sendMessage(msg);
     }
 
-    private void sendImage(final ViewHolder viewHolder, Animation sendingAnim, Message msg) {
+    private void sendImage(final ViewHolder viewHolder, final Animation sendingAnim, Message msg) {
         ImageContent imgContent = (ImageContent) msg.getContent();
         final String path = imgContent.getLocalThumbnailPath();
         viewHolder.sendingIv.setVisibility(View.VISIBLE);
@@ -1039,7 +1039,8 @@ public class MsgListAdapter extends BaseAdapter {
                         mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                HandleResponseCode.onHandle(mContext, status, false);
+                                if (status != 0)
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 Picasso.with(mContext).load(new File(path)).into(viewHolder.picture);
                                 Log.i("Send picture", "update: ");
                                 refresh();
