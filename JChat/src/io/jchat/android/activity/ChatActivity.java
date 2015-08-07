@@ -84,7 +84,7 @@ public class ChatActivity extends BaseActivity {
                 mTargetID = data.getStringExtra("targetID");
                 if(data.getAction().equals(
                     JPushDemoApplication.UPDATE_GROUP_NAME_ACTION)){
-                    mChatView.setChatTitle(data.getStringExtra("newGroupName"));
+                    mChatView.setChatTitle(data.getStringExtra("newGroupName"), mChatController.getGroupMembersCount());
                 }else if(data.getAction().equals(Intent.ACTION_HEADSET_PLUG)){
                     mChatController.getAdapter().setAudioPlayByEarPhone(data.getIntExtra("state", 0));
                 }
@@ -206,7 +206,7 @@ public class ChatActivity extends BaseActivity {
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
         JMessageClient.unRegisterEventReceiver(this);
-		super.onDestroy();
+        super.onDestroy();
 		unregisterReceiver(mReceiver);
         mChatController.releaseMediaPlayer();
         mChatView.releaseRecorder();
