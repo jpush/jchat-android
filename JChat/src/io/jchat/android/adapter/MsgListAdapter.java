@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -482,25 +483,30 @@ public class MsgListAdapter extends BaseAdapter {
                     final UserInfo userInfo = mGroupInfo.getGroupMemberInfo(msg.getFromID());
                     //如果本地存在用户信息
                     if(userInfo != null){
-                        File file = userInfo.getAvatarFile();
-                        if(file != null && file.isFile()){
-                            bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
-                            NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
-                            holder.headIcon.setImageBitmap(bitmap);
-                            //本地不存在头像，从服务器拿
+                        //如果mediaID为空，表明用户没有设置过头像，用默认头像
+                        if(TextUtils.isEmpty(userInfo.getAvatar())){
+                            holder.headIcon.setImageResource(R.drawable.head_icon);
                         }else {
-                            userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
-                                @Override
-                                public void gotResult(int status, String desc, File file) {
-                                    if (status == 0) {
-                                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
-                                        NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
-                                        holder.headIcon.setImageBitmap(bitmap);
-                                    }else {
-                                        holder.headIcon.setImageResource(R.drawable.head_icon);
+                            File file = userInfo.getAvatarFile();
+                            if(file != null && file.isFile()){
+                                bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                                NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
+                                holder.headIcon.setImageBitmap(bitmap);
+                                //本地不存在头像，从服务器拿
+                            }else {
+                                userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                                    @Override
+                                    public void gotResult(int status, String desc, File file) {
+                                        if (status == 0) {
+                                            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                                            NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
+                                            holder.headIcon.setImageBitmap(bitmap);
+                                        }else {
+                                            holder.headIcon.setImageResource(R.drawable.head_icon);
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
                         //本地不存在用户信息，从服务器拿
                     }else {

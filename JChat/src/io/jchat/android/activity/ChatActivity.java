@@ -108,6 +108,10 @@ public class ChatActivity extends BaseActivity {
                     mChatView.setChatTitle(mChatController.getConversation().getTitle(), num);
                 }
                 break;
+            case JPushDemoApplication.REFRESH_GROUP_NUM:
+                int num = msg.getData().getInt("membersCount");
+                mChatView.setChatTitle(ChatActivity.this.getString(R.string.group), num);
+                break;
         }
     }
 
@@ -359,12 +363,21 @@ public class ChatActivity extends BaseActivity {
                     @Override
                     public void gotResult(int status, String desc, GroupInfo groupInfo) {
                         if (status == 0) {
-                            android.os.Message handleMessage = mHandler.obtainMessage();
-                            handleMessage.what = JPushDemoApplication.REFRESH_GROUP_NAME;
-                            Bundle bundle = new Bundle();
-                            bundle.putInt("membersCount", groupInfo.getGroupMembers().size());
-                            handleMessage.setData(bundle);
-                            handleMessage.sendToTarget();
+                            if (!TextUtils.isEmpty(groupInfo.getGroupName())){
+                                android.os.Message handleMessage = mHandler.obtainMessage();
+                                handleMessage.what = JPushDemoApplication.REFRESH_GROUP_NAME;
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("membersCount", groupInfo.getGroupMembers().size());
+                                handleMessage.setData(bundle);
+                                handleMessage.sendToTarget();
+                            }else {
+                                android.os.Message handleMessage = mHandler.obtainMessage();
+                                handleMessage.what = JPushDemoApplication.REFRESH_GROUP_NUM;
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("membersCount", groupInfo.getGroupMembers().size());
+                                handleMessage.setData(bundle);
+                                handleMessage.sendToTarget();
+                            }
                         }
                     }
                 });
