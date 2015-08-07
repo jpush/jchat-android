@@ -1039,7 +1039,8 @@ public class MsgListAdapter extends BaseAdapter {
                         mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                HandleResponseCode.onHandle(mContext, status, false);
+                                if (status != 0)
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 Picasso.with(mContext).load(new File(path)).into(viewHolder.picture);
                                 Log.i("Send picture", "update: ");
                                 refresh();
