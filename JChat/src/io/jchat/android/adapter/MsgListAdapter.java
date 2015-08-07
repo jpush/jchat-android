@@ -1008,7 +1008,7 @@ public class MsgListAdapter extends BaseAdapter {
         JMessageClient.sendMessage(msg);
     }
 
-    private void sendImage(final ViewHolder viewHolder, final Animation sendingAnim, Message msg) {
+    private void sendImage(final ViewHolder viewHolder, Animation sendingAnim, Message msg) {
         ImageContent imgContent = (ImageContent) msg.getContent();
         final String path = imgContent.getLocalThumbnailPath();
         viewHolder.sendingIv.setVisibility(View.VISIBLE);
