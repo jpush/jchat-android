@@ -13,48 +13,39 @@
     </declare-styleable>
 
     <attr name="circularProgressBarStyle" format="reference" />
-
-    -
+    
     <attr name="siArrowPosition">
         <enum name="left" value="0" />
         <enum name="right" value="1" />
     </attr>
-    -
     <attr name="siBorderType">
         <enum name="stroke" value="0" />
         <enum name="fill" value="1" />
     </attr>
-    -
     <attr name="siStrokeCap">
         <enum name="butt" value="0" />
         <enum name="round" value="1" />
         <enum name="square" value="2" />
     </attr>
-    -
     <attr name="siStrokeJoin">
         <enum name="bevel" value="0" />
         <enum name="miter" value="1" />
         <enum name="round" value="2" />
     </attr>
-    -
     <declare-styleable name="ShaderImageView">
         <attr name="siSquare" format="boolean" />
         <attr name="siBorderColor" format="color" />
         <attr name="siBorderWidth" format="dimension" />
         <attr name="siBorderAlpha" format="float" />
         <attr name="siForeground" format="integer|reference" />
-        - <!--  Rounded Image View
-  -->
+        <!--  Rounded Image View-->
         <attr name="siRadius" format="dimension" />
-        - <!-- BubbleImageView
-  -->
+        <!-- BubbleImageView-->
         <attr name="siArrowPosition" />
         <attr name="siTriangleHeight" format="dimension" />
-        - <!-- PorterImageView
-  -->
+        <!-- PorterImageView-->
         <attr name="siShape" format="integer|reference" />
-        - <!-- ShaderImageView
-  -->
+        <!-- ShaderImageView-->
         <attr name="siBorderType" />
         <attr name="siStrokeCap" />
         <attr name="siStrokeJoin" />
