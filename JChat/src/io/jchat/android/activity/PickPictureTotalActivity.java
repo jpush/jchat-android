@@ -1,5 +1,6 @@
 package io.jchat.android.activity;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -31,6 +32,7 @@ import java.util.Map;
 
 
 import io.jchat.android.adapter.AlbumListAdapter;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.entity.ImageBean;
 import io.jchat.android.tools.SortPictureList;
 
@@ -43,8 +45,6 @@ public class PickPictureTotalActivity extends BaseActivity {
 	private final static int SCAN_OK = 1;
     private final static int SCAN_ERROR = 2;
 	private ProgressDialog mProgressDialog;
-//	private PickPictureTotalAdapter adapter;
-//	private GridView mGroupGridView;
     private AlbumListAdapter adapter;
     private ListView mListView;
 	private ImageButton mReturnBtn;
@@ -102,7 +102,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 				List<String> childList = mGruopMap.get(list.get(position).getFolderName());
 				mIntent.setClass(PickPictureTotalActivity.this, PickPictureActivity.class);
 				mIntent.putStringArrayListExtra("data", (ArrayList<String>)childList);
-				startActivity(mIntent);
+				startActivityForResult(mIntent, JPushDemoApplication.REQUEST_CODE_SELECT_ALBUM);
 				
 			}
 		});
@@ -205,5 +205,16 @@ public class PickPictureTotalActivity extends BaseActivity {
 		
 		return list;
 		
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == Activity.RESULT_CANCELED) {
+			return;
+		}else if (resultCode == JPushDemoApplication.RESULT_CODE_SELECT_ALBUM){
+			setResult(JPushDemoApplication.RESULT_CODE_SELECT_PICTURE, data);
+			finish();
+		}
 	}
 }

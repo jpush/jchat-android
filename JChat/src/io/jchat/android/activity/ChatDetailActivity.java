@@ -248,6 +248,7 @@ public class ChatDetailActivity extends BaseActivity {
         intent.putExtra("isGroup", true);
         //设置跳转标志
         intent.putExtra("fromGroup", true);
+        intent.putExtra("memberCount", 3);
         intent.putExtra("groupID", groupID);
         intent.putExtra("groupName", groupName);
         intent.setClass(this, ChatActivity.class);
@@ -298,7 +299,7 @@ public class ChatDetailActivity extends BaseActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                NativeImageLoader.getInstance().setAvatarCache(userName, (int)(50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
+                                NativeImageLoader.getInstance().setAvatarCache(userName, (int)(50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
                                     @Override
                                     public void onCacheAvatarCallBack(int status) {
                                         if(status == 0){
@@ -320,4 +321,5 @@ public class ChatDetailActivity extends BaseActivity {
             handleMsg.sendToTarget();
         }
     }
+
 }

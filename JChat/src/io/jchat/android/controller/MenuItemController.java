@@ -69,6 +69,7 @@ public class MenuItemController implements View.OnClickListener {
                                     intent.putExtra("isGroup", true);
                                     //设置跳转标志
                                     intent.putExtra("fromGroup", true);
+                                    intent.putExtra("memberCount", 1);
                                     intent.putExtra("groupID", groupID);
                                     intent.putExtra("targetID", String.valueOf(groupID));
                                     intent.setClass(mContext.getActivity(), ChatActivity.class);

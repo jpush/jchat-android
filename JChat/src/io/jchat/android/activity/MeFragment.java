@@ -212,7 +212,7 @@ public class MeFragment extends BaseFragment {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             try {
-                getActivity().startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_TAKE_PHOTO);
+                getActivity().startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO);
             } catch (ActivityNotFoundException anf) {
                 Toast.makeText(this.getActivity(), mContext.getString(R.string.camera_not_prepared), Toast.LENGTH_SHORT).show();
             }
@@ -237,7 +237,7 @@ public class MeFragment extends BaseFragment {
                         Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             }
-            getActivity().startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_SELECT_PICTURE);
+            getActivity().startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE);
         } else {
             Toast.makeText(this.getActivity(), mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
         }

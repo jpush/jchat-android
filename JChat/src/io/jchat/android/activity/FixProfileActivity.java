@@ -169,7 +169,7 @@ public class FixProfileActivity extends BaseActivity {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             mPath = file.getAbsolutePath();
-            startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_TAKE_PHOTO);
+            startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO);
         } else {
             Toast.makeText(this, this.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
             return;
@@ -186,7 +186,7 @@ public class FixProfileActivity extends BaseActivity {
                     Intent.ACTION_PICK,
                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         }
-        startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_SELECT_PICTURE);
+        startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE);
     }
 
 
@@ -196,11 +196,11 @@ public class FixProfileActivity extends BaseActivity {
         if (resultCode == Activity.RESULT_CANCELED) {
             return;
         }
-        if (requestCode == JPushDemoApplication.REQUESTCODE_TAKE_PHOTO) {
+        if (requestCode == JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
             if (mPath != null) {
                 calculateAvatar(mPath);
             }
-        } else if (requestCode == JPushDemoApplication.REQUESTCODE_SELECT_PICTURE) {
+        } else if (requestCode == JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
             if (data != null) {
                 Uri selectedImg = data.getData();
                 if (selectedImg != null) {

@@ -32,8 +32,6 @@ import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
@@ -380,7 +378,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }
                     Intent intent = new Intent();
                     intent.putExtra("pathArray", pathArray);
-                    setResult(JPushDemoApplication.RESULTCODE_SELECT_PICTURE, intent);
+                    setResult(JPushDemoApplication.RESULT_CODE_SELECT_PICTURE, intent);
                     finish();
                     break;
                 case R.id.pick_picture_send_btn:
@@ -543,7 +541,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
         Intent intent = new Intent();
         intent.putExtra("pathArray", pathArray);
-        setResult(JPushDemoApplication.RESULTCODE_SELECT_PICTURE, intent);
+        setResult(JPushDemoApplication.RESULT_CODE_SELECT_PICTURE, intent);
         super.onBackPressed();
     }
 
@@ -641,14 +639,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         break;
                     case 5:
                         Intent intent = new Intent();
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        intent.putExtra("sendPicture", true);
                         intent.putExtra("targetID", activity.mTargetID);
-                        intent.putExtra("isGroup", activity.mIsGroup);
                         intent.putExtra("groupID", activity.mGroupID);
                         intent.putExtra("msgIDs", activity.mMsgIDs);
-                        intent.setClass(activity, ChatActivity.class);
-                        activity.startActivity(intent);
+                        activity.setResult(JPushDemoApplication.RESULT_CODE_BROWSER_PICTURE, intent);
                         activity.finish();
                         break;
                     //显示下载原图进度

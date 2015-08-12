@@ -516,7 +516,7 @@ public class RecordVoiceBtnController extends Button {
                             Log.i("RecordVoiceController", "desc：" + msg.getData().getString("desc"));
                             Log.i("RecordVoiceController", "refreshing!");
                         }
-                        controller.mMsgListAdapter.refresh();
+                        controller.mMsgListAdapter.notifyDataSetChanged();
                         break;
                     case 7:
                         if (mIsPressed)

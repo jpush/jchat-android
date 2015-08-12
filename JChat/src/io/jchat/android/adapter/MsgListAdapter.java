@@ -124,16 +124,22 @@ public class MsgListAdapter extends BaseAdapter {
     private double mDensity;
     private boolean mIsEarPhoneOn;
     private GroupInfo mGroupInfo;
+    //当前第0项消息的位置
+    private int mStart;
+    //偏移量
+    private int mOffset = 17;
 
-    public MsgListAdapter(Context context, String targetID){
+    public MsgListAdapter(Context context, String targetID) {
         initData(context);
         this.mTargetID = targetID;
         this.mConv = JMessageClient.getSingleConversation(mTargetID);
-        this.mMsgList = mConv.getAllMessage();
+        this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
+        reverse(mMsgList);
+        mStart = mOffset;
         List<String> userIDList = new ArrayList<String>();
         userIDList.add(targetID);
         userIDList.add(JMessageClient.getMyInfo().getUserName());
-        NativeImageLoader.getInstance().setAvatarCache(userIDList, (int) (50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
+        NativeImageLoader.getInstance().setAvatarCache(userIDList, (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
             @Override
             public void onCacheAvatarCallBack(int status) {
                 mActivity.runOnUiThread(new Runnable() {
@@ -147,16 +153,22 @@ public class MsgListAdapter extends BaseAdapter {
         });
     }
 
-    public MsgListAdapter(Context context, long groupID, GroupInfo groupInfo){
+    private void reverse(List<Message> list) {
+        Collections.reverse(list);
+    }
+
+    public MsgListAdapter(Context context, long groupID, GroupInfo groupInfo) {
         initData(context);
         this.mGroupID = groupID;
         this.mIsGroup = true;
         this.mConv = JMessageClient.getGroupConversation(groupID);
-        this.mMsgList = mConv.getAllMessage();
+        this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
+        reverse(mMsgList);
+        mStart = mOffset;
         this.mGroupInfo = groupInfo;
     }
 
-    private void initData(Context context){
+    private void initData(Context context) {
         this.mContext = context;
         mActivity = (Activity) context;
         DisplayMetrics dm = new DisplayMetrics();
@@ -167,9 +179,9 @@ public class MsgListAdapter extends BaseAdapter {
         AudioManager audioManager = (AudioManager) mContext
                 .getSystemService(Context.AUDIO_SERVICE);
         audioManager.setMode(AudioManager.MODE_NORMAL);
-        if(audioManager.isSpeakerphoneOn()){
+        if (audioManager.isSpeakerphoneOn()) {
             audioManager.setSpeakerphoneOn(true);
-        }else audioManager.setSpeakerphoneOn(false);
+        } else audioManager.setSpeakerphoneOn(false);
         mp.setAudioStreamType(AudioManager.STREAM_RING);
         mp.setOnErrorListener(new OnErrorListener() {
 
@@ -180,13 +192,50 @@ public class MsgListAdapter extends BaseAdapter {
         });
     }
 
-    public void initMediaPlayer(){
+    public void dropDownToRefresh() {
+//        if(mMsgList.get(0))
+        if(mConv != null){
+            List<Message> msgList = mConv.getMessagesFromNewest(mStart, 17);
+            if (msgList != null){
+                for (Message msg : msgList){
+                    mMsgList.add(0, msg);
+                }
+                mOffset = msgList.size();
+                notifyDataSetChanged();
+            }
+        }
+    }
+
+    public int getOffset(){
+        return mOffset;
+    }
+
+    public void refreshStartPosition() {
+        mStart += mOffset;
+    }
+
+    public void initMediaPlayer() {
         mp.reset();
     }
 
-    public void setSendImg(int[] msgIDs) {
-        for (int i = 0; i < msgIDs.length; i++) {
-            JMessageClient.sendMessage(mConv.getMessage(msgIDs[i]));
+    public void setSendImg(String targetID, int[] msgIDs) {
+        Message msg;
+        mConv = JMessageClient.getSingleConversation(targetID);
+        for (int msgID : msgIDs) {
+            msg = mConv.getMessage(msgID);
+            JMessageClient.sendMessage(msg);
+            mMsgList.add(msg);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void setSendImg(long groupID, int[] msgIDs) {
+        Message msg;
+        mConv = JMessageClient.getGroupConversation(groupID);
+        for (int msgID : msgIDs) {
+            msg = mConv.getMessage(msgID);
+            JMessageClient.sendMessage(msg);
+            mMsgList.add(msg);
         }
         notifyDataSetChanged();
     }
@@ -195,19 +244,6 @@ public class MsgListAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         return position;
-    }
-
-    public void refresh() {
-        mMsgList.clear();
-        if (mIsGroup) {
-            mConv = JMessageClient.getGroupConversation(mGroupID);
-        } else {
-            mConv = JMessageClient.getSingleConversation(mTargetID);
-        }
-        if (null != mConv) {
-            mMsgList = mConv.getAllMessage();
-            notifyDataSetChanged();
-        }
     }
 
     public void releaseMediaPlayer() {
@@ -245,10 +281,10 @@ public class MsgListAdapter extends BaseAdapter {
                     : TYPE_RECEIVER_VOICE;
         } else if (msg.getContentType().equals(ContentType.eventNotification)) {
             return TYPE_GROUP_CHANGE;
-        }else if(msg.getContentType().equals(ContentType.location)) {
+        } else if (msg.getContentType().equals(ContentType.location)) {
             return msg.getDirect().equals(MessageDirect.send) ? TYPE_SEND_LOCATION
                     : TYPE_RECEIVER_LOCATION;
-        }else {
+        } else {
             return TYPE_CUSTOM_TXT;
         }
     }
@@ -295,14 +331,14 @@ public class MsgListAdapter extends BaseAdapter {
                 .getSystemService(Context.AUDIO_SERVICE);
         int currVolume = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
         audioManager.setMode(AudioManager.MODE_IN_CALL);
-        if(state == 0){
+        if (state == 0) {
             mIsEarPhoneOn = false;
             audioManager.setSpeakerphoneOn(true);
             audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
                     audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
                     AudioManager.STREAM_VOICE_CALL);
             Log.i(TAG, "set SpeakerphoneOn true!");
-        }else {
+        } else {
             mIsEarPhoneOn = true;
             audioManager.setSpeakerphoneOn(false);
             audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, currVolume,
@@ -316,10 +352,16 @@ public class MsgListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    private static class MyHandler extends Handler{
+    public void clearMsgList() {
+        mMsgList.clear();
+        mStart = 0;
+        notifyDataSetChanged();
+    }
+
+    private static class MyHandler extends Handler {
         private final WeakReference<MsgListAdapter> mAdapter;
 
-        public MyHandler(MsgListAdapter adapter){
+        public MyHandler(MsgListAdapter adapter) {
             mAdapter = new WeakReference<MsgListAdapter>(adapter);
         }
 
@@ -327,14 +369,14 @@ public class MsgListAdapter extends BaseAdapter {
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
             MsgListAdapter adapter = mAdapter.get();
-            if(adapter != null){
+            if (adapter != null) {
                 switch (msg.what) {
                     case UPDATE_IMAGEVIEW:
                         Bundle bundle = msg.getData();
                         ViewHolder holder = (ViewHolder) msg.obj;
                         String path = bundle.getString("path");
                         Picasso.with(adapter.mContext).load(new File(path)).into(holder.picture);
-                        adapter.refresh();
+                        adapter.notifyDataSetChanged();
                         Log.i(TAG, "Refresh Received picture");
                         break;
                 }
@@ -408,7 +450,7 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.group_content);
                 } catch (Exception e) {
                 }
-            } else if(contentType.equals(ContentType.location)) {
+            } else if (contentType.equals(ContentType.location)) {
                 try {
                     holder.headIcon = (CircleImageView) convertView
                             .findViewById(R.id.avatar_iv);
@@ -422,7 +464,7 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.fail_resend_ib);
                 } catch (Exception e) {
                 }
-            }else {
+            } else {
                 try {
                     holder.groupChange = (TextView) convertView
                             .findViewById(R.id.group_content);
@@ -475,33 +517,33 @@ public class MsgListAdapter extends BaseAdapter {
         if (holder.headIcon != null) {
             Bitmap bitmap;
             //群聊
-            if(mIsGroup){
+            if (mIsGroup) {
                 bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(msg.getFromID());
                 if (bitmap != null)
                     holder.headIcon.setImageBitmap(bitmap);
-                else if(mGroupInfo != null){
+                else if (mGroupInfo != null) {
                     final UserInfo userInfo = mGroupInfo.getGroupMemberInfo(msg.getFromID());
                     //如果本地存在用户信息
-                    if(userInfo != null){
+                    if (userInfo != null) {
                         //如果mediaID为空，表明用户没有设置过头像，用默认头像
-                        if(TextUtils.isEmpty(userInfo.getAvatar())){
+                        if (TextUtils.isEmpty(userInfo.getAvatar())) {
                             holder.headIcon.setImageResource(R.drawable.head_icon);
-                        }else {
+                        } else {
                             File file = userInfo.getAvatarFile();
-                            if(file != null && file.isFile()){
-                                bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                            if (file != null && file.isFile()) {
+                                bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
                                 NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
                                 holder.headIcon.setImageBitmap(bitmap);
                                 //本地不存在头像，从服务器拿
-                            }else {
+                            } else {
                                 userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
                                     @Override
                                     public void gotResult(int status, String desc, File file) {
                                         if (status == 0) {
-                                            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                                            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
                                             NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
                                             holder.headIcon.setImageBitmap(bitmap);
-                                        }else {
+                                        } else {
                                             holder.headIcon.setImageResource(R.drawable.head_icon);
                                         }
                                     }
@@ -509,19 +551,19 @@ public class MsgListAdapter extends BaseAdapter {
                             }
                         }
                         //本地不存在用户信息，从服务器拿
-                    }else {
+                    } else {
                         Log.i(TAG, "Get UserInfo from server, UserName: " + msg.getFromName());
                         JMessageClient.getUserInfo(msg.getFromID(), new GetUserInfoCallback() {
                             @Override
                             public void gotResult(int status, String desc, UserInfo userInfo) {
-                                if(status == 0){
+                                if (status == 0) {
                                     File file = userInfo.getAvatarFile();
-                                    if(file != null && file.isFile()){
-                                        Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * mDensity), (int)(50 * mDensity));
+                                    if (file != null && file.isFile()) {
+                                        Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
                                         NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap1);
                                         holder.headIcon.setImageBitmap(bitmap1);
                                     }
-                                }else {
+                                } else {
                                     holder.headIcon.setImageResource(R.drawable.head_icon);
                                 }
                             }
@@ -529,13 +571,12 @@ public class MsgListAdapter extends BaseAdapter {
                     }
                 }
                 //单聊
-            }else {
+            } else {
                 bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(msg.getFromID());
                 if (bitmap != null)
                     holder.headIcon.setImageBitmap(bitmap);
                 else holder.headIcon.setImageResource(R.drawable.head_icon);
             }
-
 
 
             // 点击头像跳转到个人信息界面
@@ -654,12 +695,12 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     private void handleGroupChangeMsg(Message msg, ViewHolder holder) {
-        String content = ((EventNotificationContent)msg.getContent()).getEventText();
+        String content = ((EventNotificationContent) msg.getContent()).getEventText();
         holder.groupChange.setText(content);
         holder.groupChange.setVisibility(View.VISIBLE);
     }
 
-    private void handleCustomMsg(ViewHolder holder){
+    private void handleCustomMsg(ViewHolder holder) {
         holder.groupChange.setVisibility(View.GONE);
     }
 
@@ -725,7 +766,7 @@ public class MsgListAdapter extends BaseAdapter {
                         public void run() {
                             if (status != 0)
                                 HandleResponseCode.onHandle(mContext, status, false);
-                            refresh();
+                            notifyDataSetChanged();
                         }
 
                     });
@@ -948,14 +989,8 @@ public class MsgListAdapter extends BaseAdapter {
             msg.setOnSendCompleteCallback(new BasicCallback() {
                 @Override
                 public void gotResult(final int status, String desc) {
-                    mActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Picasso.with(mContext).load(new File(path)).into(holder.picture);
-                            Log.i("Send picture", "update: ");
-                            refresh();
-                        }
-                    });
+                    Log.i("Send picture", "update: ");
+                    notifyDataSetChanged();
                 }
             });
         }
@@ -964,7 +999,7 @@ public class MsgListAdapter extends BaseAdapter {
     /**
      * 设置图片最小宽高
      *
-     * @param path 图片路径
+     * @param path      图片路径
      * @param imageView 显示图片的View
      */
     private void setPictureScale(String path, ImageView imageView) {
@@ -1000,7 +1035,7 @@ public class MsgListAdapter extends BaseAdapter {
                         holder.resend.setVisibility(View.VISIBLE);
                         Log.i(TAG, "Resend message failed!");
                     }
-                    refresh();
+                    notifyDataSetChanged();
                 }
             });
         }
@@ -1036,16 +1071,11 @@ public class MsgListAdapter extends BaseAdapter {
                 msg.setOnSendCompleteCallback(new BasicCallback() {
                     @Override
                     public void gotResult(final int status, String desc) {
-                        mActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (status != 0)
-                                    HandleResponseCode.onHandle(mContext, status, false);
-                                Picasso.with(mContext).load(new File(path)).into(viewHolder.picture);
-                                Log.i("Send picture", "update: ");
-                                refresh();
-                            }
-                        });
+                        if (status != 0)
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        Picasso.with(mContext).load(new File(path)).into(viewHolder.picture);
+                        Log.i("Send picture", "update: ");
+                        notifyDataSetChanged();
                     }
                 });
             }
@@ -1195,9 +1225,9 @@ public class MsgListAdapter extends BaseAdapter {
                                     .getLocalPath());
                             mFD = mFIS.getFD();
                             mp.setDataSource(mFD);
-                            if(mIsEarPhoneOn){
+                            if (mIsEarPhoneOn) {
                                 mp.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
-                            }else {
+                            } else {
                                 mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
                             }
 
@@ -1216,12 +1246,12 @@ public class MsgListAdapter extends BaseAdapter {
                     } catch (IOException e) {
                         Toast.makeText(mActivity, mContext.getString(R.string.file_not_found_toast),
                                 Toast.LENGTH_SHORT).show();
-                    }finally {
+                    } finally {
                         try {
-                            if(mFIS != null){
+                            if (mFIS != null) {
                                 mFIS.close();
                             }
-                        }catch (IOException e){
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -1245,7 +1275,7 @@ public class MsgListAdapter extends BaseAdapter {
                                 mp.reset();
                                 // 记录播放录音的位置
                                 mPosition = position;
-                                if(content.getLocalPath() != null){
+                                if (content.getLocalPath() != null) {
                                     try {
                                         mFIS = new FileInputStream(content
                                                 .getLocalPath());
@@ -1257,16 +1287,16 @@ public class MsgListAdapter extends BaseAdapter {
                                         e.printStackTrace();
                                     } catch (IOException e) {
                                         e.printStackTrace();
-                                    }finally {
+                                    } finally {
                                         try {
-                                            if(mFIS != null){
+                                            if (mFIS != null) {
                                                 mFIS.close();
                                             }
-                                        }catch (IOException e){
-                                           e.printStackTrace();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
                                         }
                                     }
-                                }else {
+                                } else {
                                     Toast.makeText(mContext, mContext.getString(R.string.voice_fetch_failed_toast), Toast.LENGTH_SHORT).show();
                                 }
 
@@ -1362,12 +1392,12 @@ public class MsgListAdapter extends BaseAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
-        }finally {
+        } finally {
             try {
-                if(mFIS != null){
+                if (mFIS != null) {
                     mFIS.close();
                 }
-            }catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -1383,7 +1413,7 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     public void stopMediaPlayer() {
-        if(mp.isPlaying())
+        if (mp.isPlaying())
             mp.stop();
     }
 

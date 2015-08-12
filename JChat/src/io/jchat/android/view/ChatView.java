@@ -38,7 +38,7 @@ public class ChatView extends RelativeLayout{
 
 	private LinearLayout mBackground;
 	private TableLayout mMoreMenuTl;
-	private ListView mChatListView;
+	private DropDownListView mChatListView;
 	private ImageButton mReturnBtn;
 	private ImageButton mRightBtn;
 	private TextView mChatTitle;
@@ -63,7 +63,7 @@ public class ChatView extends RelativeLayout{
 
 
 	public void initModule(){
-		mChatListView = (ListView) findViewById(R.id.chat_list);
+		mChatListView = (DropDownListView) findViewById(R.id.chat_list);
 		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
 		mRightBtn = (ImageButton) findViewById(R.id.right_btn);
 		mChatTitle = (TextView) findViewById(R.id.title);
@@ -304,4 +304,8 @@ public class ChatView extends RelativeLayout{
     public void resetMoreMenuHeight() {
         mMoreMenuTl.setLayoutParams(new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, 0));
     }
+
+	public DropDownListView getListView() {
+		return mChatListView;
+	}
 }

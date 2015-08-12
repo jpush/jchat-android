@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cn.jpush.im.android.JMessage;
 import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.R;
 
@@ -42,6 +43,7 @@ import io.jchat.android.activity.ChatDetailActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.adapter.GroupMemberGridAdapter;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
@@ -61,7 +63,9 @@ public class ChatDetailController implements OnClickListener,
     // 当前GridView群成员项数
     private int mCurrentNum;
     // 空白项的项数
-    private int[] mRestArray;
+    // 除了群成员Item和添加、删除按钮，剩下的都看成是空白项，
+    // 对应的mRestNum[mCurrent%4]的值即为空白项的数目
+    private int[] mRestArray = new int[]{2, 1, 0, 3};;
     private boolean mIsGroup = false;
     private boolean mIsCreator = false;
     private long mGroupID;
@@ -141,15 +145,10 @@ public class ChatDetailController implements OnClickListener,
 //                }
             // 是单聊
         } else {
-            JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
-                @Override
-                public void gotResult(int status, String desc, UserInfo userInfo) {
-                    if (status == 0) {
-                        mMemberIDList.add(userInfo);
-                        initAdapter();
-                    }
-                }
-            });
+            Conversation conv = JMessageClient.getSingleConversation(mTargetID);
+            mCurrentNum = 1;
+            mGridAdapter = new GroupMemberGridAdapter(mContext, mTargetID, conv.getTitle());
+            mChatDetailView.setAdapter(mGridAdapter);
             // 设置单聊界面
             mChatDetailView.setSingleView();
         }
@@ -158,11 +157,8 @@ public class ChatDetailController implements OnClickListener,
 
     private void initAdapter() {
         mCurrentNum = mMemberIDList.size();
-        // 除了群成员Item和添加、删除按钮，剩下的都看成是空白项，
-        // 对应的mRestNum[mCurrent%4]的值即为空白项的数目
-        mRestArray = new int[]{2, 1, 0, 3};
         // 初始化头像
-        mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberIDList, mIsCreator, mIsGroup);
+        mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberIDList, mIsCreator);
         mChatDetailView.setAdapter(mGridAdapter);
     }
 
@@ -219,6 +215,8 @@ public class ChatDetailController implements OnClickListener,
                                     conv = JMessageClient.getSingleConversation(mTargetID);
                                 if (conv != null) {
                                     conv.deleteAllMessage();
+                                    Intent intent = new Intent(JPushDemoApplication.CLEAR_MSG_LIST_ACTION);
+                                    mContext.sendBroadcast(intent);
                                 }
                                 dialog.cancel();
                                 break;

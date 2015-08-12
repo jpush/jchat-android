@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -44,8 +43,9 @@ import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ChatView;
 import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.view.DropDownListView;
 
-public class ChatController implements OnClickListener, OnScrollListener, View.OnTouchListener {
+public class ChatController implements OnClickListener, View.OnTouchListener {
 
     private ChatView mChatView;
     private ChatActivity mContext;
@@ -54,9 +54,9 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     private boolean isInputByKeyBoard = true;
     public boolean mMoreMenuVisible = false;
     public static boolean mIsShowMoreMenu = false;
+    private static final int REFRESH_LAST_PAGE = 1023;
     private static final int UPDATE_GROUP_INFO = 1024;
-    public static final int UPDATE_LAST_PAGE_LISTVIEW = 1025;
-    public static final int UPDATE_CHAT_LISTVIEW = 1026;
+    private static final int UPDATE_CHAT_LISTVIEW = 1026;
     private String mTargetID;
     private long mGroupID;
     private boolean mIsGroup;
@@ -84,7 +84,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             Log.i("Tag", "mGroupID is " + mGroupID);
             //判断是否从创建群组跳转过来
             if (fromGroup) {
-                mChatView.setChatTitle(mContext.getString(R.string.group), 1);
+                mChatView.setChatTitle(mContext.getString(R.string.group), intent.getIntExtra("memberCount", 0));
                 mConv = JMessageClient.getGroupConversation(mGroupID);
             } else {
                 if (mTargetID != null)
@@ -163,6 +163,12 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                 mChatAdapter = new MsgListAdapter(mContext, mTargetID);
             }
             mChatView.setChatListAdapter(mChatAdapter);
+            mChatView.getListView().setOnDropDownListener(new DropDownListView.OnDropDownListener() {
+                @Override
+                public void onDropDown() {
+                    myHandler.sendEmptyMessageDelayed(REFRESH_LAST_PAGE, 2000);
+                }
+            });
         }
 
         // 滑动到底部
@@ -224,6 +230,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                 }
                 TextContent content = new TextContent(msgContent);
                 final Message msg = mConv.createSendMessage(content);
+                final int msgID = msg.getId();
                 msg.setOnSendCompleteCallback(new BasicCallback() {
 
                     @Override
@@ -238,12 +245,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                             });
                         }
                         // 发送成功或失败都要刷新一次
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = UPDATE_CHAT_LISTVIEW;
-                        Bundle bundle = new Bundle();
-                        bundle.putString("desc", desc);
-                        msg.setData(bundle);
-                        msg.sendToTarget();
+                        myHandler.sendEmptyMessage(UPDATE_CHAT_LISTVIEW);
                     }
                 });
                 mChatAdapter.addMsgToList(msg);
@@ -366,7 +368,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             setPhotoPath(file.getAbsolutePath());
             try {
-                mContext.startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_TAKE_PHOTO);
+                mContext.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO);
             } catch (ActivityNotFoundException anf) {
                 Toast.makeText(mContext, mContext.getString(R.string.camera_not_prepared), Toast.LENGTH_SHORT).show();
             }
@@ -405,33 +407,24 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             ChatController controller = mController.get();
             if(controller != null){
                 switch (msg.what) {
+                    case REFRESH_LAST_PAGE:
+                        controller.mChatAdapter.dropDownToRefresh();
+                        controller.mChatView.getListView().onDropDownComplete();
+                        controller.mChatView.getListView().setSelection(controller.mChatAdapter.getOffset() + 1);
+                        controller.mChatAdapter.refreshStartPosition();
+                        break;
                     case UPDATE_GROUP_INFO:
                         controller.mGroupInfo = (GroupInfo)msg.obj;
                         controller.mChatAdapter.refreshGroupInfo(controller.mGroupInfo);
                         break;
-                    case UPDATE_LAST_PAGE_LISTVIEW:
-                        Log.i("Tag", "收到更新消息列表的消息");
-                        controller.mChatAdapter.refresh();
-                        controller.mChatView.removeHeadView();
-                        break;
                     case UPDATE_CHAT_LISTVIEW:
-                        controller.mChatAdapter.refresh();
+                        controller.mChatAdapter.notifyDataSetChanged();
                         break;
                 }
             }
         }
     }
 
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem,
-                         int visibleItemCount, int totalItemCount) {
-    }
-
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-//        int touchPosition = 0;
-    }
 
     public MsgListAdapter getAdapter() {
         return mChatAdapter;
@@ -465,9 +458,5 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         if (mGroupInfo != null)
             return mGroupInfo.getGroupMembers().size();
         else return 1;
-    }
-
-    public void refresh() {
-        mChatAdapter.refresh();
     }
 }

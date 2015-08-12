@@ -360,5 +360,17 @@
         <item name="android:radius">5dp</item>
     </style>
 
+    <declare-styleable name="drop_down_list_attr">
+    <attr name="isDropDownStyle" format="boolean" />
+    <attr name="isOnBottomStyle" format="boolean" />
+    <attr name="isAutoLoadOnBottom" format="boolean" />
+    </declare-styleable>
+
+    <style name="drop_down_list_header_progress_bar_style">
+    <item name="android:minHeight">@dimen/drop_down_list_header_progress_bar_height</item>
+    <item name="android:maxHeight">@dimen/drop_down_list_header_progress_bar_height</item>
+    </style>
+
+
 
 </resources>
