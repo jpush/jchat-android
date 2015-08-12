@@ -264,28 +264,37 @@ public class ChatDetailController implements OnClickListener,
                             final int position, long id) {
         // 没有触发delete时
         if (!mIsShowDelete) {
-            // 点击群成员项时
-            if (position < mCurrentNum) {
-                Intent intent = new Intent();
-                if (mMemberIDList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
-                    intent.setClass(mContext, MeInfoActivity.class);
-                } else {
-                    intent.putExtra("targetID", mMemberIDList.get(position).getUserName());
-                    intent.setClass(mContext, FriendInfoActivity.class);
-                }
-                mContext.startActivity(intent);
-                // 点击添加成员按钮
-            } else if (position == mCurrentNum) {
-                addMemberToGroup();
-                // mContext.showContacts();
+            Intent intent = new Intent();
+            //群聊
+            if (mIsGroup){
+                // 点击群成员项时
+                if (position < mCurrentNum) {
+                    if (mMemberIDList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                        intent.setClass(mContext, MeInfoActivity.class);
+                    } else {
+                        intent.putExtra("targetID", mMemberIDList.get(position).getUserName());
+                        intent.setClass(mContext, FriendInfoActivity.class);
+                    }
+                    mContext.startActivity(intent);
+                    // 点击添加成员按钮
+                } else if (position == mCurrentNum) {
+                    addMemberToGroup();
+                    // mContext.showContacts();
 
-                // 是群主, 成员个数大于1并点击删除按钮
-            } else if (position == mCurrentNum + 1 && mIsCreator && mCurrentNum > 1) {
-                // delete friend from group
-                mIsShowDelete = true;
-                mGridAdapter.setIsShowDelete(true,
-                        mRestArray[mCurrentNum % 4]);
+                    // 是群主, 成员个数大于1并点击删除按钮
+                } else if (position == mCurrentNum + 1 && mIsCreator && mCurrentNum > 1) {
+                    // delete friend from group
+                    mIsShowDelete = true;
+                    mGridAdapter.setIsShowDelete(true,
+                            mRestArray[mCurrentNum % 4]);
+                }
+                //单聊
+            }else {
+                intent.putExtra("targetID", mTargetID);
+                intent.setClass(mContext, FriendInfoActivity.class);
+                mContext.startActivity(intent);
             }
+
             // delete状态
         } else {
             // 点击群成员Item时
