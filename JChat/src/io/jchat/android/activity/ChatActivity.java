@@ -365,11 +365,21 @@ public class ChatActivity extends BaseActivity {
             }
         }
         //刷新消息
-//        mHandler.sendEmptyMessage(JPushDemoApplication.UPDATE_CHAT_LIST_VIEW);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mChatController.getAdapter().addMsgToList(msg);
+                String targetID = msg.getTargetID();
+                //收到消息的类型为单聊
+                if (msg.getTargetType().equals(ConversationType.single)){
+                    //判断消息是否在当前会话中
+                    if (!mChatController.isGroup() && targetID.equals(mChatController.getTargetID())){
+                        mChatController.getAdapter().addMsgToList(msg);
+                    }
+                }else {
+                    if (mChatController.isGroup() && Long.parseLong(targetID) == mChatController.getGroupID()){
+                        mChatController.getAdapter().addMsgToList(msg);
+                    }
+                }
             }
         });
     }
