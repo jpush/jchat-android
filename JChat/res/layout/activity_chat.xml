@@ -30,6 +30,7 @@
                 android:background="#F0F1F3"
                 android:listSelector="@android:color/transparent"
                 android:transcriptMode="normal"
+                android:divider="@null"
                 listViewAttr:isDropDownStyle="true"
                 listViewAttr:isOnBottomStyle="false"
                 listViewAttr:isAutoLoadOnBottom="false">

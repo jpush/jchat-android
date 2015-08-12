@@ -1,26 +1,19 @@
 package io.jchat.android.view;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -52,7 +45,6 @@ public class ChatView extends RelativeLayout{
 	private ImageButton mLocationIb;
 	private ImageButton mSendVoiceIb;
 	private Button mSendMsgBtn;
-	private View mLoadingMessage;
 	Context mContext;
 
 	public ChatView(Context context, AttributeSet attrs) {
@@ -80,7 +72,6 @@ public class ChatView extends RelativeLayout{
 		mBackground = (LinearLayout) findViewById(R.id.chat_background);
 		mMoreMenuTl = (TableLayout) findViewById(R.id.more_menu_tl);
 		mBackground.requestFocus();
-		mLoadingMessage = LayoutInflater.from(mContext).inflate(R.layout.loading_message_view,null);
 		mChatInputEt.addTextChangedListener(watcher);
 		mChatInputEt.setOnFocusChangeListener(listener);
         mChatInputEt.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
@@ -106,22 +97,6 @@ public class ChatView extends RelativeLayout{
         }
 
     }
-
-
-//    @Override
-//    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//        int height = MeasureSpec.getSize(heightMeasureSpec);
-//        Rect rect = new Rect();
-//        Activity activity = (Activity)getContext();
-//        activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
-//        int statusBarHeight = rect.top;
-//        int screenHeight = activity.getWindowManager().getDefaultDisplay().getHeight();
-//        int diff = (screenHeight - statusBarHeight) - height;
-//        if(mListener != null){
-//            mListener.onSoftKeyboardShown(diff>128, diff);
-//        }
-//        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-//    }
 
     private TextWatcher watcher = new TextWatcher(){
 		private CharSequence temp = "";
@@ -171,7 +146,6 @@ public class ChatView extends RelativeLayout{
 			if(hasFocus){
                 Log.i("ChatView", "Input focus");
                 showMoreMenu();
-//				invisibleMoreMenu();
                 ChatController.mIsShowMoreMenu = true;
 			}
 		}
@@ -199,10 +173,6 @@ public class ChatView extends RelativeLayout{
 	public void setChatListAdapter(MsgListAdapter adapter) {
 		mChatListView.setAdapter(adapter);
 		setToBottom();
-	}
-
-	public void setOnScrollListener(OnScrollListener onScrollChangedListener){
-		mChatListView.setOnScrollListener(onScrollChangedListener);
 	}
 
 	//如果是文字输入
@@ -260,14 +230,6 @@ public class ChatView extends RelativeLayout{
 			});
 	}
 
-	public void removeHeadView() {
-		mChatListView.removeHeaderView(mLoadingMessage);
-	}
-
-	public void addHeadView() {
-		mChatListView.addHeaderView(mLoadingMessage);
-	}
-
 	public void setGroupIcon() {
 		mRightBtn.setImageResource(R.drawable.group_chat_detail);
 	}
@@ -276,10 +238,6 @@ public class ChatView extends RelativeLayout{
 	public void showMoreMenu() {
 		mMoreMenuTl.setVisibility(View.VISIBLE);
 	}
-
-    public void invisibleMoreMenu(){
-        mMoreMenuTl.setVisibility(View.INVISIBLE);
-    }
 
 	public void dismissMoreMenu(){
 		mMoreMenuTl.setVisibility(View.GONE);

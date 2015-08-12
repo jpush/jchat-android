@@ -60,7 +60,6 @@ public class ChatActivity extends BaseActivity {
         mChatController = new ChatController(mChatView, this);
         mChatView.setListeners(mChatController);
         mChatView.setOnTouchListener(mChatController);
-        mChatView.setOnScrollListener(mChatController);
         initReceiver();
 
     }
