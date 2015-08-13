@@ -4,7 +4,9 @@
     <!-- 全局使用的颜色 -->
     <color name="titlebar_bg_color">#3C3C3C</color>
     <!-- 这是Login相关界面中的颜色 -->
-    <color name="login_split_line_color">#C1D3CC</color>
+    <color name="login_txt_hint_color">#555555</color>
+    <color name="register_split_line_color">#c2d4ec</color>
+    <color name="login_split_line_color">#c1d3cc</color>
     <color name="login_btn_def_color">#98FB98</color>
     <color name="re_login_btn_def_color">#6fd66b</color>
     <color name="login_btn_sel_color">#006400</color>
@@ -14,15 +16,15 @@
     <color name="circular_progressbar_bg_color">#D0D4D8</color>
     <!-- 注册头像设置页面 -->
     <color name="regist_photo_focus_color">#3F80DD</color>
-    <color name="regist_photo_def_color">#555555</color>
     <!-- 主页面 -->
+    <color name="action_bar_txt_color">#969696</color>
     <color name="actionbar_sel_color">#1c1c1c</color>
     <color name="me_info_edit_color">#2d2d2d</color>
     <color name="me_info_hint_color">#cfcdce</color>
     <color name="actionbar_pres_color">#3f80dc</color>
     <color name="menu_item_back_pres_color">#3773cb</color>
     <color name="actionbar_def_color">#3C3C3C</color>
-    <color name="jpush_blue">#3F80DC</color>
+    <color name="jpush_blue">#3f80dc</color>
     <color name="main_view_split_line_color">#C8C8C8</color>
     <color name="conv_list_split_line_color">#d6d6d6</color>
     <color name="contacts_pinner_bg">#F2F8F8F8</color>
@@ -43,6 +45,9 @@
     <color name="finish_btn_clickable_color">#6fd66b</color>
     <color name="default_cursor_color">#8db4eb</color>
     <color name="menu_item_click_color">#346fc3</color>
+    <color name="me_no_picture_color">#e1e1e1</color>
+    <color name="reset_password_title_color">#4e4e4e</color>
+    <color name="translucent_background">#60000000</color>
     <!-- 黑色 -->
     <color name="black">#000000</color>
     <color name="gray">#808080</color>

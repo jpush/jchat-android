@@ -41,17 +41,19 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:orientation="horizontal">
 
     <EditText
+        android:id="@+id/search_et"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="match_parent"
         android:layout_toLeftOf="@+id/search_btn"
+        android:layout_alignBottom="@+id/search_btn"
         android:padding="10dp"
         android:hint="搜索。。。"
         android:textColorHint="#808080"
-        android:textSize="20sp"
+        android:textSize="22sp"
         />
 
         <ImageButton
@@ -62,5 +64,7 @@
             android:background="@drawable/search_btn_bg"/>
 
     </RelativeLayout>
+
+
 
 </LinearLayout>

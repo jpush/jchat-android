@@ -13,8 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="5dp"
-        android:text="群聊名称"
-        android:textColor="@color/green"
+        android:text="@string/group_name_hit"
+        android:textColor="#4e4e4e"
         android:textSize="18sp" />
 
     <View
@@ -51,7 +51,7 @@
             android:layout_weight="1"
             android:background="@drawable/dialog_bottom_left_btn"
             android:text="取消"
-            android:textColor="#000000" />
+            android:textColor="#28282a" />
 
         <Button
             android:id="@+id/commit_btn"
@@ -60,7 +60,7 @@
             android:layout_weight="1"
             android:background="@drawable/dialog_bottom_right_btn"
             android:text="确定"
-            android:textColor="#000000" />
+            android:textColor="#28282a" />
     </LinearLayout>
 
     <TextView

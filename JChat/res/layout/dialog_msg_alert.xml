@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical|center_horizontal"
+    android:background="@drawable/dialog_default_style"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/dialog_title"
+        style="@style/dialog_msg_alert_txt_style"
+        android:textColor="#3F81DF"
+        android:clickable="false"
+        android:background="@drawable/dialog_top_btn_bg"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#cbc9ca" />
+
+    <Button
+        android:id="@+id/copy_msg_btn"
+        style="@style/dialog_msg_alert_txt_style"
+        android:text="@string/copy"
+        android:background="@drawable/list_item_bg"
+        />
+
+
+    <View
+        android:id="@+id/forward_split_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#cbc9ca" />
+
+    <Button
+        android:id="@+id/forward_msg_btn"
+        android:text="@string/forward_msg"
+        style="@style/dialog_msg_alert_txt_style"
+        android:background="@drawable/list_item_bg"
+        />
+
+    <View
+        android:id="@+id/delete_split_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#cbc9ca" />
+
+
+    <Button
+        android:id="@+id/delete_msg_btn"
+        style="@style/dialog_msg_alert_txt_style"
+        android:background="@drawable/dialog_bottom_btn_bg"
+        android:text="@string/delete"/>
+
+
+</LinearLayout>

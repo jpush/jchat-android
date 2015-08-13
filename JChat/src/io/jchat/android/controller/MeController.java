@@ -2,10 +2,8 @@ package io.jchat.android.controller;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -20,7 +18,6 @@ public class MeController implements OnClickListener {
 
     private MeView mMeView;
     private MeFragment mContext;
-    private float startY = 0;
 
     public MeController(MeView meView, MeFragment context) {
         this.mMeView = meView;
@@ -50,7 +47,6 @@ public class MeController implements OnClickListener {
                 builder.setView(view);
                 TextView title = (TextView) view.findViewById(R.id.title);
                 title.setText(mContext.getString(R.string.logout_confirm));
-                title.setTextColor(Color.parseColor("#000000"));
                 final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
                 final Button commit = (Button) view.findViewById(R.id.resend_btn);
                 commit.setText(mContext.getString(R.string.confirm));

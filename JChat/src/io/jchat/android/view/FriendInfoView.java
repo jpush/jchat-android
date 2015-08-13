@@ -27,7 +27,7 @@ public class FriendInfoView extends LinearLayout{
 	private TextView mNoteName;
     private RelativeLayout mNameRl;
 	private ImageButton mReturnBtn;
-    private RoundImageView mAvatarIv;
+    private CircleImageView mAvatarIv;
 	private Button mSendMsgBtn;
     private ImageView mGenderIv;
     private TextView mGenderTv;
@@ -46,7 +46,7 @@ public class FriendInfoView extends LinearLayout{
 		mNoteName = (TextView) findViewById(R.id.note_name_tv);
         mNameRl = (RelativeLayout) findViewById(R.id.name_rl);
 		mReturnBtn = (ImageButton) findViewById(R.id.friend_info_return_btn);
-        mAvatarIv = (RoundImageView) findViewById(R.id.friend_detail_avatar);
+        mAvatarIv = (CircleImageView) findViewById(R.id.friend_detail_avatar);
 		mSendMsgBtn = (Button) findViewById(R.id.friend_send_msg_btn);
         mNoteName.setText(targetID);
         mGenderIv = (ImageView) findViewById(R.id.gender_iv);

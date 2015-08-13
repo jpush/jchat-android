@@ -17,10 +17,10 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import io.jchat.android.R;
@@ -31,7 +31,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.SharePreferenceManager;
-import io.jchat.android.view.RoundImageView;
+import io.jchat.android.view.CircleImageView;
 import cn.jpush.im.api.BasicCallback;
 
 /**
@@ -46,6 +46,7 @@ public class FixProfileActivity extends BaseActivity {
     private ProgressDialog mDialog;
     private double mDensity;
     private Context mContext;
+    private int mWidth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,13 +58,14 @@ public class FixProfileActivity extends BaseActivity {
         setContentView(R.layout.activity_fix_profile);
         mContext = this;
         mNickNameEt = (EditText) findViewById(R.id.nick_name_et);
-        mAvatarIv = (RoundImageView) findViewById(R.id.avatar_iv);
+        mAvatarIv = (CircleImageView) findViewById(R.id.avatar_iv);
         mFinishBtn = (Button) findViewById(R.id.finish_btn);
         mAvatarIv.setOnClickListener(listener);
         mFinishBtn.setOnClickListener(listener);
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
+        mWidth = dm.widthPixels;
         JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), null);
         SharePreferenceManager.setCachedFixProfileFlag(true);
         mNickNameEt.requestFocus();
@@ -88,6 +90,7 @@ public class FixProfileActivity extends BaseActivity {
                         final ProgressDialog dialog = new ProgressDialog(mContext);
                         dialog.setMessage(mContext.getString(R.string.saving_hint));
                         dialog.show();
+                        dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                         UserInfo myUserInfo = JMessageClient.getMyInfo();
                         myUserInfo.setNickname(nickName);
                         JMessageClient.updateMyInfo(UserInfo.Field.nickname, myUserInfo, new BasicCallback(false) {
@@ -127,25 +130,25 @@ public class FixProfileActivity extends BaseActivity {
         builder.setView(view);
         final Dialog dialog = builder.create();
         dialog.show();
-        LinearLayout takePhotoLl = (LinearLayout) view.findViewById(R.id.take_photo_ll);
-        LinearLayout pickPictureLl = (LinearLayout) view.findViewById(R.id.pick_picture_ll);
+        Button takePhotoBtn = (Button) view.findViewById(R.id.take_photo_btn);
+        Button pickPictureBtn = (Button) view.findViewById(R.id.pick_picture_btn);
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
-                    case R.id.take_photo_ll:
+                    case R.id.take_photo_btn:
                         dialog.cancel();
                         takePhoto();
                         break;
-                    case R.id.pick_picture_ll:
+                    case R.id.pick_picture_btn:
                         dialog.cancel();
                         selectImageFromLocal();
                         break;
                 }
             }
         };
-        takePhotoLl.setOnClickListener(listener);
-        pickPictureLl.setOnClickListener(listener);
+        takePhotoBtn.setOnClickListener(listener);
+        pickPictureBtn.setOnClickListener(listener);
     }
 
     private void startMainActivity() {

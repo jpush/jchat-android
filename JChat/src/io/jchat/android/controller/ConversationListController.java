@@ -1,13 +1,16 @@
 package io.jchat.android.controller;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -37,13 +40,18 @@ public class ConversationListController implements OnClickListener,
     private ConversationListFragment mContext;
     private List<Conversation> mDatas = new ArrayList<Conversation>();
     private ConversationListAdapter mListAdapter;
+    private double mDensity;
+    private int mWidth;
 
     public ConversationListController(ConversationListView listView,
                                       ConversationListFragment context) {
         this.mConvListView = listView;
         this.mContext = context;
+        DisplayMetrics dm = new DisplayMetrics();
+        mContext.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mDensity = dm.density;
+        mWidth = dm.widthPixels;
         initConvListAdapter();
-
     }
 
     // 得到会话列表
@@ -114,10 +122,7 @@ public class ConversationListController implements OnClickListener,
      * @param path 头像路径
      */
     public void loadAvatarAndRefresh(String targetID, String path) {
-        DisplayMetrics dm = new DisplayMetrics();
-        mContext.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-        double density = dm.density;
-        int size = (int) (50 * density);
+        int size = (int) (50 * mDensity);
         NativeImageLoader.getInstance().putUserAvatar(targetID, path, size);
         refreshConvList();
     }
@@ -136,6 +141,7 @@ public class ConversationListController implements OnClickListener,
         title.setText(conv.getTitle());
         final Dialog dialog = builder.create();
         dialog.show();
+        dialog.getWindow().setLayout((int)(0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         deleteBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {

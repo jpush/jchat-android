@@ -65,7 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_alignParentBottom="true"
-            android:background="@color/login_split_line_color" />
+            android:background="@color/register_split_line_color" />
     </RelativeLayout>
 
 
@@ -104,7 +104,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_alignParentBottom="true"
-            android:background="@color/login_split_line_color" />
+            android:background="@color/register_split_line_color" />
     </RelativeLayout>
 
     <Button
