@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:descendantFocusability="blocksDescendants"
     android:id="@+id/frame_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants">
 
     <io.jchat.android.view.MyImageView
         android:id="@+id/child_image"
@@ -12,14 +12,20 @@
         android:background="@drawable/friends_sends_pictures_no"
         android:scaleType="centerCrop" />
 
-    <CheckBox
-        android:id="@+id/child_checkbox"
+    <LinearLayout
+        android:id="@+id/checkbox_ll"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="top|right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/pictures_select_icon"
-        android:button="@null"/>
+        android:gravity="center">
+
+        <CheckBox
+            android:id="@+id/child_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/pictures_select_icon"
+            android:button="@null"/>
+
+    </LinearLayout>
 
 </FrameLayout>

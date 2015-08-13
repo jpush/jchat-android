@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import io.jchat.android.R;
@@ -39,6 +40,7 @@ public class PickPictureAdapter extends BaseAdapter {
     private Context mContext;
     private Button mSendBtn;
     private double mDensity;
+    private boolean mChecked;
 
     public PickPictureAdapter(Context context, List<String> list, GridView mGridView) {
         this.mContext = context;
@@ -78,7 +80,7 @@ public class PickPictureAdapter extends BaseAdapter {
             viewHolder = new ViewHolder();
             viewHolder.mImageView = (MyImageView) convertView.findViewById(R.id.child_image);
             viewHolder.mCheckBox = (CheckBox) convertView.findViewById(R.id.child_checkbox);
-
+            viewHolder.mCheckBoxLl = (LinearLayout) convertView.findViewById(R.id.checkbox_ll);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -87,22 +89,56 @@ public class PickPictureAdapter extends BaseAdapter {
         viewHolder.mImageView.setTag(path);
         if (mSelectMap.size() > 0)
             initSelectedPicture();
-        viewHolder.mCheckBox.setOnClickListener(new View.OnClickListener() {
+        //增加选中checkbox面积
+        viewHolder.mCheckBoxLl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (viewHolder.mCheckBox.isChecked()) {
+                if (!mChecked) {
                     if (mSelectMap.size() < 9) {
                         mSelectMap.put(position, true);
+                        viewHolder.mCheckBox.setChecked(true);
                         addAnimation(viewHolder.mCheckBox);
+                        mChecked = true;
                     } else {
+                        mChecked = false;
                         Toast.makeText(mContext, mContext.getString(R.string.picture_num_limit_toast), Toast.LENGTH_SHORT).show();
                         viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
                     }
                 }else if(mSelectMap.size() <= 9){
                     mSelectMap.delete(position);
+                    mChecked = false;
+                    viewHolder.mCheckBox.setChecked(false);
                 }
 
                 if (mSelectMap.size() > 0) {
+                    mSendBtn.setClickable(true);
+                    mSendBtn.setText(mContext.getString(R.string.send) + "(" + mSelectMap.size() + "/" + "9)");
+                } else {
+                    mSendBtn.setText(mContext.getString(R.string.send));
+                    mSendBtn.setClickable(false);
+                }
+            }
+        });
+        viewHolder.mCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (viewHolder.mCheckBox.isChecked()) {
+                    if (mSelectMap.size() < 9) {
+                        mChecked = true;
+                        mSelectMap.put(position, true);
+                        addAnimation(viewHolder.mCheckBox);
+                    } else {
+                        mChecked = false;
+                        Toast.makeText(mContext, mContext.getString(R.string.picture_num_limit_toast), Toast.LENGTH_SHORT).show();
+                        viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
+                    }
+                }else if(mSelectMap.size() <= 9){
+                    mChecked = false;
+                    mSelectMap.delete(position);
+                }
+
+                if (mSelectMap.size() > 0) {
+                    mSendBtn.setClickable(true);
                     mSendBtn.setText(mContext.getString(R.string.send) + "(" + mSelectMap.size() + "/" + "9)");
                 } else {
                     mSendBtn.setText(mContext.getString(R.string.send));
@@ -191,5 +227,6 @@ public class PickPictureAdapter extends BaseAdapter {
     public static class ViewHolder {
         public MyImageView mImageView;
         public CheckBox mCheckBox;
+        public LinearLayout mCheckBoxLl;
     }
 }

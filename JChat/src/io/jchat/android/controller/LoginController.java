@@ -86,17 +86,17 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
     }
 
     @Override
-    public void onSoftKeyboardShown(int softKeyboardHeight) {
-        if (softKeyboardHeight > 300) {
+    public void onSoftKeyboardShown(int w, int h, int oldw, int oldh) {
+        int softKeyboardHeight = oldh - h;
+        if(softKeyboardHeight > 300){
             mLoginView.setRegistBtnVisable(View.INVISIBLE);
-            Log.i("LoginController", "softKeyboardHeight h: " + softKeyboardHeight);
             boolean writable = SharePreferenceManager.getCachedWritableFlag();
             if (writable) {
                 Log.i("LoginController", "commit h: " + softKeyboardHeight);
                 SharePreferenceManager.setCachedKeyboardHeight(softKeyboardHeight);
                 SharePreferenceManager.setCachedWritableFlag(false);
             }
-        } else {
+        }else {
             mLoginView.setRegistBtnVisable(View.VISIBLE);
         }
     }
@@ -124,4 +124,5 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
             e.printStackTrace();
         }
     }
+
 }

@@ -19,8 +19,6 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
     private RegisterView mRegisterView;
     private RegisterActivity mContext;
     private Dialog mLoginDialog;
-    private int mAfterMeasureSize;
-    private int mPreMeasureSize;
 
     public RegisterController(RegisterView registerView, RegisterActivity context) {
         this.mRegisterView = registerView;
@@ -98,17 +96,12 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
     }
 
     @Override
-    public void onSoftKeyboardShown(int softKeyboardHeight) {
-        if (softKeyboardHeight > 300) {
-            mAfterMeasureSize = softKeyboardHeight;
-        } else {
-            mPreMeasureSize = softKeyboardHeight;
-        }
-        int h = mAfterMeasureSize - mPreMeasureSize;
-        if (h > 300) {
+    public void onSoftKeyboardShown(int w, int h, int oldw, int oldh) {
+        int softKeyboardHeight = oldh - h;
+        if(softKeyboardHeight > 300){
             boolean writable = SharePreferenceManager.getCachedWritableFlag();
             if (writable) {
-                SharePreferenceManager.setCachedKeyboardHeight(h);
+                SharePreferenceManager.setCachedKeyboardHeight(softKeyboardHeight);
                 SharePreferenceManager.setCachedWritableFlag(false);
             }
         }
