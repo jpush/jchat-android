@@ -117,12 +117,7 @@ public class ChatDetailActivity extends BaseActivity {
                                                 mDialog.dismiss();
                                                 if(status == 0){
                                                     mChatDetailView.updateGroupName(newName);
-                                                    Intent intent = new Intent(JPushDemoApplication.UPDATE_GROUP_NAME_ACTION);
-                                                    intent.putExtra("newGroupName", newName);
-                                                    intent.putExtra("groupID", mChatDetailController.getGroupID());
-                                                    intent.putExtra("membersCount", mChatDetailController.getCurrentCount());
                                                     mChatDetailController.refreshGroupName(newName);
-                                                    sendBroadcast(intent);
                                                     Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
                                                 }else {
                                                     Log.i(TAG, "desc :" + desc);
@@ -171,6 +166,10 @@ public class ChatDetailActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         Log.i(TAG, "onBackPressed");
+        Intent intent = new Intent();
+        intent.putExtra("groupName", mChatDetailController.getGroupName());
+        intent.putExtra("currentCount", mChatDetailController.getCurrentCount());
+        setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
         finish();
         super.onBackPressed();
     }

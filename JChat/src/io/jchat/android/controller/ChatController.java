@@ -15,8 +15,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.Toast;
 
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
@@ -63,6 +61,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
     private String mPhotoPath = null;
     private final MyHandler myHandler = new MyHandler(this);
     private GroupInfo mGroupInfo;
+    private String mGroupName;
 
     public ChatController(ChatView mChatView, ChatActivity context) {
         this.mChatView = mChatView;
@@ -101,7 +100,8 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
                             msg.what = UPDATE_GROUP_INFO;
                             msg.sendToTarget();
                             if(!TextUtils.isEmpty(groupInfo.getGroupName())){
-                                mChatView.setChatTitle(groupInfo.getGroupName(), groupInfo.getGroupMembers().size());
+                                mGroupName = groupInfo.getGroupName();
+                                mChatView.setChatTitle(mGroupName, groupInfo.getGroupMembers().size());
                             }else {
                                 Log.i("ChatController", "GroupMember size: " + groupInfo.getGroupMembers().size());
                                 mChatView.setChatTitle(mContext.getString(R.string.group), groupInfo.getGroupMembers().size());
@@ -215,7 +215,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
             case R.id.chat_input_et:
                 mChatView.setMoreMenuHeight();
                 mChatView.showMoreMenu();
-//                mChatView.invisibleMoreMenu();
                 mIsShowMoreMenu = true;
                 showSoftInput();
                 break;
@@ -434,6 +433,14 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
         mChatAdapter = adapter;
     }
 
+    public void setGroupName(String groupName){
+        mGroupName = groupName;
+    }
+
+    public String getGroupName(){
+        return mGroupName;
+    }
+
     public Conversation getConversation() {
         return mConv;
     }
@@ -448,15 +455,5 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
 
     public boolean isGroup() {
         return mIsGroup;
-    }
-
-    public GroupInfo getGroupInfo(){
-        return mGroupInfo;
-    }
-
-    public int getGroupMembersCount(){
-        if (mGroupInfo != null)
-            return mGroupInfo.getGroupMembers().size();
-        else return 1;
     }
 }

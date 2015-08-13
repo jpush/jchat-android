@@ -17,6 +17,8 @@ public class JPushDemoApplication extends Application {
     public static final int RESULT_CODE_SELECT_ALBUM = 11;
     public static final int REQUEST_CODE_BROWSER_PICTURE = 12;
     public static final int RESULT_CODE_BROWSER_PICTURE = 13;
+    public static final int REQUEST_CODE_CHAT_DETAIL = 14;
+    public static final int RESULT_CODE_CHAT_DETAIL = 15;
     public static final int REFRESH_GROUP_NAME = 3000;
     public static final int REFRESH_GROUP_NUM = 3001;
     public static final int ON_GROUP_EVENT = 3004;

@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,8 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import cn.jpush.im.android.JMessage;
 import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.R;
 
@@ -59,7 +56,7 @@ public class ChatDetailController implements OnClickListener,
     private ChatDetailView mChatDetailView;
     private ChatDetailActivity mContext;
     private GroupMemberGridAdapter mGridAdapter;
-    private List<UserInfo> mMemberIDList = new ArrayList<UserInfo>();
+    private List<UserInfo> mMemberInfoList = new ArrayList<UserInfo>();
     // 当前GridView群成员项数
     private int mCurrentNum;
     // 空白项的项数
@@ -136,7 +133,7 @@ public class ChatDetailController implements OnClickListener,
                         public void gotResult(int status, String desc, List<UserInfo> members) {
                             if (status == 0) {
                                 android.os.Message msg = myHandler.obtainMessage();
-                                mMemberIDList = members;
+                                mMemberInfoList = members;
                                 msg.what = GET_GROUP_MEMBER;
                                 msg.sendToTarget();
                             }
@@ -156,9 +153,9 @@ public class ChatDetailController implements OnClickListener,
 
 
     private void initAdapter() {
-        mCurrentNum = mMemberIDList.size();
+        mCurrentNum = mMemberInfoList.size();
         // 初始化头像
-        mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberIDList, mIsCreator);
+        mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberInfoList, mIsCreator);
         mChatDetailView.setAdapter(mGridAdapter);
     }
 
@@ -166,6 +163,10 @@ public class ChatDetailController implements OnClickListener,
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.return_btn:
+                Intent intent = new Intent();
+                intent.putExtra("groupName", getGroupName());
+                intent.putExtra("currentCount", mCurrentNum);
+                mContext.setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
                 mContext.finish();
                 break;
 
@@ -269,10 +270,10 @@ public class ChatDetailController implements OnClickListener,
             if (mIsGroup){
                 // 点击群成员项时
                 if (position < mCurrentNum) {
-                    if (mMemberIDList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                    if (mMemberInfoList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
                         intent.setClass(mContext, MeInfoActivity.class);
                     } else {
-                        intent.putExtra("targetID", mMemberIDList.get(position).getUserName());
+                        intent.putExtra("targetID", mMemberInfoList.get(position).getUserName());
                         intent.setClass(mContext, FriendInfoActivity.class);
                     }
                     mContext.startActivity(intent);
@@ -302,7 +303,7 @@ public class ChatDetailController implements OnClickListener,
             // 点击群成员Item时
             if (position < mCurrentNum) {
                 //如果群主删除自己
-                if (mMemberIDList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                if (mMemberInfoList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
                     return;
                 } else {
                     // 删除某个群成员
@@ -310,10 +311,10 @@ public class ChatDetailController implements OnClickListener,
                     mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.deleting_hint));
                     List<String> delList = new ArrayList<String>();
                     //之所以要传一个List，考虑到之后可能支持同时删除多人功能，现在List中只有一个元素
-                    delList.add(mMemberIDList.get(position).getUserName());
+                    delList.add(mMemberInfoList.get(position).getUserName());
                     delMember(delList, position);
                     // 当前成员数为0，退出删除状态
-                    if (mMemberIDList.size() == 0) {
+                    if (mMemberInfoList.size() == 0) {
                         mIsShowDelete = false;
                         mGridAdapter.setIsShowDelete(false);
                     }
@@ -418,8 +419,8 @@ public class ChatDetailController implements OnClickListener,
      * @return 返回是否存在该用户
      */
     private boolean checkIfNotContainUser(String targetID) {
-        if (mMemberIDList != null) {
-            for (UserInfo userInfo : mMemberIDList) {
+        if (mMemberInfoList != null) {
+            for (UserInfo userInfo : mMemberInfoList) {
                 if (userInfo.getUserName().equals(targetID))
                     return false;
             }
@@ -527,6 +528,7 @@ public class ChatDetailController implements OnClickListener,
                     // 初始化群组
                     case 0:
                         GroupInfo groupInfo = (GroupInfo) msg.obj;
+                        UserInfo myInfo = JMessageClient.getMyInfo();
                         String groupOwnerID = groupInfo.getGroupOwner();
                         controller.mGroupName = groupInfo.getGroupName();
                         if(TextUtils.isEmpty(controller.mGroupName)){
@@ -535,10 +537,10 @@ public class ChatDetailController implements OnClickListener,
                             controller.mChatDetailView.setGroupName(controller.mGroupName);
                         }
                         // 判断是否为群主
-                        if (groupOwnerID != null && groupOwnerID.equals(JMessageClient.getMyInfo().getUserName()))
+                        if (groupOwnerID != null && groupOwnerID.equals(myInfo.getUserName()))
                             controller.mIsCreator = true;
                         Log.d(TAG, "groupOwnerID = " + groupOwnerID + "isCreator = " + true);
-                        controller.mChatDetailView.setMyName(JMessageClient.getMyInfo().getUserName());
+                        controller.mChatDetailView.setMyName(myInfo.getUserName());
                         if (controller.mGridAdapter != null) {
                             controller.mGridAdapter.setCreator(controller.mIsCreator);
                         }
@@ -560,8 +562,8 @@ public class ChatDetailController implements OnClickListener,
                         break;
                     // 获取成员列表，缓存头像，更新GridView
                     case GET_GROUP_MEMBER:
-                        Log.i(TAG, "GroupMember: " + controller.mMemberIDList.toString());
-                        controller.mChatDetailView.setTitle(controller.mMemberIDList.size());
+                        Log.i(TAG, "GroupMember: " + controller.mMemberInfoList.toString());
+                        controller.mChatDetailView.setTitle(controller.mMemberInfoList.size());
                         controller.initAdapter();
                         break;
                     // 添加成员
@@ -645,6 +647,10 @@ public class ChatDetailController implements OnClickListener,
         return mGroupID;
     }
 
+    public String getGroupName(){
+        return mGroupName;
+    }
+
     public int getCurrentCount(){
         return mCurrentNum;
     }
@@ -661,11 +667,11 @@ public class ChatDetailController implements OnClickListener,
                 @Override
                 public void gotResult(int status, String s, List<UserInfo> memberList) {
                     if (status == 0) {
-                        mMemberIDList = memberList;
-                        mCurrentNum = mMemberIDList.size();
+                        mMemberInfoList = memberList;
+                        mCurrentNum = mMemberInfoList.size();
                         mChatDetailView.setTitle(mCurrentNum);
                         if (mGridAdapter != null)
-                            mGridAdapter.refreshGroupMember(mMemberIDList);
+                            mGridAdapter.refreshGroupMember(mMemberInfoList);
                     }
                 }
             });
