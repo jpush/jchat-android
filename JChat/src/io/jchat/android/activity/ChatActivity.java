@@ -81,7 +81,9 @@ public class ChatActivity extends BaseActivity {
             if (data != null) {
                 mTargetID = data.getStringExtra("targetID");
                 if (data.getAction().equals(JPushDemoApplication.UPDATE_GROUP_NAME_ACTION)) {
-                    mChatView.setChatTitle(data.getStringExtra("newGroupName"), mChatController.getGroupMembersCount());
+                    if (mChatController.getGroupID() == data.getLongExtra("groupID", 0)){
+                        mChatView.setChatTitle(data.getStringExtra("newGroupName"), data.getIntExtra("membersCount", 0));
+                    }
                     //插入了耳机
                 } else if (data.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
                     mChatController.getAdapter().setAudioPlayByEarPhone(data.getIntExtra("state", 0));
@@ -103,7 +105,7 @@ public class ChatActivity extends BaseActivity {
             case JPushDemoApplication.REFRESH_GROUP_NAME:
                 if (mChatController.getConversation() != null) {
                     int num = msg.getData().getInt("membersCount");
-                    mChatView.setChatTitle(mChatController.getConversation().getTitle(), num);
+                    mChatView.setChatTitle(msg.getData().getString("groupName"), num);
                 }
                 break;
             case JPushDemoApplication.REFRESH_GROUP_NUM:
@@ -315,10 +317,6 @@ public class ChatActivity extends BaseActivity {
         }
     }
 
-    public void onEvent(ConversationRefreshEvent conversationRefreshEvent) {
-        mHandler.sendEmptyMessage(JPushDemoApplication.REFRESH_GROUP_NAME);
-    }
-
     /**
      * 接收消息类事件
      *
@@ -394,6 +392,7 @@ public class ChatActivity extends BaseActivity {
                         android.os.Message handleMessage = mHandler.obtainMessage();
                         handleMessage.what = JPushDemoApplication.REFRESH_GROUP_NAME;
                         Bundle bundle = new Bundle();
+                        bundle.putString("groupName", groupInfo.getGroupName());
                         bundle.putInt("membersCount", groupInfo.getGroupMembers().size());
                         handleMessage.setData(bundle);
                         handleMessage.sendToTarget();

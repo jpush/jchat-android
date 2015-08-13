@@ -289,10 +289,12 @@ public class ChatDetailController implements OnClickListener,
                             mRestArray[mCurrentNum % 4]);
                 }
                 //单聊
-            }else {
+            }else if(position < mCurrentNum){
                 intent.putExtra("targetID", mTargetID);
                 intent.setClass(mContext, FriendInfoActivity.class);
                 mContext.startActivity(intent);
+            }else if (position == mCurrentNum){
+                addMemberToGroup();
             }
 
             // delete状态
@@ -641,6 +643,10 @@ public class ChatDetailController implements OnClickListener,
 
     public long getGroupID(){
         return mGroupID;
+    }
+
+    public int getCurrentCount(){
+        return mCurrentNum;
     }
 
     /**
