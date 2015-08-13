@@ -24,7 +24,7 @@ import cn.jpush.im.android.api.JMessageClient;
 
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.NativeImageLoader;
-import io.jchat.android.view.RoundImageView;
+import io.jchat.android.view.CircleImageView;
 
 public class GroupMemberGridAdapter extends BaseAdapter {
 
@@ -126,7 +126,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         Bitmap bitmap;
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.group_grid_view_item, null);
-            viewTag = new ItemViewTag((RoundImageView) convertView.findViewById(R.id.grid_avatar),
+            viewTag = new ItemViewTag((CircleImageView) convertView.findViewById(R.id.grid_avatar),
                     (TextView) convertView.findViewById(R.id.grid_name),
                     (ImageView) convertView.findViewById(R.id.grid_delete_icon));
             convertView.setTag(viewTag);
@@ -235,11 +235,11 @@ public class GroupMemberGridAdapter extends BaseAdapter {
 
     class ItemViewTag {
 
-        protected RoundImageView icon;
+        protected CircleImageView icon;
         protected ImageView deleteIcon;
         protected TextView name;
 
-        public ItemViewTag(RoundImageView icon, TextView name, ImageView deleteIcon) {
+        public ItemViewTag(CircleImageView icon, TextView name, ImageView deleteIcon) {
             this.icon = icon;
             this.deleteIcon = deleteIcon;
             this.name = name;

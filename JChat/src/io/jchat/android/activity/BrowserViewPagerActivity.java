@@ -201,14 +201,14 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 photoView = new PhotoView(mFromChatActivity, this);
                 try {
                     ImageContent ic = (ImageContent) mMsg.getContent();
+                    //如果点击的是第一张图片并且图片未下载过，则显示大图
+                    if (ic.getLocalPath() == null && mMsgIDList.indexOf(mMsg.getId()) == 0) {
+                        downloadImage();
+                    }
                     //如果发送方上传了原图
                     if(ic.getBooleanExtra("originalPicture")){
                         mLoadBtn.setVisibility(View.GONE);
                         setLoadBtnText(ic);
-                    }
-                    //如果点击的是第一张图片并且图片未下载过，则显示大图
-                    if (ic.getLocalPath() == null && mMsgIDList.indexOf(mMsg.getId()) == 0) {
-                        downloadImage();
                     }
                     photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(mMsgIDList.indexOf(mMsg.getId())), mWidth, mHeight));
                     mViewPager.setCurrentItem(mMsgIDList.indexOf(mMsg.getId()));

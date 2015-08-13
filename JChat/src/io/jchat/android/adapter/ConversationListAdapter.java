@@ -20,7 +20,7 @@ import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.TimeFormat;
-import io.jchat.android.view.RoundImageView;
+import io.jchat.android.view.CircleImageView;
 
 public class ConversationListAdapter extends BaseAdapter {
 
@@ -80,7 +80,7 @@ public class ConversationListAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(mContext.getActivity()).inflate(
                     R.layout.conversation_list_item, null);
             viewHolder = new ViewHolder();
-            viewHolder.headIcon = (RoundImageView) convertView
+            viewHolder.headIcon = (CircleImageView) convertView
                     .findViewById(R.id.msg_item_head_icon);
             viewHolder.groupName = (TextView) convertView
                     .findViewById(R.id.conv_item_group_name);
@@ -147,7 +147,7 @@ public class ConversationListAdapter extends BaseAdapter {
     }
 
     private class ViewHolder {
-        RoundImageView headIcon;
+        CircleImageView headIcon;
         TextView groupName;
         TextView content;
         TextView datetime;

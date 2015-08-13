@@ -54,6 +54,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     private boolean isInputByKeyBoard = true;
     public boolean mMoreMenuVisible = false;
     public static boolean mIsShowMoreMenu = false;
+    private static final int UPDATE_GROUP_INFO = 1024;
     public static final int UPDATE_LAST_PAGE_LISTVIEW = 1025;
     public static final int UPDATE_CHAT_LISTVIEW = 1026;
     private String mTargetID;
@@ -61,6 +62,7 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     private boolean mIsGroup;
     private String mPhotoPath = null;
     private final MyHandler myHandler = new MyHandler(this);
+    private GroupInfo mGroupInfo;
 
     public ChatController(ChatView mChatView, ChatActivity context) {
         this.mChatView = mChatView;
@@ -94,6 +96,10 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                     @Override
                     public void gotResult(int status, String desc, GroupInfo groupInfo) {
                         if(status == 0){
+                            android.os.Message msg = myHandler.obtainMessage();
+                            msg.obj = groupInfo;
+                            msg.what = UPDATE_GROUP_INFO;
+                            msg.sendToTarget();
                             if(!TextUtils.isEmpty(groupInfo.getGroupName())){
                                 mChatView.setChatTitle(groupInfo.getGroupName(), groupInfo.getGroupMembers().size());
                             }else {
@@ -135,7 +141,9 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             // 用targetID得到会话
             Log.i("Tag", "targetID is " + mTargetID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
-            mChatView.setChatTitle(mConv.getTitle());
+            if(mConv != null){
+                mChatView.setChatTitle(mConv.getTitle());
+            }
         }
 
         // 如果之前沒有会话记录并且是群聊
@@ -145,12 +153,18 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             // 是单聊
         } else if (mConv == null && !mIsGroup) {
             mConv = Conversation.createConversation(ConversationType.single, mTargetID);
+            mChatView.setChatTitle(mConv.getTitle());
         }
         if (mConv != null) {
             mConv.resetUnreadCount();
+            if(mIsGroup){
+                mChatAdapter = new MsgListAdapter(mContext, mGroupID, mGroupInfo);
+            }else {
+                mChatAdapter = new MsgListAdapter(mContext, mTargetID);
+            }
+            mChatView.setChatListAdapter(mChatAdapter);
         }
-        mChatAdapter = new MsgListAdapter(mContext, mIsGroup, mTargetID, mGroupID);
-        mChatView.setChatListAdapter(mChatAdapter);
+
         // 滑动到底部
         mChatView.setToBottom();
     }
@@ -373,6 +387,11 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         mChatAdapter.releaseMediaPlayer();
     }
 
+    public void refreshGroupInfo(GroupInfo groupInfo) {
+        mGroupInfo = groupInfo;
+        mChatAdapter.refreshGroupInfo(groupInfo);
+    }
+
     private static class MyHandler extends Handler{
         private final WeakReference<ChatController> mController;
 
@@ -386,6 +405,10 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             ChatController controller = mController.get();
             if(controller != null){
                 switch (msg.what) {
+                    case UPDATE_GROUP_INFO:
+                        controller.mGroupInfo = (GroupInfo)msg.obj;
+                        controller.mChatAdapter.refreshGroupInfo(controller.mGroupInfo);
+                        break;
                     case UPDATE_LAST_PAGE_LISTVIEW:
                         Log.i("Tag", "收到更新消息列表的消息");
                         controller.mChatAdapter.refresh();
@@ -432,6 +455,16 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
 
     public boolean isGroup() {
         return mIsGroup;
+    }
+
+    public GroupInfo getGroupInfo(){
+        return mGroupInfo;
+    }
+
+    public int getGroupMembersCount(){
+        if (mGroupInfo != null)
+            return mGroupInfo.getGroupMembers().size();
+        else return 1;
     }
 
     public void refresh() {

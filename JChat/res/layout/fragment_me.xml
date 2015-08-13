@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="190dp"
             android:scaleType="fitXY"
-            android:src="@drawable/friends_sends_pictures_no" />
+            android:background="@color/me_no_picture_color" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
-            <io.jchat.android.view.RoundImageView
+            <io.jchat.android.view.CircleImageView
                 android:id="@+id/take_photo_iv"
                 android:layout_width="@dimen/me_head_icon_size"
                 android:layout_height="@dimen/me_head_icon_size"

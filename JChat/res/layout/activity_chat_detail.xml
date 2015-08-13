@@ -49,6 +49,7 @@
 
         <TextView
             android:id="@+id/chat_detail_group_name"
+            android:layout_toLeftOf="@+id/arrow_iv"
             style="@style/ChatDetailItemContent"/>
 
         <ImageView

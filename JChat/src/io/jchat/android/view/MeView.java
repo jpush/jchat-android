@@ -29,7 +29,7 @@ public class MeView extends LinearLayout {
 
     private TextView mTitleBarTitle;
     private ImageView mAvatarIv;
-    private RoundImageView mTakePhotoBtn;
+    private CircleImageView mTakePhotoBtn;
     private LinearLayout mContentLl;
     private RelativeLayout mUserInfoRl;
     private TextView mUserNameTv;
@@ -52,7 +52,7 @@ public class MeView extends LinearLayout {
         mTitleBarTitle.setText(mContext.getString(R.string.actionbar_me));
         mContentLl = (LinearLayout) findViewById(R.id.content_list_ll);
         mAvatarIv = (ImageView) findViewById(R.id.my_avatar_iv);
-        mTakePhotoBtn = (RoundImageView) findViewById(R.id.take_photo_iv);
+        mTakePhotoBtn = (CircleImageView) findViewById(R.id.take_photo_iv);
         mNickNameTv = (TextView) findViewById(R.id.nick_name_tv);
         mUserInfoRl = (RelativeLayout) findViewById(R.id.user_info_rl);
         mUserNameTv = (TextView) findViewById(R.id.user_name_tv);
@@ -71,7 +71,6 @@ public class MeView extends LinearLayout {
                 showPhoto(file.getAbsolutePath());
                 loadAvatarSuccess(true);
             }else {
-                mAvatarIv.setImageResource(R.drawable.friends_sends_pictures_no);
                 loadAvatarSuccess(false);
             }
             if(!TextUtils.isEmpty(userInfo.getNickname()))
@@ -107,7 +106,7 @@ public class MeView extends LinearLayout {
         ((Activity)mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Bitmap bitmap = BitmapLoader.getBitmapFromFile(path,  mWidth, mHeight);
+                Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
                 mAvatarIv.setImageBitmap(BitmapLoader.BoxBlurFilter(bitmap));
                 mAvatarIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 mTakePhotoBtn.setImageBitmap(bitmap);
@@ -115,4 +114,7 @@ public class MeView extends LinearLayout {
         });
     }
 
+    public void showNickName(String nickname) {
+        mNickNameTv.setText(nickname);
+    }
 }
