@@ -130,6 +130,7 @@ public class FixProfileActivity extends BaseActivity {
         builder.setView(view);
         final Dialog dialog = builder.create();
         dialog.show();
+        dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         Button takePhotoBtn = (Button) view.findViewById(R.id.take_photo_btn);
         Button pickPictureBtn = (Button) view.findViewById(R.id.pick_picture_btn);
         View.OnClickListener listener = new View.OnClickListener() {

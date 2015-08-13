@@ -122,10 +122,12 @@ public class ChatActivity extends BaseActivity {
         if (mTargetID != null) {
             if (mTargetID.equals(mChatController.getTargetID())) {
                 mChatController.getAdapter().setSendImg(mTargetID, data.getIntArrayExtra("msgIDs"));
+                mChatView.setToBottom();
             }
         } else if (groupID != 0) {
             if (groupID == mChatController.getGroupID()) {
                 mChatController.getAdapter().setSendImg(groupID, data.getIntArrayExtra("msgIDs"));
+                mChatView.setToBottom();
             }
         }
 

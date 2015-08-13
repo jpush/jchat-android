@@ -81,9 +81,6 @@ public class BubbleShader extends ShaderHelper {
         }else if(viewHeight < 400){
             centerY = resultHeight / 4f;
         }else centerY = viewHeight / scale / 8f;
-        Log.i("Bubble", "centerY: " + centerY);
-        Log.i("Bubble", "viewHeight: " + viewHeight + " viewWidth: " + viewWidth);
-        Log.i("Bubble", "scale: " + scale + "resultHeight: " + resultHeight);
         path.setFillType(Path.FillType.EVEN_ODD);
         float rectLeft;
         float rectRight;
