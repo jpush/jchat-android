@@ -71,6 +71,7 @@ import cn.jpush.im.android.api.enums.MessageDirect;
 import io.jchat.android.activity.BrowserViewPagerActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
@@ -586,13 +587,13 @@ public class MsgListAdapter extends BaseAdapter {
                 public void onClick(View arg0) {
                     Intent intent = new Intent();
                     if (msg.getDirect().equals(MessageDirect.send)) {
-                        intent.putExtra("targetID", msg.getFromName());
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, msg.getFromName());
                         Log.i(TAG, "msg.getFromName() " + msg.getFromName());
                         intent.setClass(mContext, MeInfoActivity.class);
                         mContext.startActivity(intent);
                     } else {
                         String targetID = msg.getFromID();
-                        intent.putExtra("targetID", targetID);
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
                         intent.setClass(mContext, FriendInfoActivity.class);
                         mContext.startActivity(intent);
                     }
@@ -903,11 +904,11 @@ public class MsgListAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View arg0) {
                     Intent intent = new Intent();
-                    intent.putExtra("targetID", mTargetID);
-                    intent.putExtra("position", position);
+                    intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
+                    intent.putExtra(JPushDemoApplication.POSITION, position);
                     intent.putExtra("msgID", msg.getId());
-                    intent.putExtra("groupID", mGroupID);
-                    intent.putExtra("isGroup", mIsGroup);
+                    intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
+                    intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
                     intent.putExtra("fromChatActivity", true);
                     intent.setClass(mContext, BrowserViewPagerActivity.class);
                     mContext.startActivity(intent);

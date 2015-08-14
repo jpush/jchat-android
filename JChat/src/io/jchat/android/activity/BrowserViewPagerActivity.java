@@ -107,15 +107,15 @@ public class BrowserViewPagerActivity extends BaseActivity {
         mLoadBtn = (Button) findViewById(R.id.load_image_btn);
 
         Intent intent = this.getIntent();
-        mIsGroup = intent.getBooleanExtra("isGroup", false);
+        mIsGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
         if (mIsGroup) {
-            mGroupID = intent.getLongExtra("groupID", 0);
+            mGroupID = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
             mConv = JMessageClient.getGroupConversation(mGroupID);
         } else {
-            mTargetID = intent.getStringExtra("targetID");
+            mTargetID = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
         }
-        mPosition = intent.getIntExtra("position", 0);
+        mPosition = intent.getIntExtra(JPushDemoApplication.POSITION, 0);
         mFromChatActivity = intent.getBooleanExtra("fromChatActivity", true);
         boolean browserAvatar = intent.getBooleanExtra("browserAvatar", false);
 
@@ -444,7 +444,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         android.os.Message msg = myHandler.obtainMessage();
                         msg.what = 4;
                         Bundle bundle = new Bundle();
-                        bundle.putInt("status", status);
+                        bundle.putInt(JPushDemoApplication.STATUS, status);
                         msg.setData(bundle);
                         msg.sendToTarget();
                     }
@@ -587,7 +587,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                     msg.what = 1;
                                     Bundle bundle = new Bundle();
                                     bundle.putString("path", file.getAbsolutePath());
-                                    bundle.putInt("position",
+                                    bundle.putInt(JPushDemoApplication.POSITION,
                                             mViewPager.getCurrentItem());
                                     msg.setData(bundle);
                                     msg.sendToTarget();
@@ -595,7 +595,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                     android.os.Message msg = myHandler.obtainMessage();
                                     msg.what = 4;
                                     Bundle bundle = new Bundle();
-                                    bundle.putInt("status", status);
+                                    bundle.putInt(JPushDemoApplication.STATUS, status);
                                     msg.setData(bundle);
                                     msg.sendToTarget();
                                 }
@@ -621,7 +621,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     case 1:
                         //更新图片并显示
                         Bundle bundle = msg.getData();
-                        activity.mPathList.set(bundle.getInt("position"), bundle.getString("path"));
+                        activity.mPathList.set(bundle.getInt(JPushDemoApplication.POSITION), bundle.getString("path"));
                         activity.mViewPager.getAdapter().notifyDataSetChanged();
                         activity.mLoadBtn.setVisibility(View.GONE);
                         break;
@@ -635,13 +635,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         if(activity.mProgressDialog != null){
                             activity.mProgressDialog.dismiss();
                         }
-                        HandleResponseCode.onHandle(activity, msg.getData().getInt("status"), false);
+                        HandleResponseCode.onHandle(activity, msg.getData().getInt(JPushDemoApplication.STATUS), false);
                         break;
                     case 5:
                         Intent intent = new Intent();
-                        intent.putExtra("targetID", activity.mTargetID);
-                        intent.putExtra("groupID", activity.mGroupID);
-                        intent.putExtra("msgIDs", activity.mMsgIDs);
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetID);
+                        intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupID);
+                        intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIDs);
                         activity.setResult(JPushDemoApplication.RESULT_CODE_BROWSER_PICTURE, intent);
                         activity.finish();
                         break;

@@ -91,7 +91,7 @@ public class MeFragment extends BaseFragment {
                         android.os.Message msg = myHandler.obtainMessage();
                         msg.what = 2;
                         Bundle bundle = new Bundle();
-                        bundle.putInt("status", status);
+                        bundle.putInt(JPushDemoApplication.STATUS, status);
                         msg.setData(bundle);
                         msg.sendToTarget();
                     }
@@ -283,7 +283,7 @@ public class MeFragment extends BaseFragment {
                         }
                         break;
                     case 2:
-                        HandleResponseCode.onHandle(fragment.mContext, msg.getData().getInt("status"), false);
+                        HandleResponseCode.onHandle(fragment.mContext, msg.getData().getInt(JPushDemoApplication.STATUS), false);
                         break;
                 }
             }

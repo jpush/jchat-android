@@ -92,10 +92,10 @@ public class ChatDetailController implements OnClickListener,
      */
     private void initData() {
         Intent intent = mContext.getIntent();
-        mIsGroup = intent.getBooleanExtra("isGroup", false);
-        mGroupID = intent.getLongExtra("groupID", 0);
+        mIsGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
+        mGroupID = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
         Log.i(TAG, "mGroupID" + mGroupID);
-        mTargetID = intent.getStringExtra("targetID");
+        mTargetID = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
         Log.i(TAG, "mTargetID: " + mTargetID);
         // 是群组
         if (mIsGroup) {
@@ -164,7 +164,7 @@ public class ChatDetailController implements OnClickListener,
         switch (v.getId()) {
             case R.id.return_btn:
                 Intent intent = new Intent();
-                intent.putExtra("groupName", getGroupName());
+                intent.putExtra(JPushDemoApplication.GROUP_NAME, getGroupName());
                 intent.putExtra("currentCount", mCurrentNum);
                 mContext.setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
                 mContext.finish();
@@ -273,7 +273,7 @@ public class ChatDetailController implements OnClickListener,
                     if (mMemberInfoList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
                         intent.setClass(mContext, MeInfoActivity.class);
                     } else {
-                        intent.putExtra("targetID", mMemberInfoList.get(position).getUserName());
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, mMemberInfoList.get(position).getUserName());
                         intent.setClass(mContext, FriendInfoActivity.class);
                     }
                     mContext.startActivity(intent);
@@ -291,7 +291,7 @@ public class ChatDetailController implements OnClickListener,
                 }
                 //单聊
             }else if(position < mCurrentNum){
-                intent.putExtra("targetID", mTargetID);
+                intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
                 intent.setClass(mContext, FriendInfoActivity.class);
                 mContext.startActivity(intent);
             }else if (position == mCurrentNum){
@@ -483,7 +483,7 @@ public class ChatDetailController implements OnClickListener,
                                 android.os.Message msg = myHandler.obtainMessage();
                                 msg.what = DELETE_FROM_GRIDVIEW;
                                 Bundle bundle = new Bundle();
-                                bundle.putInt("position", position);
+                                bundle.putInt(JPushDemoApplication.POSITION, position);
                                 msg.setData(bundle);
                                 msg.sendToTarget();
                             } else {
@@ -539,7 +539,6 @@ public class ChatDetailController implements OnClickListener,
                         // 判断是否为群主
                         if (groupOwnerID != null && groupOwnerID.equals(myInfo.getUserName()))
                             controller.mIsCreator = true;
-                        Log.d(TAG, "groupOwnerID = " + groupOwnerID + "isCreator = " + true);
                         controller.mChatDetailView.setMyName(myInfo.getUserName());
                         if (controller.mGridAdapter != null) {
                             controller.mGridAdapter.setCreator(controller.mIsCreator);
@@ -576,7 +575,7 @@ public class ChatDetailController implements OnClickListener,
                     case DELETE_FROM_GRIDVIEW:
                         // 更新GridView
                         --controller.mCurrentNum;
-                        int position = msg.getData().getInt("position");
+                        int position = msg.getData().getInt(JPushDemoApplication.POSITION);
                         controller.mGridAdapter.remove(position);
                         Log.i("DELETE_FROM_GRIDVIEW", "已删除");
                         break;

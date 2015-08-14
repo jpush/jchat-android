@@ -29,6 +29,7 @@ import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.adapter.ConversationListAdapter;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.view.ConversationListView;
@@ -57,14 +58,12 @@ public class ConversationListController implements OnClickListener,
     // 得到会话列表
     private void initConvListAdapter() {
         mDatas = JMessageClient.getConversationList();
-        Log.i("ConversationListController", "Conversation size : " + mDatas.size());
         //对会话列表进行时间排序
         if (mDatas.size() > 1) {
             SortConvList sortList = new SortConvList();
             Collections.sort(mDatas, sortList);
         }
 
-        // mDatas = JMessageClient.getConversationList();
         mListAdapter = new ConversationListAdapter(mContext, mDatas);
         mConvListView.setConvListAdapter(mListAdapter);
     }
@@ -85,17 +84,17 @@ public class ConversationListController implements OnClickListener,
         // TODO Auto-generated method stub
         final Intent intent = new Intent();
         String targetID = mDatas.get(position).getTargetId();
-        intent.putExtra("targetID", targetID);
+        intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
         mDatas.get(position).resetUnreadCount();
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
-            intent.putExtra("isGroup", true);
-            intent.putExtra("groupID", Long.parseLong(targetID));
+            intent.putExtra(JPushDemoApplication.IS_GROUP, true);
+            intent.putExtra(JPushDemoApplication.GROUP_ID, Long.parseLong(targetID));
             intent.setClass(mContext.getActivity(), ChatActivity.class);
             mContext.startActivity(intent);
             return;
         } else
-            intent.putExtra("isGroup", false);
+            intent.putExtra(JPushDemoApplication.IS_GROUP, false);
         intent.setClass(mContext.getActivity(), ChatActivity.class);
         mContext.startActivity(intent);
 

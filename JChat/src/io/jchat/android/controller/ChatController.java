@@ -73,10 +73,10 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
 
     private void initData() {
         Intent intent = mContext.getIntent();
-        mTargetID = intent.getStringExtra("targetID");
+        mTargetID = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
         Log.i("ChatController", "mTargetID " + mTargetID);
-        mGroupID = intent.getLongExtra("groupID", 0);
-        mIsGroup = intent.getBooleanExtra("isGroup", false);
+        mGroupID = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+        mIsGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
         final boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
         // 如果是群组，特别处理
         if (mIsGroup) {
@@ -229,7 +229,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
                 }
                 TextContent content = new TextContent(msgContent);
                 final Message msg = mConv.createSendMessage(content);
-                final int msgID = msg.getId();
                 msg.setOnSendCompleteCallback(new BasicCallback() {
 
                     @Override
@@ -304,11 +303,11 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
                 }
                 Intent intent = new Intent();
                 if (mIsGroup) {
-                    intent.putExtra("groupID", mGroupID);
+                    intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
                 } else {
-                    intent.putExtra("targetID", mTargetID);
+                    intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
                 }
-                intent.putExtra("isGroup", mIsGroup);
+                intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
                 mContext.StartPickPictureTotalActivity(intent);
                 break;
             case R.id.send_location_btn:
@@ -431,14 +430,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
 
     public void setAdapter(MsgListAdapter adapter) {
         mChatAdapter = adapter;
-    }
-
-    public void setGroupName(String groupName){
-        mGroupName = groupName;
-    }
-
-    public String getGroupName(){
-        return mGroupName;
     }
 
     public Conversation getConversation() {

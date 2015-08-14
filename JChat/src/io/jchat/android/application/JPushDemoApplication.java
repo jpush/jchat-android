@@ -24,8 +24,15 @@ public class JPushDemoApplication extends Application {
     public static final int ON_GROUP_EVENT = 3004;
     private static final String JCHAT_CONFIGS = "JChat_configs";
 
-    public static String UPDATE_GROUP_NAME_ACTION = "cn.jpush.im.demo.activity.ACTION_UPDATE_GROUP_NAME";
-    public static String CLEAR_MSG_LIST_ACTION = "cn.jpush.im.demo.activity.ACTION_CLEAR_MSG_LIST";
+    public static final String CLEAR_MSG_LIST_ACTION = "cn.jpush.im.demo.activity.ACTION_CLEAR_MSG_LIST";
+    public static final String TARGET_ID = "targetID";
+    public static final String GROUP_ID = "groupID";
+    public static final String IS_GROUP = "isGroup";
+    public static final String GROUP_NAME = "groupName";
+    public static final String STATUS = "status";
+    public static final String POSITION = "position";
+    public static final String MsgIDs = "msgIDs";
+
 
     @Override
     public void onCreate() {

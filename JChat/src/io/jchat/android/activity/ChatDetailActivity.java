@@ -167,7 +167,7 @@ public class ChatDetailActivity extends BaseActivity {
     public void onBackPressed() {
         Log.i(TAG, "onBackPressed");
         Intent intent = new Intent();
-        intent.putExtra("groupName", mChatDetailController.getGroupName());
+        intent.putExtra(JPushDemoApplication.GROUP_NAME, mChatDetailController.getGroupName());
         intent.putExtra("currentCount", mChatDetailController.getCurrentCount());
         setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
         finish();
@@ -189,7 +189,7 @@ public class ChatDetailActivity extends BaseActivity {
     public void handleMsg(Message msg){
         switch (msg.what){
             case JPushDemoApplication.ON_GROUP_EVENT:
-                mChatDetailController.refresh(msg.getData().getLong("groupID", 0));
+                mChatDetailController.refresh(msg.getData().getLong(JPushDemoApplication.GROUP_ID, 0));
                 break;
             case JPushDemoApplication.REFRESH_GROUP_NAME:
                 Log.i(TAG, "Refresh GroupName Or user name");

@@ -6,8 +6,6 @@ package io.jchat.android.controller;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -44,8 +42,6 @@ import cn.jpush.im.api.BasicCallback;
 
 public class RecordVoiceBtnController extends Button {
 
-    private static final String TAG = "RecordVoiceBtnController";
-
     private File myRecAudioFile;
 
     private MsgListAdapter mMsgListAdapter;
@@ -61,7 +57,6 @@ public class RecordVoiceBtnController extends Button {
     private static int[] res = {R.drawable.mic_1, R.drawable.mic_2,
             R.drawable.mic_3, R.drawable.mic_4, R.drawable.mic_5, R.drawable.cancel_record};
 
-    private static ImageView view;
     private ImageView mVolumeIv;
     private TextView mRecordHintTv;
 
@@ -82,7 +77,6 @@ public class RecordVoiceBtnController extends Button {
 
     public RecordVoiceBtnController(Context context) {
         super(context);
-//		this.mContext = context;
         init();
     }
 
@@ -99,7 +93,7 @@ public class RecordVoiceBtnController extends Button {
     }
 
     private void init() {
-        mVolumeHandler = new ShowVolumeHandler();
+        mVolumeHandler = new ShowVolumeHandler(this);
     }
 
     public void initConv(Conversation conv, MsgListAdapter adapter) {
@@ -109,7 +103,6 @@ public class RecordVoiceBtnController extends Button {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.i(TAG, "onTouchEvent !!!! event = " + event.toString());
         this.setPressed(true);
         int action = event.getAction();
         switch (action) {
@@ -176,13 +169,6 @@ public class RecordVoiceBtnController extends Button {
             case MotionEvent.ACTION_CANCEL:// 当手指移动到view外面，会cancel
                 this.setText(mContext.getString(R.string.record_voice_hint));
                 cancelRecord();
-//			mTouchY = event.getY();
-//			if(mTouchY1 - mTouchY > MIN_CANCEL_DISTANCE){
-//				android.os.Message msg = handler.obtainMessage();
-//				msg.what = 5;
-//				msg.sendToTarget();
-//				return true;
-//			}
                 break;
         }
 
@@ -224,19 +210,6 @@ public class RecordVoiceBtnController extends Button {
             Toast.makeText(mContext, mContext.getString(R.string.create_file_failed), Toast.LENGTH_SHORT).show();
         }
         Log.i("FileCreate", "Create file success file path: " + myRecAudioFile.getAbsolutePath());
-//        recordIndicator = new Dialog(getContext(),
-//                R.style.record_voice_dialog);
-//        view = new ImageView(getContext());
-//        view.setImageResource(R.drawable.mic_2);
-//        view.setAlpha(215);
-//        recordIndicator.setContentView(view, new LayoutParams(
-//                ViewGroup.LayoutParams.MATCH_PARENT,
-//                ViewGroup.LayoutParams.MATCH_PARENT));
-//        recordIndicator.setOnDismissListener(onDismiss);
-//        LayoutParams lp = recordIndicator.getWindow().getAttributes();
-//        lp.gravity = Gravity.CENTER;
-//        startRecording();
-//        recordIndicator.show();
         recordIndicator = new Dialog(getContext(), R.style.record_voice_dialog);
         recordIndicator.setContentView(R.layout.dialog_record_voice);
         mVolumeIv = (ImageView) recordIndicator.findViewById(R.id.volume_hint_iv);
@@ -260,7 +233,6 @@ public class RecordVoiceBtnController extends Button {
             return;
         } else {
             if (myRecAudioFile != null && myRecAudioFile.exists()) {
-                Log.i(TAG, "myRecAudioFile.getAbsolutePath(): " + myRecAudioFile.getAbsolutePath());
                 MediaPlayer mp = MediaPlayer.create(mContext, Uri.parse(myRecAudioFile.getAbsolutePath()));
                 //某些手机会限制录音，如果用户拒接使用录音，则需判断mp是否存在
                 if (mp != null) {
@@ -289,7 +261,6 @@ public class RecordVoiceBtnController extends Button {
                         JMessageClient.sendMessage(msg);
                         mMsgListAdapter.addMsgToList(msg);
                     } catch (FileNotFoundException e) {
-                        Log.i(TAG, "Enter unexpected exception, File Not Found");
                     }
                 } else {
                     Toast.makeText(mContext, mContext.getString(R.string.record_voice_permission_toast), Toast.LENGTH_SHORT).show();
@@ -360,7 +331,6 @@ public class RecordVoiceBtnController extends Button {
                 myRecAudioFile.delete();
             recorder.release();
             recorder = null;
-            Log.e(TAG, "UnExcepted error Start MediaRecorder failed");
         }
 
 
@@ -434,14 +404,6 @@ public class RecordVoiceBtnController extends Button {
 
     }
 
-    private OnDismissListener onDismiss = new OnDismissListener() {
-
-        @Override
-        public void onDismiss(DialogInterface dialog) {
-            stopRecording();
-        }
-    };
-
     public void dismissDialog() {
         if (recordIndicator != null)
             recordIndicator.dismiss();
@@ -451,48 +413,57 @@ public class RecordVoiceBtnController extends Button {
     /**
      * 录音动画控制
      */
-    private class ShowVolumeHandler extends Handler {
+    private static class ShowVolumeHandler extends Handler {
+
+        private final WeakReference<RecordVoiceBtnController> mController;
+
+        public ShowVolumeHandler(RecordVoiceBtnController controller){
+            mController = new WeakReference<RecordVoiceBtnController>(controller);
+        }
+
         @Override
         public void handleMessage(android.os.Message msg) {
-            int restTime = msg.getData().getInt("restTime", -1);
-            // 若restTime>0, 进入倒计时
-            if (restTime > 0) {
-                mTimeUp = true;
-                android.os.Message msg1 = mVolumeHandler.obtainMessage();
-                msg1.what = 60 - restTime + 1;
-                Bundle bundle = new Bundle();
-                bundle.putInt("restTime", restTime - 1);
-                msg1.setData(bundle);
-                //创建一个延迟一秒执行的HandlerMessage，用于倒计时
-                mVolumeHandler.sendMessageDelayed(msg1, 1000);
-                mRecordHintTv.setText(String.format(mContext.getString(R.string.rest_record_time_hint), restTime));
-                // 倒计时结束，发送语音, 重置状态
-            } else if (restTime == 0) {
-                finishRecord();
-                RecordVoiceBtnController.this.setPressed(false);
-                mTimeUp = false;
-                // restTime = -1, 一般情况
-            } else {
-                // 没有进入倒计时状态
-                if (!mTimeUp) {
-                    if (msg.what < 5)
-                        mRecordHintTv.setText(mContext
-                                .getString(R.string.move_to_cancel_hint));
-                    else
-                        mRecordHintTv.setText(mContext
-                                .getString(R.string.cancel_record_voice_hint));
-                    // 进入倒计时
+            RecordVoiceBtnController controller = mController.get();
+            if (controller != null){
+                int restTime = msg.getData().getInt("restTime", -1);
+                // 若restTime>0, 进入倒计时
+                if (restTime > 0) {
+                    controller.mTimeUp = true;
+                    android.os.Message msg1 = controller.mVolumeHandler.obtainMessage();
+                    msg1.what = 60 - restTime + 1;
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("restTime", restTime - 1);
+                    msg1.setData(bundle);
+                    //创建一个延迟一秒执行的HandlerMessage，用于倒计时
+                    controller.mVolumeHandler.sendMessageDelayed(msg1, 1000);
+                    controller.mRecordHintTv.setText(String.format(controller.mContext.getString(R.string.rest_record_time_hint), restTime));
+                    // 倒计时结束，发送语音, 重置状态
+                } else if (restTime == 0) {
+                    controller.finishRecord();
+                    controller.setPressed(false);
+                    controller.mTimeUp = false;
+                    // restTime = -1, 一般情况
                 } else {
-                    if (msg.what == 5) {
-                        mRecordHintTv.setText(mContext
-                                .getString(R.string.cancel_record_voice_hint));
-                        if (!mIsPressed)
-                            cancelRecord();
+                    // 没有进入倒计时状态
+                    if (!controller.mTimeUp) {
+                        if (msg.what < 5)
+                            controller.mRecordHintTv.setText(controller.mContext
+                                    .getString(R.string.move_to_cancel_hint));
+                        else
+                            controller.mRecordHintTv.setText(controller.mContext
+                                    .getString(R.string.cancel_record_voice_hint));
+                        // 进入倒计时
+                    } else {
+                        if (msg.what == 5) {
+                            controller.mRecordHintTv.setText(controller.mContext
+                                    .getString(R.string.cancel_record_voice_hint));
+                            if (!mIsPressed)
+                                controller.cancelRecord();
+                        }
                     }
+                    controller.mVolumeIv.setImageResource(res[msg.what]);
                 }
-                mVolumeIv.setImageResource(res[msg.what]);
             }
-            // view.setImageResource(res[msg.what]);
         }
     }
 

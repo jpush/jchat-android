@@ -58,14 +58,14 @@ public class PickPictureActivity extends BaseActivity {
         mGridView = (GridView) findViewById(R.id.child_grid);
 
         mIntent = this.getIntent();
-        mIsGroup = mIntent.getBooleanExtra("isGroup", false);
+        mIsGroup = mIntent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
         if (mIsGroup){
-            mGroupID = mIntent.getLongExtra("groupID", 0);
+            mGroupID = mIntent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
             Log.i("PickPictureActivity", "groupID : " + mGroupID);
             mConv = JMessageClient.getGroupConversation(mGroupID);
         }
         else {
-            mTargetID = mIntent.getStringExtra("targetID");
+            mTargetID = mIntent.getStringExtra(JPushDemoApplication.TARGET_ID);
             Log.i("PickPictureActivity", "mTargetID" + mTargetID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
         }
@@ -88,11 +88,11 @@ public class PickPictureActivity extends BaseActivity {
             Intent intent = new Intent();
             intent.putExtra("fromChatActivity", false);
             if(mIsGroup){
-                intent.putExtra("groupID", mGroupID);
-            }else intent.putExtra("targetID", mTargetID);
+                intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
+            }else intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
             intent.putStringArrayListExtra("pathList", (ArrayList<String>) mList);
-            intent.putExtra("position", position);
-            intent.putExtra("isGroup", mIsGroup);
+            intent.putExtra(JPushDemoApplication.POSITION, position);
+            intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
             intent.putExtra("pathArray", mAdapter.getSelectedArray());
             intent.setClass(PickPictureActivity.this, BrowserViewPagerActivity.class);
             startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_BROWSER_PICTURE);
@@ -210,9 +210,9 @@ public class PickPictureActivity extends BaseActivity {
                 switch (msg.what) {
                     case 0:
                         Intent intent = new Intent();
-                        intent.putExtra("targetID", activity.mTargetID);
-                        intent.putExtra("groupID", activity.mGroupID);
-                        intent.putExtra("msgIDs", activity.mMsgIDs);
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetID);
+                        intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupID);
+                        intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIDs);
                         activity.setResult(JPushDemoApplication.RESULT_CODE_SELECT_ALBUM, intent);
                         if(activity.mDialog != null)
                             activity.mDialog.dismiss();

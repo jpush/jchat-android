@@ -26,6 +26,7 @@ import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.DialogCreator;
 import io.jchat.android.view.MenuItemView;
@@ -66,12 +67,12 @@ public class MenuItemController implements View.OnClickListener {
                                 if (status == 0) {
                                     Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
                                     Intent intent = new Intent();
-                                    intent.putExtra("isGroup", true);
+                                    intent.putExtra(JPushDemoApplication.IS_GROUP, true);
                                     //设置跳转标志
                                     intent.putExtra("fromGroup", true);
                                     intent.putExtra("memberCount", 1);
-                                    intent.putExtra("groupID", groupID);
-                                    intent.putExtra("targetID", String.valueOf(groupID));
+                                    intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
+                                    intent.putExtra(JPushDemoApplication.TARGET_ID, String.valueOf(groupID));
                                     intent.setClass(mContext.getActivity(), ChatActivity.class);
                                     mContext.startActivity(intent);
                                 } else {

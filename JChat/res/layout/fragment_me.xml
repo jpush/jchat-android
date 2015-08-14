@@ -17,7 +17,7 @@
             android:id="@+id/my_avatar_iv"
             android:layout_width="match_parent"
             android:layout_height="190dp"
-            android:scaleType="fitXY"
+            android:scaleType="centerCrop"
             android:background="@color/me_no_picture_color" />
 
         <LinearLayout

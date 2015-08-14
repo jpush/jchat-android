@@ -43,7 +43,7 @@ public class ChatActivity extends BaseActivity {
 
     private ChatView mChatView;
     private ChatController mChatController;
-    private GroupNameChangedReceiver mReceiver;
+    private MyReceiver mReceiver;
     private String mTargetID;
 
     @Override
@@ -61,21 +61,21 @@ public class ChatActivity extends BaseActivity {
 
     }
 
-    // 更新群名变更的广播
+    // 监听耳机插入及清除消息的广播
     private void initReceiver() {
-        mReceiver = new GroupNameChangedReceiver();
+        mReceiver = new MyReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_HEADSET_PLUG);
         filter.addAction(JPushDemoApplication.CLEAR_MSG_LIST_ACTION);
         registerReceiver(mReceiver, filter);
     }
 
-    private class GroupNameChangedReceiver extends BroadcastReceiver {
+    private class MyReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent data) {
             if (data != null) {
-                mTargetID = data.getStringExtra("targetID");
+                mTargetID = data.getStringExtra(JPushDemoApplication.TARGET_ID);
                 //插入了耳机
                 if (data.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
                     mChatController.getAdapter().setAudioPlayByEarPhone(data.getIntExtra("state", 0));
@@ -97,8 +97,7 @@ public class ChatActivity extends BaseActivity {
             case JPushDemoApplication.REFRESH_GROUP_NAME:
                 if (mChatController.getConversation() != null) {
                     int num = msg.getData().getInt("membersCount");
-                    String groupName = msg.getData().getString("groupName");
-                    mChatController.setGroupName(groupName);
+                    String groupName = msg.getData().getString(JPushDemoApplication.GROUP_NAME);
                     mChatView.setChatTitle(groupName, num);
                 }
                 break;
@@ -115,18 +114,18 @@ public class ChatActivity extends BaseActivity {
      * @param data    intent
      */
     private void handleImgRefresh(Intent data) {
-        mTargetID = data.getStringExtra("targetID");
-        long groupID = data.getLongExtra("groupID", 0);
+        mTargetID = data.getStringExtra(JPushDemoApplication.TARGET_ID);
+        long groupID = data.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
         Log.i(TAG, "Refresh Image groupID: " + groupID);
         //判断是否在当前会话中发图片
         if (mTargetID != null) {
             if (mTargetID.equals(mChatController.getTargetID())) {
-                mChatController.getAdapter().setSendImg(mTargetID, data.getIntArrayExtra("msgIDs"));
+                mChatController.getAdapter().setSendImg(mTargetID, data.getIntArrayExtra(JPushDemoApplication.MsgIDs));
                 mChatView.setToBottom();
             }
         } else if (groupID != 0) {
             if (groupID == mChatController.getGroupID()) {
-                mChatController.getAdapter().setSendImg(groupID, data.getIntArrayExtra("msgIDs"));
+                mChatController.getAdapter().setSendImg(groupID, data.getIntArrayExtra(JPushDemoApplication.MsgIDs));
                 mChatView.setToBottom();
             }
         }
@@ -217,11 +216,11 @@ public class ChatActivity extends BaseActivity {
     protected void onResume() {
         if (!RecordVoiceBtnController.mIsPressed)
             mChatView.dismissRecordDialog();
-        String targetID = getIntent().getStringExtra("targetID");
-        boolean isGroup = getIntent().getBooleanExtra("isGroup", false);
+        String targetID = getIntent().getStringExtra(JPushDemoApplication.TARGET_ID);
+        boolean isGroup = getIntent().getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
         if (isGroup) {
             try {
-                long groupID = getIntent().getLongExtra("groupID", 0);
+                long groupID = getIntent().getLongExtra(JPushDemoApplication.GROUP_ID, 0);
                 if (groupID == 0){
                     JMessageClient.enterGroupConversation(Long.parseLong(targetID));
                 }else JMessageClient.enterGroupConversation(groupID);
@@ -259,11 +258,11 @@ public class ChatActivity extends BaseActivity {
                 ImageContent content = new ImageContent(file);
                 Message msg = conv.createSendMessage(content);
                 Intent intent = new Intent();
-                intent.putExtra("msgIDs", new int[]{msg.getId()});
+                intent.putExtra(JPushDemoApplication.MsgIDs, new int[]{msg.getId()});
                 if (conv.getType() == ConversationType.group) {
-                    intent.putExtra("groupID", Long.parseLong(conv.getTargetId()));
+                    intent.putExtra(JPushDemoApplication.GROUP_ID, Long.parseLong(conv.getTargetId()));
                 } else {
-                    intent.putExtra("targetID", msg.getTargetID());
+                    intent.putExtra(JPushDemoApplication.TARGET_ID, msg.getTargetID());
                 }
                 handleImgRefresh(intent);
             } catch (FileNotFoundException e) {
@@ -275,10 +274,11 @@ public class ChatActivity extends BaseActivity {
             handleImgRefresh(data);
         }else if (resultCode == JPushDemoApplication.RESULT_CODE_CHAT_DETAIL){
             if (mChatController.isGroup()){
-                if (TextUtils.isEmpty(data.getStringExtra("groupName"))){
+                if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))){
                     mChatView.setChatTitle(this.getString(R.string.group), data.getIntExtra("currentCount", 0));
                 }else {
-                    mChatView.setChatTitle(data.getStringExtra("groupName"), data.getIntExtra("currentCount", 0));
+                    mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.GROUP_NAME),
+                            data.getIntExtra("currentCount", 0));
                 }
             }
         }
@@ -286,9 +286,9 @@ public class ChatActivity extends BaseActivity {
 
     public void StartChatDetailActivity(boolean isGroup, String targetID, long groupID) {
         Intent intent = new Intent();
-        intent.putExtra("isGroup", isGroup);
-        intent.putExtra("targetID", targetID);
-        intent.putExtra("groupID", groupID);
+        intent.putExtra(JPushDemoApplication.IS_GROUP, isGroup);
+        intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
+        intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
         intent.setClass(this, ChatDetailActivity.class);
         startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CHAT_DETAIL);
     }
@@ -378,7 +378,7 @@ public class ChatActivity extends BaseActivity {
                         android.os.Message handleMessage = mHandler.obtainMessage();
                         handleMessage.what = JPushDemoApplication.REFRESH_GROUP_NAME;
                         Bundle bundle = new Bundle();
-                        bundle.putString("groupName", groupInfo.getGroupName());
+                        bundle.putString(JPushDemoApplication.GROUP_NAME, groupInfo.getGroupName());
                         bundle.putInt("membersCount", groupInfo.getGroupMembers().size());
                         handleMessage.setData(bundle);
                         handleMessage.sendToTarget();
