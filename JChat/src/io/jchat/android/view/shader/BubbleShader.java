@@ -8,8 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
-
 import io.jchat.android.R;
 
 
@@ -25,8 +23,6 @@ public class BubbleShader extends ShaderHelper {
     private final Path path = new Path();
 
     private int radius = 0;
-    private int bitmapRadius;
-
     private int triangleHeightPx;
     private ArrowPosition arrowPosition = ArrowPosition.LEFT;
 
@@ -72,15 +68,7 @@ public class BubbleShader extends ShaderHelper {
         float resultWidth = bitmapWidth + 2 * translateX;
         float resultHeight = bitmapHeight + 2 * translateY;
         float centerY;
-        if(scale < 2){
-            if(viewHeight < 400){
-                centerY = resultHeight / scale / 4f;
-            }else centerY = viewHeight / scale / 8f;
-        }else if(viewHeight < 200){
-            centerY = resultHeight / 3f;
-        }else if(viewHeight < 400){
-            centerY = resultHeight / 4f;
-        }else centerY = viewHeight / scale / 8f;
+        centerY = 2.5f * scaledTriangleHeight;
         path.setFillType(Path.FillType.EVEN_ODD);
         float rectLeft;
         float rectRight;
