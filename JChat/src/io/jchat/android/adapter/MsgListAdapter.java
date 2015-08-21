@@ -128,7 +128,7 @@ public class MsgListAdapter extends BaseAdapter {
     //当前第0项消息的位置
     private int mStart;
     //偏移量
-    private int mOffset = 17;
+    private int mOffset = 18;
 
     public MsgListAdapter(Context context, String targetID) {
         initData(context);
@@ -194,9 +194,8 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     public void dropDownToRefresh() {
-//        if(mMsgList.get(0))
         if(mConv != null){
-            List<Message> msgList = mConv.getMessagesFromNewest(mStart, 17);
+            List<Message> msgList = mConv.getMessagesFromNewest(mStart, 18);
             if (msgList != null){
                 for (Message msg : msgList){
                     mMsgList.add(0, msg);

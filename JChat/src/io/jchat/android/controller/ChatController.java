@@ -156,7 +156,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
             mChatView.setChatTitle(mConv.getTitle());
         }
         if (mConv != null) {
-            mConv.resetUnreadCount();
             if(mIsGroup){
                 mChatAdapter = new MsgListAdapter(mContext, mGroupID, mGroupInfo);
             }else {

@@ -85,7 +85,7 @@ public class ConversationListController implements OnClickListener,
         final Intent intent = new Intent();
         String targetID = mDatas.get(position).getTargetId();
         intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
-        mDatas.get(position).resetUnreadCount();
+        mListAdapter.resetUnreadMsg(position);
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
             intent.putExtra(JPushDemoApplication.IS_GROUP, true);
@@ -100,19 +100,13 @@ public class ConversationListController implements OnClickListener,
 
     }
 
-    /*
-     * 刷新会话列表
+
+    /**
+     * 在会话列表界面收到消息，将该会话置顶
+     * @param conv 收到消息的Conversation
      */
-    public void refreshConvList() {
-        mDatas = JMessageClient.getConversationList();
-        SortConvList sortList = new SortConvList();
-        Collections.sort(mDatas, sortList);
-        mContext.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mListAdapter.refresh(mDatas);
-            }
-        });
+    public void refreshConvList(final Conversation conv){
+        mListAdapter.setToTop(conv);
     }
 
     /**
@@ -123,7 +117,7 @@ public class ConversationListController implements OnClickListener,
     public void loadAvatarAndRefresh(String targetID, String path) {
         int size = (int) (50 * mDensity);
         NativeImageLoader.getInstance().putUserAvatar(targetID, path, size);
-        refreshConvList();
+        mListAdapter.notifyDataSetChanged();
     }
 
     @Override

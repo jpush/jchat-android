@@ -65,6 +65,7 @@ public class BubbleShader extends ShaderHelper {
         float x = -translateX;
         float y = -translateY;
         float scaledTriangleHeight = triangleHeightPx / scale;
+        float rectCenter = scaledTriangleHeight / 2;
         float resultWidth = bitmapWidth + 2 * translateX;
         float resultHeight = bitmapHeight + 2 * translateY;
         float centerY;
@@ -82,29 +83,29 @@ public class BubbleShader extends ShaderHelper {
                 path.lineTo(rectLeft, centerY + scaledTriangleHeight);
                 path.lineTo(x, centerY);
                 //画左上圆角
-                path.moveTo(rectLeft, 5);
-                RectF rectF = new RectF(rectLeft, 0, rectLeft + 10, 10);
+                path.moveTo(rectLeft, rectCenter);
+                RectF rectF = new RectF(rectLeft, 0, rectLeft + scaledTriangleHeight, scaledTriangleHeight);
                 path.arcTo(rectF, 180, 90);
                 path.lineTo(rectLeft, 0);
-                path.lineTo(rectLeft, 5);
+                path.lineTo(rectLeft, rectCenter);
                 //画右上圆角
-                path.moveTo(resultWidth - 5, 0);
-                RectF rectF1 = new RectF(resultWidth - 10, 0, resultWidth, 10);
+                path.moveTo(resultWidth - rectCenter , 0);
+                RectF rectF1 = new RectF(resultWidth - scaledTriangleHeight, 0, resultWidth, scaledTriangleHeight);
                 path.arcTo(rectF1, 270, 90);
-                path.lineTo(resultWidth, 0);
-                path.lineTo(resultWidth - 5, 0);
+                path.lineTo(resultWidth + 1, 0);
+                path.lineTo(resultWidth - rectCenter, 0);
                 //画左下圆角
-                path.moveTo(rectLeft + 5, resultHeight);
-                RectF rectF2 = new RectF(rectLeft, resultHeight - 10, rectLeft + 10, resultHeight);
+                path.moveTo(rectLeft + rectCenter, resultHeight);
+                RectF rectF2 = new RectF(rectLeft, resultHeight - scaledTriangleHeight, rectLeft + scaledTriangleHeight, resultHeight);
                 path.arcTo(rectF2, 90, 90);
                 path.lineTo(rectLeft, resultHeight);
-                path.lineTo(rectLeft + 5, resultHeight);
+                path.lineTo(rectLeft + rectCenter, resultHeight);
                 //画右下圆角
-                path.moveTo(resultWidth, resultHeight - 5);
-                RectF rectF3 = new RectF(resultWidth - 10, resultHeight - 10, resultWidth, resultHeight);
+                path.moveTo(resultWidth, resultHeight - rectCenter);
+                RectF rectF3 = new RectF(resultWidth - scaledTriangleHeight, resultHeight - scaledTriangleHeight, resultWidth, resultHeight);
                 path.arcTo(rectF3, 0, 90);
-                path.lineTo(resultWidth, resultHeight);
-                path.lineTo(resultWidth, resultHeight - 5);
+                path.lineTo(resultWidth + 1, resultHeight);
+                path.lineTo(resultWidth, resultHeight - rectCenter);
                 break;
             case RIGHT:
                 rectLeft = x;
@@ -116,29 +117,29 @@ public class BubbleShader extends ShaderHelper {
                 path.lineTo(rectRight, centerY + scaledTriangleHeight);
                 path.lineTo(imgRight, centerY);
                 //画左上圆角
-                path.moveTo(rectLeft, 5);
-                rectF = new RectF(rectLeft, 0, rectLeft + 10, 10);
+                path.moveTo(rectLeft, rectCenter);
+                rectF = new RectF(rectLeft, 0, rectLeft + scaledTriangleHeight, scaledTriangleHeight);
                 path.arcTo(rectF, 180, 90);
                 path.lineTo(rectLeft, 0);
-                path.lineTo(rectLeft, 5);
+                path.lineTo(rectLeft, rectCenter);
                 //画右上圆角
-                path.moveTo(rectRight - 5, 0);
-                rectF1 = new RectF(rectRight - 10, 0, rectRight, 10);
+                path.moveTo(rectRight - rectCenter, 0);
+                rectF1 = new RectF(rectRight - scaledTriangleHeight, 0, rectRight, scaledTriangleHeight);
                 path.arcTo(rectF1, 270, 90);
                 path.lineTo(rectRight, 0);
-                path.lineTo(rectRight - 5, 0);
+                path.lineTo(rectRight - rectCenter, 0);
                 //画左下圆角
-                path.moveTo(rectLeft + 5, resultHeight);
-                rectF2 = new RectF(rectLeft, resultHeight - 10, rectLeft + 10, resultHeight);
+                path.moveTo(rectLeft + rectCenter, resultHeight);
+                rectF2 = new RectF(rectLeft, resultHeight - scaledTriangleHeight, rectLeft + scaledTriangleHeight, resultHeight);
                 path.arcTo(rectF2, 90, 90);
                 path.lineTo(rectLeft, resultHeight);
-                path.lineTo(rectLeft + 5, resultHeight);
+                path.lineTo(rectLeft + rectCenter, resultHeight);
                 //画右下圆角
-                path.moveTo(rectRight, resultHeight - 5);
-                rectF3 = new RectF(rectRight - 10, resultHeight - 10, rectRight, resultHeight);
+                path.moveTo(rectRight, resultHeight - rectCenter);
+                rectF3 = new RectF(rectRight - scaledTriangleHeight, resultHeight - scaledTriangleHeight, rectRight, resultHeight);
                 path.arcTo(rectF3, 0, 90);
                 path.lineTo(rectRight, resultHeight);
-                path.lineTo(rectRight, resultHeight - 5);
+                path.lineTo(rectRight, resultHeight - rectCenter);
                 break;
         }
 

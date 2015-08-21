@@ -10,9 +10,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
-import android.view.MotionEvent;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -66,24 +63,24 @@ public class MeView extends LinearLayout {
         ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
         double density = dm.density;
         mWidth = dm.widthPixels;
-        mHeight = (int)(190 * density);
-        if(userInfo != null){
+        mHeight = (int) (190 * density);
+        if (userInfo != null) {
             mUserNameTv.setText(userInfo.getUserName());
             //MediaID不为空
-            if (!TextUtils.isEmpty(userInfo.getAvatar())){
+            if (!TextUtils.isEmpty(userInfo.getAvatar())) {
                 File file = userInfo.getAvatarFile();
-                if(file != null && file.isFile()){
+                if (file != null && file.isFile()) {
                     Log.i("MeView", "file.getAbsolutePath() " + file.getAbsolutePath());
                     showPhoto(file.getAbsolutePath());
                     loadAvatarSuccess(true);
-                }else {
+                } else {
                     loadAvatarSuccess(false);
                 }
                 //没有设置过头像，将标志位置为True
-            }else {
+            } else {
                 loadAvatarSuccess(true);
             }
-            if(!TextUtils.isEmpty(userInfo.getNickname()))
+            if (!TextUtils.isEmpty(userInfo.getNickname()))
                 mNickNameTv.setText(userInfo.getNickname());
         }
     }
@@ -92,7 +89,7 @@ public class MeView extends LinearLayout {
         mLoadAvatarSuccess = value;
     }
 
-    public boolean getAvatarFlag(){
+    public boolean getAvatarFlag() {
         return mLoadAvatarSuccess;
     }
 
@@ -104,7 +101,7 @@ public class MeView extends LinearLayout {
         mAvatarIv.setOnClickListener(onClickListener);
     }
 
-    public void setOnTouchListener(OnTouchListener listener){
+    public void setOnTouchListener(OnTouchListener listener) {
         mUserInfoRl.setOnTouchListener(listener);
         mSettingRl.setOnTouchListener(listener);
         mLogoutRl.setOnTouchListener(listener);
@@ -113,35 +110,30 @@ public class MeView extends LinearLayout {
 
     public void showPhoto(final String path) {
         Log.i("MeView", "updated path:  " + path);
-        ((Activity)mContext).runOnUiThread(new Runnable() {
+        final Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Bitmap bmp = BitmapLoader.BoxBlurFilter(bitmap);
-                        if (null != bmp){
-                            android.os.Message msg = myHandler.obtainMessage();
-                            msg.obj = bmp;
-                            msg.sendToTarget();
-                        }
-                    }
-                });
-                thread.start();
-                mTakePhotoBtn.setImageBitmap(bitmap);
+                Bitmap bmp = BitmapLoader.BoxBlurFilter(bitmap);
+                if (null != bmp) {
+                    android.os.Message msg = myHandler.obtainMessage();
+                    msg.obj = bmp;
+                    msg.sendToTarget();
+                }
             }
         });
+        thread.start();
+        mTakePhotoBtn.setImageBitmap(bitmap);
     }
 
     public void showNickName(String nickname) {
         mNickNameTv.setText(nickname);
     }
 
-    private static class MyHandler extends Handler{
+    private static class MyHandler extends Handler {
         private final WeakReference<MeView> mMeView;
 
-        public MyHandler(MeView meView){
+        public MyHandler(MeView meView) {
             mMeView = new WeakReference<MeView>(meView);
         }
 
@@ -149,7 +141,7 @@ public class MeView extends LinearLayout {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             MeView meView = mMeView.get();
-            if (null != meView){
+            if (null != meView) {
                 Bitmap bitmap = (Bitmap) msg.obj;
                 meView.mAvatarIv.setImageBitmap(bitmap);
                 meView.mAvatarIv.setScaleType(ImageView.ScaleType.CENTER_CROP);

@@ -22,12 +22,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.R;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.JMessageClient;
@@ -48,21 +46,21 @@ import io.jchat.android.view.ChatDetailView;
 import io.jchat.android.view.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
 
-public class ChatDetailController implements OnClickListener,
-        OnItemClickListener, OnItemLongClickListener {
+public class ChatDetailController implements OnClickListener, OnItemClickListener, OnItemLongClickListener {
 
     private static final String TAG = "ChatDetailController";
 
     private ChatDetailView mChatDetailView;
     private ChatDetailActivity mContext;
     private GroupMemberGridAdapter mGridAdapter;
+    //GridView的数据源
     private List<UserInfo> mMemberInfoList = new ArrayList<UserInfo>();
     // 当前GridView群成员项数
     private int mCurrentNum;
     // 空白项的项数
     // 除了群成员Item和添加、删除按钮，剩下的都看成是空白项，
     // 对应的mRestNum[mCurrent%4]的值即为空白项的数目
-    private int[] mRestArray = new int[]{2, 1, 0, 3};;
+    private int[] mRestArray = new int[]{2, 1, 0, 3};
     private boolean mIsGroup = false;
     private boolean mIsCreator = false;
     private long mGroupID;
@@ -139,7 +137,6 @@ public class ChatDetailController implements OnClickListener,
                             }
                         }
                     });
-//                }
             // 是单聊
         } else {
             Conversation conv = JMessageClient.getSingleConversation(mTargetID);
@@ -267,7 +264,7 @@ public class ChatDetailController implements OnClickListener,
         if (!mIsShowDelete) {
             Intent intent = new Intent();
             //群聊
-            if (mIsGroup){
+            if (mIsGroup) {
                 // 点击群成员项时
                 if (position < mCurrentNum) {
                     if (mMemberInfoList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
@@ -290,11 +287,11 @@ public class ChatDetailController implements OnClickListener,
                             mRestArray[mCurrentNum % 4]);
                 }
                 //单聊
-            }else if(position < mCurrentNum){
+            } else if (position < mCurrentNum) {
                 intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
                 intent.setClass(mContext, FriendInfoActivity.class);
                 mContext.startActivity(intent);
-            }else if (position == mCurrentNum){
+            } else if (position == mCurrentNum) {
                 addMemberToGroup();
             }
 
@@ -512,10 +509,10 @@ public class ChatDetailController implements OnClickListener,
         mGroupName = newName;
     }
 
-    private static class MyHandler extends Handler{
+    private static class MyHandler extends Handler {
         private final WeakReference<ChatDetailController> mController;
 
-        public MyHandler(ChatDetailController controller){
+        public MyHandler(ChatDetailController controller) {
             mController = new WeakReference<ChatDetailController>(controller);
         }
 
@@ -523,7 +520,7 @@ public class ChatDetailController implements OnClickListener,
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             ChatDetailController controller = mController.get();
-            if(controller != null){
+            if (controller != null) {
                 switch (msg.what) {
                     // 初始化群组
                     case 0:
@@ -531,9 +528,9 @@ public class ChatDetailController implements OnClickListener,
                         UserInfo myInfo = JMessageClient.getMyInfo();
                         String groupOwnerID = groupInfo.getGroupOwner();
                         controller.mGroupName = groupInfo.getGroupName();
-                        if(TextUtils.isEmpty(controller.mGroupName)){
+                        if (TextUtils.isEmpty(controller.mGroupName)) {
                             controller.mChatDetailView.setGroupName(controller.mContext.getString(R.string.unnamed));
-                        }else {
+                        } else {
                             controller.mChatDetailView.setGroupName(controller.mGroupName);
                         }
                         // 判断是否为群主
@@ -561,7 +558,6 @@ public class ChatDetailController implements OnClickListener,
                         break;
                     // 获取成员列表，缓存头像，更新GridView
                     case GET_GROUP_MEMBER:
-                        Log.i(TAG, "GroupMember: " + controller.mMemberInfoList.toString());
                         controller.mChatDetailView.setTitle(controller.mMemberInfoList.size());
                         controller.initAdapter();
                         break;
@@ -642,15 +638,15 @@ public class ChatDetailController implements OnClickListener,
         return true;
     }
 
-    public long getGroupID(){
+    public long getGroupID() {
         return mGroupID;
     }
 
-    public String getGroupName(){
+    public String getGroupName() {
         return mGroupName;
     }
 
-    public int getCurrentCount(){
+    public int getCurrentCount() {
         return mCurrentNum;
     }
 
@@ -676,12 +672,6 @@ public class ChatDetailController implements OnClickListener,
             });
             Log.i(TAG, "Group Member Changing");
         }
-    }
-
-    //刷新
-    public void NotifyGroupChange() {
-        if (mGridAdapter != null)
-            mGridAdapter.notifyDataSetChanged();
     }
 
 }

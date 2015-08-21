@@ -371,6 +371,4 @@
     <item name="android:maxHeight">@dimen/drop_down_list_header_progress_bar_height</item>
     </style>
 
-
-
 </resources>

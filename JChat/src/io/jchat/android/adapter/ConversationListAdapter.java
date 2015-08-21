@@ -51,6 +51,39 @@ public class ConversationListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    /**
+     * 收到消息后将会话置顶
+     * @param conv 要置顶的会话
+     */
+    public void setToTop(Conversation conv){
+        for (Conversation conversation : mDatas){
+            if (conv.getId().equals(conversation.getId())){
+                mDatas.remove(conversation);
+                mDatas.add(0, conv);
+                mContext.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
+                return;
+            }
+        }
+        //如果是新的会话
+        mDatas.add(0, conv);
+        mContext.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
+    }
+
+    public void resetUnreadMsg(int position) {
+        mDatas.get(position).resetUnreadCount();
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         if (mDatas == null) {

@@ -32,8 +32,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     //群成员列表
     private List<UserInfo> mMemberList = new ArrayList<UserInfo>();
-    //空白项列表
-    private ArrayList<String> mBlankList = new ArrayList<String>();
     private boolean mIsCreator = false;
     private boolean mIsShowDelete;
     //群成员个数
@@ -47,10 +45,10 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private String mTargetID;
     private String mNickName;
 
-    public GroupMemberGridAdapter(Context context, List<UserInfo> memberList,
-                                  boolean isCreator) {
+    public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator) {
         mIsGroup = true;
         this.mMemberList = memberList;
+        mCurrentNum = mMemberList.size();
         this.mIsCreator = isCreator;
         mIsShowDelete = false;
         initBlankItem();
@@ -60,11 +58,11 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private void initData(Context context) {
         mInflater = LayoutInflater.from(context);
         DisplayMetrics dm = new DisplayMetrics();
-        ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDefaultSize = (int )(50 * dm.density);
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mDefaultSize = (int) (50 * dm.density);
     }
 
-    public GroupMemberGridAdapter(Context context, String targetID, String nickName){
+    public GroupMemberGridAdapter(Context context, String targetID, String nickName) {
         this.mTargetID = targetID;
         this.mNickName = nickName;
         initData(context);
@@ -73,10 +71,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     public void initBlankItem() {
         mCurrentNum = mMemberList.size();
         mRestNum = mRestArray[mCurrentNum % 4];
-        //补全空白项
-        for (int i = 0; i < mRestNum; i++) {
-            mBlankList.add("");
-        }
     }
 
     public void refreshGroupMember(List<UserInfo> memberList) {
@@ -90,7 +84,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         if (!mMemberList.contains(userInfo)) {
             mMemberList.add(userInfo);
         }
-        initBlankItem();
         notifyDataSetChanged();
     }
 
@@ -118,7 +111,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         //如果是普通成员，并且群组成员余4等于3，特殊处理，隐藏下面一栏空白
-        if(mCurrentNum % 4 == 3 && !mIsCreator)
+        if (mCurrentNum % 4 == 3 && !mIsCreator)
             return mCurrentNum + 1;
         else return mCurrentNum + mRestNum + 2;
     }
@@ -148,34 +141,34 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         } else {
             viewTag = (ItemViewTag) convertView.getTag();
         }
-        if (mIsGroup){
-            if(position < mCurrentNum){
+        if (mIsGroup) {
+            if (position < mMemberList.size()) {
                 UserInfo userInfo = mMemberList.get(position);
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
                 bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
                 if (bitmap != null)
                     viewTag.icon.setImageBitmap(bitmap);
-                else{
+                else {
                     //如果mediaID为空，表明用户没有设置过头像，用默认头像
-                    if(TextUtils.isEmpty(userInfo.getAvatar())){
+                    if (TextUtils.isEmpty(userInfo.getAvatar())) {
                         viewTag.icon.setImageResource(R.drawable.head_icon);
-                    }else {
+                    } else {
                         File file = userInfo.getAvatarFile();
                         //如果本地存在头像
-                        if(file != null && file.isFile()){
+                        if (file != null && file.isFile()) {
                             bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
                             NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
                             viewTag.icon.setImageBitmap(bitmap);
                             //从网上拿头像
-                        }else {
+                        } else {
                             viewTag.icon.setImageResource(R.drawable.head_icon);
                             final String userName = userInfo.getUserName();
                             userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
                                 @Override
                                 public void gotResult(int status, String desc, File file) {
-                                    if(status == 0){
-                                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),  mDefaultSize,  mDefaultSize);
+                                    if (status == 0) {
+                                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
                                         NativeImageLoader.getInstance().updateBitmapFromCache(userName, bitmap);
                                         notifyDataSetChanged();
                                     }
@@ -185,9 +178,9 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                     }
                 }
 
-                if(TextUtils.isEmpty(userInfo.getNickname())){
+                if (TextUtils.isEmpty(userInfo.getNickname())) {
                     viewTag.name.setText(userInfo.getUserName());
-                }else {
+                } else {
                     viewTag.name.setText(userInfo.getNickname());
                 }
             }
@@ -208,10 +201,10 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 //非Delete状态
             } else {
                 viewTag.deleteIcon.setVisibility(View.INVISIBLE);
-                if(position < mCurrentNum){
+                if (position < mCurrentNum) {
                     viewTag.icon.setVisibility(View.VISIBLE);
                     viewTag.name.setVisibility(View.VISIBLE);
-                }else if (position == mCurrentNum) {
+                } else if (position == mCurrentNum) {
                     viewTag.icon.setImageResource(R.drawable.chat_detail_add);
                     viewTag.icon.setVisibility(View.VISIBLE);
                     viewTag.name.setVisibility(View.INVISIBLE);
@@ -232,30 +225,30 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                     viewTag.name.setVisibility(View.INVISIBLE);
                 }
             }
-        }else {
-            if (position == 0){
+        } else {
+            if (position == 0) {
                 bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mTargetID);
-                if (bitmap != null){
+                if (bitmap != null) {
                     viewTag.icon.setImageBitmap(bitmap);
-                }else{
+                } else {
                     JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
                         @Override
                         public void gotResult(int status, String desc, UserInfo userInfo) {
-                            if (status == 0){
-                                if (!TextUtils.isEmpty(userInfo.getAvatar())){
+                            if (status == 0) {
+                                if (!TextUtils.isEmpty(userInfo.getAvatar())) {
                                     File file = userInfo.getAvatarFile();
-                                    if (file != null && file.isFile()){
+                                    if (file != null && file.isFile()) {
                                         Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
                                         NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap1);
                                         viewTag.icon.setImageBitmap(bitmap1);
-                                    }else {
+                                    } else {
                                         viewTag.icon.setImageResource(R.drawable.head_icon);
                                         final String userName = userInfo.getUserName();
                                         userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
                                             @Override
                                             public void gotResult(int status, String desc, File file) {
-                                                if(status == 0){
-                                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),  mDefaultSize,  mDefaultSize);
+                                                if (status == 0) {
+                                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
                                                     NativeImageLoader.getInstance().updateBitmapFromCache(userName, bitmap);
                                                     notifyDataSetChanged();
                                                 }
@@ -263,7 +256,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                                         });
                                     }
                                 }
-                            }else {
+                            } else {
                                 viewTag.icon.setImageResource(R.drawable.head_icon);
                             }
                         }
@@ -272,7 +265,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 viewTag.name.setText(mNickName);
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 viewTag.icon.setImageResource(R.drawable.chat_detail_add);
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.INVISIBLE);
@@ -287,7 +280,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         mIsCreator = isCreator;
         notifyDataSetChanged();
     }
-
 
     class ItemViewTag {
 
