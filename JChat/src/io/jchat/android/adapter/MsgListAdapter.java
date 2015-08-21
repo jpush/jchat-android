@@ -127,7 +127,7 @@ public class MsgListAdapter extends BaseAdapter {
     private GroupInfo mGroupInfo;
     //当前第0项消息的位置
     private int mStart;
-    //偏移量
+    //上一页的消息数
     private int mOffset = 18;
 
     public MsgListAdapter(Context context, String targetID) {

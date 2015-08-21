@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.io.File;
@@ -38,17 +41,13 @@ public class ConversationListAdapter extends BaseAdapter {
             if (conv.getType().equals(ConversationType.single)){
                 File file = conv.getAvatarFile();
                 if(file != null){
-                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * density), (int)(50 * density));
-                    NativeImageLoader.getInstance().updateBitmapFromCache(conv.getTargetId(), bitmap);
+                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                            (int)(50 * density), (int)(50 * density));
+                    NativeImageLoader.getInstance().updateBitmapFromCache(((UserInfo)conv.getTargetInfo()).getUserName(),
+                            bitmap);
                 }
             }
         }
-    }
-
-    public void refresh(List<Conversation> data) {
-        mDatas.clear();
-        this.mDatas = data;
-        notifyDataSetChanged();
     }
 
     /**
@@ -128,12 +127,13 @@ public class ConversationListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
 
         }
-        TimeFormat timeFormat = new TimeFormat(mContext.getActivity(), convItem.getLastMsgDate());
-        if (convItem.getLastMsgDate() != 0) {
+        Message lastMsg = convItem.getLatestMessage();
+        TimeFormat timeFormat = new TimeFormat(mContext.getActivity(), lastMsg.getCreateTime());
+        if (lastMsg.getCreateTime() != 0) {
             viewHolder.datetime.setText(timeFormat.getTime());
         } else viewHolder.datetime.setText("");
         // 按照最后一条消息的消息类型进行处理
-        switch (convItem.getLatestType()) {
+        switch (lastMsg.getContentType()) {
             case image:
                 viewHolder.content.setText(mContext.getString(R.string.type_picture));
                 break;
@@ -147,14 +147,15 @@ public class ConversationListAdapter extends BaseAdapter {
                 viewHolder.content.setText(mContext.getString(R.string.group_notification));
                 break;
             default:
-                viewHolder.content.setText(convItem.getLatestText());
+                viewHolder.content.setText(((TextContent)lastMsg.getContent()).getText());
         }
 
 //		viewHolder.headIcon.setImageResource(R.drawable.head_icon);
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
             viewHolder.groupName.setText(convItem.getTitle());
-            Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(convItem.getTargetId());
+            Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(((UserInfo)
+                    convItem.getTargetInfo()).getUserName());
             if (bitmap != null)
                 viewHolder.headIcon.setImageBitmap(bitmap);
             else viewHolder.headIcon.setImageResource(R.drawable.head_icon);

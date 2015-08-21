@@ -21,6 +21,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ConversationRefreshEvent;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
@@ -102,7 +103,8 @@ public class ConversationListFragment extends BaseFragment {
         if (conv.getType() == ConversationType.single) {
             File file = conv.getAvatarFile();
             if (file != null) {
-                mConvListController.loadAvatarAndRefresh(conv.getTargetId(), file.getAbsolutePath());
+                mConvListController.loadAvatarAndRefresh(((UserInfo)conv.getTargetInfo()).getUserName(),
+                        file.getAbsolutePath());
             }
         } else {
             mConvListController.getAdapter().notifyDataSetChanged();
@@ -121,7 +123,7 @@ public class ConversationListFragment extends BaseFragment {
         ConversationType convType = msg.getTargetType();
         Conversation conv;
         if (convType == ConversationType.group) {
-            conv = JMessageClient.getGroupConversation(Integer.parseInt(targetID));
+            conv = JMessageClient.getGroupConversation(Long.parseLong(targetID));
         } else {
             conv = JMessageClient.getSingleConversation(targetID);
         }
@@ -161,7 +163,6 @@ public class ConversationListFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-        //当前用户信息为空，需要重新登录
         dismissPopWindow();
         super.onResume();
     }

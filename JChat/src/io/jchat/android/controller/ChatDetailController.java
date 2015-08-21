@@ -601,7 +601,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                         public void gotResult(int status, String desc) {
                             if (mLoadingDialog != null)
                                 mLoadingDialog.dismiss();
-                            Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
+                            Conversation conv = Conversation.createGroupConversation( groupID);
                             if (status == 0) {
                                 mContext.StartChatActivity(groupID, conv.getTitle());
                             } else {

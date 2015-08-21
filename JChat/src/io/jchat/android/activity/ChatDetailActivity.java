@@ -271,9 +271,9 @@ public class ChatDetailActivity extends BaseActivity {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        //缓存头像
                                         NativeImageLoader.getInstance().putUserAvatar(userName, file
                                                 .getAbsolutePath(), (int) (50 * mDensity));
-                                        Log.i(TAG, "file exist, refresh group member");
                                     }
                                 });
                             }

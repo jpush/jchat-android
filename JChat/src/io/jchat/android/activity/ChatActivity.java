@@ -260,7 +260,7 @@ public class ChatActivity extends BaseActivity {
                 Intent intent = new Intent();
                 intent.putExtra(JPushDemoApplication.MsgIDs, new int[]{msg.getId()});
                 if (conv.getType() == ConversationType.group) {
-                    intent.putExtra(JPushDemoApplication.GROUP_ID, Long.parseLong(conv.getTargetId()));
+                    intent.putExtra(JPushDemoApplication.GROUP_ID, ((GroupInfo)conv.getTargetInfo()).getGroupID());
                 } else {
                     intent.putExtra(JPushDemoApplication.TARGET_ID, msg.getTargetID());
                 }

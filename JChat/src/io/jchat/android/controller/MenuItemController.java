@@ -65,7 +65,7 @@ public class MenuItemController implements View.OnClickListener {
                                                   final long groupID) {
                                 mLoadingDialog.dismiss();
                                 if (status == 0) {
-                                    Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
+                                    Conversation conv = Conversation.createGroupConversation(groupID);
                                     Intent intent = new Intent();
                                     intent.putExtra(JPushDemoApplication.IS_GROUP, true);
                                     //设置跳转标志
@@ -120,7 +120,7 @@ public class MenuItemController implements View.OnClickListener {
                                                 mLoadingDialog.dismiss();
                                             if (status == 0) {
                                                 List<Conversation> list = JMessageClient.getConversationList();
-                                                Conversation conv = Conversation.createConversation(ConversationType.single, targetID);
+                                                Conversation conv = Conversation.createSingleConversation(targetID);
                                                 list.add(conv);
                                                 if (userInfo.getAvatar() != null) {
                                                     mController.loadAvatarAndRefresh(targetID, userInfo.getAvatarFile().getAbsolutePath());

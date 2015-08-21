@@ -148,11 +148,11 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
 
         // 如果之前沒有会话记录并且是群聊
         if (mConv == null && mIsGroup) {
-            mConv = Conversation.createConversation(ConversationType.group, mGroupID);
+            mConv = Conversation.createGroupConversation(mGroupID);
             Log.i("ChatController", "create group success");
             // 是单聊
         } else if (mConv == null && !mIsGroup) {
-            mConv = Conversation.createConversation(ConversationType.single, mTargetID);
+            mConv = Conversation.createSingleConversation(mTargetID);
             mChatView.setChatTitle(mConv.getTitle());
         }
         if (mConv != null) {
