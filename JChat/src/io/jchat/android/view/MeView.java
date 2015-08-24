@@ -114,7 +114,7 @@ public class MeView extends LinearLayout {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Bitmap bmp = BitmapLoader.BoxBlurFilter(bitmap);
+                Bitmap bmp = BitmapLoader.doBlur(bitmap, false);
                 if (null != bmp) {
                     android.os.Message msg = myHandler.obtainMessage();
                     msg.obj = bmp;

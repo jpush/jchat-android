@@ -15,7 +15,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.event.UserLogoutEvent;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.view.DialogCreator;
+import io.jchat.android.tools.DialogCreator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -67,7 +67,7 @@ public class BaseFragment extends Fragment {
         Context context = BaseFragment.this.getActivity();
         String title = context.getString(R.string.user_logout_dialog_title);
         String msg = context.getString(R.string.user_logout_dialog_message);
-        dialog = DialogCreator.createBaseCostomDialog(context, title, msg, onClickListener);
+        dialog = DialogCreator.createBaseCustomDialog(context, title, msg, onClickListener);
         myInfo = event.getMyInfo();
         dialog.show();
     }

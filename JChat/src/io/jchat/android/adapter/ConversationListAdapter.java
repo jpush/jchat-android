@@ -128,26 +128,30 @@ public class ConversationListAdapter extends BaseAdapter {
 
         }
         Message lastMsg = convItem.getLatestMessage();
-        TimeFormat timeFormat = new TimeFormat(mContext.getActivity(), lastMsg.getCreateTime());
-        if (lastMsg.getCreateTime() != 0) {
+        TimeFormat timeFormat;
+        if (null == lastMsg){
+            timeFormat = new TimeFormat(mContext.getActivity(), System.currentTimeMillis());
             viewHolder.datetime.setText(timeFormat.getTime());
-        } else viewHolder.datetime.setText("");
-        // 按照最后一条消息的消息类型进行处理
-        switch (lastMsg.getContentType()) {
-            case image:
-                viewHolder.content.setText(mContext.getString(R.string.type_picture));
-                break;
-            case voice:
-                viewHolder.content.setText(mContext.getString(R.string.type_voice));
-                break;
-            case location:
-                viewHolder.content.setText(mContext.getString(R.string.type_location));
-                break;
-            case eventNotification:
-                viewHolder.content.setText(mContext.getString(R.string.group_notification));
-                break;
-            default:
-                viewHolder.content.setText(((TextContent)lastMsg.getContent()).getText());
+        }else {
+            timeFormat = new TimeFormat(mContext.getActivity(), lastMsg.getCreateTime());
+            viewHolder.datetime.setText(timeFormat.getTime());
+            // 按照最后一条消息的消息类型进行处理
+            switch (lastMsg.getContentType()) {
+                case image:
+                    viewHolder.content.setText(mContext.getString(R.string.type_picture));
+                    break;
+                case voice:
+                    viewHolder.content.setText(mContext.getString(R.string.type_voice));
+                    break;
+                case location:
+                    viewHolder.content.setText(mContext.getString(R.string.type_location));
+                    break;
+                case eventNotification:
+                    viewHolder.content.setText(mContext.getString(R.string.group_notification));
+                    break;
+                default:
+                    viewHolder.content.setText(((TextContent)lastMsg.getContent()).getText());
+            }
         }
 
 //		viewHolder.headIcon.setImageResource(R.drawable.head_icon);

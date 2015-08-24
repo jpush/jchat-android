@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="12dp"
         android:orientation="vertical">
 
     <LinearLayout
@@ -18,8 +18,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="35dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="30dp"
         android:background="@drawable/menu_bg">
 
 
@@ -27,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#d8e3f5"
-        android:textSize="20sp"
+        android:textSize="@dimen/text_medium_size"
         android:text="发起群聊"/>
 
     </LinearLayout>
@@ -38,8 +38,8 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:layout_marginTop="10dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="35dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="30dp"
         android:background="@drawable/menu_bg">
 
 
@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#d8e3f5"
-            android:textSize="20sp"
+            android:textSize="@dimen/text_medium_size"
             android:text="添加朋友"/>
 
     </LinearLayout>

@@ -12,7 +12,7 @@ import cn.jpush.im.android.api.callback.CreateGroupCallback;
 import io.jchat.android.activity.CreateGroupActivity;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.CreateGroupView;
-import io.jchat.android.view.DialogCreator;
+import io.jchat.android.tools.DialogCreator;
 
 public class CreateGroupController implements OnClickListener {
 

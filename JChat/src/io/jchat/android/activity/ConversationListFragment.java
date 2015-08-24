@@ -164,6 +164,7 @@ public class ConversationListFragment extends BaseFragment {
     @Override
     public void onResume() {
         dismissPopWindow();
+        mConvListController.getAdapter().notifyDataSetChanged();
         super.onResume();
     }
 

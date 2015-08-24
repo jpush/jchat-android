@@ -32,6 +32,7 @@ import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.adapter.ConversationListAdapter;
 import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.view.ConversationListView;
@@ -45,6 +46,7 @@ public class ConversationListController implements OnClickListener,
     private ConversationListAdapter mListAdapter;
     private double mDensity;
     private int mWidth;
+    private Dialog mDialog;
 
     public ConversationListController(ConversationListView listView,
                                       ConversationListFragment context) {
@@ -106,7 +108,7 @@ public class ConversationListController implements OnClickListener,
 
 
     /**
-     * 在会话列表界面收到消息，将该会话置顶
+     * 在会话列表界面收到消息或者新建会话，将该会话置顶
      * @param conv 收到消息的Conversation
      */
     public void refreshConvList(final Conversation conv){
@@ -128,18 +130,7 @@ public class ConversationListController implements OnClickListener,
     public boolean onItemLongClick(AdapterView<?> viewAdapter, View view,
                                    final int position, long id) {
         final Conversation conv = mDatas.get(position);
-        AlertDialog.Builder builder = new AlertDialog.Builder(
-                mContext.getActivity());
-        final View v = LayoutInflater.from(mContext.getActivity()).inflate(
-                R.layout.dialog_delete_conv, null);
-        builder.setView(v);
-        final TextView title = (TextView) v.findViewById(R.id.dialog_title);
-        final Button deleteBtn = (Button) v.findViewById(R.id.delete_conv_btn);
-        title.setText(conv.getTitle());
-        final Dialog dialog = builder.create();
-        dialog.show();
-        dialog.getWindow().setLayout((int)(0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-        deleteBtn.setOnClickListener(new OnClickListener() {
+        OnClickListener listener = new OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (conv.getType().equals(ConversationType.group))
@@ -148,9 +139,12 @@ public class ConversationListController implements OnClickListener,
                     JMessageClient.deleteSingleConversation(((UserInfo)conv.getTargetInfo()).getUserName());
                 mDatas.remove(position);
                 mListAdapter.notifyDataSetChanged();
-                dialog.dismiss();
+                mDialog.dismiss();
             }
-        });
+        };
+        mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), conv.getTitle(), listener);
+        mDialog.show();
+        mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         return true;
     }
 

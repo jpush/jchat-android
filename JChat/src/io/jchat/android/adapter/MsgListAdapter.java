@@ -2,7 +2,6 @@ package io.jchat.android.adapter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -32,7 +31,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -73,6 +71,7 @@ import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.TimeFormat;
@@ -129,6 +128,7 @@ public class MsgListAdapter extends BaseAdapter {
     private int mStart;
     //上一页的消息数
     private int mOffset = 18;
+    private Dialog mDialog;
 
     public MsgListAdapter(Context context, String targetID) {
         initData(context);
@@ -604,31 +604,7 @@ public class MsgListAdapter extends BaseAdapter {
             @Override
             public boolean onLongClick(View arg0) {
                 // 长按文本弹出菜单
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                View view = LayoutInflater.from(mContext).inflate(
-                        R.layout.dialog_msg_alert, null);
-                builder.setView(view);
-                Button copyBtn = (Button) view
-                        .findViewById(R.id.copy_msg_btn);
-                Button forwardBtn = (Button) view
-                        .findViewById(R.id.forward_msg_btn);
-                View line1 = view.findViewById(R.id.forward_split_line);
-                View line2 = view.findViewById(R.id.delete_split_line);
-                Button deleteBtn = (Button) view.findViewById(R.id.delete_msg_btn);
-                final TextView title = (TextView) view
-                        .findViewById(R.id.dialog_title);
-                if (msg.getContentType().equals(ContentType.voice)) {
-                    copyBtn.setVisibility(View.GONE);
-                    forwardBtn.setVisibility(View.GONE);
-                    line1.setVisibility(View.GONE);
-                    line2.setVisibility(View.GONE);
-                }
-                String name;
-                name = msg.getFromName();
-                title.setText(name);
-                final Dialog dialog = builder.create();
-                dialog.show();
-                dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
+                String name = msg.getFromName();
                 OnClickListener listener = new OnClickListener() {
 
                     @Override
@@ -665,24 +641,25 @@ public class MsgListAdapter extends BaseAdapter {
 
                                     Toast.makeText(mContext, mContext.getString(R.string.copy_toast), Toast.LENGTH_SHORT)
                                             .show();
-                                    dialog.dismiss();
+                                    mDialog.dismiss();
                                 }
                                 break;
                             case R.id.forward_msg_btn:
-                                dialog.dismiss();
+                                mDialog.dismiss();
                                 break;
                             case R.id.delete_msg_btn:
                                 mConv.deleteMessage(msg.getId());
                                 mMsgList.remove(position);
                                 notifyDataSetChanged();
-                                dialog.dismiss();
+                                mDialog.dismiss();
                                 break;
                         }
                     }
                 };
-                copyBtn.setOnClickListener(listener);
-                forwardBtn.setOnClickListener(listener);
-                deleteBtn.setOnClickListener(listener);
+                boolean hide = msg.getContentType().equals(ContentType.voice);
+                mDialog = DialogCreator.createLongPressMessageDialog(mContext, name, hide, listener);
+                mDialog.show();
+                mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 return true;
             }
         };
@@ -777,23 +754,15 @@ public class MsgListAdapter extends BaseAdapter {
 
     //重发对话框
     private void showResendDialog(final ViewHolder holder, final Animation sendingAnim, final Message msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        View view = LayoutInflater.from(mContext).inflate(
-                R.layout.dialog_resend_msg, null);
-        builder.setView(view);
-        Button cancelBtn = (Button) view.findViewById(R.id.cancel_btn);
-        Button resendBtn = (Button) view.findViewById(R.id.resend_btn);
-        final Dialog dialog = builder.create();
-        dialog.show();
         OnClickListener listener = new OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (view.getId()) {
                     case R.id.cancel_btn:
-                        dialog.dismiss();
+                        mDialog.dismiss();
                         break;
-                    case R.id.resend_btn:
-                        dialog.dismiss();
+                    case R.id.commit_btn:
+                        mDialog.dismiss();
                         if (msg.getContentType().equals(ContentType.image)) {
                             sendImage(holder, sendingAnim, msg);
                         } else {
@@ -803,9 +772,8 @@ public class MsgListAdapter extends BaseAdapter {
                 }
             }
         };
-        cancelBtn.setOnClickListener(listener);
-        resendBtn.setOnClickListener(listener);
-
+        mDialog = DialogCreator.createResendDialog(mContext, listener);
+        mDialog.show();
     }
 
     // 处理图片
@@ -917,29 +885,7 @@ public class MsgListAdapter extends BaseAdapter {
             holder.picture.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                    View view = LayoutInflater.from(mContext).inflate(
-                            R.layout.dialog_msg_alert, null);
-                    builder.setView(view);
-                    Button copyBtn = (Button) view
-                            .findViewById(R.id.copy_msg_btn);
-                    Button forwardBtn = (Button) view
-                            .findViewById(R.id.forward_msg_btn);
-                    View line1 = view.findViewById(R.id.forward_split_line);
-                    View line2 = view.findViewById(R.id.delete_split_line);
-                    Button deleteBtn = (Button) view.findViewById(R.id.delete_msg_btn);
-                    final TextView title = (TextView) view
-                            .findViewById(R.id.dialog_title);
-                    copyBtn.setVisibility(View.GONE);
-                    forwardBtn.setVisibility(View.GONE);
-                    line1.setVisibility(View.GONE);
-                    line2.setVisibility(View.GONE);
-                    String name;
-                    name = msg.getFromName();
-                    title.setText(name);
-                    final Dialog dialog = builder.create();
-                    dialog.show();
-                    dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
+                    String name = msg.getFromName();
                     OnClickListener listener = new OnClickListener() {
 
                         @Override
@@ -948,20 +894,20 @@ public class MsgListAdapter extends BaseAdapter {
                                 case R.id.copy_msg_btn:
                                     break;
                                 case R.id.forward_msg_btn:
-                                    dialog.dismiss();
+                                    mDialog.dismiss();
                                     break;
                                 case R.id.delete_msg_btn:
                                     mConv.deleteMessage(msg.getId());
                                     mMsgList.remove(position);
                                     notifyDataSetChanged();
-                                    dialog.dismiss();
+                                    mDialog.dismiss();
                                     break;
                             }
                         }
                     };
-                    copyBtn.setOnClickListener(listener);
-                    forwardBtn.setOnClickListener(listener);
-                    deleteBtn.setOnClickListener(listener);
+                    mDialog = DialogCreator.createLongPressMessageDialog(mContext, name, true, listener);
+                    mDialog.show();
+                    mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                     return true;
                 }
             });

@@ -23,12 +23,11 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
-import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.DialogCreator;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.view.MenuItemView;
 
 /**
@@ -66,6 +65,7 @@ public class MenuItemController implements View.OnClickListener {
                                 mLoadingDialog.dismiss();
                                 if (status == 0) {
                                     Conversation conv = Conversation.createGroupConversation(groupID);
+                                    mController.refreshConvList(conv);
                                     Intent intent = new Intent();
                                     intent.putExtra(JPushDemoApplication.IS_GROUP, true);
                                     //设置跳转标志

@@ -20,6 +20,7 @@ import io.jchat.android.R;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
+import io.jchat.android.tools.DialogCreator;
 
 
 public class MeInfoView extends LinearLayout{

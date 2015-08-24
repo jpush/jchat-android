@@ -20,7 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.R;
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -43,7 +42,7 @@ import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ChatDetailView;
-import io.jchat.android.view.DialogCreator;
+import io.jchat.android.tools.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
 
 public class ChatDetailController implements OnClickListener, OnItemClickListener, OnItemLongClickListener {
@@ -65,7 +64,6 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private boolean mIsCreator = false;
     private long mGroupID;
     private String mTargetID;
-    private DialogCreator mLD;
     private Dialog mLoadingDialog = null;
     private boolean mIsShowDelete = false;
     private static final int GET_GROUP_MEMBER = 2047;
@@ -74,6 +72,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private double mDensity;
     private String mGroupName;
     private final MyHandler myHandler = new MyHandler(this);
+    private Dialog mDialog;
 
     public ChatDetailController(ChatDetailView chatDetailView,
                                 ChatDetailActivity context) {
@@ -187,23 +186,12 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
 
             // 删除聊天记录
             case R.id.group_chat_del_rl:
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                View view = LayoutInflater.from(mContext).inflate(R.layout.dialog_reset_password, null);
-                builder.setView(view);
-                TextView title = (TextView) view.findViewById(R.id.title_tv);
-                title.setText(mContext.getString(R.string.clear_history_confirm_title));
-                final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
-                pwdEt.setVisibility(View.GONE);
-                final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
-                final Button commit = (Button) view.findViewById(R.id.commit_btn);
-                final Dialog dialog = builder.create();
-                dialog.show();
                 View.OnClickListener listener = new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         switch (view.getId()) {
                             case R.id.cancel_btn:
-                                dialog.cancel();
+                                mDialog.cancel();
                                 break;
                             case R.id.commit_btn:
                                 Conversation conv;
@@ -216,16 +204,31 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                                     Intent intent = new Intent(JPushDemoApplication.CLEAR_MSG_LIST_ACTION);
                                     mContext.sendBroadcast(intent);
                                 }
-                                dialog.cancel();
+                                mDialog.cancel();
                                 break;
                         }
                     }
                 };
-                cancel.setOnClickListener(listener);
-                commit.setOnClickListener(listener);
+                mDialog = DialogCreator.createDeleteMessageDialog(mContext, listener);
+                mDialog.show();
                 break;
             case R.id.chat_detail_del_group:
-                deleteAndExit();
+                listener = new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        switch (view.getId()){
+                            case R.id.cancel_btn:
+                                mDialog.cancel();
+                                break;
+                            case R.id.commit_btn:
+                                deleteAndExit();
+                                mDialog.cancel();
+                                break;
+                        }
+                    }
+                };
+                mDialog = DialogCreator.createExitGroupDialog(mContext, listener);
+                mDialog.show();
                 break;
         }
     }
@@ -234,8 +237,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
      * 删除并退出
      */
     private void deleteAndExit() {
-        mLD = new DialogCreator();
-        mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.exiting_group_toast));
+        mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
+                mContext.getString(R.string.exiting_group_toast));
         mLoadingDialog.show();
         JMessageClient.exitGroup(mGroupID, new BasicCallback(false) {
             @Override
@@ -267,10 +270,12 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             if (mIsGroup) {
                 // 点击群成员项时
                 if (position < mCurrentNum) {
-                    if (mMemberInfoList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                    if (mMemberInfoList.get(position).getUserName()
+                            .equals(JMessageClient.getMyInfo().getUserName())) {
                         intent.setClass(mContext, MeInfoActivity.class);
                     } else {
-                        intent.putExtra(JPushDemoApplication.TARGET_ID, mMemberInfoList.get(position).getUserName());
+                        intent.putExtra(JPushDemoApplication.TARGET_ID,
+                                mMemberInfoList.get(position).getUserName());
                         intent.setClass(mContext, FriendInfoActivity.class);
                     }
                     mContext.startActivity(intent);
@@ -300,12 +305,12 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             // 点击群成员Item时
             if (position < mCurrentNum) {
                 //如果群主删除自己
-                if (mMemberInfoList.get(position).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                if (mMemberInfoList.get(position).getUserName()
+                        .equals(JMessageClient.getMyInfo().getUserName())) {
                     return;
                 } else {
                     // 删除某个群成员
-                    mLD = new DialogCreator();
-                    mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.deleting_hint));
+                    mLoadingDialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.deleting_hint));
                     List<String> delList = new ArrayList<String>();
                     //之所以要传一个List，考虑到之后可能支持同时删除多人功能，现在List中只有一个元素
                     delList.add(mMemberInfoList.get(position).getUserName());
@@ -355,8 +360,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             break;
                             //检查群组中是否包含该用户
                         } else if (checkIfNotContainUser(targetID)) {
-                            mLD = new DialogCreator();
-                            mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.searching_user));
+                            mLoadingDialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.searching_user));
                             mLoadingDialog.show();
                             JMessageClient.getUserInfo(targetID, new GetUserInfoCallback(false) {
                                 @Override
@@ -431,8 +435,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
      */
     private void addAMember(final UserInfo userInfo) {
         try {
-            mLD = new DialogCreator();
-            mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.adding_hint));
+            mLoadingDialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.adding_hint));
             mLoadingDialog.show();
             ArrayList<String> list = new ArrayList<String>();
             list.add(userInfo.getUserName());
@@ -586,8 +589,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
      * @param newMember 要增加的成员
      */
     private void addMemberAndCreateGroup(final String newMember) {
-        mLD = new DialogCreator();
-        mLoadingDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
+        mLoadingDialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
         mLoadingDialog.show();
         JMessageClient.createGroup("", "", new CreateGroupCallback(false) {
             @Override
@@ -636,10 +638,6 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             }
         }
         return true;
-    }
-
-    public long getGroupID() {
-        return mGroupID;
     }
 
     public String getGroupName() {

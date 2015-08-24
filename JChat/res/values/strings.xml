@@ -205,6 +205,7 @@
     <string name="group_chat_history_hit">查找聊天内容</string>
     <string name="group_clear_history_hit">清空聊天记录</string>
     <string name="clear_history_confirm_title">确定清空聊天记录？</string>
+    <string name="delete_group_confirm_title">确定删除并退出群聊？</string>
     <string name="deleting_hint">删除中</string>
     <string name="group_exit_btn">删除并退出</string>
 

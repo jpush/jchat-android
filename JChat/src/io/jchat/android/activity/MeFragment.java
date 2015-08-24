@@ -1,8 +1,6 @@
 package io.jchat.android.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -15,22 +13,16 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.Toast;
-
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
-
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MeController;
@@ -48,7 +40,6 @@ public class MeFragment extends BaseFragment {
     private String mPath;
     private boolean isGetMeInfoFailed = true;
     private final MyHandler myHandler = new MyHandler(this);
-    private int mWidth;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,9 +54,6 @@ public class MeFragment extends BaseFragment {
         mMeView.initModule();
         mMeController = new MeController(mMeView, this);
         mMeView.setListeners(mMeController);
-        DisplayMetrics dm = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mWidth = dm.widthPixels;
     }
 
     private void getMyUserInfo() {
@@ -171,36 +159,7 @@ public class MeFragment extends BaseFragment {
         manager.cancelAll();
     }
 
-    public void showSetAvatarDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-        final LayoutInflater inflater = LayoutInflater.from(this.getActivity());
-        View view = inflater.inflate(R.layout.dialog_set_avatar, null);
-        builder.setView(view);
-        final Dialog dialog = builder.create();
-        dialog.show();
-        dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-        Button takePhotoBtn = (Button) view.findViewById(R.id.take_photo_btn);
-        Button pickPictureBtn = (Button) view.findViewById(R.id.pick_picture_btn);
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.take_photo_btn:
-                        dialog.cancel();
-                        takePhoto();
-                        break;
-                    case R.id.pick_picture_btn:
-                        dialog.cancel();
-                        selectImageFromLocal();
-                        break;
-                }
-            }
-        };
-        takePhotoBtn.setOnClickListener(listener);
-        pickPictureBtn.setOnClickListener(listener);
-    }
-
-    private void takePhoto() {
+    public void takePhoto() {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             String dir = "sdcard/JPushDemo/pictures/";
             File destDir = new File(dir);
