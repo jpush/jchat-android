@@ -38,12 +38,12 @@ public class ConversationListAdapter extends BaseAdapter {
         (context.getActivity()).getWindowManager().getDefaultDisplay().getMetrics(dm);
         double density = dm.density;
         for (Conversation conv : mDatas) {
-            if (conv.getType().equals(ConversationType.single)){
+            if (conv.getType().equals(ConversationType.single)) {
                 File file = conv.getAvatarFile();
-                if(file != null){
+                if (file != null) {
                     Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                            (int)(50 * density), (int)(50 * density));
-                    NativeImageLoader.getInstance().updateBitmapFromCache(((UserInfo)conv.getTargetInfo()).getUserName(),
+                            (int) (50 * density), (int) (50 * density));
+                    NativeImageLoader.getInstance().updateBitmapFromCache(conv.getTargetId(),
                             bitmap);
                 }
             }
@@ -52,11 +52,12 @@ public class ConversationListAdapter extends BaseAdapter {
 
     /**
      * 收到消息后将会话置顶
+     *
      * @param conv 要置顶的会话
      */
-    public void setToTop(Conversation conv){
-        for (Conversation conversation : mDatas){
-            if (conv.getId().equals(conversation.getId())){
+    public void setToTop(Conversation conv) {
+        for (Conversation conversation : mDatas) {
+            if (conv.getId().equals(conversation.getId())) {
                 mDatas.remove(conversation);
                 mDatas.add(0, conv);
                 mContext.getActivity().runOnUiThread(new Runnable() {
@@ -128,15 +129,11 @@ public class ConversationListAdapter extends BaseAdapter {
 
         }
         Message lastMsg = convItem.getLatestMessage();
-        TimeFormat timeFormat;
-        if (null == lastMsg){
-            timeFormat = new TimeFormat(mContext.getActivity(), System.currentTimeMillis());
-            viewHolder.datetime.setText(timeFormat.getTime());
-        }else {
-            timeFormat = new TimeFormat(mContext.getActivity(), lastMsg.getCreateTime());
-            viewHolder.datetime.setText(timeFormat.getTime());
-            // 按照最后一条消息的消息类型进行处理
-            switch (lastMsg.getContentType()) {
+        TimeFormat timeFormat = new TimeFormat(mContext.getActivity(), convItem.getLastMsgDate());
+        viewHolder.datetime.setText(timeFormat.getTime());
+        // 按照最后一条消息的消息类型进行处理
+        if (lastMsg != null){
+            switch (convItem.getLatestType()) {
                 case image:
                     viewHolder.content.setText(mContext.getString(R.string.type_picture));
                     break;
@@ -150,16 +147,16 @@ public class ConversationListAdapter extends BaseAdapter {
                     viewHolder.content.setText(mContext.getString(R.string.group_notification));
                     break;
                 default:
-                    viewHolder.content.setText(((TextContent)lastMsg.getContent()).getText());
+                    viewHolder.content.setText(((TextContent) lastMsg.getContent()).getText());
             }
+        }else {
+            viewHolder.content.setText("");
         }
-
 //		viewHolder.headIcon.setImageResource(R.drawable.head_icon);
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
             viewHolder.groupName.setText(convItem.getTitle());
-            Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(((UserInfo)
-                    convItem.getTargetInfo()).getUserName());
+            Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(convItem.getTargetId());
             if (bitmap != null)
                 viewHolder.headIcon.setImageBitmap(bitmap);
             else viewHolder.headIcon.setImageResource(R.drawable.head_icon);
@@ -173,9 +170,9 @@ public class ConversationListAdapter extends BaseAdapter {
         // TODO 更新Message的数量,
         if (convItem.getUnReadMsgCnt() > 0) {
             viewHolder.newMsgNumber.setVisibility(View.VISIBLE);
-            if(convItem.getUnReadMsgCnt() < 100)
+            if (convItem.getUnReadMsgCnt() < 100)
                 viewHolder.newMsgNumber.setText(String.valueOf(convItem
-                    .getUnReadMsgCnt()));
+                        .getUnReadMsgCnt()));
             else viewHolder.newMsgNumber.setText("99");
         } else {
             viewHolder.newMsgNumber.setVisibility(View.GONE);

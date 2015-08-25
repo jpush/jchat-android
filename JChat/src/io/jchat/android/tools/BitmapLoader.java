@@ -17,9 +17,6 @@ import java.util.List;
  */
 public class BitmapLoader {
 
-    private static int radius = 5;
-
-
     public static Bitmap getBitmapFromFile(String path, int width, int height) {
         BitmapFactory.Options opts = null;
         if (path != null) {
@@ -149,14 +146,11 @@ public class BitmapLoader {
         // Stack Blur Algorithm by Mario Klingemann <mario@quasimondo.com>
 
         Bitmap bitmap;
+        int radius = 5;
         if (canReuseInBitmap) {
             bitmap = sentBitmap;
         } else {
             bitmap = sentBitmap.copy(sentBitmap.getConfig(), true);
-        }
-
-        if (radius < 1) {
-            return (null);
         }
 
         int w = bitmap.getWidth();

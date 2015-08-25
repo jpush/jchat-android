@@ -103,7 +103,7 @@ public class ConversationListFragment extends BaseFragment {
         if (conv.getType() == ConversationType.single) {
             File file = conv.getAvatarFile();
             if (file != null) {
-                mConvListController.loadAvatarAndRefresh(((UserInfo)conv.getTargetInfo()).getUserName(),
+                mConvListController.loadAvatarAndRefresh(conv.getTargetId(),
                         file.getAbsolutePath());
             }
         } else {
@@ -164,6 +164,13 @@ public class ConversationListFragment extends BaseFragment {
     @Override
     public void onResume() {
         dismissPopWindow();
+        int position = mConvListController.getClickPosition();
+        if (position != -1){
+            Conversation conv = mConvListController.getDatas().get(position);
+            if (conv != null){
+                conv.resetUnreadCount();
+            }
+        }
         mConvListController.getAdapter().notifyDataSetChanged();
         super.onResume();
     }

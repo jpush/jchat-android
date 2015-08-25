@@ -37,6 +37,7 @@ public class FriendInfoActivity extends BaseActivity {
     private double mDensity;
     private Context mContext;
     private final MyHandler myHandler = new MyHandler(this);
+    private String mNickname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +94,7 @@ public class FriendInfoActivity extends BaseActivity {
         }
     }
 
-    public void StartChatActivity() {
+    public void startChatActivity() {
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("targetID", mTargetID);
@@ -121,6 +122,7 @@ public class FriendInfoActivity extends BaseActivity {
                         double density = dm.density;
                         activity.mUserInfo = (UserInfo) msg.obj;
                         activity.mFriendInfoView.initInfo(activity.mUserInfo, density);
+                        activity.mNickname = activity.mUserInfo.getNickname();
                         break;
                     case 2:
                         HandleResponseCode.onHandle(activity, msg.getData().getInt("status"), false);
@@ -128,6 +130,10 @@ public class FriendInfoActivity extends BaseActivity {
                 }
             }
         }
+    }
+
+    public String getNickname(){
+        return mNickname;
     }
 
 

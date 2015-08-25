@@ -594,7 +594,8 @@ public class MsgListAdapter extends BaseAdapter {
                         String targetID = msg.getFromID();
                         intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
                         intent.setClass(mContext, FriendInfoActivity.class);
-                        mContext.startActivity(intent);
+                        ((Activity)mContext).startActivityForResult(intent,
+                                JPushDemoApplication.REQUEST_CODE_FRIEND_INFO);
                     }
                 }
             });

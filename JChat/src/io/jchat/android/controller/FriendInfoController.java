@@ -6,8 +6,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import io.jchat.android.R;
-import io.jchat.android.activity.EditNoteNameActivity;
 import io.jchat.android.activity.FriendInfoActivity;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.view.FriendInfoView;
 
 public class FriendInfoController implements OnClickListener {
@@ -31,10 +31,14 @@ public class FriendInfoController implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.friend_info_return_btn:
+                Intent intent = new Intent();
+                String nickname = mContext.getNickname();
+                intent.putExtra(JPushDemoApplication.NICKNAME, nickname);
+                mContext.setResult(JPushDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
                 mContext.finish();
                 break;
             case R.id.friend_send_msg_btn:
-                mContext.StartChatActivity();
+                mContext.startChatActivity();
                 break;
             case R.id.friend_detail_avatar:
                 mContext.startBrowserAvatar();

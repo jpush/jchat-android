@@ -30,7 +30,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
      * header layout view
      **/
     private RelativeLayout headerLayout;
-    private ImageView headerImage;
+//    private ImageView headerImage;
     private ProgressBar headerProgressBar;
 
     private OnDropDownListener onDropDownListener;
@@ -130,7 +130,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         headerLayout = (RelativeLayout) inflater.inflate(R.layout.drop_down_list_header, this, false);
-        headerImage = (ImageView) headerLayout.findViewById(R.id.drop_down_list_header_image);
+//        headerImage = (ImageView) headerLayout.findViewById(R.id.drop_down_list_header_image);
         headerProgressBar = (ProgressBar) headerLayout.findViewById(R.id.drop_down_list_header_progress_bar);
         addHeaderView(headerLayout);
 
@@ -189,7 +189,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
                 actionDownPointY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                adjustHeaderPadding(event);
+//                adjustHeaderPadding(event);
                 break;
             case MotionEvent.ACTION_UP:
                 if (!isVerticalScrollBarEnabled()) {
@@ -227,31 +227,20 @@ public class DropDownListView extends ListView implements OnScrollListener {
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         if (isDropDownStyle) {
             if (currentScrollState == SCROLL_STATE_TOUCH_SCROLL && currentHeaderStatus != HEADER_STATUS_LOADING) {
-                /**
-                 * when state of ListView is SCROLL_STATE_TOUCH_SCROLL(ListView is scrolling and finger is on screen)
-                 * and header status is not HEADER_STATUS_LOADING
-                 * <ul>
-                 * if header layout is visiable,
-                 * <li>if height of header is higher than a fixed value, then set header status to
-                 * HEADER_STATUS_RELEASE_TO_LOAD.</li>
-                 * <li>else set header status to HEADER_STATUS_DROP_DOWN_TO_LOAD.</li>
-                 * </ul>
-                 * <ul>
-                 * if header layout is not visiable,
-                 * <li>set header status to HEADER_STATUS_CLICK_TO_LOAD.</li>
-                 * </ul>
-                 */
                 if (firstVisibleItem == 0) {
-                    headerImage.setVisibility(View.VISIBLE);
-                    int pointBottom = headerOriginalHeight + headerReleaseMinDistance;
-                    if (headerLayout.getBottom() >= pointBottom) {
-                        setHeaderStatusReleaseToLoad();
-                    } else if (headerLayout.getBottom() < pointBottom) {
-                        setHeaderStatusDropDownToLoad();
-                    }
-                } else {
-//                    setHeaderStatusClickToLoad();
+                    onDropDown();
                 }
+//                if (firstVisibleItem == 0) {
+//                    headerImage.setVisibility(View.VISIBLE);
+//                    int pointBottom = headerOriginalHeight + headerReleaseMinDistance;
+//                    if (headerLayout.getBottom() >= pointBottom) {
+//                        setHeaderStatusReleaseToLoad();
+//                    } else if (headerLayout.getBottom() < pointBottom) {
+//                        setHeaderStatusDropDownToLoad();
+//                    }
+//                } else {
+//                    setHeaderStatusClickToLoad();
+//                }
             } else if (currentScrollState == SCROLL_STATE_FLING && firstVisibleItem == 0
                     && currentHeaderStatus != HEADER_STATUS_LOADING) {
                 /**
@@ -338,8 +327,8 @@ public class DropDownListView extends ListView implements OnScrollListener {
     private void resetHeader() {
         if (currentHeaderStatus != HEADER_STATUS_CLICK_TO_LOAD) {
             resetHeaderPadding();
-            headerImage.clearAnimation();
-            headerImage.setVisibility(View.GONE);
+//            headerImage.clearAnimation();
+//            headerImage.setVisibility(View.GONE);
             headerProgressBar.setVisibility(View.GONE);
             currentHeaderStatus = HEADER_STATUS_DROP_DOWN_TO_LOAD;
         }
@@ -347,7 +336,6 @@ public class DropDownListView extends ListView implements OnScrollListener {
 
     /**
      * OnDropDownListener, called when header released
-     *
      */
     public interface OnDropDownListener {
 
@@ -428,11 +416,11 @@ public class DropDownListView extends ListView implements OnScrollListener {
      */
     private void setHeaderStatusDropDownToLoad() {
         if (currentHeaderStatus != HEADER_STATUS_DROP_DOWN_TO_LOAD) {
-            headerImage.setVisibility(View.VISIBLE);
-            if (currentHeaderStatus != HEADER_STATUS_CLICK_TO_LOAD) {
-                headerImage.clearAnimation();
-                headerImage.startAnimation(reverseFlipAnimation);
-            }
+//            headerImage.setVisibility(View.VISIBLE);
+//            if (currentHeaderStatus != HEADER_STATUS_CLICK_TO_LOAD) {
+//                headerImage.clearAnimation();
+//                headerImage.startAnimation(reverseFlipAnimation);
+//            }
             headerProgressBar.setVisibility(View.GONE);
 
             if (isVerticalFadingEdgeEnabled()) {
@@ -448,9 +436,9 @@ public class DropDownListView extends ListView implements OnScrollListener {
      */
     private void setHeaderStatusReleaseToLoad() {
         if (currentHeaderStatus != HEADER_STATUS_RELEASE_TO_LOAD) {
-            headerImage.setVisibility(View.VISIBLE);
-            headerImage.clearAnimation();
-            headerImage.startAnimation(flipAnimation);
+//            headerImage.setVisibility(View.VISIBLE);
+//            headerImage.clearAnimation();
+//            headerImage.startAnimation(flipAnimation);
             headerProgressBar.setVisibility(View.GONE);
 
             currentHeaderStatus = HEADER_STATUS_RELEASE_TO_LOAD;
@@ -464,8 +452,8 @@ public class DropDownListView extends ListView implements OnScrollListener {
         if (currentHeaderStatus != HEADER_STATUS_LOADING) {
             resetHeaderPadding();
 
-            headerImage.setVisibility(View.GONE);
-            headerImage.clearAnimation();
+//            headerImage.setVisibility(View.GONE);
+//            headerImage.clearAnimation();
             headerProgressBar.setVisibility(View.VISIBLE);
             currentHeaderStatus = HEADER_STATUS_LOADING;
             setSelection(0);

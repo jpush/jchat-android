@@ -20,6 +20,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.R;
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -603,7 +605,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                         public void gotResult(int status, String desc) {
                             if (mLoadingDialog != null)
                                 mLoadingDialog.dismiss();
-                            Conversation conv = Conversation.createGroupConversation( groupID);
+                            Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
                             if (status == 0) {
                                 mContext.StartChatActivity(groupID, conv.getTitle());
                             } else {

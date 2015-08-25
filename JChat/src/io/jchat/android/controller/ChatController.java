@@ -148,11 +148,11 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
 
         // 如果之前沒有会话记录并且是群聊
         if (mConv == null && mIsGroup) {
-            mConv = Conversation.createGroupConversation(mGroupID);
+            mConv = Conversation.createConversation(ConversationType.group, mGroupID);
             Log.i("ChatController", "create group success");
             // 是单聊
         } else if (mConv == null && !mIsGroup) {
-            mConv = Conversation.createSingleConversation(mTargetID);
+            mConv = Conversation.createConversation(ConversationType.single, mTargetID);
             mChatView.setChatTitle(mConv.getTitle());
         }
         if (mConv != null) {
@@ -165,7 +165,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
             mChatView.getListView().setOnDropDownListener(new DropDownListView.OnDropDownListener() {
                 @Override
                 public void onDropDown() {
-                    myHandler.sendEmptyMessageDelayed(REFRESH_LAST_PAGE, 2000);
+                    myHandler.sendEmptyMessageDelayed(REFRESH_LAST_PAGE, 1000);
                 }
             });
         }
@@ -192,7 +192,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
                     dismissSoftInput();
                     mIsShowMoreMenu = false;
                 }
-                mContext.StartChatDetailActivity(mIsGroup, mTargetID, mGroupID);
+                mContext.startChatDetailActivity(mIsGroup, mTargetID, mGroupID);
                 break;
             // 切换输入
             case R.id.switch_voice_ib:
@@ -307,7 +307,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
                     intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
                 }
                 intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
-                mContext.StartPickPictureTotalActivity(intent);
+                mContext.startPickPictureTotalActivity(intent);
                 break;
             case R.id.send_location_btn:
                 break;

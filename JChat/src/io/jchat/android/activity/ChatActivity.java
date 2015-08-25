@@ -151,17 +151,6 @@ public class ChatActivity extends BaseActivity {
                         mChatController.dismissSoftInput();
                         ChatController.mIsShowMoreMenu = false;
                         //清空未读数
-                    } else {
-                        if (mChatController.isGroup()) {
-                            long groupID = mChatController.getGroupID();
-                            Log.i(TAG, "groupID " + groupID);
-                            Conversation conv = JMessageClient.getGroupConversation(groupID);
-                            conv.resetUnreadCount();
-                        } else {
-                            mTargetID = mChatController.getTargetID();
-                            Conversation conv = JMessageClient.getSingleConversation(mTargetID);
-                            conv.resetUnreadCount();
-                        }
                     }
                     break;
                 case KeyEvent.KEYCODE_MENU:
@@ -260,7 +249,7 @@ public class ChatActivity extends BaseActivity {
                 Intent intent = new Intent();
                 intent.putExtra(JPushDemoApplication.MsgIDs, new int[]{msg.getId()});
                 if (conv.getType() == ConversationType.group) {
-                    intent.putExtra(JPushDemoApplication.GROUP_ID, ((GroupInfo)conv.getTargetInfo()).getGroupID());
+                    intent.putExtra(JPushDemoApplication.GROUP_ID, Long.parseLong(conv.getTargetId()));
                 } else {
                     intent.putExtra(JPushDemoApplication.TARGET_ID, msg.getTargetID());
                 }
@@ -281,10 +270,17 @@ public class ChatActivity extends BaseActivity {
                             data.getIntExtra("currentCount", 0));
                 }
             }
+        }else if (resultCode == JPushDemoApplication.RESULT_CODE_FRIEND_INFO){
+            if (!mChatController.isGroup()){
+                String nickname = data.getStringExtra(JPushDemoApplication.NICKNAME);
+                if (nickname != null){
+                    mChatView.setChatTitle(nickname);
+                }
+            }
         }
     }
 
-    public void StartChatDetailActivity(boolean isGroup, String targetID, long groupID) {
+    public void startChatDetailActivity(boolean isGroup, String targetID, long groupID) {
         Intent intent = new Intent();
         intent.putExtra(JPushDemoApplication.IS_GROUP, isGroup);
         intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
@@ -293,7 +289,7 @@ public class ChatActivity extends BaseActivity {
         startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CHAT_DETAIL);
     }
 
-    public void StartPickPictureTotalActivity(Intent intent) {
+    public void startPickPictureTotalActivity(Intent intent) {
         if (!Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED)) {
             Toast.makeText(this, this.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();

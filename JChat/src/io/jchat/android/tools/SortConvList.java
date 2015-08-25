@@ -13,13 +13,11 @@ public class SortConvList implements Comparator {
     public int compare(Object o, Object o2) {
         Conversation conv1 = (Conversation) o;
         Conversation conv2 = (Conversation) o2;
-        Message lastMsg1 = conv1.getLatestMessage();
-        Message lastMsg2 = conv2.getLatestMessage();
         int flag;
         //返回-1为升序，即将最近收到消息的会话放在第一位
-        if(lastMsg1.getCreateTime() > lastMsg2.getCreateTime())
+        if(conv1.getLastMsgDate() > conv2.getLastMsgDate())
             flag = -1;
-        else if(lastMsg1.getCreateTime() < lastMsg2.getCreateTime())
+        else if(conv1.getLastMsgDate() < conv2.getLastMsgDate())
             flag = 1;
         else flag = 0;
         return flag;
