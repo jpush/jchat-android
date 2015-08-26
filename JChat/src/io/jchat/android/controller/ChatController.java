@@ -406,8 +406,12 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
                     case REFRESH_LAST_PAGE:
                         controller.mChatAdapter.dropDownToRefresh();
                         controller.mChatView.getListView().onDropDownComplete();
-                        controller.mChatView.getListView().setSelection(controller.mChatAdapter.getOffset());
-                        controller.mChatAdapter.refreshStartPosition();
+                        if (controller.mChatAdapter.isHasLastPage()){
+                            controller.mChatView.getListView().setSelection(controller.mChatAdapter.getOffset());
+                            controller.mChatAdapter.refreshStartPosition();
+                        }else {
+                            controller.mChatView.getListView().setSelection(0);
+                        }
                         break;
                     case UPDATE_GROUP_INFO:
                         controller.mGroupInfo = (GroupInfo)msg.obj;

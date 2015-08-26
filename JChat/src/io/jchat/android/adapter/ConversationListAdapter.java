@@ -79,7 +79,7 @@ public class ConversationListAdapter extends BaseAdapter {
         });
     }
 
-    public void addNewConversation(Conversation conv){
+    public void addNewConversation(Conversation conv) {
         mDatas.add(0, conv);
         notifyDataSetChanged();
     }
@@ -129,29 +129,24 @@ public class ConversationListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
 
         }
-        Message lastMsg = convItem.getLatestMessage();
         TimeFormat timeFormat = new TimeFormat(mContext.getActivity(), convItem.getLastMsgDate());
         viewHolder.datetime.setText(timeFormat.getTime());
         // 按照最后一条消息的消息类型进行处理
-        if (lastMsg != null){
-            switch (convItem.getLatestType()) {
-                case image:
-                    viewHolder.content.setText(mContext.getString(R.string.type_picture));
-                    break;
-                case voice:
-                    viewHolder.content.setText(mContext.getString(R.string.type_voice));
-                    break;
-                case location:
-                    viewHolder.content.setText(mContext.getString(R.string.type_location));
-                    break;
-                case eventNotification:
-                    viewHolder.content.setText(mContext.getString(R.string.group_notification));
-                    break;
-                default:
-                    viewHolder.content.setText(((TextContent) lastMsg.getContent()).getText());
-            }
-        }else {
-            viewHolder.content.setText("");
+        switch (convItem.getLatestType()) {
+            case image:
+                viewHolder.content.setText(mContext.getString(R.string.type_picture));
+                break;
+            case voice:
+                viewHolder.content.setText(mContext.getString(R.string.type_voice));
+                break;
+            case location:
+                viewHolder.content.setText(mContext.getString(R.string.type_location));
+                break;
+            case eventNotification:
+                viewHolder.content.setText(mContext.getString(R.string.group_notification));
+                break;
+            default:
+                viewHolder.content.setText(convItem.getLatestText());
         }
 //		viewHolder.headIcon.setImageResource(R.drawable.head_icon);
         // 如果是单聊

@@ -127,6 +127,7 @@ public class MsgListAdapter extends BaseAdapter {
     private int mStart;
     //上一页的消息数
     private int mOffset = 18;
+    private boolean mHasLastPage = false;
     private Dialog mDialog;
 
     public MsgListAdapter(Context context, String targetID) {
@@ -193,24 +194,35 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     public void dropDownToRefresh() {
-        if(mConv != null){
+        if (mConv != null) {
             List<Message> msgList = mConv.getMessagesFromNewest(mStart, 18);
-            if (msgList != null){
-                for (Message msg : msgList){
+            if (msgList != null) {
+                for (Message msg : msgList) {
                     mMsgList.add(0, msg);
                 }
-                mOffset = msgList.size();
+                if (msgList.size() > 0){
+                    mOffset = msgList.size();
+                    mHasLastPage = true;
+                }else mHasLastPage = false;
                 notifyDataSetChanged();
             }
         }
     }
 
-    public int getOffset(){
+    public int getOffset() {
         return mOffset;
+    }
+
+    public boolean isHasLastPage(){
+        return mHasLastPage;
     }
 
     public void refreshStartPosition() {
         mStart += mOffset;
+    }
+
+    private void incrementStartPosition(){
+        ++mStart;
     }
 
     public void initMediaPlayer() {
@@ -224,6 +236,7 @@ public class MsgListAdapter extends BaseAdapter {
             msg = mConv.getMessage(msgID);
             JMessageClient.sendMessage(msg);
             mMsgList.add(msg);
+            incrementStartPosition();
         }
         notifyDataSetChanged();
     }
@@ -252,6 +265,7 @@ public class MsgListAdapter extends BaseAdapter {
 
     public void addMsgToList(Message msg) {
         mMsgList.add(msg);
+        incrementStartPosition();
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -498,19 +512,39 @@ public class MsgListAdapter extends BaseAdapter {
         TextView msgTime = (TextView) convertView
                 .findViewById(R.id.send_time_txt);
         long nowDate = msg.getCreateTime();
-        if (position != 0) {
-            long lastDate = mMsgList.get(position - 1).getCreateTime();
-            // 如果两条消息之间的间隔超过十分钟则显示时间
-            if (nowDate - lastDate > 600000) {
+        if (mOffset == 18){
+            if (position == 0 || position % 18 == 0 ){
                 TimeFormat timeFormat = new TimeFormat(mContext, nowDate);
                 msgTime.setText(timeFormat.getDetailTime());
                 msgTime.setVisibility(View.VISIBLE);
-            } else {
-                msgTime.setVisibility(View.GONE);
+            }else {
+                long lastDate = mMsgList.get(position - 1).getCreateTime();
+                // 如果两条消息之间的间隔超过十分钟则显示时间
+                if (nowDate - lastDate > 600000) {
+                    TimeFormat timeFormat = new TimeFormat(mContext, nowDate);
+                    msgTime.setText(timeFormat.getDetailTime());
+                    msgTime.setVisibility(View.VISIBLE);
+                } else {
+                    msgTime.setVisibility(View.GONE);
+                }
             }
-        } else {
-            TimeFormat timeFormat = new TimeFormat(mContext, nowDate);
-            msgTime.setText(timeFormat.getDetailTime());
+        }else {
+            if (position == 0 || position == mOffset
+                    || (position - mOffset) % 18 == 0){
+                TimeFormat timeFormat = new TimeFormat(mContext, nowDate);
+                msgTime.setText(timeFormat.getDetailTime());
+                msgTime.setVisibility(View.VISIBLE);
+            }else {
+                long lastDate = mMsgList.get(position - 1).getCreateTime();
+                // 如果两条消息之间的间隔超过十分钟则显示时间
+                if (nowDate - lastDate > 600000) {
+                    TimeFormat timeFormat = new TimeFormat(mContext, nowDate);
+                    msgTime.setText(timeFormat.getDetailTime());
+                    msgTime.setVisibility(View.VISIBLE);
+                } else {
+                    msgTime.setVisibility(View.GONE);
+                }
+            }
         }
         //显示头像
         if (holder.headIcon != null) {
@@ -593,7 +627,7 @@ public class MsgListAdapter extends BaseAdapter {
                         String targetID = msg.getFromID();
                         intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
                         intent.setClass(mContext, FriendInfoActivity.class);
-                        ((Activity)mContext).startActivityForResult(intent,
+                        ((Activity) mContext).startActivityForResult(intent,
                                 JPushDemoApplication.REQUEST_CODE_FRIEND_INFO);
                     }
                 }
