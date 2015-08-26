@@ -79,10 +79,11 @@ public class ConversationListAdapter extends BaseAdapter {
         });
     }
 
-    public void resetUnreadMsg(int position) {
-        mDatas.get(position).resetUnreadCount();
+    public void addNewConversation(Conversation conv){
+        mDatas.add(0, conv);
         notifyDataSetChanged();
     }
+
 
     @Override
     public int getCount() {

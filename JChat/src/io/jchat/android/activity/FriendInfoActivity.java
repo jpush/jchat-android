@@ -1,9 +1,14 @@
 package io.jchat.android.activity;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.enums.ConversationType;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.eventbus.EventBus;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.FriendInfoController;
+import io.jchat.android.entity.Event;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
@@ -97,9 +102,14 @@ public class FriendInfoActivity extends BaseActivity {
     public void startChatActivity() {
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("targetID", mTargetID);
+        intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
         intent.setClass(this, ChatActivity.class);
         startActivity(intent);
+        Conversation conv = JMessageClient.getSingleConversation(mTargetID);
+        if (conv == null){
+            conv = Conversation.createConversation(ConversationType.single, mTargetID);
+            EventBus.getDefault().post(new Event.StringEvent(mTargetID));
+        }
         finish();
     }
 

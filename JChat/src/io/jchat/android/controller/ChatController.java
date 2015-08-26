@@ -181,7 +181,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
         switch (v.getId()) {
             // 返回按钮
             case R.id.return_btn:
-                mConv.resetUnreadCount();
                 JMessageClient.exitConversaion();
                 mContext.finish();
                 break;
@@ -407,7 +406,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
                     case REFRESH_LAST_PAGE:
                         controller.mChatAdapter.dropDownToRefresh();
                         controller.mChatView.getListView().onDropDownComplete();
-                        controller.mChatView.getListView().setSelection(controller.mChatAdapter.getOffset() + 1);
+                        controller.mChatView.getListView().setSelection(controller.mChatAdapter.getOffset());
                         controller.mChatAdapter.refreshStartPosition();
                         break;
                     case UPDATE_GROUP_INFO:
@@ -446,4 +445,5 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
     public boolean isGroup() {
         return mIsGroup;
     }
+
 }

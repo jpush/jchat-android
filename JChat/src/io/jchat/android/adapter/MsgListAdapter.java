@@ -94,7 +94,6 @@ public class MsgListAdapter extends BaseAdapter {
     private long mGroupID;
     private int mPosition = -1;// 和mSetData一起组成判断播放哪条录音的依据
     private static final int UPDATE_IMAGEVIEW = 1999;
-    private final int UPDATE_PROGRESS = 1998;
     // 9种Item的类型
     // 文本
     private final int TYPE_RECEIVE_TXT = 0;

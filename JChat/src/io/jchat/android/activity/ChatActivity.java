@@ -23,9 +23,11 @@ import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.application.JPushDemoApplication;
@@ -61,12 +63,11 @@ public class ChatActivity extends BaseActivity {
 
     }
 
-    // 监听耳机插入及清除消息的广播
+    // 监听耳机插入
     private void initReceiver() {
         mReceiver = new MyReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_HEADSET_PLUG);
-        filter.addAction(JPushDemoApplication.CLEAR_MSG_LIST_ACTION);
         registerReceiver(mReceiver, filter);
     }
 
@@ -79,9 +80,6 @@ public class ChatActivity extends BaseActivity {
                 //插入了耳机
                 if (data.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
                     mChatController.getAdapter().setAudioPlayByEarPhone(data.getIntExtra("state", 0));
-                    //清除消息
-                }else if (data.getAction().equals(JPushDemoApplication.CLEAR_MSG_LIST_ACTION)){
-                    mChatController.getAdapter().clearMsgList();
                 }
             }
         }
@@ -111,7 +109,7 @@ public class ChatActivity extends BaseActivity {
     /**
      * 处理发送图片，刷新界面
      *
-     * @param data    intent
+     * @param data intent
      */
     private void handleImgRefresh(Intent data) {
         mTargetID = data.getStringExtra(JPushDemoApplication.TARGET_ID);
@@ -210,9 +208,9 @@ public class ChatActivity extends BaseActivity {
         if (isGroup) {
             try {
                 long groupID = getIntent().getLongExtra(JPushDemoApplication.GROUP_ID, 0);
-                if (groupID == 0){
+                if (groupID == 0) {
                     JMessageClient.enterGroupConversation(Long.parseLong(targetID));
-                }else JMessageClient.enterGroupConversation(groupID);
+                } else JMessageClient.enterGroupConversation(groupID);
             } catch (NumberFormatException nfe) {
                 nfe.printStackTrace();
             }
@@ -259,21 +257,24 @@ public class ChatActivity extends BaseActivity {
             } catch (NullPointerException e) {
                 Log.i(TAG, "onActivityResult unexpected result");
             }
-        }else if (resultCode == JPushDemoApplication.RESULT_CODE_SELECT_PICTURE){
+        } else if (resultCode == JPushDemoApplication.RESULT_CODE_SELECT_PICTURE) {
             handleImgRefresh(data);
-        }else if (resultCode == JPushDemoApplication.RESULT_CODE_CHAT_DETAIL){
-            if (mChatController.isGroup()){
-                if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))){
+        } else if (resultCode == JPushDemoApplication.RESULT_CODE_CHAT_DETAIL) {
+            if (mChatController.isGroup()) {
+                if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))) {
                     mChatView.setChatTitle(this.getString(R.string.group), data.getIntExtra("currentCount", 0));
-                }else {
+                } else {
                     mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.GROUP_NAME),
                             data.getIntExtra("currentCount", 0));
                 }
             }
-        }else if (resultCode == JPushDemoApplication.RESULT_CODE_FRIEND_INFO){
-            if (!mChatController.isGroup()){
+            if (data.getBooleanExtra("deleteMsg", false)){
+                mChatController.getAdapter().clearMsgList();
+            }
+        } else if (resultCode == JPushDemoApplication.RESULT_CODE_FRIEND_INFO) {
+            if (!mChatController.isGroup()) {
                 String nickname = data.getStringExtra(JPushDemoApplication.NICKNAME);
-                if (nickname != null){
+                if (nickname != null) {
                     mChatView.setChatTitle(nickname);
                 }
             }
@@ -318,7 +319,7 @@ public class ChatActivity extends BaseActivity {
                 //群主删除了当前用户，则隐藏聊天详情按钮
                 if (groupID == mChatController.getGroupID()) {
                     refreshGroupNum();
-                    if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())){
+                    if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -333,7 +334,7 @@ public class ChatActivity extends BaseActivity {
                 //群主把当前用户添加到群聊，则显示聊天详情按钮
                 if (groupID == mChatController.getGroupID()) {
                     refreshGroupNum();
-                    if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())){
+                    if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -350,13 +351,13 @@ public class ChatActivity extends BaseActivity {
             public void run() {
                 String targetID = msg.getTargetID();
                 //收到消息的类型为单聊
-                if (msg.getTargetType().equals(ConversationType.single)){
+                if (msg.getTargetType().equals(ConversationType.single)) {
                     //判断消息是否在当前会话中
-                    if (!mChatController.isGroup() && targetID.equals(mChatController.getTargetID())){
+                    if (!mChatController.isGroup() && targetID.equals(mChatController.getTargetID())) {
                         mChatController.getAdapter().addMsgToList(msg);
                     }
-                }else {
-                    if (mChatController.isGroup() && Long.parseLong(targetID) == mChatController.getGroupID()){
+                } else {
+                    if (mChatController.isGroup() && Long.parseLong(targetID) == mChatController.getGroupID()) {
                         mChatController.getAdapter().addMsgToList(msg);
                     }
                 }

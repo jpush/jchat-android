@@ -22,9 +22,12 @@ import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ConversationRefreshEvent;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
+import io.jchat.android.entity.Event;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ConversationListView;
 import io.jchat.android.view.MenuItemView;
@@ -49,6 +52,7 @@ public class ConversationListFragment extends BaseFragment {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         JMessageClient.registerEventReceiver(this);
+        EventBus.getDefault().register(this);
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mRootView = layoutInflater.inflate(R.layout.fragment_conv_list,
                 (ViewGroup) getActivity().findViewById(R.id.main_view),
@@ -150,6 +154,13 @@ public class ConversationListFragment extends BaseFragment {
 
     }
 
+    public void onEventMainThread(Event.StringEvent event){
+        Log.d(TAG, "StringEvent execute");
+        String targetID = event.getTargetID();
+        Conversation conv = JMessageClient.getSingleConversation(targetID);
+        mConvListController.getAdapter().addNewConversation(conv);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -185,6 +196,7 @@ public class ConversationListFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         JMessageClient.unRegisterEventReceiver(this);
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 

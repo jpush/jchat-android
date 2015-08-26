@@ -3,6 +3,7 @@ package io.jchat.android.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -73,6 +74,14 @@ public class DropDownListView extends ListView implements OnScrollListener {
      * y of point which user touch down
      **/
     private float actionDownPointY;
+
+    private float actionMovePointY;
+
+    private int mListViewFirstItem = 0;
+    //listView中第一项的在屏幕中的位置
+    private int mScreenY = 0;
+    //是否向上滚动
+    private boolean mIsScrollToUp = false;
 
     public DropDownListView(Context context) {
         super(context);
@@ -189,6 +198,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
                 actionDownPointY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
+                actionMovePointY = event.getY();
 //                adjustHeaderPadding(event);
                 break;
             case MotionEvent.ACTION_UP:
@@ -227,9 +237,10 @@ public class DropDownListView extends ListView implements OnScrollListener {
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         if (isDropDownStyle) {
             if (currentScrollState == SCROLL_STATE_TOUCH_SCROLL && currentHeaderStatus != HEADER_STATUS_LOADING) {
-                if (firstVisibleItem == 0) {
+                if (firstVisibleItem == 0 && actionMovePointY - actionDownPointY > 0) {
                     onDropDown();
                 }
+
 //                if (firstVisibleItem == 0) {
 //                    headerImage.setVisibility(View.VISIBLE);
 //                    int pointBottom = headerOriginalHeight + headerReleaseMinDistance;

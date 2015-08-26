@@ -166,6 +166,7 @@ public class ChatDetailActivity extends BaseActivity {
         Intent intent = new Intent();
         intent.putExtra(JPushDemoApplication.GROUP_NAME, mChatDetailController.getGroupName());
         intent.putExtra("currentCount", mChatDetailController.getCurrentCount());
+        intent.putExtra("deleteMsg", mChatDetailController.getDeleteFlag());
         setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
         finish();
         super.onBackPressed();
@@ -235,7 +236,7 @@ public class ChatDetailActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    public void StartChatActivity(long groupID, String groupName) {
+    public void startChatActivity(long groupID, String groupName) {
         Intent intent = new Intent();
         intent.putExtra("isGroup", true);
         //设置跳转标志

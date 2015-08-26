@@ -26,7 +26,6 @@ public class JPushDemoApplication extends Application {
     public static final int ON_GROUP_EVENT = 3004;
     private static final String JCHAT_CONFIGS = "JChat_configs";
 
-    public static final String CLEAR_MSG_LIST_ACTION = "cn.jpush.im.demo.activity.ACTION_CLEAR_MSG_LIST";
     public static final String TARGET_ID = "targetID";
     public static final String NICKNAME = "nickname";
     public static final String GROUP_ID = "groupID";

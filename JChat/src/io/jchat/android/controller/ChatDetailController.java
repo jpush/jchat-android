@@ -75,6 +75,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private String mGroupName;
     private final MyHandler myHandler = new MyHandler(this);
     private Dialog mDialog;
+    private boolean mDeleteMsg;
 
     public ChatDetailController(ChatDetailView chatDetailView,
                                 ChatDetailActivity context) {
@@ -162,6 +163,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         switch (v.getId()) {
             case R.id.return_btn:
                 Intent intent = new Intent();
+                intent.putExtra("deleteMsg", mDeleteMsg);
                 intent.putExtra(JPushDemoApplication.GROUP_NAME, getGroupName());
                 intent.putExtra("currentCount", mCurrentNum);
                 mContext.setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
@@ -203,8 +205,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                                     conv = JMessageClient.getSingleConversation(mTargetID);
                                 if (conv != null) {
                                     conv.deleteAllMessage();
-                                    Intent intent = new Intent(JPushDemoApplication.CLEAR_MSG_LIST_ACTION);
-                                    mContext.sendBroadcast(intent);
+                                    mDeleteMsg = true;
                                 }
                                 mDialog.cancel();
                                 break;
@@ -607,9 +608,9 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                                 mLoadingDialog.dismiss();
                             Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
                             if (status == 0) {
-                                mContext.StartChatActivity(groupID, conv.getTitle());
+                                mContext.startChatActivity(groupID, conv.getTitle());
                             } else {
-                                mContext.StartChatActivity(groupID, conv.getTitle());
+                                mContext.startChatActivity(groupID, conv.getTitle());
                                 Toast.makeText(mContext, desc, Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -648,6 +649,10 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
 
     public int getCurrentCount() {
         return mCurrentNum;
+    }
+
+    public boolean getDeleteFlag(){
+        return mDeleteMsg;
     }
 
     /**

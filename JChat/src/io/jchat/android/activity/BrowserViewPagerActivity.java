@@ -208,7 +208,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         mLoadBtn.setVisibility(View.GONE);
                         setLoadBtnText(ic);
                     }
-                    photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(mMsgIDList.indexOf(mMsg.getId())), mWidth, mHeight));
+                    photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(mMsgIDList
+                            .indexOf(mMsg.getId())), mWidth, mHeight));
                     mViewPager.setCurrentItem(mMsgIDList.indexOf(mMsg.getId()));
                 } catch (NullPointerException e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
