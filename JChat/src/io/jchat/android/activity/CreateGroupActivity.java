@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import io.jchat.android.R;
 
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.CreateGroupController;
 import io.jchat.android.view.CreateGroupView;
 
@@ -31,11 +32,11 @@ public class CreateGroupActivity extends BaseActivity{
 
 	public void StartChatActivity(long groupID, String groupName) {
 		Intent intent = new Intent();
-		intent.putExtra("isGroup", true);
+		intent.putExtra(JPushDemoApplication.IS_GROUP, true);
 		//设置跳转标志
 		intent.putExtra("fromGroup", true);
-		intent.putExtra("groupID", groupID);
-		intent.putExtra("groupName", groupName);
+		intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
+		intent.putExtra(JPushDemoApplication.GROUP_NAME, groupName);
 		intent.setClass(this, ChatActivity.class);
 		startActivity(intent);
 		finish();

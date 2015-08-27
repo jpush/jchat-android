@@ -21,17 +21,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import java.io.File;
 import java.util.List;
 
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.enums.ContentType;
-import cn.jpush.im.android.api.event.ConversationRefreshEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import io.jchat.android.R;
-
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.ChatDetailController;
@@ -47,40 +44,40 @@ public class ChatDetailActivity extends BaseActivity {
 
     private static final String TAG = "ChatDetailActivity";
 
-	private ChatDetailView mChatDetailView;
-	private ChatDetailController mChatDetailController;
-	public final static String START_FOR_WHICH = "which";
-	private final static int GROUP_NAME_REQUEST_CODE = 1;
-	private final static int MY_NAME_REQUEST_CODE = 2;
-	private static final int ADD_FRIEND_REQUEST_CODE = 3;
+    private ChatDetailView mChatDetailView;
+    private ChatDetailController mChatDetailController;
+    public final static String START_FOR_WHICH = "which";
+    private final static int GROUP_NAME_REQUEST_CODE = 1;
+    private final static int MY_NAME_REQUEST_CODE = 2;
+    private static final int ADD_FRIEND_REQUEST_CODE = 3;
     private Context mContext;
     private ProgressDialog mDialog;
     private double mDensity;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
+        super.onCreate(savedInstanceState);
         JMessageClient.registerEventReceiver(this);
-		setContentView(R.layout.activity_chat_detail);
+        setContentView(R.layout.activity_chat_detail);
         mContext = this;
-		mChatDetailView = (ChatDetailView) findViewById(R.id.chat_detail_view);
-		mChatDetailView.initModule();
-		mChatDetailController = new ChatDetailController(mChatDetailView, this);
-		mChatDetailView.setListeners(mChatDetailController);
-		mChatDetailView.setItemListener(mChatDetailController);
-		mChatDetailView.setLongClickListener(mChatDetailController);
+        mChatDetailView = (ChatDetailView) findViewById(R.id.chat_detail_view);
+        mChatDetailView.initModule();
+        mChatDetailController = new ChatDetailController(mChatDetailView, this);
+        mChatDetailView.setListeners(mChatDetailController);
+        mChatDetailView.setItemListener(mChatDetailController);
+        mChatDetailView.setLongClickListener(mChatDetailController);
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
-	}
+    }
 
     //设置群聊名称
-	public void showGroupNameSettingDialog(int which, final long groupID, String groupName) {
+    public void showGroupNameSettingDialog(int which, final long groupID, String groupName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_reset_password, null);
         builder.setView(view);
-		if(which == 1){
+        if (which == 1) {
             TextView title = (TextView) view.findViewById(R.id.title_tv);
             title.setText(mContext.getString(R.string.group_name_hit));
             final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
@@ -100,9 +97,9 @@ public class ChatDetailActivity extends BaseActivity {
                             break;
                         case R.id.commit_btn:
                             final String newName = pwdEt.getText().toString().trim();
-                            if(newName.equals("")){
+                            if (newName.equals("")) {
                                 Toast.makeText(mContext, mContext.getString(R.string.group_name_not_null_toast), Toast.LENGTH_SHORT).show();
-                            }else {
+                            } else {
                                 dismissSoftInput();
                                 dialog.dismiss();
                                 mDialog = new ProgressDialog(mContext);
@@ -115,14 +112,11 @@ public class ChatDetailActivity extends BaseActivity {
                                             @Override
                                             public void run() {
                                                 mDialog.dismiss();
-                                                if(status == 0){
+                                                if (status == 0) {
                                                     mChatDetailView.updateGroupName(newName);
-                                                    Intent intent = new Intent(JPushDemoApplication.UPDATE_GROUP_NAME_ACTION);
-                                                    intent.putExtra("newGroupName", newName);
                                                     mChatDetailController.refreshGroupName(newName);
-                                                    sendBroadcast(intent);
                                                     Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
-                                                }else {
+                                                } else {
                                                     Log.i(TAG, "desc :" + desc);
                                                     HandleResponseCode.onHandle(mContext, status, false);
                                                 }
@@ -137,8 +131,8 @@ public class ChatDetailActivity extends BaseActivity {
             };
             cancel.setOnClickListener(listener);
             commit.setOnClickListener(listener);
-		}
-		if(which == 2){
+        }
+        if (which == 2) {
             TextView title = (TextView) view.findViewById(R.id.title_tv);
             title.setText(mContext.getString(R.string.group_my_name_hit));
             title.setTextColor(Color.parseColor("#000000"));
@@ -163,12 +157,17 @@ public class ChatDetailActivity extends BaseActivity {
             };
             cancel.setOnClickListener(listener);
             commit.setOnClickListener(listener);
-		}
-	}
+        }
+    }
 
     @Override
     public void onBackPressed() {
         Log.i(TAG, "onBackPressed");
+        Intent intent = new Intent();
+        intent.putExtra(JPushDemoApplication.GROUP_NAME, mChatDetailController.getGroupName());
+        intent.putExtra("currentCount", mChatDetailController.getCurrentCount());
+        intent.putExtra("deleteMsg", mChatDetailController.getDeleteFlag());
+        setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
         finish();
         super.onBackPressed();
     }
@@ -185,55 +184,49 @@ public class ChatDetailActivity extends BaseActivity {
     }
 
     @Override
-    public void handleMsg(Message msg){
-        switch (msg.what){
+    public void handleMsg(Message msg) {
+        switch (msg.what) {
             case JPushDemoApplication.ON_GROUP_EVENT:
-                mChatDetailController.refresh(msg.getData().getLong("groupID", 0));
-                break;
-            case JPushDemoApplication.REFRESH_GROUP_NAME:
-                Log.i(TAG, "Refresh GroupName Or user name");
-                mChatDetailController.NotifyGroupChange();
+                mChatDetailController.refresh(msg.getData().getLong(JPushDemoApplication.GROUP_ID, 0));
                 break;
         }
     }
 
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		super.onActivityResult(requestCode, resultCode, data);
-		if(requestCode == GROUP_NAME_REQUEST_CODE){
-			Log.i(TAG, "resultName = "+ data.getStringExtra("resultName"));
-			mChatDetailView.setGroupName(data.getStringExtra("resultName"));
-		}
-		else if(requestCode == MY_NAME_REQUEST_CODE){
-			Log.i(TAG, "myName = "+ data.getStringExtra("resultName"));
-			mChatDetailView.setMyName(data.getStringExtra("resultName"));
-		}
-	}
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // TODO Auto-generated method stub
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == GROUP_NAME_REQUEST_CODE) {
+            Log.i(TAG, "resultName = " + data.getStringExtra("resultName"));
+            mChatDetailView.setGroupName(data.getStringExtra("resultName"));
+        } else if (requestCode == MY_NAME_REQUEST_CODE) {
+            Log.i(TAG, "myName = " + data.getStringExtra("resultName"));
+            mChatDetailView.setMyName(data.getStringExtra("resultName"));
+        }
+    }
 
     @Override
     protected void onResume() {
-        mChatDetailController.refresh(mChatDetailController.getGroupID());
         super.onResume();
     }
 
     @Override
-	protected void onDestroy() {
+    protected void onDestroy() {
         JMessageClient.unRegisterEventReceiver(this);
         super.onDestroy();
-	}
+    }
 
 
-/**
- * 从ContactsActivity中选择朋友加入到群组中
- */
-	public void showContacts() {
-		Intent intent = new Intent();
-		intent.putExtra(TAG, 1);
-		intent.setClass(this, ContactsFragment.class);
-		startActivityForResult(intent, ADD_FRIEND_REQUEST_CODE);
-	}
+    /**
+     * 从ContactsActivity中选择朋友加入到群组中
+     */
+    public void showContacts() {
+        Intent intent = new Intent();
+        intent.putExtra(TAG, 1);
+        intent.setClass(this, ContactsFragment.class);
+        startActivityForResult(intent, ADD_FRIEND_REQUEST_CODE);
+    }
 
 
     public void StartMainActivity() {
@@ -243,11 +236,12 @@ public class ChatDetailActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    public void StartChatActivity(long groupID, String groupName) {
+    public void startChatActivity(long groupID, String groupName) {
         Intent intent = new Intent();
         intent.putExtra("isGroup", true);
         //设置跳转标志
         intent.putExtra("fromGroup", true);
+        intent.putExtra("memberCount", 3);
         intent.putExtra("groupID", groupID);
         intent.putExtra("groupName", groupName);
         intent.setClass(this, ChatActivity.class);
@@ -255,59 +249,47 @@ public class ChatDetailActivity extends BaseActivity {
         finish();
     }
 
-    public void onEvent(ConversationRefreshEvent conversationRefreshEvent){
-        Log.i(TAG, "ConversationRefreshEvent execute!");
-        mHandler.sendEmptyMessage(JPushDemoApplication.REFRESH_GROUP_NAME);
-    }
-
     /**
      * 接收群成员变化事件
+     *
      * @param event
      */
-    public void onEvent(MessageEvent event){
+    public void onEvent(MessageEvent event) {
         final cn.jpush.im.android.api.model.Message msg = event.getMessage();
-        if(msg.getContentType() == ContentType.eventNotification){
+        if (msg.getContentType() == ContentType.eventNotification) {
             //添加群成员事件特殊处理
-            if(((EventNotificationContent)msg.getContent()).getEventNotificationType().equals(EventNotificationContent.EventNotificationType.group_member_added)){
-                List<String> userNames = ((EventNotificationContent)msg.getContent()).getUserNames();
-                for (final String userName : userNames){
+            EventNotificationContent.EventNotificationType msgType = ((EventNotificationContent) msg
+                    .getContent()).getEventNotificationType();
+            if (msgType.equals(EventNotificationContent.EventNotificationType.group_member_added)) {
+                List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
+                for (final String userName : userNames) {
                     Conversation conv = JMessageClient.getSingleConversation(userName);
-                    //若存在目标头像，直接刷新界面
-                    if(NativeImageLoader.getInstance().getBitmapFromMemCache(userName) != null){
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mChatDetailController.NotifyGroupChange();
-                            }
-                        });
-                        //否则从Conversation拿
-                    }else if(conv != null){
-                        final File file = conv.getAvatarFile();
-                        if(file != null){
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    NativeImageLoader.getInstance().putUserAvatar(userName, file.getAbsolutePath(), (int) (50 * mDensity));
-                                    Log.i(TAG, "file exist, refresh group member");
-                                    mChatDetailController.refresh(Long.parseLong(msg.getTargetID()));
-                                }
-                            });
-                        }
-                        //用getUserInfo()接口拿，拿到后刷新并缓存头像
-                    }else {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                NativeImageLoader.getInstance().setAvatarCache(userName, (int)(50 * mDensity), new NativeImageLoader.cacheAvatarCallBack() {
+                    if (NativeImageLoader.getInstance().getBitmapFromMemCache(userName) == null) {
+                        //从Conversation拿
+                        if (conv != null) {
+                            final File file = conv.getAvatarFile();
+                            if (file != null) {
+                                runOnUiThread(new Runnable() {
                                     @Override
-                                    public void onCacheAvatarCallBack(int status) {
-                                        if(status == 0){
-                                            mChatDetailController.refresh(Long.parseLong(msg.getTargetID()));
-                                        }
+                                    public void run() {
+                                        //缓存头像
+                                        NativeImageLoader.getInstance().putUserAvatar(userName, file
+                                                .getAbsolutePath(), (int) (50 * mDensity));
                                     }
                                 });
                             }
-                        });
+                            //用getUserInfo()接口拿，拿到后刷新并缓存头像
+                        } else {
+                            NativeImageLoader.getInstance().setAvatarCache(userName, (int) (50 * mDensity),
+                                    new NativeImageLoader.CacheAvatarCallBack() {
+                                        @Override
+                                        public void onCacheAvatarCallBack(int status) {
+                                            if (status == 0) {
+                                                Log.d(TAG, "add group member, get UserInfo success");
+                                            }
+                                        }
+                                    });
+                        }
                     }
                 }
             }
@@ -320,4 +302,5 @@ public class ChatDetailActivity extends BaseActivity {
             handleMsg.sendToTarget();
         }
     }
+
 }

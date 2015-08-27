@@ -2,15 +2,10 @@ package io.jchat.android.activity;
 
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,10 +21,13 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ConversationRefreshEvent;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
+import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
+import io.jchat.android.entity.Event;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ConversationListView;
 import io.jchat.android.view.MenuItemView;
@@ -54,6 +52,7 @@ public class ConversationListFragment extends BaseFragment {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         JMessageClient.registerEventReceiver(this);
+        EventBus.getDefault().register(this);
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mRootView = layoutInflater.inflate(R.layout.fragment_conv_list,
                 (ViewGroup) getActivity().findViewById(R.id.main_view),
@@ -92,7 +91,8 @@ public class ConversationListFragment extends BaseFragment {
                 (Bitmap) null));
         if (mMenuPopWindow.isShowing()) {
             mMenuPopWindow.dismiss();
-        } else mMenuPopWindow.showAsDropDown(mRootView.findViewById(R.id.create_group_btn), -10, -5);
+        } else
+            mMenuPopWindow.showAsDropDown(mRootView.findViewById(R.id.create_group_btn), -10, -5);
     }
 
     /**
@@ -107,7 +107,8 @@ public class ConversationListFragment extends BaseFragment {
         if (conv.getType() == ConversationType.single) {
             File file = conv.getAvatarFile();
             if (file != null) {
-                mConvListController.loadAvatarAndRefresh(conv.getTargetId(), file.getAbsolutePath());
+                mConvListController.loadAvatarAndRefresh(conv.getTargetId(),
+                        file.getAbsolutePath());
             }
         } else {
             mConvListController.getAdapter().notifyDataSetChanged();
@@ -119,35 +120,45 @@ public class ConversationListFragment extends BaseFragment {
      *
      * @param event
      */
-    public void onEventMainThread(MessageEvent event) {
+    public void onEvent(MessageEvent event) {
         Log.i(TAG, "onEventMainThread MessageEvent execute");
         Message msg = event.getMessage();
         String targetID = msg.getTargetID();
         ConversationType convType = msg.getTargetType();
         Conversation conv;
         if (convType == ConversationType.group) {
-            conv = JMessageClient.getGroupConversation(Integer.parseInt(targetID));
+            conv = JMessageClient.getGroupConversation(Long.parseLong(targetID));
         } else {
             conv = JMessageClient.getSingleConversation(targetID);
         }
-        if (conv != null && convType == ConversationType.single) {
-            //如果缓存了头像，直接刷新会话列表
-            if (NativeImageLoader.getInstance().getBitmapFromMemCache(targetID) != null) {
-                Log.i("Test", "conversation ");
-                mConvListController.refreshConvList();
-                //没有头像，从Conversation拿
+        if (conv != null && mConvListController != null) {
+            if (convType == ConversationType.single) {
+                //如果缓存了头像，直接刷新会话列表
+                if (NativeImageLoader.getInstance().getBitmapFromMemCache(targetID) != null) {
+                    Log.i("Test", "conversation ");
+                    mConvListController.refreshConvList(conv);
+                    //没有头像，从Conversation拿
+                } else {
+                    File file = conv.getAvatarFile();
+                    //拿到后缓存并刷新
+                    if (file != null) {
+                        mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
+                        mConvListController.refreshConvList(conv);
+                        //conversation中没有头像，直接刷新，SDK会在后台获得头像，拿到后会执行onEvent(ConversationRefreshEvent conversationRefreshEvent)
+                    } else mConvListController.refreshConvList(conv);
+                }
             } else {
-                File file = conv.getAvatarFile();
-                //拿到后缓存并刷新
-                if (file != null) {
-                    mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
-                    //conversation中没有头像，直接刷新，SDK会在后台获得头像，拿到后会执行onEvent(ConversationRefreshEvent conversationRefreshEvent)
-                } else mConvListController.refreshConvList();
+                mConvListController.refreshConvList(conv);
             }
-        } else {
-            mConvListController.refreshConvList();
         }
 
+    }
+
+    public void onEventMainThread(Event.StringEvent event){
+        Log.d(TAG, "StringEvent execute");
+        String targetID = event.getTargetID();
+        Conversation conv = JMessageClient.getSingleConversation(targetID);
+        mConvListController.getAdapter().addNewConversation(conv);
     }
 
     @Override
@@ -163,16 +174,15 @@ public class ConversationListFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-        //当前用户信息为空，需要重新登录
-        if (null == JMessageClient.getMyInfo() || TextUtils.isEmpty(JMessageClient.getMyInfo().getUserName())) {
-//            Intent intent = new Intent();
-//            intent.setClass(this.getActivity(), LoginActivity.class);
-//            startActivity(intent);
-//            getActivity().finish();
-        } else {
-            dismissPopWindow();
-            mConvListController.refreshConvList();
+        dismissPopWindow();
+        int position = mConvListController.getClickPosition();
+        if (position != -1){
+            Conversation conv = mConvListController.getDatas().get(position);
+            if (conv != null){
+                conv.resetUnreadCount();
+            }
         }
+        mConvListController.getAdapter().notifyDataSetChanged();
         super.onResume();
     }
 
@@ -186,6 +196,7 @@ public class ConversationListFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         JMessageClient.unRegisterEventReceiver(this);
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 

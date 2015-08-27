@@ -18,7 +18,7 @@ import io.jchat.android.R;
 import io.jchat.android.activity.LoginActivity;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.SharePreferenceManager;
-import io.jchat.android.view.DialogCreator;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.view.LoginView;
 import cn.jpush.im.api.BasicCallback;
 
@@ -57,8 +57,7 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
                     mLoginView.passwordError(mContext);
                     break;
                 }
-                DialogCreator ld = new DialogCreator();
-                final Dialog dialog = ld.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
+                final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
                 dialog.show();
                 JMessageClient.login(userId, password,
                         new BasicCallback() {
@@ -86,17 +85,17 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
     }
 
     @Override
-    public void onSoftKeyboardShown(int softKeyboardHeight) {
-        if (softKeyboardHeight > 300) {
+    public void onSoftKeyboardShown(int w, int h, int oldw, int oldh) {
+        int softKeyboardHeight = oldh - h;
+        if(softKeyboardHeight > 300){
             mLoginView.setRegistBtnVisable(View.INVISIBLE);
-            Log.i("LoginController", "softKeyboardHeight h: " + softKeyboardHeight);
             boolean writable = SharePreferenceManager.getCachedWritableFlag();
             if (writable) {
                 Log.i("LoginController", "commit h: " + softKeyboardHeight);
                 SharePreferenceManager.setCachedKeyboardHeight(softKeyboardHeight);
                 SharePreferenceManager.setCachedWritableFlag(false);
             }
-        } else {
+        }else {
             mLoginView.setRegistBtnVisable(View.VISIBLE);
         }
     }
@@ -124,4 +123,5 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
             e.printStackTrace();
         }
     }
+
 }

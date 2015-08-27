@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.io.File;
@@ -35,21 +38,52 @@ public class ConversationListAdapter extends BaseAdapter {
         (context.getActivity()).getWindowManager().getDefaultDisplay().getMetrics(dm);
         double density = dm.density;
         for (Conversation conv : mDatas) {
-            if (conv.getType().equals(ConversationType.single)){
+            if (conv.getType().equals(ConversationType.single)) {
                 File file = conv.getAvatarFile();
-                if(file != null){
-                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(50 * density), (int)(50 * density));
-                    NativeImageLoader.getInstance().updateBitmapFromCache(conv.getTargetId(), bitmap);
+                if (file != null) {
+                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                            (int) (50 * density), (int) (50 * density));
+                    NativeImageLoader.getInstance().updateBitmapFromCache(conv.getTargetId(),
+                            bitmap);
                 }
             }
         }
     }
 
-    public void refresh(List<Conversation> data) {
-        mDatas.clear();
-        this.mDatas = data;
+    /**
+     * 收到消息后将会话置顶
+     *
+     * @param conv 要置顶的会话
+     */
+    public void setToTop(Conversation conv) {
+        for (Conversation conversation : mDatas) {
+            if (conv.getId().equals(conversation.getId())) {
+                mDatas.remove(conversation);
+                mDatas.add(0, conv);
+                mContext.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
+                return;
+            }
+        }
+        //如果是新的会话
+        mDatas.add(0, conv);
+        mContext.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
+    }
+
+    public void addNewConversation(Conversation conv) {
+        mDatas.add(0, conv);
         notifyDataSetChanged();
     }
+
 
     @Override
     public int getCount() {
@@ -96,9 +130,7 @@ public class ConversationListAdapter extends BaseAdapter {
 
         }
         TimeFormat timeFormat = new TimeFormat(mContext.getActivity(), convItem.getLastMsgDate());
-        if (convItem.getLastMsgDate() != 0) {
-            viewHolder.datetime.setText(timeFormat.getTime());
-        } else viewHolder.datetime.setText("");
+        viewHolder.datetime.setText(timeFormat.getTime());
         // 按照最后一条消息的消息类型进行处理
         switch (convItem.getLatestType()) {
             case image:
@@ -116,7 +148,6 @@ public class ConversationListAdapter extends BaseAdapter {
             default:
                 viewHolder.content.setText(convItem.getLatestText());
         }
-
 //		viewHolder.headIcon.setImageResource(R.drawable.head_icon);
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
@@ -135,9 +166,9 @@ public class ConversationListAdapter extends BaseAdapter {
         // TODO 更新Message的数量,
         if (convItem.getUnReadMsgCnt() > 0) {
             viewHolder.newMsgNumber.setVisibility(View.VISIBLE);
-            if(convItem.getUnReadMsgCnt() < 100)
+            if (convItem.getUnReadMsgCnt() < 100)
                 viewHolder.newMsgNumber.setText(String.valueOf(convItem
-                    .getUnReadMsgCnt()));
+                        .getUnReadMsgCnt()));
             else viewHolder.newMsgNumber.setText("99");
         } else {
             viewHolder.newMsgNumber.setVisibility(View.GONE);

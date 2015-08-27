@@ -19,6 +19,7 @@ import android.widget.Toast;
 import io.jchat.android.R;
 
 import cn.jpush.im.android.api.JMessageClient;
+import io.jchat.android.tools.DialogCreator;
 
 public class SettingActivity extends BaseActivity implements OnClickListener{
 	
@@ -68,41 +69,8 @@ public class SettingActivity extends BaseActivity implements OnClickListener{
             startActivity(intent);
 			break;
             case R.id.change_password_rl:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                final LayoutInflater inflater = LayoutInflater.from(this);
-                View view = inflater.inflate(R.layout.dialog_reset_password, null);
-                builder.setView(view);
-                final Dialog dialog = builder.create();
+                Dialog dialog = DialogCreator.createResetPwdDialog(this);
                 dialog.show();
-                final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
-                final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
-                final Button commit = (Button) view.findViewById(R.id.commit_btn);
-                OnClickListener listener = new OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        switch (view.getId()){
-                            case R.id.cancel_btn:
-                                dialog.cancel();
-                                break;
-                            case R.id.commit_btn:
-                                String input = pwdEt.getText().toString().trim();
-                                if(JMessageClient.isCurrentUserPasswordValid(input)){
-                                    Intent intent = new Intent();
-                                    intent.putExtra("oldPassword", input);
-                                    intent.setClass(mContext, ResetPasswordActivity.class);
-                                    startActivity(intent);
-                                    dialog.cancel();
-                                }else {
-                                    Toast toast = Toast.makeText(mContext, mContext.getString(R.string.input_password_error_toast), Toast.LENGTH_SHORT);
-                                    toast.setGravity(Gravity.CENTER, 0, 0);
-                                    toast.show();
-                                }
-                                break;
-                        }
-                    }
-                };
-                cancel.setOnClickListener(listener);
-                commit.setOnClickListener(listener);
                 break;
 		}
 	} 

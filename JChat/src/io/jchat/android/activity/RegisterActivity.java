@@ -27,7 +27,7 @@ public class RegisterActivity extends BaseActivity {
 	}
 
 	//注册成功
-	public void OnRegistSuccess(){
+	public void onRegistSuccess(){
         Intent intent = new Intent();
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setClass(this, FixProfileActivity.class);

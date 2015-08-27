@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <io.jchat.android.view.ChatView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:listViewAttr="http://schemas.android.com/apk/res-auto"
     android:id="@+id/chat_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -22,13 +23,18 @@
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true">
 
-            <ListView
+            <io.jchat.android.view.DropDownListView
                 android:id="@+id/chat_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#F0F1F3"
                 android:listSelector="@android:color/transparent"
-                android:transcriptMode="normal"></ListView>
+                android:transcriptMode="normal"
+                android:divider="@null"
+                listViewAttr:isDropDownStyle="true"
+                listViewAttr:isOnBottomStyle="false"
+                listViewAttr:isAutoLoadOnBottom="false">
+            </io.jchat.android.view.DropDownListView>
         </LinearLayout>
 
 

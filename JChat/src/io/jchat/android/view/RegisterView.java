@@ -70,24 +70,14 @@ public class RegisterView extends LinearLayout {
     }
 
     public interface Listener {
-        void onSoftKeyboardShown(int softKeyboardHeight);
+        void onSoftKeyboardShown(int w, int h, int oldw, int oldh);
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int height = MeasureSpec.getSize(heightMeasureSpec);
-        Rect rect = new Rect();
-        Activity activity = (Activity) getContext();
-        activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
-        int statusBarHeight = rect.top;
-        DisplayMetrics dm = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-//        int screenHeight = activity.getWindowManager().getDefaultDisplay().getHeight();
-        int screenHeight = dm.heightPixels;
-        int diff = (screenHeight - statusBarHeight) - height;
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
         if (mListener != null) {
-            mListener.onSoftKeyboardShown(diff);
+            mListener.onSoftKeyboardShown(w, h, oldw, oldh);
         }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

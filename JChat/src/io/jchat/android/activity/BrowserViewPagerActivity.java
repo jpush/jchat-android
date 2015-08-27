@@ -32,8 +32,6 @@ import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
@@ -109,15 +107,15 @@ public class BrowserViewPagerActivity extends BaseActivity {
         mLoadBtn = (Button) findViewById(R.id.load_image_btn);
 
         Intent intent = this.getIntent();
-        mIsGroup = intent.getBooleanExtra("isGroup", false);
+        mIsGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
         if (mIsGroup) {
-            mGroupID = intent.getLongExtra("groupID", 0);
+            mGroupID = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
             mConv = JMessageClient.getGroupConversation(mGroupID);
         } else {
-            mTargetID = intent.getStringExtra("targetID");
+            mTargetID = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
         }
-        mPosition = intent.getIntExtra("position", 0);
+        mPosition = intent.getIntExtra(JPushDemoApplication.POSITION, 0);
         mFromChatActivity = intent.getBooleanExtra("fromChatActivity", true);
         boolean browserAvatar = intent.getBooleanExtra("browserAvatar", false);
 
@@ -169,7 +167,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
         };
         mViewPager.setAdapter(pagerAdapter);
-        mViewPager.setOnPageChangeListener(l);
+        mViewPager.setOnPageChangeListener(onPageChangeListener);
         returnBtn.setOnClickListener(listener);
         mSendBtn.setOnClickListener(listener);
         mLoadBtn.setOnClickListener(listener);
@@ -210,7 +208,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         mLoadBtn.setVisibility(View.GONE);
                         setLoadBtnText(ic);
                     }
-                    photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(mMsgIDList.indexOf(mMsg.getId())), mWidth, mHeight));
+                    photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(mMsgIDList
+                            .indexOf(mMsg.getId())), mWidth, mHeight));
                     mViewPager.setCurrentItem(mMsgIDList.indexOf(mMsg.getId()));
                 } catch (NullPointerException e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
@@ -311,7 +310,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
         } else mSendBtn.setText(mContext.getString(R.string.send));
     }
 
-    private ViewPager.OnPageChangeListener l = new ViewPager.OnPageChangeListener() {
+    private ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.OnPageChangeListener() {
         //在滑动的时候更新CheckBox的状态
         @Override
         public void onPageScrolled(final int i, float v, int i2) {
@@ -380,7 +379,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }
                     Intent intent = new Intent();
                     intent.putExtra("pathArray", pathArray);
-                    setResult(JPushDemoApplication.RESULTCODE_SELECT_PICTURE, intent);
+                    setResult(JPushDemoApplication.RESULT_CODE_SELECT_PICTURE, intent);
                     finish();
                     break;
                 case R.id.pick_picture_send_btn:
@@ -446,7 +445,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         android.os.Message msg = myHandler.obtainMessage();
                         msg.what = 4;
                         Bundle bundle = new Bundle();
-                        bundle.putInt("status", status);
+                        bundle.putInt(JPushDemoApplication.STATUS, status);
                         msg.setData(bundle);
                         msg.sendToTarget();
                     }
@@ -543,7 +542,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
         Intent intent = new Intent();
         intent.putExtra("pathArray", pathArray);
-        setResult(JPushDemoApplication.RESULTCODE_SELECT_PICTURE, intent);
+        setResult(JPushDemoApplication.RESULT_CODE_SELECT_PICTURE, intent);
         super.onBackPressed();
     }
 
@@ -589,7 +588,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                     msg.what = 1;
                                     Bundle bundle = new Bundle();
                                     bundle.putString("path", file.getAbsolutePath());
-                                    bundle.putInt("position",
+                                    bundle.putInt(JPushDemoApplication.POSITION,
                                             mViewPager.getCurrentItem());
                                     msg.setData(bundle);
                                     msg.sendToTarget();
@@ -597,7 +596,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                     android.os.Message msg = myHandler.obtainMessage();
                                     msg.what = 4;
                                     Bundle bundle = new Bundle();
-                                    bundle.putInt("status", status);
+                                    bundle.putInt(JPushDemoApplication.STATUS, status);
                                     msg.setData(bundle);
                                     msg.sendToTarget();
                                 }
@@ -623,7 +622,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     case 1:
                         //更新图片并显示
                         Bundle bundle = msg.getData();
-                        activity.mPathList.set(bundle.getInt("position"), bundle.getString("path"));
+                        activity.mPathList.set(bundle.getInt(JPushDemoApplication.POSITION), bundle.getString("path"));
                         activity.mViewPager.getAdapter().notifyDataSetChanged();
                         activity.mLoadBtn.setVisibility(View.GONE);
                         break;
@@ -637,18 +636,14 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         if(activity.mProgressDialog != null){
                             activity.mProgressDialog.dismiss();
                         }
-                        HandleResponseCode.onHandle(activity, msg.getData().getInt("status"), false);
+                        HandleResponseCode.onHandle(activity, msg.getData().getInt(JPushDemoApplication.STATUS), false);
                         break;
                     case 5:
                         Intent intent = new Intent();
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        intent.putExtra("sendPicture", true);
-                        intent.putExtra("targetID", activity.mTargetID);
-                        intent.putExtra("isGroup", activity.mIsGroup);
-                        intent.putExtra("groupID", activity.mGroupID);
-                        intent.putExtra("msgIDs", activity.mMsgIDs);
-                        intent.setClass(activity, ChatActivity.class);
-                        activity.startActivity(intent);
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetID);
+                        intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupID);
+                        intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIDs);
+                        activity.setResult(JPushDemoApplication.RESULT_CODE_BROWSER_PICTURE, intent);
                         activity.finish();
                         break;
                     //显示下载原图进度

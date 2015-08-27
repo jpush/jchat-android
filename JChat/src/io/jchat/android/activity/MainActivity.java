@@ -90,11 +90,11 @@ public class MainActivity extends FragmentActivity{
         if (resultCode == Activity.RESULT_CANCELED) {
             return;
         }
-        if (requestCode == JPushDemoApplication.REQUESTCODE_TAKE_PHOTO) {
+        if (requestCode == JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
             String path = mMainController.getPhotoPath();
             if (path != null)
                 mMainController.calculateAvatar(path);
-        } else if (requestCode == JPushDemoApplication.REQUESTCODE_SELECT_PICTURE) {
+        } else if (requestCode == JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
             if (data != null) {
                 Uri selectedImg = data.getData();
                 if (selectedImg != null) {

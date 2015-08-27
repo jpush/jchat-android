@@ -39,7 +39,7 @@ public class MeInfoActivity extends BaseActivity {
         mMeInfoView.refreshUserInfo(userInfo);
     }
 
-    public void StartModifyNickNameActivity() {
+    public void startModifyNickNameActivity() {
         String nickname = JMessageClient.getMyInfo().getNickname();
         Intent intent = new Intent();
         intent.putExtra("nickName", nickname);
@@ -131,14 +131,14 @@ public class MeInfoActivity extends BaseActivity {
         womanRl.setOnClickListener(listener);
     }
 
-    public void StartSelectAreaActivity() {
+    public void startSelectAreaActivity() {
         Intent intent = new Intent();
         intent.putExtra("OldRegion", JMessageClient.getMyInfo().getRegion());
         intent.setClass(this, SelectAreaActivity.class);
         startActivityForResult(intent, SELECT_AREA_REQUEST_CODE);
     }
 
-    public void StartModifySignatureActivity() {
+    public void startModifySignatureActivity() {
         Intent intent = new Intent();
         intent.putExtra("OldSignature", JMessageClient.getMyInfo().getSignature());
         intent.setClass(this, EditSignatureActivity.class);

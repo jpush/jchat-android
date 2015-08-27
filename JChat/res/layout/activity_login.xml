@@ -145,7 +145,6 @@
             android:layout_marginRight="20dp"
             android:text="忘记密码？"
             android:textColor="#555555"
-            android:textSize="18sp"
             android:visibility="visible"
             />
     </RelativeLayout>

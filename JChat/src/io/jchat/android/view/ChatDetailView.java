@@ -12,7 +12,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -34,7 +33,7 @@ public class ChatDetailView extends LinearLayout{
 	private TextView mGroupName;
 	private TextView mGroupNum;
 	private TextView mMyName;
-	private GridView mGridView;
+	private GroupGridView mGridView;
     private Context mContext;
 	private View mDividingLine;
 
@@ -58,8 +57,8 @@ public class ChatDetailView extends LinearLayout{
 		mGroupNum = (TextView) findViewById(R.id.chat_detail_group_num);
 		mDividingLine = findViewById(R.id.group_num_dividing_line);
 		mMyName = (TextView) findViewById(R.id.chat_detail_my_name);
-		mGridView = (GridView) findViewById(R.id.chat_detail_group_gv);
-		
+		mGridView = (GroupGridView) findViewById(R.id.chat_detail_group_gv);
+
 		mTitle.setText(mContext.getString(R.string.chat_detail_title));
 		mMenuBtn.setVisibility(View.GONE);
 		//自定义GridView点击背景为透明色
@@ -72,7 +71,7 @@ public class ChatDetailView extends LinearLayout{
 		mGroupNumRL.setOnClickListener(onClickListener);
 		mGroupChatRecordLL.setOnClickListener(onClickListener);
 		mGroupChatDelRL.setOnClickListener(onClickListener);
-		mReturnBtn.setOnClickListener(onClickListener);
+	    mReturnBtn.setOnClickListener(onClickListener);
 		mDelGroupBtn.setOnClickListener(onClickListener);
 	}
 	
@@ -83,11 +82,11 @@ public class ChatDetailView extends LinearLayout{
 	public void setLongClickListener(OnItemLongClickListener listener){
 		mGridView.setOnItemLongClickListener(listener);
 	}
-	
+
 	public void setChatDetailInfo(String[] detailInfo){
 //		mGroupName.setText(detailInfo[0]);
 	}
-	
+
 	public void setAdapter(GroupMemberGridAdapter adapter){
 		mGridView.setAdapter(adapter);
 	}
@@ -125,4 +124,8 @@ public class ChatDetailView extends LinearLayout{
 	public void setTitle(int size) {
 		mTitle.setText(mContext.getString(R.string.chat_detail_title) + "(" + size + ")");
 	}
+
+    public GroupGridView getGridView() {
+        return mGridView;
+    }
 }

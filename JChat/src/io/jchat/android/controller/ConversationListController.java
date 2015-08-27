@@ -17,6 +17,8 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.util.ArrayList;
@@ -29,6 +31,8 @@ import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.adapter.ConversationListAdapter;
+import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.view.ConversationListView;
@@ -42,6 +46,8 @@ public class ConversationListController implements OnClickListener,
     private ConversationListAdapter mListAdapter;
     private double mDensity;
     private int mWidth;
+    private Dialog mDialog;
+    private int mClickPosition = -1;
 
     public ConversationListController(ConversationListView listView,
                                       ConversationListFragment context) {
@@ -57,14 +63,12 @@ public class ConversationListController implements OnClickListener,
     // 得到会话列表
     private void initConvListAdapter() {
         mDatas = JMessageClient.getConversationList();
-        Log.i("ConversationListController", "Conversation size : " + mDatas.size());
         //对会话列表进行时间排序
         if (mDatas.size() > 1) {
             SortConvList sortList = new SortConvList();
             Collections.sort(mDatas, sortList);
         }
 
-        // mDatas = JMessageClient.getConversationList();
         mListAdapter = new ConversationListAdapter(mContext, mDatas);
         mConvListView.setConvListAdapter(mListAdapter);
     }
@@ -83,37 +87,41 @@ public class ConversationListController implements OnClickListener,
     public void onItemClick(AdapterView<?> viewAdapter, View view,
                             int position, long id) {
         // TODO Auto-generated method stub
+        mClickPosition = position;
         final Intent intent = new Intent();
-        String targetID = mDatas.get(position).getTargetId();
-        intent.putExtra("targetID", targetID);
-        mDatas.get(position).resetUnreadCount();
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
-            intent.putExtra("isGroup", true);
-            intent.putExtra("groupID", Long.parseLong(targetID));
+            long groupID = Long.parseLong(mDatas.get(position).getTargetId());
+            intent.putExtra(JPushDemoApplication.IS_GROUP, true);
+            intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
             intent.setClass(mContext.getActivity(), ChatActivity.class);
             mContext.startActivity(intent);
             return;
-        } else
-            intent.putExtra("isGroup", false);
+        } else{
+            String targetID = mDatas.get(position).getTargetId();
+            intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
+            intent.putExtra(JPushDemoApplication.IS_GROUP, false);
+        }
         intent.setClass(mContext.getActivity(), ChatActivity.class);
         mContext.startActivity(intent);
 
     }
 
-    /*
-     * 刷新会话列表
+    public int getClickPosition(){
+        return mClickPosition;
+    }
+
+    public List<Conversation> getDatas(){
+        return mDatas;
+    }
+
+
+    /**
+     * 在会话列表界面收到消息或者新建会话，将该会话置顶
+     * @param conv 收到消息的Conversation
      */
-    public void refreshConvList() {
-        mDatas = JMessageClient.getConversationList();
-        SortConvList sortList = new SortConvList();
-        Collections.sort(mDatas, sortList);
-        mContext.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mListAdapter.refresh(mDatas);
-            }
-        });
+    public void refreshConvList(final Conversation conv){
+        mListAdapter.setToTop(conv);
     }
 
     /**
@@ -124,36 +132,28 @@ public class ConversationListController implements OnClickListener,
     public void loadAvatarAndRefresh(String targetID, String path) {
         int size = (int) (50 * mDensity);
         NativeImageLoader.getInstance().putUserAvatar(targetID, path, size);
-        refreshConvList();
+        mListAdapter.notifyDataSetChanged();
     }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> viewAdapter, View view,
                                    final int position, long id) {
         final Conversation conv = mDatas.get(position);
-        AlertDialog.Builder builder = new AlertDialog.Builder(
-                mContext.getActivity());
-        final View v = LayoutInflater.from(mContext.getActivity()).inflate(
-                R.layout.dialog_delete_conv, null);
-        builder.setView(v);
-        final TextView title = (TextView) v.findViewById(R.id.dialog_title);
-        final Button deleteBtn = (Button) v.findViewById(R.id.delete_conv_btn);
-        title.setText(conv.getTitle());
-        final Dialog dialog = builder.create();
-        dialog.show();
-        dialog.getWindow().setLayout((int)(0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-        deleteBtn.setOnClickListener(new OnClickListener() {
+        OnClickListener listener = new OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (conv.getType().equals(ConversationType.group))
-                    JMessageClient.deleteGroupConversation(Integer.parseInt(conv.getTargetId()));
+                    JMessageClient.deleteGroupConversation(Long.parseLong(conv.getTargetId()));
                 else
                     JMessageClient.deleteSingleConversation(conv.getTargetId());
                 mDatas.remove(position);
                 mListAdapter.notifyDataSetChanged();
-                dialog.dismiss();
+                mDialog.dismiss();
             }
-        });
+        };
+        mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), conv.getTitle(), listener);
+        mDialog.show();
+        mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         return true;
     }
 
