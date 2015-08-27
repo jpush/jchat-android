@@ -221,6 +221,7 @@ public class MsgListAdapter extends BaseAdapter {
         mStart += mOffset;
     }
 
+    //当有新消息加到MsgList，自增mStart
     private void incrementStartPosition(){
         ++mStart;
     }
@@ -229,6 +230,7 @@ public class MsgListAdapter extends BaseAdapter {
         mp.reset();
     }
 
+    //发送图片
     public void setSendImg(String targetID, int[] msgIDs) {
         Message msg;
         mConv = JMessageClient.getSingleConversation(targetID);

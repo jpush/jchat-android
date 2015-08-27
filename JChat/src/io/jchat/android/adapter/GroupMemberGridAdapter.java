@@ -45,6 +45,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private String mTargetID;
     private String mNickName;
 
+    //群聊
     public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator) {
         mIsGroup = true;
         this.mMemberList = memberList;
@@ -52,6 +53,14 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         this.mIsCreator = isCreator;
         mIsShowDelete = false;
         initBlankItem();
+        initData(context);
+        initMembersAvatar();
+    }
+
+    //单聊
+    public GroupMemberGridAdapter(Context context, String targetID, String nickName) {
+        this.mTargetID = targetID;
+        this.mNickName = nickName;
         initData(context);
     }
 
@@ -62,10 +71,38 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         mDefaultSize = (int) (50 * dm.density);
     }
 
-    public GroupMemberGridAdapter(Context context, String targetID, String nickName) {
-        this.mTargetID = targetID;
-        this.mNickName = nickName;
-        initData(context);
+    //初始化群成员头像
+    private void initMembersAvatar() {
+        File file;
+        Bitmap bitmap;
+        for(final UserInfo userInfo : mMemberList){
+            bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
+            if (bitmap == null){
+                if (userInfo.getAvatar() != null){
+                    file = userInfo.getAvatarFile();
+                    if (file != null && file.isFile()){
+                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize,
+                                mDefaultSize);
+                        NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(),
+                                bitmap);
+                        notifyDataSetChanged();
+                    }else {
+                        userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, File file) {
+                                if (status == 0 && file != null && file.isFile()){
+                                    Bitmap bmp = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                                            mDefaultSize, mDefaultSize);
+                                    NativeImageLoader.getInstance().updateBitmapFromCache(
+                                            userInfo.getUserName(), bmp);
+                                    notifyDataSetChanged();
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
     }
 
     public void initBlankItem() {
@@ -150,32 +187,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 if (bitmap != null)
                     viewTag.icon.setImageBitmap(bitmap);
                 else {
-                    //如果mediaID为空，表明用户没有设置过头像，用默认头像
-                    if (TextUtils.isEmpty(userInfo.getAvatar())) {
-                        viewTag.icon.setImageResource(R.drawable.head_icon);
-                    } else {
-                        File file = userInfo.getAvatarFile();
-                        //如果本地存在头像
-                        if (file != null && file.isFile()) {
-                            bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
-                            NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap);
-                            viewTag.icon.setImageBitmap(bitmap);
-                            //从网上拿头像
-                        } else {
-                            viewTag.icon.setImageResource(R.drawable.head_icon);
-                            final String userName = userInfo.getUserName();
-                            userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
-                                @Override
-                                public void gotResult(int status, String desc, File file) {
-                                    if (status == 0) {
-                                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
-                                        NativeImageLoader.getInstance().updateBitmapFromCache(userName, bitmap);
-                                        notifyDataSetChanged();
-                                    }
-                                }
-                            });
-                        }
-                    }
+                    viewTag.icon.setImageResource(R.drawable.head_icon);
                 }
 
                 if (TextUtils.isEmpty(userInfo.getNickname())) {

@@ -74,9 +74,7 @@ public class NativeImageLoader {
                         getUserInfo(userID, callBack, length);
                     }
                 }
-            } else if (mMemoryCache.get(userID) != null) {
-                continue;
-            } else {
+            } else if (mMemoryCache.get(userID) == null) {
                 getUserInfo(userID, callBack, length);
             }
         }

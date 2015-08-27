@@ -167,7 +167,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
         };
         mViewPager.setAdapter(pagerAdapter);
-        mViewPager.setOnPageChangeListener(l);
+        mViewPager.setOnPageChangeListener(onPageChangeListener);
         returnBtn.setOnClickListener(listener);
         mSendBtn.setOnClickListener(listener);
         mLoadBtn.setOnClickListener(listener);
@@ -310,7 +310,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
         } else mSendBtn.setText(mContext.getString(R.string.send));
     }
 
-    private ViewPager.OnPageChangeListener l = new ViewPager.OnPageChangeListener() {
+    private ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.OnPageChangeListener() {
         //在滑动的时候更新CheckBox的状态
         @Override
         public void onPageScrolled(final int i, float v, int i2) {
