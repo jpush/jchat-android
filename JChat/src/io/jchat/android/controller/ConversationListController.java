@@ -47,7 +47,6 @@ public class ConversationListController implements OnClickListener,
     private double mDensity;
     private int mWidth;
     private Dialog mDialog;
-    private int mClickPosition = -1;
 
     public ConversationListController(ConversationListView listView,
                                       ConversationListFragment context) {
@@ -87,7 +86,6 @@ public class ConversationListController implements OnClickListener,
     public void onItemClick(AdapterView<?> viewAdapter, View view,
                             int position, long id) {
         // TODO Auto-generated method stub
-        mClickPosition = position;
         final Intent intent = new Intent();
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
@@ -95,7 +93,9 @@ public class ConversationListController implements OnClickListener,
             intent.putExtra(JPushDemoApplication.IS_GROUP, true);
             intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
             intent.setClass(mContext.getActivity(), ChatActivity.class);
-            mContext.startActivity(intent);
+            //暂时使用startActivityForResult来更新ConversationList
+            // 以后sdk会更新内存中的ConversationList
+            mContext.getActivity().startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CHAT_ACTIVITY);
             return;
         } else{
             String targetID = mDatas.get(position).getTargetId();
@@ -103,12 +103,8 @@ public class ConversationListController implements OnClickListener,
             intent.putExtra(JPushDemoApplication.IS_GROUP, false);
         }
         intent.setClass(mContext.getActivity(), ChatActivity.class);
-        mContext.startActivity(intent);
+        mContext.getActivity().startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CHAT_ACTIVITY);
 
-    }
-
-    public int getClickPosition(){
-        return mClickPosition;
     }
 
     public List<Conversation> getDatas(){

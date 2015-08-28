@@ -24,27 +24,20 @@ import io.jchat.android.R;
 public class DropDownListView extends ListView implements OnScrollListener {
 
     private boolean isDropDownStyle = true;
-    private boolean isOnBottomStyle = true;
     private Context context;
 
     /**
      * header layout view
      **/
     private RelativeLayout headerLayout;
-//    private ImageView headerImage;
     private ProgressBar headerProgressBar;
 
     private OnDropDownListener onDropDownListener;
     private OnScrollListener onScrollListener;
 
     /**
-     * rate about drop down distance and header padding top when drop down
-     **/
-    private float headerPaddingTopRate = 1.5f;
-    /**
      * min distance which header can release to loading
      **/
-    private int headerReleaseMinDistance;
     private int currentScrollState;
     private int currentHeaderStatus;
 
@@ -52,15 +45,6 @@ public class DropDownListView extends ListView implements OnScrollListener {
      * whether reached top, when has reached top, don't show header layout
      **/
     private boolean hasReachedTop = false;
-
-    /**
-     * image flip animation
-     **/
-    private RotateAnimation flipAnimation;
-    /**
-     * image reverse flip animation
-     **/
-    private RotateAnimation reverseFlipAnimation;
 
     /**
      * header layout original height
@@ -76,12 +60,6 @@ public class DropDownListView extends ListView implements OnScrollListener {
     private float actionDownPointY;
 
     private float actionMovePointY;
-
-    private int mListViewFirstItem = 0;
-    //listView中第一项的在屏幕中的位置
-    private int mScreenY = 0;
-    //是否向上滚动
-    private boolean mIsScrollToUp = false;
 
     public DropDownListView(Context context) {
         super(context);
@@ -124,22 +102,8 @@ public class DropDownListView extends ListView implements OnScrollListener {
             return;
         }
 
-        headerReleaseMinDistance = context.getResources().getDimensionPixelSize(
-                R.dimen.drop_down_list_header_release_min_distance);
-        flipAnimation = new RotateAnimation(0, 180, RotateAnimation.RELATIVE_TO_SELF, 0.5f,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f);
-        flipAnimation.setInterpolator(new LinearInterpolator());
-        flipAnimation.setDuration(250);
-        flipAnimation.setFillAfter(true);
-        reverseFlipAnimation = new RotateAnimation(-180, 0, RotateAnimation.RELATIVE_TO_SELF, 0.5f,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f);
-        reverseFlipAnimation.setInterpolator(new LinearInterpolator());
-        reverseFlipAnimation.setDuration(250);
-        reverseFlipAnimation.setFillAfter(true);
-
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         headerLayout = (RelativeLayout) inflater.inflate(R.layout.drop_down_list_header, this, false);
-//        headerImage = (ImageView) headerLayout.findViewById(R.id.drop_down_list_header_image);
         headerProgressBar = (ProgressBar) headerLayout.findViewById(R.id.drop_down_list_header_progress_bar);
         addHeaderView(headerLayout);
 
@@ -147,23 +111,6 @@ public class DropDownListView extends ListView implements OnScrollListener {
         headerOriginalHeight = headerLayout.getMeasuredHeight();
         headerOriginalTopPadding = headerLayout.getPaddingTop();
         currentHeaderStatus = HEADER_STATUS_CLICK_TO_LOAD;
-    }
-
-    /**
-     * @return isDropDownStyle
-     */
-    public boolean isDropDownStyle() {
-        return isDropDownStyle;
-    }
-
-    /**
-     * @param isDropDownStyle
-     */
-    public void setDropDownStyle(boolean isDropDownStyle) {
-        if (this.isDropDownStyle != isDropDownStyle) {
-            this.isDropDownStyle = isDropDownStyle;
-            initDropDownStyle();
-        }
     }
 
     @Override
@@ -199,29 +146,17 @@ public class DropDownListView extends ListView implements OnScrollListener {
                 break;
             case MotionEvent.ACTION_MOVE:
                 actionMovePointY = event.getY();
-//                adjustHeaderPadding(event);
                 break;
             case MotionEvent.ACTION_UP:
                 if (!isVerticalScrollBarEnabled()) {
                     setVerticalScrollBarEnabled(true);
                 }
-                /**
-                 * set status when finger leave screen if first item visible and header status is not
-                 * HEADER_STATUS_LOADING
-                 * <ul>
-                 * <li>if current header status is HEADER_STATUS_RELEASE_TO_LOAD, call onDropDown.</li>
-                 * <li>if current header status is HEADER_STATUS_DROP_DOWN_TO_LOAD, then set header status to
-                 * HEADER_STATUS_CLICK_TO_LOAD and hide header layout.</li>
-                 * </ul>
-                 */
                 if (getFirstVisiblePosition() == 0 && currentHeaderStatus != HEADER_STATUS_LOADING) {
                     switch (currentHeaderStatus) {
                         case HEADER_STATUS_RELEASE_TO_LOAD:
                             onDropDown();
                             break;
                         case HEADER_STATUS_DROP_DOWN_TO_LOAD:
-//                            setHeaderStatusClickToLoad();
-                            setSecondPositionVisible();
                             break;
                         case HEADER_STATUS_CLICK_TO_LOAD:
                         default:
@@ -241,17 +176,6 @@ public class DropDownListView extends ListView implements OnScrollListener {
                     onDropDown();
                 }
 
-//                if (firstVisibleItem == 0) {
-//                    headerImage.setVisibility(View.VISIBLE);
-//                    int pointBottom = headerOriginalHeight + headerReleaseMinDistance;
-//                    if (headerLayout.getBottom() >= pointBottom) {
-//                        setHeaderStatusReleaseToLoad();
-//                    } else if (headerLayout.getBottom() < pointBottom) {
-//                        setHeaderStatusDropDownToLoad();
-//                    }
-//                } else {
-//                    setHeaderStatusClickToLoad();
-//                }
             } else if (currentScrollState == SCROLL_STATE_FLING && firstVisibleItem == 0
                     && currentHeaderStatus != HEADER_STATUS_LOADING) {
                 /**
@@ -259,14 +183,10 @@ public class DropDownListView extends ListView implements OnScrollListener {
                  * first item(header layout) is visible and header status is not HEADER_STATUS_LOADING, then hide first
                  * item, set second item visible and set hasReachedTop true.
                  */
-                setSecondPositionVisible();
+                onDropDown();
                 hasReachedTop = true;
             } else if (currentScrollState == SCROLL_STATE_FLING && hasReachedTop) {
-                /**
-                 * when state of ListView is SCROLL_STATE_FLING(ListView is scrolling but finger has leave screen) and
-                 * hasReachedTop is true(it's because flick back), then hide first item, set second item visible.
-                 */
-                setSecondPositionVisible();
+                setSelection(0);
             }
         }
 
@@ -330,7 +250,6 @@ public class DropDownListView extends ListView implements OnScrollListener {
 
             if (headerLayout.getBottom() > 0) {
                 invalidateViews();
-//                setSecondPositionVisible();
             }
         }
     }
@@ -338,8 +257,6 @@ public class DropDownListView extends ListView implements OnScrollListener {
     private void resetHeader() {
         if (currentHeaderStatus != HEADER_STATUS_CLICK_TO_LOAD) {
             resetHeaderPadding();
-//            headerImage.clearAnimation();
-//            headerImage.setVisibility(View.GONE);
             headerProgressBar.setVisibility(View.GONE);
             currentHeaderStatus = HEADER_STATUS_DROP_DOWN_TO_LOAD;
         }
@@ -365,44 +282,6 @@ public class DropDownListView extends ListView implements OnScrollListener {
         }
     }
 
-
-    /**
-     * get header layout view
-     *
-     * @return
-     */
-    public RelativeLayout getHeaderLayout() {
-        return headerLayout;
-    }
-
-
-    /**
-     * get rate about drop down distance and header padding top when drop down
-     *
-     * @return headerPaddingTopRate
-     */
-    public float getHeaderPaddingTopRate() {
-        return headerPaddingTopRate;
-    }
-
-    /**
-     * set rate about drop down distance and header padding top when drop down
-     *
-     * @param headerPaddingTopRate
-     */
-    public void setHeaderPaddingTopRate(float headerPaddingTopRate) {
-        this.headerPaddingTopRate = headerPaddingTopRate;
-    }
-
-    /**
-     * get min distance which header can release to loading
-     *
-     * @return headerReleaseMinDistance
-     */
-    public int getHeaderReleaseMinDistance() {
-        return headerReleaseMinDistance;
-    }
-
     /**
      * status which you can click to load, init satus
      **/
@@ -421,76 +300,15 @@ public class DropDownListView extends ListView implements OnScrollListener {
      **/
     public static final int HEADER_STATUS_LOADING = 4;
 
-
-    /**
-     * set header status to {@link #HEADER_STATUS_DROP_DOWN_TO_LOAD}
-     */
-    private void setHeaderStatusDropDownToLoad() {
-        if (currentHeaderStatus != HEADER_STATUS_DROP_DOWN_TO_LOAD) {
-//            headerImage.setVisibility(View.VISIBLE);
-//            if (currentHeaderStatus != HEADER_STATUS_CLICK_TO_LOAD) {
-//                headerImage.clearAnimation();
-//                headerImage.startAnimation(reverseFlipAnimation);
-//            }
-            headerProgressBar.setVisibility(View.GONE);
-
-            if (isVerticalFadingEdgeEnabled()) {
-                setVerticalScrollBarEnabled(false);
-            }
-
-            currentHeaderStatus = HEADER_STATUS_DROP_DOWN_TO_LOAD;
-        }
-    }
-
-    /**
-     * set header status to {@link #HEADER_STATUS_RELEASE_TO_LOAD}
-     */
-    private void setHeaderStatusReleaseToLoad() {
-        if (currentHeaderStatus != HEADER_STATUS_RELEASE_TO_LOAD) {
-//            headerImage.setVisibility(View.VISIBLE);
-//            headerImage.clearAnimation();
-//            headerImage.startAnimation(flipAnimation);
-            headerProgressBar.setVisibility(View.GONE);
-
-            currentHeaderStatus = HEADER_STATUS_RELEASE_TO_LOAD;
-        }
-    }
-
     /**
      * set header status to {@link #HEADER_STATUS_LOADING}
      */
     private void setHeaderStatusLoading() {
         if (currentHeaderStatus != HEADER_STATUS_LOADING) {
             resetHeaderPadding();
-
-//            headerImage.setVisibility(View.GONE);
-//            headerImage.clearAnimation();
             headerProgressBar.setVisibility(View.VISIBLE);
             currentHeaderStatus = HEADER_STATUS_LOADING;
             setSelection(0);
-        }
-    }
-
-    /**
-     * adjust header padding according to motion event
-     *
-     * @param ev
-     */
-    private void adjustHeaderPadding(MotionEvent ev) {
-        // adjust header padding according to motion event history
-        int pointerCount = ev.getHistorySize();
-        if (isVerticalFadingEdgeEnabled()) {
-            setVerticalScrollBarEnabled(false);
-        }
-        for (int i = 0; i < pointerCount; i++) {
-            if (currentHeaderStatus == HEADER_STATUS_DROP_DOWN_TO_LOAD
-                    || currentHeaderStatus == HEADER_STATUS_RELEASE_TO_LOAD) {
-                headerLayout
-                        .setPadding(
-                                headerLayout.getPaddingLeft(),
-                                (int) (((ev.getHistoricalY(i) - actionDownPointY) - headerOriginalHeight) / headerPaddingTopRate),
-                                headerLayout.getPaddingRight(), headerLayout.getPaddingBottom());
-            }
         }
     }
 
@@ -533,7 +351,6 @@ public class DropDownListView extends ListView implements OnScrollListener {
     private void getAttrs(Context context, AttributeSet attrs) {
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.drop_down_list_attr);
         isDropDownStyle = ta.getBoolean(R.styleable.drop_down_list_attr_isDropDownStyle, false);
-        isOnBottomStyle = ta.getBoolean(R.styleable.drop_down_list_attr_isOnBottomStyle, false);
         ta.recycle();
     }
 }

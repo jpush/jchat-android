@@ -22,6 +22,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.eventbus.EventBus;
 import io.jchat.android.R;
 
 import java.io.File;
@@ -38,6 +39,7 @@ import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.adapter.MsgListAdapter;
 import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.entity.Event;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ChatView;
 import cn.jpush.im.api.BasicCallback;
@@ -181,6 +183,13 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
         switch (v.getId()) {
             // 返回按钮
             case R.id.return_btn:
+                Intent intent = new Intent();
+                if (mIsGroup){
+                    intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
+                }else {
+                    intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
+                }
+                mContext.setResult(JPushDemoApplication.RESULT_CODE_CHAT_ACTIVITY, intent);
                 JMessageClient.exitConversaion();
                 mContext.finish();
                 break;
@@ -246,6 +255,8 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
                 });
                 mChatAdapter.addMsgToList(msg);
                 JMessageClient.sendMessage(msg);
+                //暂时使用EventBus更新会话列表，以后sdk会同步更新Conversation
+                EventBus.getDefault().post(new Event.MessageEvent(msg));
                 break;
 
             case R.id.expression_btn:
@@ -299,7 +310,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener {
                     dismissSoftInput();
                     mIsShowMoreMenu = false;
                 }
-                Intent intent = new Intent();
+                intent = new Intent();
                 if (mIsGroup) {
                     intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
                 } else {

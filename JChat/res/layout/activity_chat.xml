@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/send_msg_layout"
-            android:layout_marginTop="@dimen/title_bar_height"
+            android:layout_below="@+id/menu_title_bar"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true">
 
@@ -97,7 +97,8 @@
                     <io.jchat.android.controller.RecordVoiceBtnController
                         android:id="@+id/voice_btn"
                         android:layout_width="match_parent"
-                        android:layout_height="35dp"
+                        android:layout_height="34dp"
+                        android:layout_marginRight="5dp"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentTop="true"
                         android:background="@drawable/voice_bg"

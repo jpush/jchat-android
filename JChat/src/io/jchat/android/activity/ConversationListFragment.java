@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -154,11 +155,29 @@ public class ConversationListFragment extends BaseFragment {
 
     }
 
+    /**
+     * 收到创建新的单聊会话的事件
+     * @param event 创建会话的StringEvent 可以拿到TargetID
+     */
     public void onEventMainThread(Event.StringEvent event){
         Log.d(TAG, "StringEvent execute");
         String targetID = event.getTargetID();
         Conversation conv = JMessageClient.getSingleConversation(targetID);
-        mConvListController.getAdapter().addNewConversation(conv);
+        if (conv != null){
+            mConvListController.getAdapter().addNewConversation(conv);
+        }
+    }
+
+    /**
+     * 收到创建新的群聊会话的事件
+     * @param event 创建会话的LongEvent 可以拿到GroupID
+     */
+    public void onEventMainThread(Event.LongEvent event){
+        long groupID = event.getGroupID();
+        Conversation conv = JMessageClient.getGroupConversation(groupID);
+        if (conv != null){
+            mConvListController.getAdapter().addNewConversation(conv);
+        }
     }
 
     @Override
@@ -175,13 +194,6 @@ public class ConversationListFragment extends BaseFragment {
     @Override
     public void onResume() {
         dismissPopWindow();
-        int position = mConvListController.getClickPosition();
-        if (position != -1){
-            Conversation conv = mConvListController.getDatas().get(position);
-            if (conv != null){
-                conv.resetUnreadCount();
-            }
-        }
         mConvListController.getAdapter().notifyDataSetChanged();
         super.onResume();
     }
@@ -207,4 +219,7 @@ public class ConversationListFragment extends BaseFragment {
         startActivity(intent);
     }
 
+    public void refreshConv(Conversation conv) {
+        mConvListController.getAdapter().refreshConv(conv);
+    }
 }

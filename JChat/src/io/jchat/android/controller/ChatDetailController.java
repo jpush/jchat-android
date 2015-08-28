@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import cn.jpush.im.android.api.enums.ConversationType;
+import cn.jpush.im.android.eventbus.EventBus;
 import io.jchat.android.R;
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -40,6 +41,7 @@ import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.adapter.GroupMemberGridAdapter;
 import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.entity.Event;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
@@ -607,6 +609,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             if (mLoadingDialog != null)
                                 mLoadingDialog.dismiss();
                             Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
+                            EventBus.getDefault().post(new Event.LongEvent(groupID));
                             if (status == 0) {
                                 mContext.startChatActivity(groupID, conv.getTitle());
                             } else {

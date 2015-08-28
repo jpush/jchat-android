@@ -14,6 +14,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import cn.jpush.im.android.api.model.Conversation;
@@ -22,6 +23,7 @@ import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.NativeImageLoader;
+import io.jchat.android.tools.SortConvList;
 import io.jchat.android.tools.TimeFormat;
 import io.jchat.android.view.CircleImageView;
 
@@ -81,6 +83,22 @@ public class ConversationListAdapter extends BaseAdapter {
 
     public void addNewConversation(Conversation conv) {
         mDatas.add(0, conv);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 更新Conversation的最后消息，以后会弃用此方法
+     * @param conv
+     */
+    public void refreshConv(Conversation conv) {
+        for (Conversation conversation : mDatas){
+            if (conv.getId().equals(conversation.getId())){
+                conv.resetUnreadCount();
+                mDatas.set(mDatas.indexOf(conversation), conv);
+            }
+        }
+        SortConvList sortConvList = new SortConvList();
+        Collections.sort(mDatas, sortConvList);
         notifyDataSetChanged();
     }
 

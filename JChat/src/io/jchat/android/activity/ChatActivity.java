@@ -150,6 +150,13 @@ public class ChatActivity extends BaseActivity {
                         ChatController.mIsShowMoreMenu = false;
                         //清空未读数
                     }
+                    Intent intent = new Intent();
+                    if (mChatController.isGroup()){
+                        intent.putExtra(JPushDemoApplication.GROUP_ID, mChatController.getGroupID());
+                    }else {
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, mChatController.getTargetID());
+                    }
+                    setResult(JPushDemoApplication.RESULT_CODE_CHAT_ACTIVITY, intent);
                     break;
                 case KeyEvent.KEYCODE_MENU:
                     // 处理自己的逻辑
