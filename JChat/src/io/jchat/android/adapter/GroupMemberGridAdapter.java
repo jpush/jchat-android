@@ -120,6 +120,8 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     public void addMemberToList(UserInfo userInfo) {
         if (!mMemberList.contains(userInfo)) {
             mMemberList.add(userInfo);
+            ++mCurrentNum;
+            mRestNum = mRestArray[mCurrentNum % 4];
         }
         notifyDataSetChanged();
     }

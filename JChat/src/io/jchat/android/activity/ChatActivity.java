@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.Toast;
 
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
@@ -59,6 +60,8 @@ public class ChatActivity extends BaseActivity {
         mChatController = new ChatController(mChatView, this);
         mChatView.setListeners(mChatController);
         mChatView.setOnTouchListener(mChatController);
+        mChatView.setOnSizeChangedListener(mChatController);
+        mChatView.setOnKbdStateListener(mChatController);
         initReceiver();
 
     }
@@ -143,20 +146,13 @@ public class ChatActivity extends BaseActivity {
                         mChatView.releaseRecorder();
                         RecordVoiceBtnController.mIsPressed = false;
                     }
-                    if (mChatController.mIsShowMoreMenu) {
-                        mChatView.resetMoreMenuHeight();
+                    if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE) {
                         mChatView.dismissMoreMenu();
-                        mChatController.dismissSoftInput();
-                        ChatController.mIsShowMoreMenu = false;
-                        //清空未读数
-                    }
-                    Intent intent = new Intent();
-                    if (mChatController.isGroup()){
-                        intent.putExtra(JPushDemoApplication.GROUP_ID, mChatController.getGroupID());
+                        return false;
                     }else {
-                        intent.putExtra(JPushDemoApplication.TARGET_ID, mChatController.getTargetID());
+                        mChatController.resetUnreadMsg();
                     }
-                    setResult(JPushDemoApplication.RESULT_CODE_CHAT_ACTIVITY, intent);
+
                     break;
                 case KeyEvent.KEYCODE_MENU:
                     // 处理自己的逻辑
@@ -195,10 +191,8 @@ public class ChatActivity extends BaseActivity {
     @Override
     protected void onStop() {
         mChatController.getAdapter().stopMediaPlayer();
-        if (mChatController.mIsShowMoreMenu) {
+        if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE) {
             mChatView.dismissMoreMenu();
-            mChatController.dismissSoftInput();
-            ChatController.mIsShowMoreMenu = false;
         }
         if (mChatController.getConversation() != null)
             mChatController.getConversation().resetUnreadCount();

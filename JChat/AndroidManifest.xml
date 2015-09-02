@@ -145,7 +145,7 @@
         <activity
             android:name="io.jchat.android.activity.ChatActivity"
             android:theme="@style/notitle"
-            android:windowSoftInputMode="adjustNothing" />
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name="io.jchat.android.activity.ReloginActivity"
             android:theme="@style/notitle"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden"/>

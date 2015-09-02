@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -68,7 +69,7 @@ public class ConversationListController implements OnClickListener,
             Collections.sort(mDatas, sortList);
         }
 
-        mListAdapter = new ConversationListAdapter(mContext, mDatas);
+        mListAdapter = new ConversationListAdapter(mContext.getActivity(), mDatas);
         mConvListView.setConvListAdapter(mListAdapter);
     }
 
@@ -93,9 +94,7 @@ public class ConversationListController implements OnClickListener,
             intent.putExtra(JPushDemoApplication.IS_GROUP, true);
             intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
             intent.setClass(mContext.getActivity(), ChatActivity.class);
-            //暂时使用startActivityForResult来更新ConversationList
-            // 以后sdk会更新内存中的ConversationList
-            mContext.getActivity().startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CHAT_ACTIVITY);
+            mContext.getActivity().startActivity(intent);
             return;
         } else{
             String targetID = mDatas.get(position).getTargetId();
@@ -103,7 +102,7 @@ public class ConversationListController implements OnClickListener,
             intent.putExtra(JPushDemoApplication.IS_GROUP, false);
         }
         intent.setClass(mContext.getActivity(), ChatActivity.class);
-        mContext.getActivity().startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CHAT_ACTIVITY);
+        mContext.getActivity().startActivity(intent);
 
     }
 
@@ -118,6 +117,10 @@ public class ConversationListController implements OnClickListener,
      */
     public void refreshConvList(final Conversation conv){
         mListAdapter.setToTop(conv);
+    }
+
+    public void registerDataSetObserver (DataSetObserver observer){
+
     }
 
     /**
@@ -155,5 +158,10 @@ public class ConversationListController implements OnClickListener,
 
     public ConversationListAdapter getAdapter() {
         return mListAdapter;
+    }
+
+    public boolean isExistConv(String targetID) {
+        Conversation conv = JMessageClient.getSingleConversation(targetID);
+        return conv != null;
     }
 }

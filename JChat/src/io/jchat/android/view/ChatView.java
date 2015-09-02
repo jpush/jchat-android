@@ -1,6 +1,7 @@
 package io.jchat.android.view;
 
 import android.content.Context;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -23,7 +24,6 @@ import io.jchat.android.R;
 import cn.jpush.im.android.api.model.Conversation;
 
 import io.jchat.android.adapter.MsgListAdapter;
-import io.jchat.android.controller.ChatController;
 import io.jchat.android.controller.RecordVoiceBtnController;
 import io.jchat.android.tools.SharePreferenceManager;
 
@@ -46,6 +46,15 @@ public class ChatView extends RelativeLayout{
 	private ImageButton mSendVoiceIb;
 	private Button mSendMsgBtn;
 	Context mContext;
+    private OnSizeChangedListener mListener;
+    private OnKybdsChangeListener mKeyboardListener;
+
+	public static final byte KEYBOARD_STATE_SHOW = -3;
+	public static final byte KEYBOARD_STATE_HIDE = -2;
+	public static final byte KEYBOARD_STATE_INIT = -1;
+	private boolean mHasInit;
+	private boolean mHasKeybord;
+	private int mHeight;
 
 	public ChatView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -73,7 +82,7 @@ public class ChatView extends RelativeLayout{
 		mMoreMenuTl = (TableLayout) findViewById(R.id.more_menu_tl);
 		mBackground.requestFocus();
 		mChatInputEt.addTextChangedListener(watcher);
-		mChatInputEt.setOnFocusChangeListener(listener);
+        mChatInputEt.setOnFocusChangeListener(listener);
         mChatInputEt.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         mChatInputEt.setSingleLine(false);
         mChatInputEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -96,6 +105,58 @@ public class ChatView extends RelativeLayout{
             mMoreMenuTl.setLayoutParams(new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, softKeyboardHeight));
         }
 
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if(mListener != null){
+            mListener.onSizeChanged(w, h, oldw, oldh);
+        }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        if (!mHasInit) {
+            mHasInit = true;
+            mHeight = b;
+            if (mKeyboardListener != null) {
+                mKeyboardListener.onKeyBoardStateChange(KEYBOARD_STATE_INIT);
+            }
+        } else {
+            mKeyboardListener.onKeyBoardStateChange(KEYBOARD_STATE_INIT);
+
+            mHeight = mHeight < b ? b : mHeight;
+        }
+        if (mHasInit && mHeight > b) {
+            mHasKeybord = true;
+            if (mKeyboardListener != null) {
+                mKeyboardListener.onKeyBoardStateChange(KEYBOARD_STATE_SHOW);
+            }
+        }
+        if (mHasInit && mHasKeybord && mHeight == b) {
+            mHasKeybord = false;
+            if (mKeyboardListener != null) {
+                mKeyboardListener.onKeyBoardStateChange(KEYBOARD_STATE_HIDE);
+            }
+        }
+    }
+
+    public void setOnSizeChangedListener(OnSizeChangedListener listener) {
+        this.mListener = listener;
+    }
+
+    public interface OnSizeChangedListener {
+        void onSizeChanged(int w, int h, int oldw, int oldh);
+    }
+
+    public interface OnKybdsChangeListener{
+        void onKeyBoardStateChange(int state);
+    }
+
+    public void setOnKbdStateListener(OnKybdsChangeListener listener){
+        mKeyboardListener = listener;
     }
 
     private TextWatcher watcher = new TextWatcher(){
@@ -128,28 +189,34 @@ public class ChatView extends RelativeLayout{
 
 	};
 
-    public void focusToInput(boolean inputFocus){
-        if(inputFocus){
+    public void focusToInput(boolean inputFocus) {
+        if (inputFocus) {
             mChatInputEt.requestFocus();
             Log.i("ChatView", "show softInput");
             InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
-        }else {
+        } else {
             mAddFileIb.requestFocusFromTouch();
         }
     }
 
-	OnFocusChangeListener listener = new OnFocusChangeListener() {
+    OnFocusChangeListener listener = new OnFocusChangeListener() {
 
-		@Override
-		public void onFocusChange(View v, boolean hasFocus) {
-			if(hasFocus){
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (hasFocus) {
                 Log.i("ChatView", "Input focus");
-                showMoreMenu();
-                ChatController.mIsShowMoreMenu = true;
-			}
-		}
-	};
+                Handler handler = new Handler();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        dismissMoreMenu();
+                    }
+                });
+            }
+        }
+    };
+
 
 	public void setListeners(OnClickListener onClickListener){
 		mReturnBtn.setOnClickListener(onClickListener);
@@ -168,6 +235,7 @@ public class ChatView extends RelativeLayout{
 
     public void setOnTouchListener(OnTouchListener listener){
         mChatListView.setOnTouchListener(listener);
+        mChatInputEt.setOnTouchListener(listener);
     }
 
 	public void setChatListAdapter(MsgListAdapter adapter) {
@@ -223,21 +291,32 @@ public class ChatView extends RelativeLayout{
 
 	public void setToBottom() {
 			mChatListView.post(new Runnable() {
-				@Override
-				public void run() {
-					mChatListView.setSelection(mChatListView.getBottom());
-				}
-			});
+                @Override
+                public void run() {
+                    mChatListView.setSelection(mChatListView.getBottom());
+                }
+            });
 	}
 
 	public void setGroupIcon() {
 		mRightBtn.setImageResource(R.drawable.group_chat_detail);
 	}
 
+    public EditText getInputView(){
+        return mChatInputEt;
+    }
+
+    public TableLayout getMoreMenu(){
+        return mMoreMenuTl;
+    }
 
 	public void showMoreMenu() {
 		mMoreMenuTl.setVisibility(View.VISIBLE);
 	}
+
+    public void invisibleMoreMenu() {
+        mMoreMenuTl.setVisibility(INVISIBLE);
+    }
 
 	public void dismissMoreMenu(){
 		mMoreMenuTl.setVisibility(View.GONE);

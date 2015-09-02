@@ -81,12 +81,13 @@
     </style>
 
     <style name="MeInfoItemContent">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:maxWidth">150dp</item>
+        <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignParentRight">true</item>
-        <item name="android:layout_marginRight">20dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:paddingLeft">50dp</item>
+        <item name="android:paddingRight">15dp</item>
         <item name="android:layout_centerVertical">true</item>
+        <item name="android:gravity">right</item>
         <item name="android:singleLine">false</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">#808080</item>
@@ -340,10 +341,12 @@
     </style>
 
     <style name="info_right_txt_style">
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:maxWidth">200dp</item>
-        <item name="android:layout_marginRight">15dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">right</item>
+        <item name="android:paddingLeft">50dp</item>
+        <item name="android:paddingRight">15dp</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/friend_content_text_color</item>
         <item name="android:layout_alignParentRight">true</item>

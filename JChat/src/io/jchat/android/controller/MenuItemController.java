@@ -39,7 +39,6 @@ public class MenuItemController implements View.OnClickListener {
     private MenuItemView mMenuItemView;
     private ConversationListFragment mContext;
     private ConversationListController mController;
-    private DialogCreator mLD = new DialogCreator();
     private Dialog mLoadingDialog;
 
     public MenuItemController(MenuItemView view, ConversationListFragment context,
@@ -55,7 +54,7 @@ public class MenuItemController implements View.OnClickListener {
             case R.id.create_group_ll:
                 mContext.dismissPopWindow();
 //                mContext.StartCreateGroupActivity();
-                mLoadingDialog = mLD.createLoadingDialog(mContext.getActivity(), mContext.getString(R.string.creating_hint));
+                mLoadingDialog = DialogCreator.createLoadingDialog(mContext.getActivity(), mContext.getString(R.string.creating_hint));
                 mLoadingDialog.show();
                 JMessageClient.createGroup(
                         "", "",
@@ -108,29 +107,36 @@ public class MenuItemController implements View.OnClickListener {
                                 final String targetID = userNameEt.getText().toString().trim();
                                 Log.i("MenuItemController", "targetID " + targetID);
                                 if (TextUtils.isEmpty(targetID)) {
-                                    Toast.makeText(mContext.getActivity(), mContext.getString(R.string.username_not_null_toast),
+                                    Toast.makeText(mContext.getActivity(), mContext.getString(
+                                                    R.string.username_not_null_toast),
                                             Toast.LENGTH_SHORT).show();
                                     break;
                                 } else if (targetID.equals(JMessageClient.getMyInfo().getUserName())
                                         || targetID.equals(JMessageClient.getMyInfo().getNickname())) {
-                                    Toast.makeText(mContext.getActivity(), mContext.getString(R.string.user_add_self_toast),
+                                    Toast.makeText(mContext.getActivity(), mContext.getString(
+                                                    R.string.user_add_self_toast),
                                             Toast.LENGTH_SHORT).show();
                                     return;
-                                } else {
-                                    mLoadingDialog = mLD.createLoadingDialog(mContext.getActivity(),
+                                } else if (mController.isExistConv(targetID)){
+                                    Toast.makeText(mContext.getActivity(), mContext.getString(
+                                            R.string.user_already_exist_toast), Toast.LENGTH_SHORT)
+                                            .show();
+                                    userNameEt.setText("");
+                                    break;
+                                }else {
+                                    mLoadingDialog = DialogCreator.createLoadingDialog(mContext.getActivity(),
                                             mContext.getString(R.string.adding_hint));
                                     mLoadingDialog.show();
                                     dismissSoftInput();
                                     JMessageClient.getUserInfo(targetID, new GetUserInfoCallback() {
                                         @Override
-                                        public void gotResult(final int status, String desc, final UserInfo userInfo) {
+                                        public void gotResult(final int status, String desc,
+                                                              final UserInfo userInfo) {
                                             if (mLoadingDialog != null)
                                                 mLoadingDialog.dismiss();
                                             if (status == 0) {
-                                                List<Conversation> list = JMessageClient.getConversationList();
                                                 Conversation conv = Conversation
-                                                        .createConversation(ConversationType.single, targetID);
-                                                list.add(conv);
+                                                        .createSingleConversation(targetID);
                                                 if (userInfo.getAvatar() != null) {
                                                     mController.loadAvatarAndRefresh(targetID,
                                                             userInfo.getAvatarFile().getAbsolutePath());

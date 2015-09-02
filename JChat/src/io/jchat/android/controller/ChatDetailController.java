@@ -70,6 +70,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private String mTargetID;
     private Dialog mLoadingDialog = null;
     private boolean mIsShowDelete = false;
+    private static final int INIT_GROUP_INFO = 2046;
     private static final int GET_GROUP_MEMBER = 2047;
     private static final int ADD_TO_GRIDVIEW = 2048;
     private static final int DELETE_FROM_GRIDVIEW = 2049;
@@ -108,7 +109,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                         public void gotResult(final int status, final String desc, GroupInfo group) {
                             if (status == 0) {
                                 android.os.Message msg = myHandler.obtainMessage();
-                                msg.what = 0;
+                                msg.what = INIT_GROUP_INFO;
                                 msg.obj = group;
                                 Log.i(TAG, "Group owner is " + group.getGroupOwner());
                                 msg.sendToTarget();
@@ -385,7 +386,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                                         ArrayList<String> userIDs = new ArrayList<String>();
                                         userIDs.add(targetID);
                                         android.os.Message msg = myHandler.obtainMessage();
-                                        msg.what = 1;
+                                        msg.what = ADD_TO_GRIDVIEW;
                                         msg.obj = userInfo;
                                         msg.sendToTarget();
                                     } else {
@@ -453,6 +454,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                                 // 添加群成员
                                 ++mCurrentNum;
                                 mGridAdapter.addMemberToList(userInfo);
+                                mChatDetailView.setTitle(mCurrentNum);
                                 Log.i("ADD_TO_GRIDVIEW", "已添加");
                                 mLoadingDialog.dismiss();
                             } else {
@@ -531,7 +533,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             if (controller != null) {
                 switch (msg.what) {
                     // 初始化群组
-                    case 0:
+                    case INIT_GROUP_INFO:
                         GroupInfo groupInfo = (GroupInfo) msg.obj;
                         UserInfo myInfo = JMessageClient.getMyInfo();
                         String groupOwnerID = groupInfo.getGroupOwner();
@@ -550,7 +552,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                         }
                         break;
                     //点击加人按钮并且用户信息返回正确
-                    case 1:
+                    case ADD_TO_GRIDVIEW:
                         Log.i(TAG, "Adding Group Member, got UserInfo");
                         if (controller.mLoadingDialog != null)
                             controller.mLoadingDialog.dismiss();
@@ -569,16 +571,11 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                         controller.mChatDetailView.setTitle(controller.mMemberInfoList.size());
                         controller.initAdapter();
                         break;
-                    // 添加成员
-                    case ADD_TO_GRIDVIEW:
-//                    ++mCurrentNum;
-//                    mGridAdapter.addMemberToList(msg.getData().getStringArrayList("memberList"));
-//                    Log.i("ADD_TO_GRIDVIEW", "已添加");
-                        break;
                     // 删除成员
                     case DELETE_FROM_GRIDVIEW:
                         // 更新GridView
                         --controller.mCurrentNum;
+                        controller.mChatDetailView.setTitle(controller.mCurrentNum);
                         int position = msg.getData().getInt(JPushDemoApplication.POSITION);
                         controller.mGridAdapter.remove(position);
                         Log.i("DELETE_FROM_GRIDVIEW", "已删除");
@@ -608,7 +605,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                         public void gotResult(int status, String desc) {
                             if (mLoadingDialog != null)
                                 mLoadingDialog.dismiss();
-                            Conversation conv = Conversation.createConversation(ConversationType.group, groupID);
+                            Conversation conv = Conversation.createGroupConversation(groupID);
                             EventBus.getDefault().post(new Event.LongEvent(groupID));
                             if (status == 0) {
                                 mContext.startChatActivity(groupID, conv.getTitle());

@@ -59,6 +59,8 @@
                     android:id="@+id/switch_voice_ib"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="2dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:background="@drawable/voice"
@@ -114,6 +116,8 @@
                 <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="2dp"
                     android:layout_marginLeft="5dp">
 
                     <Button
@@ -132,6 +136,7 @@
                         android:id="@+id/add_file_btn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
                         android:background="@drawable/more_menu"
                         android:focusable="true" />
                 </FrameLayout>

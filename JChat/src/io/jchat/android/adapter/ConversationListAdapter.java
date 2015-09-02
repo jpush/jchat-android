@@ -1,10 +1,14 @@
 package io.jchat.android.adapter;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -30,14 +34,14 @@ import io.jchat.android.view.CircleImageView;
 public class ConversationListAdapter extends BaseAdapter {
 
     List<Conversation> mDatas;
-    private ConversationListFragment mContext;
+    private Activity mContext;
 
-    public ConversationListAdapter(ConversationListFragment context,
+    public ConversationListAdapter(Activity context,
                                    List<Conversation> data) {
         this.mContext = context;
         this.mDatas = data;
         DisplayMetrics dm = new DisplayMetrics();
-        (context.getActivity()).getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mContext.getWindowManager().getDefaultDisplay().getMetrics(dm);
         double density = dm.density;
         for (Conversation conv : mDatas) {
             if (conv.getType().equals(ConversationType.single)) {
@@ -62,7 +66,7 @@ public class ConversationListAdapter extends BaseAdapter {
             if (conv.getId().equals(conversation.getId())) {
                 mDatas.remove(conversation);
                 mDatas.add(0, conv);
-                mContext.getActivity().runOnUiThread(new Runnable() {
+                mContext.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         notifyDataSetChanged();
@@ -73,7 +77,7 @@ public class ConversationListAdapter extends BaseAdapter {
         }
         //如果是新的会话
         mDatas.add(0, conv);
-        mContext.getActivity().runOnUiThread(new Runnable() {
+        mContext.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 notifyDataSetChanged();
@@ -81,27 +85,20 @@ public class ConversationListAdapter extends BaseAdapter {
         });
     }
 
-    public void addNewConversation(Conversation conv) {
-        mDatas.add(0, conv);
-        notifyDataSetChanged();
-    }
-
-    /**
-     * 更新Conversation的最后消息，以后会弃用此方法
-     * @param conv
-     */
-    public void refreshConv(Conversation conv) {
-        for (Conversation conversation : mDatas){
-            if (conv.getId().equals(conversation.getId())){
-                conv.resetUnreadCount();
-                mDatas.set(mDatas.indexOf(conversation), conv);
-            }
+    public void sortConvList() {
+        for (Conversation conv : mDatas){
+            TimeFormat timeFormat = new TimeFormat(mContext, conv.getLastMsgDate());
+            Log.d("ConversationListAdapter", "last msg time: " + timeFormat.getTime());
         }
         SortConvList sortConvList = new SortConvList();
         Collections.sort(mDatas, sortConvList);
         notifyDataSetChanged();
     }
 
+    public void addNewConversation(Conversation conv) {
+        mDatas.add(0, conv);
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getCount() {
@@ -129,8 +126,8 @@ public class ConversationListAdapter extends BaseAdapter {
         final Conversation convItem = mDatas.get(position);
         final ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(mContext.getActivity()).inflate(
-                    R.layout.conversation_list_item, null);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.conversation_list_item,
+                    null);
             viewHolder = new ViewHolder();
             viewHolder.headIcon = (CircleImageView) convertView
                     .findViewById(R.id.msg_item_head_icon);
@@ -147,24 +144,33 @@ public class ConversationListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
 
         }
-        TimeFormat timeFormat = new TimeFormat(mContext.getActivity(), convItem.getLastMsgDate());
-        viewHolder.datetime.setText(timeFormat.getTime());
-        // 按照最后一条消息的消息类型进行处理
-        switch (convItem.getLatestType()) {
-            case image:
-                viewHolder.content.setText(mContext.getString(R.string.type_picture));
-                break;
-            case voice:
-                viewHolder.content.setText(mContext.getString(R.string.type_voice));
-                break;
-            case location:
-                viewHolder.content.setText(mContext.getString(R.string.type_location));
-                break;
-            case eventNotification:
-                viewHolder.content.setText(mContext.getString(R.string.group_notification));
-                break;
-            default:
-                viewHolder.content.setText(convItem.getLatestText());
+        Message lastMsg = convItem.getLatestMessage();
+        if (lastMsg != null){
+            TimeFormat timeFormat = new TimeFormat(mContext, lastMsg.getCreateTime());
+            viewHolder.datetime.setText(timeFormat.getTime());
+            Log.d("ConversationListAdater", "last time: " + timeFormat.getTime());
+            // 按照最后一条消息的消息类型进行处理
+            switch (lastMsg.getContentType()) {
+                case image:
+                    viewHolder.content.setText(mContext.getString(R.string.type_picture));
+                    break;
+                case voice:
+                    viewHolder.content.setText(mContext.getString(R.string.type_voice));
+                    break;
+                case location:
+                    viewHolder.content.setText(mContext.getString(R.string.type_location));
+                    break;
+                case eventNotification:
+                    viewHolder.content.setText(mContext.getString(R.string.group_notification));
+                    break;
+                default:
+                    viewHolder.content.setText(((TextContent)lastMsg.getContent()).getText());
+                    Log.d("ConversationListAdapter", "Last Msg: " + ((TextContent)lastMsg.getContent()).getText());
+            }
+        }else {
+            TimeFormat timeFormat = new TimeFormat(mContext, convItem.getLastMsgDate());
+            viewHolder.datetime.setText(timeFormat.getTime());
+            viewHolder.content.setText("");
         }
 //		viewHolder.headIcon.setImageResource(R.drawable.head_icon);
         // 如果是单聊

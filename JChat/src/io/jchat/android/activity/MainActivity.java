@@ -72,6 +72,7 @@ public class MainActivity extends FragmentActivity{
     @Override
     protected void onResume() {
         JPushInterface.onResume(this);
+        mMainController.sortConvList();
         super.onResume();
     }
 
@@ -117,18 +118,6 @@ public class MainActivity extends FragmentActivity{
                     cursor.close();
                     mMainController.calculateAvatar(path);
                 }
-            }
-            //暂时使用startActivityForResult来更新ConversationList
-            // 以后sdk会更新内存中的ConversationList
-        }else if (resultCode == JPushDemoApplication.RESULT_CODE_CHAT_ACTIVITY){
-            String targetID = data.getStringExtra(JPushDemoApplication.TARGET_ID);
-            if (TextUtils.isEmpty(targetID)){
-                Long groupID = data.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
-                Conversation conv = JMessageClient.getGroupConversation(groupID);
-                mMainController.refreshConv(conv);
-            }else {
-                Conversation conv = JMessageClient.getSingleConversation(targetID);
-                mMainController.refreshConv(conv);
             }
         }
     }

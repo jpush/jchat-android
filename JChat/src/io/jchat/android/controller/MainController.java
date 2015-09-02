@@ -129,7 +129,7 @@ public class MainController implements OnClickListener, OnPageChangeListener{
 		
 	}
 
-    public void refreshConv(Conversation conv) {
-        mConvListFragment.refreshConv(conv);
+    public void sortConvList() {
+        mConvListFragment.sortConvList();
     }
 }

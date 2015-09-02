@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +20,11 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ConversationRefreshEvent;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
-import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
 import io.jchat.android.entity.Event;
@@ -124,16 +123,19 @@ public class ConversationListFragment extends BaseFragment {
     public void onEvent(MessageEvent event) {
         Log.i(TAG, "onEventMainThread MessageEvent execute");
         Message msg = event.getMessage();
-        String targetID = msg.getTargetID();
+        Log.d("JMessage", "收到消息：msg = " + msg.toString());
         ConversationType convType = msg.getTargetType();
         Conversation conv;
         if (convType == ConversationType.group) {
-            conv = JMessageClient.getGroupConversation(Long.parseLong(targetID));
+            long groupID = ((GroupInfo)msg.getTargetInfo()).getGroupID();
+            conv = JMessageClient.getGroupConversation(groupID);
+            if (conv != null && mConvListController != null){
+                mConvListController.refreshConvList(conv);
+            }
         } else {
+            String targetID = ((UserInfo)msg.getTargetInfo()).getUserName();
             conv = JMessageClient.getSingleConversation(targetID);
-        }
-        if (conv != null && mConvListController != null) {
-            if (convType == ConversationType.single) {
+            if (conv != null && mConvListController != null){
                 //如果缓存了头像，直接刷新会话列表
                 if (NativeImageLoader.getInstance().getBitmapFromMemCache(targetID) != null) {
                     Log.i("Test", "conversation ");
@@ -148,17 +150,10 @@ public class ConversationListFragment extends BaseFragment {
                         //conversation中没有头像，直接刷新，SDK会在后台获得头像，拿到后会执行onEvent(ConversationRefreshEvent conversationRefreshEvent)
                     } else mConvListController.refreshConvList(conv);
                 }
-            } else {
-                mConvListController.refreshConvList(conv);
             }
         }
-
     }
 
-    /**
-     * 收到创建新的单聊会话的事件
-     * @param event 创建会话的StringEvent 可以拿到TargetID
-     */
     public void onEventMainThread(Event.StringEvent event){
         Log.d(TAG, "StringEvent execute");
         String targetID = event.getTargetID();
@@ -168,10 +163,6 @@ public class ConversationListFragment extends BaseFragment {
         }
     }
 
-    /**
-     * 收到创建新的群聊会话的事件
-     * @param event 创建会话的LongEvent 可以拿到GroupID
-     */
     public void onEventMainThread(Event.LongEvent event){
         long groupID = event.getGroupID();
         Conversation conv = JMessageClient.getGroupConversation(groupID);
@@ -194,7 +185,6 @@ public class ConversationListFragment extends BaseFragment {
     @Override
     public void onResume() {
         dismissPopWindow();
-        mConvListController.getAdapter().notifyDataSetChanged();
         super.onResume();
     }
 
@@ -219,7 +209,10 @@ public class ConversationListFragment extends BaseFragment {
         startActivity(intent);
     }
 
-    public void refreshConv(Conversation conv) {
-        mConvListController.getAdapter().refreshConv(conv);
+    public void sortConvList() {
+        if (mConvListController != null){
+            mConvListController.getAdapter().sortConvList();
+        }
     }
+
 }
