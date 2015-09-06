@@ -305,7 +305,7 @@
 
     <style name="default_input_style">
         <item name="android:padding">5dp</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">@dimen/text_medium_size</item>
         <item name="android:maxLines">2</item>
         <item name="android:maxLength">64</item>
         <item name="android:background">@drawable/invisible_input_bg</item>

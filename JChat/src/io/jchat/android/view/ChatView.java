@@ -47,7 +47,7 @@ public class ChatView extends RelativeLayout{
 	private Button mSendMsgBtn;
 	Context mContext;
     private OnSizeChangedListener mListener;
-    private OnKybdsChangeListener mKeyboardListener;
+    private OnKeyBoardChangeListener mKeyboardListener;
 
 	public static final byte KEYBOARD_STATE_SHOW = -3;
 	public static final byte KEYBOARD_STATE_HIDE = -2;
@@ -151,11 +151,11 @@ public class ChatView extends RelativeLayout{
         void onSizeChanged(int w, int h, int oldw, int oldh);
     }
 
-    public interface OnKybdsChangeListener{
+    public interface OnKeyBoardChangeListener {
         void onKeyBoardStateChange(int state);
     }
 
-    public void setOnKbdStateListener(OnKybdsChangeListener listener){
+    public void setOnKbdStateListener(OnKeyBoardChangeListener listener){
         mKeyboardListener = listener;
     }
 
@@ -275,13 +275,46 @@ public class ChatView extends RelativeLayout{
 
 
 
-	public void setChatTitle(String targetId){
+	public void setChatTitle(String targetId, int densityDpi){
+        if (densityDpi <= 160){
+            if (targetId.length() > 6){
+                targetId = targetId.substring(0, 6);
+                targetId = targetId + "...";
+            }
+        }else if (densityDpi <= 240){
+            if (targetId.length() > 8){
+                targetId = targetId.substring(0, 8);
+                targetId = targetId + "...";
+            }
+        }else {
+            if (targetId.length() > 10){
+                targetId = targetId.substring(0, 10);
+                targetId = targetId + "...";
+            }
+        }
 		mChatTitle.setText(targetId);
 	}
 
 	//设置群聊名字
-	public void setChatTitle(String name, int count){
-		String title = name + mContext.getString(R.string.combine_title);
+	public void setChatTitle(String name, int count, int densityDpi){
+        String title;
+        if (densityDpi <= 160){
+            if (name.length() > 6){
+                name = name.substring(0, 6);
+                name = name + "...";
+            }
+        }else if (densityDpi <= 240){
+            if (name.length() > 8){
+                name = name.substring(0, 8);
+                name = name + "...";
+            }
+        }else {
+            if (name.length() > 10){
+                name = name.substring(0, 10);
+                name = name + "...";
+            }
+        }
+        title = name + mContext.getString(R.string.combine_title);
 		mChatTitle.setText(String.format(title, count));
 	}
 

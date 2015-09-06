@@ -60,7 +60,7 @@
             android:hint="@string/username_hit"
             android:textColorHint="@color/chat_detail_item_content_color"
             android:singleLine="true"
-            android:textSize="18sp"
+            android:textSize="@dimen/text_medium_size"
             android:textColor="@color/black" >
 
             <requestFocus />
@@ -101,7 +101,7 @@
             android:textCursorDrawable="@drawable/text_cursor_bg"
             android:inputType="textPassword"
             android:singleLine="true"
-            android:textSize="18sp" 
+            android:textSize="@dimen/text_medium_size"
             android:textColor="@color/black"/>
 
         <View
