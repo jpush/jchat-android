@@ -107,7 +107,7 @@ public class FriendInfoActivity extends BaseActivity {
         startActivity(intent);
         Conversation conv = JMessageClient.getSingleConversation(mTargetID);
         if (conv == null){
-            conv = Conversation.createConversation(ConversationType.single, mTargetID);
+            conv = Conversation.createSingleConversation(mTargetID);
             EventBus.getDefault().post(new Event.StringEvent(mTargetID));
         }
         finish();

@@ -8,6 +8,7 @@ import android.util.Log;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.NotificationClickEvent;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import io.jchat.android.activity.ChatActivity;
 
@@ -30,6 +31,12 @@ public class NotificationClickEventReceiver {
         Message msg = notificationClickEvent.getMessage();
         String targetID = msg.getTargetID();
         ConversationType type = msg.getTargetType();
+        Conversation conv;
+        if (type.equals(ConversationType.single)){
+            conv = JMessageClient.getSingleConversation(targetID);
+        }else conv = JMessageClient.getGroupConversation(Long.parseLong(targetID));
+        conv.resetUnreadCount();
+        Log.d("Notification", "Conversation unread msg reset");
         Intent notificationIntent = new Intent(mContext, ChatActivity.class);
 //        notificationIntent.setAction(Intent.ACTION_MAIN);
         notificationIntent.putExtra("targetID", targetID);

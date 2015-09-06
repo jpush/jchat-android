@@ -20,11 +20,11 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ConversationRefreshEvent;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
-import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
 import io.jchat.android.entity.Event;
@@ -123,16 +123,19 @@ public class ConversationListFragment extends BaseFragment {
     public void onEvent(MessageEvent event) {
         Log.i(TAG, "onEventMainThread MessageEvent execute");
         Message msg = event.getMessage();
-        String targetID = msg.getTargetID();
+        Log.d("JMessage", "收到消息：msg = " + msg.toString());
         ConversationType convType = msg.getTargetType();
         Conversation conv;
         if (convType == ConversationType.group) {
-            conv = JMessageClient.getGroupConversation(Long.parseLong(targetID));
+            long groupID = ((GroupInfo)msg.getTargetInfo()).getGroupID();
+            conv = JMessageClient.getGroupConversation(groupID);
+            if (conv != null && mConvListController != null){
+                mConvListController.refreshConvList(conv);
+            }
         } else {
+            String targetID = ((UserInfo)msg.getTargetInfo()).getUserName();
             conv = JMessageClient.getSingleConversation(targetID);
-        }
-        if (conv != null && mConvListController != null) {
-            if (convType == ConversationType.single) {
+            if (conv != null && mConvListController != null){
                 //如果缓存了头像，直接刷新会话列表
                 if (NativeImageLoader.getInstance().getBitmapFromMemCache(targetID) != null) {
                     Log.i("Test", "conversation ");
@@ -147,18 +150,25 @@ public class ConversationListFragment extends BaseFragment {
                         //conversation中没有头像，直接刷新，SDK会在后台获得头像，拿到后会执行onEvent(ConversationRefreshEvent conversationRefreshEvent)
                     } else mConvListController.refreshConvList(conv);
                 }
-            } else {
-                mConvListController.refreshConvList(conv);
             }
         }
-
     }
 
     public void onEventMainThread(Event.StringEvent event){
         Log.d(TAG, "StringEvent execute");
         String targetID = event.getTargetID();
         Conversation conv = JMessageClient.getSingleConversation(targetID);
-        mConvListController.getAdapter().addNewConversation(conv);
+        if (conv != null){
+            mConvListController.getAdapter().addNewConversation(conv);
+        }
+    }
+
+    public void onEventMainThread(Event.LongEvent event){
+        long groupID = event.getGroupID();
+        Conversation conv = JMessageClient.getGroupConversation(groupID);
+        if (conv != null){
+            mConvListController.getAdapter().addNewConversation(conv);
+        }
     }
 
     @Override
@@ -175,14 +185,6 @@ public class ConversationListFragment extends BaseFragment {
     @Override
     public void onResume() {
         dismissPopWindow();
-        int position = mConvListController.getClickPosition();
-        if (position != -1){
-            Conversation conv = mConvListController.getDatas().get(position);
-            if (conv != null){
-                conv.resetUnreadCount();
-            }
-        }
-        mConvListController.getAdapter().notifyDataSetChanged();
         super.onResume();
     }
 
@@ -205,6 +207,12 @@ public class ConversationListFragment extends BaseFragment {
         Intent intent = new Intent();
         intent.setClass(getActivity(), CreateGroupActivity.class);
         startActivity(intent);
+    }
+
+    public void sortConvList() {
+        if (mConvListController != null){
+            mConvListController.getAdapter().sortConvList();
+        }
     }
 
 }

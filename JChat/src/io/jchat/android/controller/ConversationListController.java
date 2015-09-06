@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -47,7 +48,6 @@ public class ConversationListController implements OnClickListener,
     private double mDensity;
     private int mWidth;
     private Dialog mDialog;
-    private int mClickPosition = -1;
 
     public ConversationListController(ConversationListView listView,
                                       ConversationListFragment context) {
@@ -69,7 +69,7 @@ public class ConversationListController implements OnClickListener,
             Collections.sort(mDatas, sortList);
         }
 
-        mListAdapter = new ConversationListAdapter(mContext, mDatas);
+        mListAdapter = new ConversationListAdapter(mContext.getActivity(), mDatas);
         mConvListView.setConvListAdapter(mListAdapter);
     }
 
@@ -87,7 +87,6 @@ public class ConversationListController implements OnClickListener,
     public void onItemClick(AdapterView<?> viewAdapter, View view,
                             int position, long id) {
         // TODO Auto-generated method stub
-        mClickPosition = position;
         final Intent intent = new Intent();
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
@@ -95,7 +94,7 @@ public class ConversationListController implements OnClickListener,
             intent.putExtra(JPushDemoApplication.IS_GROUP, true);
             intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
             intent.setClass(mContext.getActivity(), ChatActivity.class);
-            mContext.startActivity(intent);
+            mContext.getActivity().startActivity(intent);
             return;
         } else{
             String targetID = mDatas.get(position).getTargetId();
@@ -103,12 +102,8 @@ public class ConversationListController implements OnClickListener,
             intent.putExtra(JPushDemoApplication.IS_GROUP, false);
         }
         intent.setClass(mContext.getActivity(), ChatActivity.class);
-        mContext.startActivity(intent);
+        mContext.getActivity().startActivity(intent);
 
-    }
-
-    public int getClickPosition(){
-        return mClickPosition;
     }
 
     public List<Conversation> getDatas(){
@@ -122,6 +117,10 @@ public class ConversationListController implements OnClickListener,
      */
     public void refreshConvList(final Conversation conv){
         mListAdapter.setToTop(conv);
+    }
+
+    public void registerDataSetObserver (DataSetObserver observer){
+
     }
 
     /**
@@ -159,5 +158,10 @@ public class ConversationListController implements OnClickListener,
 
     public ConversationListAdapter getAdapter() {
         return mListAdapter;
+    }
+
+    public boolean isExistConv(String targetID) {
+        Conversation conv = JMessageClient.getSingleConversation(targetID);
+        return conv != null;
     }
 }

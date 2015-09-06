@@ -209,6 +209,9 @@ public class ChatDetailActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (mChatDetailController.getAdapter() != null){
+            mChatDetailController.getAdapter().notifyDataSetChanged();
+        }
     }
 
     @Override

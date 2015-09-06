@@ -93,8 +93,8 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                                 if (status == 0 && file != null && file.isFile()){
                                     Bitmap bmp = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
                                             mDefaultSize, mDefaultSize);
-                                    NativeImageLoader.getInstance().updateBitmapFromCache(
-                                            userInfo.getUserName(), bmp);
+                                    NativeImageLoader.getInstance()
+                                            .updateBitmapFromCache(userInfo.getUserName(), bmp);
                                     notifyDataSetChanged();
                                 }
                             }
@@ -120,6 +120,8 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     public void addMemberToList(UserInfo userInfo) {
         if (!mMemberList.contains(userInfo)) {
             mMemberList.add(userInfo);
+            ++mCurrentNum;
+            mRestNum = mRestArray[mCurrentNum % 4];
         }
         notifyDataSetChanged();
     }
@@ -250,8 +252,11 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                                 if (!TextUtils.isEmpty(userInfo.getAvatar())) {
                                     File file = userInfo.getAvatarFile();
                                     if (file != null && file.isFile()) {
-                                        Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
-                                        NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(), bitmap1);
+                                        Bitmap bitmap1 = BitmapLoader
+                                                .getBitmapFromFile(file.getAbsolutePath(),
+                                                        mDefaultSize, mDefaultSize);
+                                        NativeImageLoader.getInstance()
+                                                .updateBitmapFromCache(userInfo.getUserName(), bitmap1);
                                         viewTag.icon.setImageBitmap(bitmap1);
                                     } else {
                                         viewTag.icon.setImageResource(R.drawable.head_icon);
@@ -260,8 +265,11 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                                             @Override
                                             public void gotResult(int status, String desc, File file) {
                                                 if (status == 0) {
-                                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize, mDefaultSize);
-                                                    NativeImageLoader.getInstance().updateBitmapFromCache(userName, bitmap);
+                                                    Bitmap bitmap = BitmapLoader
+                                                            .getBitmapFromFile(file.getAbsolutePath(),
+                                                                    mDefaultSize, mDefaultSize);
+                                                    NativeImageLoader.getInstance()
+                                                            .updateBitmapFromCache(userName, bitmap);
                                                     notifyDataSetChanged();
                                                 }
                                             }

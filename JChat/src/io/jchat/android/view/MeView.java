@@ -36,6 +36,7 @@ public class MeView extends LinearLayout {
     private TextView mNickNameTv;
     private RelativeLayout mSettingRl;
     private RelativeLayout mLogoutRl;
+    private RelativeLayout mAboutRl;
     private Context mContext;
     private boolean mLoadAvatarSuccess = false;
     private int mWidth;
@@ -59,6 +60,7 @@ public class MeView extends LinearLayout {
         mUserNameTv = (TextView) findViewById(R.id.user_name_tv);
         mSettingRl = (RelativeLayout) findViewById(R.id.setting_rl);
         mLogoutRl = (RelativeLayout) findViewById(R.id.logout_rl);
+        mAboutRl = (RelativeLayout) findViewById(R.id.about_rl);
         DisplayMetrics dm = new DisplayMetrics();
         ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
         double density = dm.density;
@@ -98,6 +100,7 @@ public class MeView extends LinearLayout {
         mUserInfoRl.setOnClickListener(onClickListener);
         mSettingRl.setOnClickListener(onClickListener);
         mLogoutRl.setOnClickListener(onClickListener);
+        mAboutRl.setOnClickListener(onClickListener);
         mAvatarIv.setOnClickListener(onClickListener);
     }
 

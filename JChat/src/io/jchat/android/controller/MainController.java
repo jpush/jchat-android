@@ -7,6 +7,8 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+
+import cn.jpush.im.android.api.model.Conversation;
 import io.jchat.android.R;
 import java.io.File;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import io.jchat.android.activity.ContactsFragment;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.activity.MainActivity;
 import io.jchat.android.activity.MeFragment;
+import io.jchat.android.adapter.ConversationListAdapter;
 import io.jchat.android.adapter.ViewPagerAdapter;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
@@ -24,7 +27,8 @@ import io.jchat.android.view.MainView;
 import cn.jpush.im.api.BasicCallback;
 
 public class MainController implements OnClickListener, OnPageChangeListener{
-	
+
+    private ConversationListFragment mConvListFragment;
 	private MeFragment mMeActivity;
 	private MainView mMainView;
 	private MainActivity mContext;
@@ -39,10 +43,10 @@ public class MainController implements OnClickListener, OnPageChangeListener{
 	private void setViewPager() {
         List<Fragment> fragments = new ArrayList<Fragment>();
 		// init Fragment
-		ConversationListFragment convActivity = new ConversationListFragment();
+        mConvListFragment = new ConversationListFragment();
         ContactsFragment contactsActivity = new ContactsFragment();
 		mMeActivity = new MeFragment();
-		fragments.add(convActivity);
+		fragments.add(mConvListFragment);
 		fragments.add(contactsActivity);
 		fragments.add(mMeActivity);
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(
@@ -124,4 +128,8 @@ public class MainController implements OnClickListener, OnPageChangeListener{
 		// TODO Auto-generated method stub
 		
 	}
+
+    public void sortConvList() {
+        mConvListFragment.sortConvList();
+    }
 }

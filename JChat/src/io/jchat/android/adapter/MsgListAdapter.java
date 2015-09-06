@@ -250,6 +250,7 @@ public class MsgListAdapter extends BaseAdapter {
             msg = mConv.getMessage(msgID);
             JMessageClient.sendMessage(msg);
             mMsgList.add(msg);
+            incrementStartPosition();
         }
         notifyDataSetChanged();
     }

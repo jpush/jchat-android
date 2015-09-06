@@ -221,6 +221,12 @@ public class MeFragment extends BaseFragment {
         }
     }
 
+    public void startAboutActivity() {
+        Intent intent = new Intent();
+        intent.setClass(this.getActivity(), AboutActivity.class);
+        startActivity(intent);
+    }
+
     private static class MyHandler extends Handler{
         private final WeakReference<MeFragment> mFragment;
 

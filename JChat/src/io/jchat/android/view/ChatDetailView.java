@@ -122,7 +122,9 @@ public class ChatDetailView extends LinearLayout{
     }
 
 	public void setTitle(int size) {
-		mTitle.setText(mContext.getString(R.string.chat_detail_title) + "(" + size + ")");
+		String title = mContext.getString(R.string.chat_detail_title)
+				+ mContext.getString(R.string.combine_title);
+		mTitle.setText(String.format(title, size));
 	}
 
     public GroupGridView getGridView() {

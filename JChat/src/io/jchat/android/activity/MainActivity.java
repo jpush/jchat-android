@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.Conversation;
 import io.jchat.android.R;
 
 import java.io.File;
@@ -71,6 +72,7 @@ public class MainActivity extends FragmentActivity{
     @Override
     protected void onResume() {
         JPushInterface.onResume(this);
+        mMainController.sortConvList();
         super.onResume();
     }
 
