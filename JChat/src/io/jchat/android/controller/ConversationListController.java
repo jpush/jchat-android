@@ -90,7 +90,7 @@ public class ConversationListController implements OnClickListener,
         final Intent intent = new Intent();
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
-            long groupID = Long.parseLong(mDatas.get(position).getTargetId());
+            long groupID = ((GroupInfo)mDatas.get(position).getTargetInfo()).getGroupID();
             intent.putExtra(JPushDemoApplication.IS_GROUP, true);
             intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
             intent.setClass(mContext.getActivity(), ChatActivity.class);
@@ -106,21 +106,12 @@ public class ConversationListController implements OnClickListener,
 
     }
 
-    public List<Conversation> getDatas(){
-        return mDatas;
-    }
-
-
     /**
      * 在会话列表界面收到消息或者新建会话，将该会话置顶
      * @param conv 收到消息的Conversation
      */
     public void refreshConvList(final Conversation conv){
         mListAdapter.setToTop(conv);
-    }
-
-    public void registerDataSetObserver (DataSetObserver observer){
-
     }
 
     /**
@@ -131,7 +122,12 @@ public class ConversationListController implements OnClickListener,
     public void loadAvatarAndRefresh(String targetID, String path) {
         int size = (int) (50 * mDensity);
         NativeImageLoader.getInstance().putUserAvatar(targetID, path, size);
-        mListAdapter.notifyDataSetChanged();
+        mContext.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mListAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -142,9 +138,9 @@ public class ConversationListController implements OnClickListener,
             @Override
             public void onClick(View view) {
                 if (conv.getType().equals(ConversationType.group))
-                    JMessageClient.deleteGroupConversation(Long.parseLong(conv.getTargetId()));
+                    JMessageClient.deleteGroupConversation(((GroupInfo)conv.getTargetInfo()).getGroupID());
                 else
-                    JMessageClient.deleteSingleConversation(conv.getTargetId());
+                    JMessageClient.deleteSingleConversation(((UserInfo)conv.getTargetInfo()).getUserName());
                 mDatas.remove(position);
                 mListAdapter.notifyDataSetChanged();
                 mDialog.dismiss();

@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +30,7 @@ import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
 import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.application.JPushDemoApplication;
@@ -81,6 +84,33 @@ public class ChatDetailActivity extends BaseActivity {
             TextView title = (TextView) view.findViewById(R.id.title_tv);
             title.setText(mContext.getString(R.string.group_name_hit));
             final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
+            pwdEt.addTextChangedListener(new TextWatcher() {
+                private CharSequence temp = "";
+                private int editStart;
+                private int editEnd;
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    temp = s;
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    editStart = pwdEt.getSelectionStart();
+                    editEnd = pwdEt.getSelectionEnd();
+                    byte[] data = temp.toString().getBytes();
+                    if (data.length > 64){
+                        s.delete(editStart - 1, editEnd);
+                        int tempSelection = editStart;
+                        pwdEt.setText(s);
+                        pwdEt.setSelection(tempSelection);
+                    }
+                }
+            });
             pwdEt.setInputType(InputType.TYPE_CLASS_TEXT);
             pwdEt.setHint(groupName);
             pwdEt.setHintTextColor(getResources().getColor(R.color.chat_detail_item_content_color));
@@ -289,6 +319,7 @@ public class ChatDetailActivity extends BaseActivity {
                                         public void onCacheAvatarCallBack(int status) {
                                             if (status == 0) {
                                                 Log.d(TAG, "add group member, get UserInfo success");
+                                                mChatDetailController.getAdapter().notifyDataSetChanged();
                                             }
                                         }
                                     });
@@ -300,7 +331,7 @@ public class ChatDetailActivity extends BaseActivity {
             android.os.Message handleMsg = mHandler.obtainMessage();
             handleMsg.what = JPushDemoApplication.ON_GROUP_EVENT;
             Bundle bundle = new Bundle();
-            bundle.putLong("groupID", Long.parseLong(msg.getTargetID()));
+            bundle.putLong("groupID", ((GroupInfo)msg.getTargetInfo()).getGroupID());
             handleMsg.setData(bundle);
             handleMsg.sendToTarget();
         }
