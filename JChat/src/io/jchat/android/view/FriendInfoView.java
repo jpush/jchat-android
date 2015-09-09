@@ -41,14 +41,13 @@ public class FriendInfoView extends LinearLayout{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void initModule(String targetID){
+	public void initModule(){
         mNickNameTv = (TextView) findViewById(R.id.nick_name_tv);
 		mNoteName = (TextView) findViewById(R.id.note_name_tv);
         mNameRl = (LinearLayout) findViewById(R.id.name_rl);
 		mReturnBtn = (ImageButton) findViewById(R.id.friend_info_return_btn);
         mAvatarIv = (CircleImageView) findViewById(R.id.friend_detail_avatar);
 		mSendMsgBtn = (Button) findViewById(R.id.friend_send_msg_btn);
-        mNoteName.setText(targetID);
         mGenderIv = (ImageView) findViewById(R.id.gender_iv);
         mGenderTv = (TextView) findViewById(R.id.gender_tv);
         mAreaTv = (TextView) findViewById(R.id.region_tv);
@@ -58,7 +57,8 @@ public class FriendInfoView extends LinearLayout{
     public void initInfo(UserInfo userInfo, double density){
         File file = userInfo.getAvatarFile();
         if(file != null){
-            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(100 * density), (int)(100 * density));
+            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                    (int)(100 * density), (int)(100 * density));
             mAvatarIv.setImageBitmap(bitmap);
         }
         if(TextUtils.isEmpty(userInfo.getNickname())){

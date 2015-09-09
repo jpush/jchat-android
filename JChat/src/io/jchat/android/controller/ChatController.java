@@ -115,6 +115,16 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                 } else {
                     mChatView.dismissRightBtn();
                 }
+                //更新群名
+                JMessageClient.getGroupInfo(mGroupID, new GetGroupInfoCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, GroupInfo groupInfo) {
+                        if (status == 0 && !mGroupName.equals(groupInfo.getGroupName())){
+                            mChatView.setChatTitle(groupInfo.getGroupName(),
+                                    groupInfo.getGroupMembers().size(), mDensityDpi);
+                        }
+                    }
+                });
             }
             //聊天信息标志改变
             mChatView.setGroupIcon();

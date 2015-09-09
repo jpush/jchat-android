@@ -131,8 +131,9 @@
     <string name="login_out">退出登录</string>
     <string name="about">关于</string>
     <string name="about_version">demo版本号为1.2.2\nsdk版本号为1.1.3-b777\n\n增加了以下功能：
-        \n*聊天消息分页加载\n\n性能/功能优化：\n*会话列表的刷新\n*群聊头像的加载\n*“我”界面头像的加载
-        \n*图片消息三角框位置调整\n\n修复Bug：\n*修复群聊人数变化时聊天标题更新不正确的bug
+        \n*聊天消息分页加载\n\n性能/功能优化：\n*聊天、聊天详情界面的加载更加流畅\n*会话列表的刷新
+        \n*群聊头像的加载\n*“我”界面头像的加载\n*图片消息三角框位置调整\n\n修复bug：\n*修复群聊人
+        数变化时聊天标题更新不正确的bug\n*修复在聊天界面收起软键盘后菜单栏不会收回的bug\n*
     </string>
     <string name="add_to_friend">加为好友</string>
     <string name="setting_username_hit">昵称</string>

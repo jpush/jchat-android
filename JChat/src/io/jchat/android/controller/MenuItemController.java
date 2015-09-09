@@ -15,11 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
-import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.R;
-
-import java.util.List;
-
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -54,42 +50,38 @@ public class MenuItemController implements View.OnClickListener {
             case R.id.create_group_ll:
                 mContext.dismissPopWindow();
 //                mContext.StartCreateGroupActivity();
-                mLoadingDialog = DialogCreator.createLoadingDialog(mContext.getActivity(), mContext.getString(R.string.creating_hint));
+                mLoadingDialog = DialogCreator.createLoadingDialog(mContext.getActivity(),
+                        mContext.getString(R.string.creating_hint));
                 mLoadingDialog.show();
-                JMessageClient.createGroup(
-                        "", "",
-                        new CreateGroupCallback() {
+                JMessageClient.createGroup("", "", new CreateGroupCallback() {
 
-                            @Override
-                            public void gotResult(final int status, String msg,
-                                                  final long groupID) {
-                                mLoadingDialog.dismiss();
-                                if (status == 0) {
-                                    Conversation conv = Conversation.
-                                            createConversation(ConversationType.group, groupID);
-                                    mController.refreshConvList(conv);
-                                    Intent intent = new Intent();
-                                    intent.putExtra(JPushDemoApplication.IS_GROUP, true);
-                                    //设置跳转标志
-                                    intent.putExtra("fromGroup", true);
-                                    intent.putExtra("memberCount", 1);
-                                    intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
-                                    intent.putExtra(JPushDemoApplication.TARGET_ID,
-                                            String.valueOf(groupID));
-                                    intent.setClass(mContext.getActivity(), ChatActivity.class);
-                                    mContext.startActivity(intent);
-                                } else {
-                                    HandleResponseCode.onHandle(mContext.getActivity(), status, false);
-                                    Log.i("CreateGroupController", "status : " + status);
-                                }
-                            }
-                        });
+                    @Override
+                    public void gotResult(final int status, String msg, final long groupID) {
+                        mLoadingDialog.dismiss();
+                        if (status == 0) {
+                            Conversation conv = Conversation.createGroupConversation(groupID);
+                            mController.refreshConvList(conv);
+                            Intent intent = new Intent();
+                            intent.putExtra(JPushDemoApplication.IS_GROUP, true);
+                            //设置跳转标志
+                            intent.putExtra("fromGroup", true);
+                            intent.putExtra("memberCount", 1);
+                            intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
+                            intent.putExtra(JPushDemoApplication.TARGET_ID, String.valueOf(groupID));
+                            intent.setClass(mContext.getActivity(), ChatActivity.class);
+                            mContext.startActivity(intent);
+                        } else {
+                            HandleResponseCode.onHandle(mContext.getActivity(), status, false);
+                            Log.i("CreateGroupController", "status : " + status);
+                        }
+                    }
+                });
                 break;
             case R.id.add_friend_ll:
                 mContext.dismissPopWindow();
                 AlertDialog.Builder builder = new AlertDialog.Builder(mContext.getActivity());
-                final View view = LayoutInflater.from(mContext.getActivity()).inflate(
-                        R.layout.dialog_add_friend_to_conv_list, null);
+                final View view = LayoutInflater.from(mContext.getActivity())
+                        .inflate(R.layout.dialog_add_friend_to_conv_list, null);
                 builder.setView(view);
                 final Dialog dialog = builder.create();
                 dialog.show();
@@ -107,23 +99,23 @@ public class MenuItemController implements View.OnClickListener {
                                 final String targetID = userNameEt.getText().toString().trim();
                                 Log.i("MenuItemController", "targetID " + targetID);
                                 if (TextUtils.isEmpty(targetID)) {
-                                    Toast.makeText(mContext.getActivity(), mContext.getString(
-                                                    R.string.username_not_null_toast),
+                                    Toast.makeText(mContext.getActivity(),
+                                            mContext.getString(R.string.username_not_null_toast),
                                             Toast.LENGTH_SHORT).show();
                                     break;
                                 } else if (targetID.equals(JMessageClient.getMyInfo().getUserName())
                                         || targetID.equals(JMessageClient.getMyInfo().getNickname())) {
-                                    Toast.makeText(mContext.getActivity(), mContext.getString(
-                                                    R.string.user_add_self_toast),
+                                    Toast.makeText(mContext.getActivity(),
+                                            mContext.getString(R.string.user_add_self_toast),
                                             Toast.LENGTH_SHORT).show();
                                     return;
-                                } else if (mController.isExistConv(targetID)){
-                                    Toast.makeText(mContext.getActivity(), mContext.getString(
-                                            R.string.user_already_exist_toast), Toast.LENGTH_SHORT)
-                                            .show();
+                                } else if (isExistConv(targetID)) {
+                                    Toast.makeText(mContext.getActivity(),
+                                            mContext.getString(R.string.user_already_exist_toast),
+                                            Toast.LENGTH_SHORT).show();
                                     userNameEt.setText("");
                                     break;
-                                }else {
+                                } else {
                                     mLoadingDialog = DialogCreator.createLoadingDialog(mContext.getActivity(),
                                             mContext.getString(R.string.adding_hint));
                                     mLoadingDialog.show();
@@ -164,11 +156,16 @@ public class MenuItemController implements View.OnClickListener {
     public void dismissSoftInput() {
         InputMethodManager imm = ((InputMethodManager) mContext.getActivity()
                 .getSystemService(Activity.INPUT_METHOD_SERVICE));
-        if (mContext.getActivity().getWindow().getAttributes().softInputMode !=
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
+        if (mContext.getActivity().getWindow().getAttributes().softInputMode
+                != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
             if (mContext.getActivity().getCurrentFocus() != null)
                 imm.hideSoftInputFromWindow(mContext.getActivity().getCurrentFocus().getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+
+    private boolean isExistConv(String targetID) {
+        Conversation conv = JMessageClient.getSingleConversation(targetID);
+        return conv != null;
     }
 }

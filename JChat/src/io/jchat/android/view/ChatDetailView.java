@@ -14,7 +14,6 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import io.jchat.android.R;
@@ -25,7 +24,7 @@ public class ChatDetailView extends LinearLayout{
 	private LinearLayout mMyNameLL;
 	private LinearLayout mGroupNumLL;
 	private LinearLayout mGroupChatRecordLL;
-	private RelativeLayout mGroupChatDelRL;
+	private LinearLayout mGroupChatDelLL;
 	private ImageButton mReturnBtn;
 	private TextView mTitle;
 	private ImageButton mMenuBtn;
@@ -48,7 +47,7 @@ public class ChatDetailView extends LinearLayout{
 		mMyNameLL = (LinearLayout) findViewById(R.id.group_my_name_ll);
 		mGroupNumLL = (LinearLayout) findViewById(R.id.group_num_ll);
 		mGroupChatRecordLL = (LinearLayout) findViewById(R.id.group_chat_record_ll);
-		mGroupChatDelRL = (RelativeLayout) findViewById(R.id.group_chat_del_rl);
+		mGroupChatDelLL = (LinearLayout) findViewById(R.id.group_chat_del_ll);
 		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
 		mTitle = (TextView) findViewById(R.id.title);
 		mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
@@ -70,7 +69,7 @@ public class ChatDetailView extends LinearLayout{
 		mMyNameLL.setOnClickListener(onClickListener);
 		mGroupNumLL.setOnClickListener(onClickListener);
 		mGroupChatRecordLL.setOnClickListener(onClickListener);
-		mGroupChatDelRL.setOnClickListener(onClickListener);
+		mGroupChatDelLL.setOnClickListener(onClickListener);
 	    mReturnBtn.setOnClickListener(onClickListener);
 		mDelGroupBtn.setOnClickListener(onClickListener);
 	}
