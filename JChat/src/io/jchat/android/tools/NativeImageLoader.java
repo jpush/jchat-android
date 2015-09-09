@@ -92,6 +92,7 @@ public class NativeImageLoader {
                             addBitmapToMemoryCache(userID, bitmap);
                         }
                         android.os.Message msg = myHandler.obtainMessage();
+                        msg.what = CACHE_AVATAR;
                         msg.obj = callBack;
                         Bundle bundle = new Bundle();
                         bundle.putInt("status", 0);

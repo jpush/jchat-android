@@ -140,18 +140,19 @@ public class MsgListAdapter extends BaseAdapter {
         List<String> userIDList = new ArrayList<String>();
         userIDList.add(targetID);
         userIDList.add(JMessageClient.getMyInfo().getUserName());
-        NativeImageLoader.getInstance().setAvatarCache(userIDList, (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
-            @Override
-            public void onCacheAvatarCallBack(int status) {
-                mActivity.runOnUiThread(new Runnable() {
+        NativeImageLoader.getInstance().setAvatarCache(userIDList,
+                (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
                     @Override
-                    public void run() {
-                        Log.i(TAG, "init avatar succeed");
-                        notifyDataSetChanged();
+                    public void onCacheAvatarCallBack(int status) {
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.i(TAG, "init avatar succeed");
+                                notifyDataSetChanged();
+                            }
+                        });
                     }
                 });
-            }
-        });
     }
 
     private void reverse(List<Message> list) {
@@ -200,10 +201,10 @@ public class MsgListAdapter extends BaseAdapter {
                 for (Message msg : msgList) {
                     mMsgList.add(0, msg);
                 }
-                if (msgList.size() > 0){
+                if (msgList.size() > 0) {
                     mOffset = msgList.size();
                     mHasLastPage = true;
-                }else mHasLastPage = false;
+                } else mHasLastPage = false;
                 notifyDataSetChanged();
             }
         }
@@ -213,7 +214,7 @@ public class MsgListAdapter extends BaseAdapter {
         return mOffset;
     }
 
-    public boolean isHasLastPage(){
+    public boolean isHasLastPage() {
         return mHasLastPage;
     }
 
@@ -222,7 +223,7 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     //当有新消息加到MsgList，自增mStart
-    private void incrementStartPosition(){
+    private void incrementStartPosition() {
         ++mStart;
     }
 
@@ -254,7 +255,6 @@ public class MsgListAdapter extends BaseAdapter {
         }
         notifyDataSetChanged();
     }
-
 
     @Override
     public long getItemId(int position) {
@@ -403,6 +403,7 @@ public class MsgListAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         final Message msg = mMsgList.get(position);
+        final UserInfo userInfo = msg.getFromUser();
         final ViewHolder holder;
         if (convertView == null) {
             holder = new ViewHolder();
@@ -494,7 +495,7 @@ public class MsgListAdapter extends BaseAdapter {
 
         switch (msg.getContentType()) {
             case text:
-                handleTextMsg(msg, holder, position);
+                handleTextMsg(msg, holder);
                 break;
             case image:
                 handleImgMsg(msg, holder, position);
@@ -515,12 +516,12 @@ public class MsgListAdapter extends BaseAdapter {
         TextView msgTime = (TextView) convertView
                 .findViewById(R.id.send_time_txt);
         long nowDate = msg.getCreateTime();
-        if (mOffset == 18){
-            if (position == 0 || position % 18 == 0 ){
+        if (mOffset == 18) {
+            if (position == 0 || position % 18 == 0) {
                 TimeFormat timeFormat = new TimeFormat(mContext, nowDate);
                 msgTime.setText(timeFormat.getDetailTime());
                 msgTime.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 long lastDate = mMsgList.get(position - 1).getCreateTime();
                 // 如果两条消息之间的间隔超过十分钟则显示时间
                 if (nowDate - lastDate > 600000) {
@@ -531,13 +532,13 @@ public class MsgListAdapter extends BaseAdapter {
                     msgTime.setVisibility(View.GONE);
                 }
             }
-        }else {
+        } else {
             if (position == 0 || position == mOffset
-                    || (position - mOffset) % 18 == 0){
+                    || (position - mOffset) % 18 == 0) {
                 TimeFormat timeFormat = new TimeFormat(mContext, nowDate);
                 msgTime.setText(timeFormat.getDetailTime());
                 msgTime.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 long lastDate = mMsgList.get(position - 1).getCreateTime();
                 // 如果两条消息之间的间隔超过十分钟则显示时间
                 if (nowDate - lastDate > 600000) {
@@ -554,61 +555,44 @@ public class MsgListAdapter extends BaseAdapter {
             Bitmap bitmap;
             //群聊
             if (mIsGroup) {
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(msg.getFromID());
+                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
                 if (bitmap != null)
                     holder.headIcon.setImageBitmap(bitmap);
                 else if (mGroupInfo != null) {
-                    final UserInfo userInfo = mGroupInfo.getGroupMemberInfo(msg.getFromID());
-                    //如果本地存在用户信息
-                    if (userInfo != null) {
-                        //如果mediaID为空，表明用户没有设置过头像，用默认头像
-                        if (TextUtils.isEmpty(userInfo.getAvatar())) {
-                            holder.headIcon.setImageResource(R.drawable.head_icon);
-                        } else {
-                            File file = userInfo.getAvatarFile();
-                            if (file != null && file.isFile()) {
-                                bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
-                                NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
-                                holder.headIcon.setImageBitmap(bitmap);
-                                //本地不存在头像，从服务器拿
-                            } else {
-                                userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
-                                    @Override
-                                    public void gotResult(int status, String desc, File file) {
-                                        if (status == 0) {
-                                            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
-                                            NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap);
-                                            holder.headIcon.setImageBitmap(bitmap);
-                                        } else {
-                                            holder.headIcon.setImageResource(R.drawable.head_icon);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                        //本地不存在用户信息，从服务器拿
+                    //如果mediaID为空，表明用户没有设置过头像，用默认头像
+                    if (TextUtils.isEmpty(userInfo.getAvatar())) {
+                        holder.headIcon.setImageResource(R.drawable.head_icon);
                     } else {
-                        Log.i(TAG, "Get UserInfo from server, UserName: " + msg.getFromName());
-                        JMessageClient.getUserInfo(msg.getFromID(), new GetUserInfoCallback() {
-                            @Override
-                            public void gotResult(int status, String desc, UserInfo userInfo) {
-                                if (status == 0) {
-                                    File file = userInfo.getAvatarFile();
-                                    if (file != null && file.isFile()) {
-                                        Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
-                                        NativeImageLoader.getInstance().updateBitmapFromCache(msg.getFromID(), bitmap1);
-                                        holder.headIcon.setImageBitmap(bitmap1);
+                        File file = userInfo.getAvatarFile();
+                        if (file != null && file.isFile()) {
+                            bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                                    (int) (50 * mDensity), (int) (50 * mDensity));
+                            NativeImageLoader.getInstance()
+                                    .updateBitmapFromCache(userInfo.getUserName(), bitmap);
+                            holder.headIcon.setImageBitmap(bitmap);
+                            //本地不存在头像，从服务器拿
+                        } else {
+                            userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                                @Override
+                                public void gotResult(int status, String desc, File file) {
+                                    if (status == 0) {
+                                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                                                (int) (50 * mDensity), (int) (50 * mDensity));
+                                        NativeImageLoader.getInstance()
+                                                .updateBitmapFromCache(userInfo.getUserName(), bitmap);
+                                        holder.headIcon.setImageBitmap(bitmap);
+                                    } else {
+                                        holder.headIcon.setImageResource(R.drawable.head_icon);
                                     }
-                                } else {
-                                    holder.headIcon.setImageResource(R.drawable.head_icon);
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                 }
                 //单聊
             } else {
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(msg.getFromID());
+                bitmap = NativeImageLoader.getInstance()
+                        .getBitmapFromMemCache(msg.getFromUser().getUserName());
                 if (bitmap != null)
                     holder.headIcon.setImageBitmap(bitmap);
                 else holder.headIcon.setImageResource(R.drawable.head_icon);
@@ -622,12 +606,12 @@ public class MsgListAdapter extends BaseAdapter {
                 public void onClick(View arg0) {
                     Intent intent = new Intent();
                     if (msg.getDirect().equals(MessageDirect.send)) {
-                        intent.putExtra(JPushDemoApplication.TARGET_ID, msg.getFromName());
-                        Log.i(TAG, "msg.getFromName() " + msg.getFromName());
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
+                        Log.i(TAG, "msg.getFromName() " + mTargetID);
                         intent.setClass(mContext, MeInfoActivity.class);
                         mContext.startActivity(intent);
                     } else {
-                        String targetID = msg.getFromID();
+                        String targetID = userInfo.getUserName();
                         intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
                         intent.setClass(mContext, FriendInfoActivity.class);
                         ((Activity) mContext).startActivityForResult(intent,
@@ -641,7 +625,7 @@ public class MsgListAdapter extends BaseAdapter {
             @Override
             public boolean onLongClick(View arg0) {
                 // 长按文本弹出菜单
-                String name = msg.getFromName();
+                String name = userInfo.getNickname();
                 OnClickListener listener = new OnClickListener() {
 
                     @Override
@@ -718,8 +702,7 @@ public class MsgListAdapter extends BaseAdapter {
         holder.groupChange.setVisibility(View.GONE);
     }
 
-    private void handleTextMsg(final Message msg, final ViewHolder holder,
-                               final int position) {
+    private void handleTextMsg(final Message msg, final ViewHolder holder) {
         final String content = ((TextContent) msg.getContent()).getText();
         holder.txtContent.setText(content);
 
@@ -760,7 +743,11 @@ public class MsgListAdapter extends BaseAdapter {
         } else {
             if (mIsGroup) {
                 holder.displayName.setVisibility(View.VISIBLE);
-                holder.displayName.setText(msg.getFromName());
+                if (TextUtils.isEmpty(msg.getFromUser().getNickname())){
+                    holder.displayName.setText(msg.getFromUser().getUserName());
+                }else {
+                    holder.displayName.setText(msg.getFromUser().getNickname());
+                }
             }
         }
     }
@@ -845,7 +832,11 @@ public class MsgListAdapter extends BaseAdapter {
             //群聊中显示昵称
             if (mIsGroup) {
                 holder.displayName.setVisibility(View.VISIBLE);
-                holder.displayName.setText(msg.getFromName());
+                if (TextUtils.isEmpty(msg.getFromUser().getNickname())){
+                    holder.displayName.setText(msg.getFromUser().getUserName());
+                }else {
+                    holder.displayName.setText(msg.getFromUser().getNickname());
+                }
             }
 
             switch (msg.getStatus()) {
@@ -857,7 +848,6 @@ public class MsgListAdapter extends BaseAdapter {
             // 发送图片方，直接加载缩略图
         } else {
             try {
-                Log.i(TAG, "msg.getID() + thumbnailPath : " + msg.getId() + " " + path);
                 setPictureScale(path, holder.picture);
                 Picasso.with(mContext).load(new File(path))
                         .into(holder.picture);
@@ -890,14 +880,13 @@ public class MsgListAdapter extends BaseAdapter {
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
-                    sendingImage(holder, sendingAnim, msg, path);
+                    sendingImage(holder, sendingAnim, msg);
                     break;
             }
             // 点击重发按钮，重发图片
             holder.resend.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View arg0) {
-//                    sendImage(holder, sendingAnim, msg);
                     showResendDialog(holder, sendingAnim, msg);
                 }
             });
@@ -922,7 +911,7 @@ public class MsgListAdapter extends BaseAdapter {
             holder.picture.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    String name = msg.getFromName();
+                    String name = msg.getFromUser().getNickname();
                     OnClickListener listener = new OnClickListener() {
 
                         @Override
@@ -952,7 +941,7 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    private void sendingImage(final ViewHolder holder, Animation sendingAnim, Message msg, final String path) {
+    private void sendingImage(final ViewHolder holder, Animation sendingAnim, Message msg) {
         holder.picture.setAlpha(0.75f);
         holder.sendingIv.setVisibility(View.VISIBLE);
         holder.sendingIv.startAnimation(sendingAnim);
@@ -963,7 +952,6 @@ public class MsgListAdapter extends BaseAdapter {
             msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
                 @Override
                 public void onProgressUpdate(double v) {
-                    Log.i(TAG, "progress v :" + v);
                     holder.progressTv.setText((int) (v * 100) + "%");
                 }
             });
@@ -972,7 +960,6 @@ public class MsgListAdapter extends BaseAdapter {
             msg.setOnSendCompleteCallback(new BasicCallback() {
                 @Override
                 public void gotResult(final int status, String desc) {
-                    Log.i("Send picture", "update: ");
                     notifyDataSetChanged();
                 }
             });
@@ -1040,8 +1027,6 @@ public class MsgListAdapter extends BaseAdapter {
             msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
                 @Override
                 public void onProgressUpdate(final double progress) {
-                    Log.i("Uploding picture", "progress: "
-                            + progress);
                     mActivity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1057,7 +1042,6 @@ public class MsgListAdapter extends BaseAdapter {
                         if (status != 0)
                             HandleResponseCode.onHandle(mContext, status, false);
                         Picasso.with(mContext).load(new File(path)).into(viewHolder.picture);
-                        Log.i("Send picture", "update: ");
                         notifyDataSetChanged();
                     }
                 });
@@ -1067,8 +1051,7 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    private void handleVoiceMsg(final Message msg, final ViewHolder holder,
-                                final int position) {
+    private void handleVoiceMsg(final Message msg, final ViewHolder holder, final int position) {
         final VoiceContent content = (VoiceContent) msg.getContent();
         final MessageDirect msgDirect = msg.getDirect();
         int length = content.getDuration();
@@ -1115,7 +1098,11 @@ public class MsgListAdapter extends BaseAdapter {
             case receive_success:
                 if (mIsGroup) {
                     holder.displayName.setVisibility(View.VISIBLE);
-                    holder.displayName.setText(msg.getFromName());
+                    if (TextUtils.isEmpty(msg.getFromUser().getNickname())){
+                        holder.displayName.setText(msg.getFromUser().getUserName());
+                    }else {
+                        holder.displayName.setText(msg.getFromUser().getNickname());
+                    }
                 }
                 holder.voice.setImageResource(R.drawable.receive_3);
                 // 收到语音，设置未读
@@ -1248,7 +1235,8 @@ public class MsgListAdapter extends BaseAdapter {
                             // 否则开始播放另一条录音
                         } else {
                             // 选中的录音是否已经播放过，如果未播放，自动连续播放这条语音之后未播放的语音
-                            if (msg.getContent().getBooleanExtra("isReaded") == null || msg.getContent().getBooleanExtra("isReaded") == false) {
+                            if (msg.getContent().getBooleanExtra("isReaded") == null
+                                    || !msg.getContent().getBooleanExtra("isReaded")) {
                                 autoPlay = true;
                                 playVoiceThenRefresh(position, holder);
                                 // 否则直接播放选中的语音

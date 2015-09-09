@@ -55,7 +55,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     private boolean isInputByKeyBoard = true;
     private boolean mShowSoftInput = false;
     private static final int REFRESH_LAST_PAGE = 1023;
-    private static final int UPDATE_GROUP_INFO = 1024;
     private static final int UPDATE_CHAT_LISTVIEW = 1026;
     private String mTargetID;
     private long mGroupID;
@@ -95,42 +94,27 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                         intent.getIntExtra("memberCount", 0), mDensityDpi);
                 mConv = JMessageClient.getGroupConversation(mGroupID);
             } else {
-                if (mTargetID != null)
+                if (mTargetID != null){
                     mGroupID = Long.parseLong(mTargetID);
+                }
                 mConv = JMessageClient.getGroupConversation(mGroupID);
                 mChatView.setChatTitle(mContext.getString(R.string.group), mDensityDpi);
+                mGroupInfo = (GroupInfo)mConv.getTargetInfo();
+                Log.d("ChatController", "GroupInfo: " + mGroupInfo.toString());
                 //设置群聊聊天标题
-                JMessageClient.getGroupInfo(mGroupID, new GetGroupInfoCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, GroupInfo groupInfo) {
-                        if (status == 0) {
-                            android.os.Message msg = myHandler.obtainMessage();
-                            msg.obj = groupInfo;
-                            msg.what = UPDATE_GROUP_INFO;
-                            msg.sendToTarget();
-                            if (!TextUtils.isEmpty(groupInfo.getGroupName())) {
-                                mGroupName = groupInfo.getGroupName();
-                                mChatView.setChatTitle(mGroupName,
-                                        groupInfo.getGroupMembers().size(), mDensityDpi);
-                            } else {
-                                mChatView.setChatTitle(mContext.getString(R.string.group),
-                                        groupInfo.getGroupMembers().size(), mDensityDpi);
-                            }
-                            UserInfo userInfo = groupInfo
-                                    .getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
-                            if (userInfo != null){
-                                mChatView.showRightBtn();
-                            }else {
-                                mChatView.dismissRightBtn();
-                            }
-                        } else {
-                            if (null == groupInfo) {
-                                mChatView.dismissRightBtn();
-                            }
-                            HandleResponseCode.onHandle(mContext, status, false);
-                        }
-                    }
-                });
+                if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
+                    mGroupName = mGroupInfo.getGroupName();
+                    mChatView.setChatTitle(mGroupName, mGroupInfo.getGroupMembers().size(), mDensityDpi);
+                } else {
+                    mChatView.setChatTitle(mContext.getString(R.string.group),
+                            mGroupInfo.getGroupMembers().size(), mDensityDpi);
+                }
+                UserInfo userInfo = mGroupInfo.getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
+                if (userInfo != null) {
+                    mChatView.showRightBtn();
+                } else {
+                    mChatView.dismissRightBtn();
+                }
             }
             //聊天信息标志改变
             mChatView.setGroupIcon();
@@ -445,10 +429,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                         } else {
                             controller.mChatView.getListView().setSelection(0);
                         }
-                        break;
-                    case UPDATE_GROUP_INFO:
-                        controller.mGroupInfo = (GroupInfo) msg.obj;
-                        controller.mChatAdapter.refreshGroupInfo(controller.mGroupInfo);
                         break;
                     case UPDATE_CHAT_LISTVIEW:
                         controller.mChatAdapter.notifyDataSetChanged();

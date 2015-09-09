@@ -126,13 +126,13 @@ public class ConversationListAdapter extends BaseAdapter {
             viewHolder = new ViewHolder();
             viewHolder.headIcon = (CircleImageView) convertView
                     .findViewById(R.id.msg_item_head_icon);
-            viewHolder.groupName = (TextView) convertView
+            viewHolder.convName = (TextView) convertView
                     .findViewById(R.id.conv_item_name);
             if (mDensityDPI <= 160){
-                viewHolder.groupName.setEms(6);
+                viewHolder.convName.setEms(6);
             }else if (mDensityDPI <= 240){
-                viewHolder.groupName.setEms(8);
-            }else viewHolder.groupName.setEms(10);
+                viewHolder.convName.setEms(8);
+            }else viewHolder.convName.setEms(10);
             viewHolder.content = (TextView) convertView
                     .findViewById(R.id.msg_item_content);
             viewHolder.datetime = (TextView) convertView
@@ -173,7 +173,7 @@ public class ConversationListAdapter extends BaseAdapter {
 //		viewHolder.headIcon.setImageResource(R.drawable.head_icon);
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
-            viewHolder.groupName.setText(convItem.getTitle());
+            viewHolder.convName.setText(convItem.getTitle());
             Bitmap bitmap = NativeImageLoader.getInstance()
                     .getBitmapFromMemCache(((UserInfo)convItem.getTargetInfo()).getUserName());
             if (bitmap != null)
@@ -183,7 +183,8 @@ public class ConversationListAdapter extends BaseAdapter {
         // 群聊
         else {
             viewHolder.headIcon.setImageResource(R.drawable.group);
-            viewHolder.groupName.setText(convItem.getTitle());
+            viewHolder.convName.setText(convItem.getTitle());
+            Log.d("ConversationListAdapter", "Conversation title: " + convItem.getTitle());
         }
 
         // TODO 更新Message的数量,
@@ -201,7 +202,7 @@ public class ConversationListAdapter extends BaseAdapter {
 
     private class ViewHolder {
         CircleImageView headIcon;
-        TextView groupName;
+        TextView convName;
         TextView content;
         TextView datetime;
         TextView newMsgNumber;

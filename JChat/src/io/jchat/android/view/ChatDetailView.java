@@ -21,9 +21,9 @@ import io.jchat.android.R;
 
 public class ChatDetailView extends LinearLayout{
 	
-	private RelativeLayout mGroupNameRL;
+	private LinearLayout mGroupNameLL;
 	private LinearLayout mMyNameLL;
-	private RelativeLayout mGroupNumRL;
+	private LinearLayout mGroupNumLL;
 	private LinearLayout mGroupChatRecordLL;
 	private RelativeLayout mGroupChatDelRL;
 	private ImageButton mReturnBtn;
@@ -44,9 +44,9 @@ public class ChatDetailView extends LinearLayout{
 	}
 	
 	public void initModule(){
-		mGroupNameRL = (RelativeLayout) findViewById(R.id.group_name_rl);
+		mGroupNameLL = (LinearLayout) findViewById(R.id.group_name_ll);
 		mMyNameLL = (LinearLayout) findViewById(R.id.group_my_name_ll);
-		mGroupNumRL = (RelativeLayout) findViewById(R.id.group_num_rl);
+		mGroupNumLL = (LinearLayout) findViewById(R.id.group_num_ll);
 		mGroupChatRecordLL = (LinearLayout) findViewById(R.id.group_chat_record_ll);
 		mGroupChatDelRL = (RelativeLayout) findViewById(R.id.group_chat_del_rl);
 		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
@@ -66,9 +66,9 @@ public class ChatDetailView extends LinearLayout{
 	}
 	
 	public void setListeners(OnClickListener onClickListener){
-		mGroupNameRL.setOnClickListener(onClickListener);
+		mGroupNameLL.setOnClickListener(onClickListener);
 		mMyNameLL.setOnClickListener(onClickListener);
-		mGroupNumRL.setOnClickListener(onClickListener);
+		mGroupNumLL.setOnClickListener(onClickListener);
 		mGroupChatRecordLL.setOnClickListener(onClickListener);
 		mGroupChatDelRL.setOnClickListener(onClickListener);
 	    mReturnBtn.setOnClickListener(onClickListener);
@@ -104,8 +104,8 @@ public class ChatDetailView extends LinearLayout{
 	}
 
 	public void setSingleView() {
-		mGroupNameRL.setVisibility(View.GONE);
-		mGroupNumRL.setVisibility(View.GONE);
+		mGroupNameLL.setVisibility(View.GONE);
+		mGroupNumLL.setVisibility(View.GONE);
 		mDividingLine.setVisibility(View.GONE);
 		mMyNameLL.setVisibility(View.GONE);
 		mDelGroupBtn.setVisibility(View.GONE);

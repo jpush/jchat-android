@@ -40,8 +40,8 @@
         android:layout_marginTop="10dp"
         android:background="@color/chat_detail_split_line_color" />
 
-    <RelativeLayout
-        android:id="@+id/group_name_rl"
+    <LinearLayout
+        android:id="@+id/group_name_ll"
         style="@style/ChatDetailItem" >
 
         <TextView
@@ -50,13 +50,12 @@
 
         <TextView
             android:id="@+id/chat_detail_group_name"
-            android:layout_toLeftOf="@+id/arrow_iv"
             style="@style/ChatDetailItemContent"/>
 
         <ImageView
             android:id="@+id/arrow_iv"
             style="@style/ChatDetailArrow"/>
-    </RelativeLayout>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
@@ -64,8 +63,8 @@
         android:visibility="gone"
         android:background="@color/chat_detail_split_line_color" />
 
-    <RelativeLayout
-        android:id="@+id/group_num_rl"
+    <LinearLayout
+        android:id="@+id/group_num_ll"
         style="@style/ChatDetailItem"
         android:visibility="gone">
 
@@ -79,7 +78,7 @@
             android:text="40人" />
 
         <ImageView style="@style/ChatDetailArrow" />
-    </RelativeLayout>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
