@@ -76,6 +76,9 @@ public class HandleResponseCode {
             case 803005:
                 content.setText(context.getString(R.string.server_803005));
                 break;
+            case 803008:
+                content.setText(context.getString(R.string.server_803008));
+                break;
             case 808003:
                 content.setText(context.getString(R.string.server_808003));
                 break;
@@ -102,6 +105,18 @@ public class HandleResponseCode {
                 break;
             case 812002:
                 content.setText(context.getString(R.string.server_812002));
+                break;
+            case 818001:
+                content.setText(context.getString(R.string.server_818001));
+                break;
+            case 818002:
+                content.setText(context.getString(R.string.server_818002));
+                break;
+            case 818003:
+                content.setText(context.getString(R.string.server_818003));
+                break;
+            case 818004:
+                content.setText(context.getString(R.string.server_818004));
                 break;
             case 899001:
             case 898001:
@@ -146,6 +161,9 @@ public class HandleResponseCode {
                 break;
             case 871311:
                 content.setText(context.getString(R.string.sdk_87x_871311));
+                break;
+            case 871312:
+                content.setText(context.getString(R.string.sdk_87x_871312));
                 break;
             case 871403:
                 content.setText(context.getString(R.string.sdk_87x_871403));

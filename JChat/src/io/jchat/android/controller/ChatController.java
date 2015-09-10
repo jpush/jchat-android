@@ -17,7 +17,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
-
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -25,16 +24,11 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
 import io.jchat.android.R;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
-
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetGroupMembersCallback;
 import cn.jpush.im.android.api.content.TextContent;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.adapter.MsgListAdapter;
@@ -98,21 +92,26 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                     mGroupID = Long.parseLong(mTargetID);
                 }
                 mConv = JMessageClient.getGroupConversation(mGroupID);
-                mChatView.setChatTitle(mContext.getString(R.string.group), mDensityDpi);
                 mGroupInfo = (GroupInfo)mConv.getTargetInfo();
                 Log.d("ChatController", "GroupInfo: " + mGroupInfo.toString());
-                //设置群聊聊天标题
-                if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
-                    mGroupName = mGroupInfo.getGroupName();
-                    mChatView.setChatTitle(mGroupName, mGroupInfo.getGroupMembers().size(), mDensityDpi);
-                } else {
-                    mChatView.setChatTitle(mContext.getString(R.string.group),
-                            mGroupInfo.getGroupMembers().size(), mDensityDpi);
-                }
                 UserInfo userInfo = mGroupInfo.getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
+                //如果自己在群聊中，聊天标题显示群人数
                 if (userInfo != null) {
+                    if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
+                        mGroupName = mGroupInfo.getGroupName();
+                        mChatView.setChatTitle(mGroupName, mGroupInfo.getGroupMembers().size(), mDensityDpi);
+                    } else {
+                        mChatView.setChatTitle(mContext.getString(R.string.group),
+                                mGroupInfo.getGroupMembers().size(), mDensityDpi);
+                    }
                     mChatView.showRightBtn();
                 } else {
+                    if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
+                        mGroupName = mGroupInfo.getGroupName();
+                        mChatView.setChatTitle(mGroupName, mDensityDpi);
+                    } else {
+                        mChatView.setChatTitle(mContext.getString(R.string.group), mDensityDpi);
+                    }
                     mChatView.dismissRightBtn();
                 }
                 //更新群名
@@ -224,12 +223,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                     public void gotResult(final int status, String desc) {
                         Log.i("ChatController", "send callback " + status + " desc " + desc);
                         if (status != 0) {
-                            mContext.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    HandleResponseCode.onHandle(mContext, status, false);
-                                }
-                            });
+                            HandleResponseCode.onHandle(mContext, status, false);
                         }
                         // 发送成功或失败都要刷新一次
                         myHandler.sendEmptyMessage(UPDATE_CHAT_LISTVIEW);

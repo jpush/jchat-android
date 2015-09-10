@@ -269,12 +269,26 @@ public class ChatActivity extends BaseActivity {
             handleImgRefresh(data);
         } else if (resultCode == JPushDemoApplication.RESULT_CODE_CHAT_DETAIL) {
             if (mChatController.isGroup()) {
-                if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))) {
-                    mChatView.setChatTitle(this.getString(R.string.group), data.getIntExtra("currentCount", 0), mDensityDpi);
-                } else {
-                    mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.GROUP_NAME),
-                            data.getIntExtra("currentCount", 0), mDensityDpi);
+                GroupInfo groupInfo = (GroupInfo)mChatController.getConversation().getTargetInfo();
+                UserInfo userInfo = groupInfo.getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
+                //如果自己在群聊中，同时显示群人数
+                if (userInfo != null){
+                    if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))) {
+                        mChatView.setChatTitle(this.getString(R.string.group),
+                                data.getIntExtra("currentCount", 0), mDensityDpi);
+                    } else {
+                        mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.GROUP_NAME),
+                                data.getIntExtra("currentCount", 0), mDensityDpi);
+                    }
+                }else {
+                    if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))) {
+                        mChatView.setChatTitle(this.getString(R.string.group), mDensityDpi);
+                    } else {
+                        mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.GROUP_NAME),
+                                mDensityDpi);
+                    }
                 }
+
             }
             if (data.getBooleanExtra("deleteMsg", false)){
                 mChatController.getAdapter().clearMsgList();

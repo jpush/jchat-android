@@ -29,6 +29,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.adapter.PickPictureAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.SortPictureList;
 
 public class PickPictureActivity extends BaseActivity {
@@ -47,6 +48,7 @@ public class PickPictureActivity extends BaseActivity {
     private ProgressDialog mDialog;
     private long mGroupID;
     private int[] mMsgIDs;
+    private static final int SEND_PICTURE = 200;
     private final MyHandler myHandler = new MyHandler(this);
 
     @Override
@@ -128,7 +130,7 @@ public class PickPictureActivity extends BaseActivity {
                             public void run() {
                                 final List<String> pathList = new ArrayList<String>();
                                 getThumbnailPictures(pathList);
-                                myHandler.sendEmptyMessage(0);
+                                myHandler.sendEmptyMessageDelayed(SEND_PICTURE, 1000);
                             }
                         });
                         thread.start();
@@ -154,8 +156,9 @@ public class PickPictureActivity extends BaseActivity {
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         mMsgIDs = new int[mPickedList.size()];
         for (int i = 0; i < mPickedList.size(); i++) {
+            final int index = i;
             //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
-            if(BitmapLoader.verifyPictureSize(mPickedList.get(i)))
+            if (BitmapLoader.verifyPictureSize(mPickedList.get(i)))
                 pathList.add(mPickedList.get(i));
             else {
                 bitmap = BitmapLoader.getBitmapFromFile(mPickedList.get(i), 720, 1280);
@@ -163,14 +166,19 @@ public class PickPictureActivity extends BaseActivity {
                 pathList.add(tempPath);
             }
 
-            Log.i("PickPictureActivity", "pathList.get(i) " + pathList.get(i));
             File file = new File(pathList.get(i));
-            try {
-                    ImageContent content = new ImageContent(file);
-                    Message msg = mConv.createSendMessage(content);
-                    mMsgIDs[i] = msg.getId();
-                } catch (FileNotFoundException e) {
+            ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                @Override
+                public void gotResult(int status, String desc, ImageContent imageContent) {
+                    if (status == 0){
+                        Message msg = mConv.createSendMessage(imageContent);
+                        mMsgIDs[index] = msg.getId();
+                    }else {
+                        Log.d("PickPictureActivity", "create image content failed! status:" + status);
+                        HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
+                    }
                 }
+            });
         }
     }
 
@@ -208,7 +216,7 @@ public class PickPictureActivity extends BaseActivity {
             PickPictureActivity activity = mActivity.get();
             if(activity != null){
                 switch (msg.what) {
-                    case 0:
+                    case SEND_PICTURE:
                         Intent intent = new Intent();
                         intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetID);
                         intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupID);

@@ -132,8 +132,8 @@
     <string name="about">关于</string>
     <string name="about_version">demo版本号为1.2.2\nsdk版本号为1.1.3-b777\n\n增加了以下功能：
         \n*聊天消息分页加载\n\n性能/功能优化：\n*聊天、聊天详情界面的加载更加流畅\n*会话列表的刷新
-        \n*群聊头像的加载\n*“我”界面头像的加载\n*图片消息三角框位置调整\n\n修复bug：\n*修复群聊人
-        数变化时聊天标题更新不正确的bug\n*修复在聊天界面收起软键盘后菜单栏不会收回的bug\n*
+        \n*群聊头像的加载\n*“我”界面头像的加载\n*图片消息三角框位置调整\n\n修复bug：
+        \n*修复群聊人数变化时聊天标题更新不正确的bug\n*修复在聊天界面收起软键盘后菜单栏不会收回的bug\n*
     </string>
     <string name="add_to_friend">加为好友</string>
     <string name="setting_username_hit">昵称</string>
@@ -218,6 +218,7 @@
     <!-- 下线提示 -->
     <string name="user_logout_dialog_title">下线提示</string>
     <string name="user_logout_dialog_message">您的账号已经在另一台设备上登录，您被迫下线</string>
+    <string name="user_delete_hint_message">您的账号已被删除，您被迫下线</string>
 
 
     <string name="server_abnormal_toast">服务器返回异常，请重试</string>
@@ -243,6 +244,7 @@
     <string name="server_803003">发送失败，目标用户未注册或从未登录过</string>
     <string name="server_803004">发送失败，此群已被删除</string>
     <string name="server_803005">您已被请出此群，不能发送消息</string>
+    <string name="server_803008">您已被拉入黑名单，发送失败</string>
     <string name="server_808003">讨论组数量已达上限，创建失败</string>
     <string name="server_808004">群组名长度超出上限</string>
     <string name="server_810003">用户不属于该群组</string>
@@ -252,6 +254,10 @@
     <string name="server_810009">该用户拥有的讨论组数量已达上限，添加失败</string>
     <string name="server_811003">用户不在该讨论组中，删除成员失败</string>
     <string name="server_812002">您已被请出此群，不能修改相关信息</string>
+    <string name="server_818001">要添加的黑名单列表为空，添加失败</string>
+    <string name="server_818002">要添加的黑名单列表中有成员不存在，添加失败</string>
+    <string name="server_818003">要添加的黑名单列表中有成员不能被添加，添加失败</string>
+    <string name="server_818004">要添加的黑名单列表中有成员重复添加，添加失败</string>
     <string name="sdk_http_899001">用户已存在</string>
     <string name="sdk_http_899006">该群已被删除</string>
     <string name="sdk_http_898005">uid不存在</string>
@@ -267,6 +273,7 @@
     <string name="sdk_87x_871309">消息所含文件不存在</string>
     <string name="sdk_87x_871310">网络已断开，请检查网络连接</string>
     <string name="sdk_87x_871311">用户未设定头像，下载头像失败</string>
+    <string name="sdk_87x_871312">ImageContent创建失败</string>
     <string name="sdk_87x_871403">发送失败，请稍后重试</string>
     <string name="sdk_87x_871404">下载失败，请稍后重试</string>
     <string name="sdk_87x_871201">请求超时，请检查您的网络</string>

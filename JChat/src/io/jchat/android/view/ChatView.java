@@ -17,6 +17,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
+
+import java.io.UnsupportedEncodingException;
+
 import io.jchat.android.R;
 import cn.jpush.im.android.api.model.Conversation;
 import io.jchat.android.adapter.MsgListAdapter;
@@ -271,6 +274,13 @@ public class ChatView extends RelativeLayout{
 
 
 	public void setChatTitle(String title, int densityDpi){
+        try {
+            int num = title.getBytes("utf-8").length;
+            Log.d("ChatView", "Current byte count: " + num);
+            Log.d("ChatView", "Current length: " + title.length());
+        }catch (UnsupportedEncodingException e){
+            Log.e("ChatView", "Unsupported encoding exception");
+        }
         if (densityDpi <= 160){
             if (title.length() > 6){
                 title = title.substring(0, 6);
@@ -292,6 +302,13 @@ public class ChatView extends RelativeLayout{
 
 	//设置群聊名字
 	public void setChatTitle(String name, int count, int densityDpi){
+        try {
+            int num = name.getBytes("utf-8").length;
+            Log.d("ChatView", "Current byte count: " + num);
+            Log.d("ChatView", "Current length: " + name.length());
+        }catch (UnsupportedEncodingException e){
+            Log.e("ChatView", "Unsupported encoding exception");
+        }
         String title;
         if (densityDpi <= 160){
             if (name.length() > 6){

@@ -32,7 +32,7 @@ public class LoginView extends LinearLayout {
     private Listener mListener;
 	private CheckBox mTestEvnCB;
     private Context mContext;
-	private static final boolean DEV_FLAG = false;
+	private static final boolean DEV_FLAG = true;
 
 	public LoginView(Context context, AttributeSet attrs) {
 		super(context, attrs);
