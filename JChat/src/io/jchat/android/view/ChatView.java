@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -19,10 +18,10 @@ import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import java.io.UnsupportedEncodingException;
+
 import io.jchat.android.R;
-
 import cn.jpush.im.android.api.model.Conversation;
-
 import io.jchat.android.adapter.MsgListAdapter;
 import io.jchat.android.controller.RecordVoiceBtnController;
 import io.jchat.android.tools.SharePreferenceManager;
@@ -102,7 +101,8 @@ public class ChatView extends RelativeLayout{
     public void setMoreMenuHeight() {
         int softKeyboardHeight = SharePreferenceManager.getCachedKeyboardHeight();
         if(softKeyboardHeight > 0){
-            mMoreMenuTl.setLayoutParams(new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, softKeyboardHeight));
+            mMoreMenuTl.setLayoutParams(new LinearLayout
+                    .LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, softKeyboardHeight));
         }
 
     }
@@ -193,8 +193,6 @@ public class ChatView extends RelativeLayout{
         if (inputFocus) {
             mChatInputEt.requestFocus();
             Log.i("ChatView", "show softInput");
-            InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
         } else {
             mAddFileIb.requestFocusFromTouch();
         }
@@ -275,28 +273,42 @@ public class ChatView extends RelativeLayout{
 
 
 
-	public void setChatTitle(String targetId, int densityDpi){
+	public void setChatTitle(String title, int densityDpi){
+        try {
+            int num = title.getBytes("utf-8").length;
+            Log.d("ChatView", "Current byte count: " + num);
+            Log.d("ChatView", "Current length: " + title.length());
+        }catch (UnsupportedEncodingException e){
+            Log.e("ChatView", "Unsupported encoding exception");
+        }
         if (densityDpi <= 160){
-            if (targetId.length() > 6){
-                targetId = targetId.substring(0, 6);
-                targetId = targetId + "...";
+            if (title.length() > 6){
+                title = title.substring(0, 6);
+                title = title + "...";
             }
         }else if (densityDpi <= 240){
-            if (targetId.length() > 8){
-                targetId = targetId.substring(0, 8);
-                targetId = targetId + "...";
+            if (title.length() > 8){
+                title = title.substring(0, 8);
+                title = title + "...";
             }
         }else {
-            if (targetId.length() > 10){
-                targetId = targetId.substring(0, 10);
-                targetId = targetId + "...";
+            if (title.length() > 10){
+                title = title.substring(0, 10);
+                title = title + "...";
             }
         }
-		mChatTitle.setText(targetId);
+		mChatTitle.setText(title);
 	}
 
 	//设置群聊名字
 	public void setChatTitle(String name, int count, int densityDpi){
+        try {
+            int num = name.getBytes("utf-8").length;
+            Log.d("ChatView", "Current byte count: " + num);
+            Log.d("ChatView", "Current length: " + name.length());
+        }catch (UnsupportedEncodingException e){
+            Log.e("ChatView", "Unsupported encoding exception");
+        }
         String title;
         if (densityDpi <= 160){
             if (name.length() > 6){
@@ -369,10 +381,6 @@ public class ChatView extends RelativeLayout{
 
     public void releaseRecorder() {
         mVoiceBtn.releaseRecorder();
-    }
-
-    public void resetMoreMenuHeight() {
-        mMoreMenuTl.setLayoutParams(new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, 0));
     }
 
 	public DropDownListView getListView() {

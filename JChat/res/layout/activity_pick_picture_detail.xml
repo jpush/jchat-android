@@ -1,5 +1,4 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -8,7 +7,7 @@
         <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/title_bar_height"
-        android:background="#6599E4" >
+        android:background="@color/jpush_blue" >
 
         <ImageButton
             android:id="@+id/pick_picture_detail_return_btn"

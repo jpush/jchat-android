@@ -63,8 +63,7 @@
                     android:layout_marginBottom="2dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:background="@drawable/voice"
-                    android:gravity="center" />
+                    android:background="@drawable/voice"/>
 
 
                 <RelativeLayout

@@ -269,12 +269,26 @@ public class ChatActivity extends BaseActivity {
             handleImgRefresh(data);
         } else if (resultCode == JPushDemoApplication.RESULT_CODE_CHAT_DETAIL) {
             if (mChatController.isGroup()) {
-                if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))) {
-                    mChatView.setChatTitle(this.getString(R.string.group), data.getIntExtra("currentCount", 0), mDensityDpi);
-                } else {
-                    mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.GROUP_NAME),
-                            data.getIntExtra("currentCount", 0), mDensityDpi);
+                GroupInfo groupInfo = (GroupInfo)mChatController.getConversation().getTargetInfo();
+                UserInfo userInfo = groupInfo.getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
+                //如果自己在群聊中，同时显示群人数
+                if (userInfo != null){
+                    if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))) {
+                        mChatView.setChatTitle(this.getString(R.string.group),
+                                data.getIntExtra("currentCount", 0), mDensityDpi);
+                    } else {
+                        mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.GROUP_NAME),
+                                data.getIntExtra("currentCount", 0), mDensityDpi);
+                    }
+                }else {
+                    if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))) {
+                        mChatView.setChatTitle(this.getString(R.string.group), mDensityDpi);
+                    } else {
+                        mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.GROUP_NAME),
+                                mDensityDpi);
+                    }
                 }
+
             }
             if (data.getBooleanExtra("deleteMsg", false)){
                 mChatController.getAdapter().clearMsgList();
@@ -320,20 +334,25 @@ public class ChatActivity extends BaseActivity {
         if (msg.getContentType() == ContentType.eventNotification) {
             long groupID = ((GroupInfo)msg.getTargetInfo()).getGroupID();
             UserInfo myInfo = JMessageClient.getMyInfo();
-            EventNotificationContent.EventNotificationType type = ((EventNotificationContent) msg.getContent()).getEventNotificationType();
+            EventNotificationContent.EventNotificationType type = ((EventNotificationContent) msg
+                    .getContent()).getEventNotificationType();
             if (type.equals(EventNotificationContent.EventNotificationType.group_member_removed)) {
                 //删除群成员事件
                 List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
                 //群主删除了当前用户，则隐藏聊天详情按钮
                 if (groupID == mChatController.getGroupID()) {
-                    refreshGroupNum();
                     if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 mChatView.dismissRightBtn();
+                                GroupInfo groupInfo = (GroupInfo)mChatController.getConversation()
+                                        .getTargetInfo();
+                                mChatView.setChatTitle(groupInfo.getGroupName(), mDensityDpi);
                             }
                         });
+                    }else {
+                        refreshGroupNum();
                     }
                 }
             } else {

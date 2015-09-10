@@ -118,7 +118,7 @@ public class ConversationListFragment extends BaseFragment {
     /**
      * 在会话列表中接收消息
      *
-     * @param event
+     * @param event 消息事件
      */
     public void onEvent(MessageEvent event) {
         Log.i(TAG, "onEventMainThread MessageEvent execute");
@@ -154,6 +154,10 @@ public class ConversationListFragment extends BaseFragment {
         }
     }
 
+    /**
+     * 收到创建单聊的消息
+     * @param event 可以从event中得到targetID
+     */
     public void onEventMainThread(Event.StringEvent event){
         Log.d(TAG, "StringEvent execute");
         String targetID = event.getTargetID();
@@ -163,6 +167,10 @@ public class ConversationListFragment extends BaseFragment {
         }
     }
 
+    /**
+     * 收到创建群聊的消息
+     * @param event 从event中得到groupID
+     */
     public void onEventMainThread(Event.LongEvent event){
         long groupID = event.getGroupID();
         Conversation conv = JMessageClient.getGroupConversation(groupID);

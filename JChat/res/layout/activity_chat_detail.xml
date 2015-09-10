@@ -129,8 +129,8 @@
         android:layout_height="1dp"
         android:background="@color/chat_detail_split_line_color" />
 
-    <RelativeLayout
-        android:id="@+id/group_chat_del_rl"
+    <LinearLayout
+        android:id="@+id/group_chat_del_ll"
         style="@style/ChatDetailItem" >
 
         <TextView
@@ -139,9 +139,8 @@
 
         <TextView style="@style/ChatDetailItemContent" />
 
-        <ImageView style="@style/ChatDetailArrow"
-            android:layout_alignParentRight="true"/>
-    </RelativeLayout>
+        <ImageView style="@style/ChatDetailArrow"/>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"

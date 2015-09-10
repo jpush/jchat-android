@@ -613,6 +613,7 @@ public class MsgListAdapter extends BaseAdapter {
                     } else {
                         String targetID = userInfo.getUserName();
                         intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
+                        intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
                         intent.setClass(mContext, FriendInfoActivity.class);
                         ((Activity) mContext).startActivityForResult(intent,
                                 JPushDemoApplication.REQUEST_CODE_FRIEND_INFO);

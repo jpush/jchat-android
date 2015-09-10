@@ -402,7 +402,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                 Log.i(TAG, "发送缩略图");
                                 getThumbnailPictures(pathList, mPosition);
                             }
-                            myHandler.sendEmptyMessage(5);
+                            myHandler.sendEmptyMessageDelayed(5, 1000);
                         }
                     });
                     thread.start();
@@ -457,14 +457,20 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private void createSendMsg(List<String> pathList) {
         mMsgIDs = new int[pathList.size()];
         for (int i = 0; i < pathList.size(); i++) {
-            try {
-                File file = new File(pathList.get(i));
-                ImageContent content = new ImageContent(file);
-                Message msg = mConv.createSendMessage(content);
-                mMsgIDs[i] = msg.getId();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            final int index = i;
+            File file = new File(pathList.get(i));
+            ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                @Override
+                public void gotResult(int status, String desc, ImageContent imageContent) {
+                    if (status == 0){
+                        Message msg = mConv.createSendMessage(imageContent);
+                        mMsgIDs[index] = msg.getId();
+                    }else {
+                        Log.d("PickPictureActivity", "create image content failed! status:" + status);
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                }
+            });
         }
     }
 
@@ -484,15 +490,21 @@ public class BrowserViewPagerActivity extends BaseActivity {
 //        createSendMsg(pathList);
         mMsgIDs = new int[pathList.size()];
         for (int i = 0; i < pathList.size(); i++){
-            try {
-                File file = new File(pathList.get(i));
-                ImageContent content = new ImageContent(file);
-                content.setBooleanExtra("originalPicture", true);
-                Message msg = mConv.createSendMessage(content);
-                mMsgIDs[i] = msg.getId();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            final int index = i;
+            File file = new File(pathList.get(i));
+            ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                @Override
+                public void gotResult(int status, String desc, ImageContent imageContent) {
+                    if (status == 0){
+                        imageContent.setBooleanExtra("originalPicture", true);
+                        Message msg = mConv.createSendMessage(imageContent);
+                        mMsgIDs[index] = msg.getId();
+                    }else {
+                        Log.d("PickPictureActivity", "create image content failed! status:" + status);
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                }
+            });
         }
     }
 

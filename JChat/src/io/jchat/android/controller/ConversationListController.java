@@ -1,31 +1,20 @@
 package io.jchat.android.controller;
 
-import android.app.ActionBar;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
-import android.widget.TextView;
-
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -84,20 +73,19 @@ public class ConversationListController implements OnClickListener,
 
     // 点击会话列表
     @Override
-    public void onItemClick(AdapterView<?> viewAdapter, View view,
-                            int position, long id) {
+    public void onItemClick(AdapterView<?> viewAdapter, View view, int position, long id) {
         // TODO Auto-generated method stub
         final Intent intent = new Intent();
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
-            long groupID = ((GroupInfo)mDatas.get(position).getTargetInfo()).getGroupID();
+            long groupID = ((GroupInfo) mDatas.get(position).getTargetInfo()).getGroupID();
             intent.putExtra(JPushDemoApplication.IS_GROUP, true);
             intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
             intent.setClass(mContext.getActivity(), ChatActivity.class);
             mContext.getActivity().startActivity(intent);
             return;
-        } else{
-            String targetID = mDatas.get(position).getTargetId();
+        } else {
+            String targetID = ((UserInfo) mDatas.get(position).getTargetInfo()).getUserName();
             intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
             intent.putExtra(JPushDemoApplication.IS_GROUP, false);
         }
@@ -108,16 +96,18 @@ public class ConversationListController implements OnClickListener,
 
     /**
      * 在会话列表界面收到消息或者新建会话，将该会话置顶
+     *
      * @param conv 收到消息的Conversation
      */
-    public void refreshConvList(final Conversation conv){
+    public void refreshConvList(final Conversation conv) {
         mListAdapter.setToTop(conv);
     }
 
     /**
      * 加载头像并刷新
+     *
      * @param targetID 用户名
-     * @param path 头像路径
+     * @param path     头像路径
      */
     public void loadAvatarAndRefresh(String targetID, String path) {
         int size = (int) (50 * mDensity);
@@ -137,16 +127,21 @@ public class ConversationListController implements OnClickListener,
         OnClickListener listener = new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (conv.getType().equals(ConversationType.group))
-                    JMessageClient.deleteGroupConversation(((GroupInfo)conv.getTargetInfo()).getGroupID());
-                else
-                    JMessageClient.deleteSingleConversation(((UserInfo)conv.getTargetInfo()).getUserName());
+                if (conv.getType().equals(ConversationType.group)){
+                    JMessageClient.deleteGroupConversation(((GroupInfo) conv.getTargetInfo())
+                            .getGroupID());
+                }
+                else {
+                    JMessageClient.deleteSingleConversation(((UserInfo) conv.getTargetInfo())
+                            .getUserName());
+                }
                 mDatas.remove(position);
                 mListAdapter.notifyDataSetChanged();
                 mDialog.dismiss();
             }
         };
-        mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), conv.getTitle(), listener);
+        mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), conv.getTitle(),
+                listener);
         mDialog.show();
         mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         return true;
@@ -156,8 +151,4 @@ public class ConversationListController implements OnClickListener,
         return mListAdapter;
     }
 
-    public boolean isExistConv(String targetID) {
-        Conversation conv = JMessageClient.getSingleConversation(targetID);
-        return conv != null;
-    }
 }
