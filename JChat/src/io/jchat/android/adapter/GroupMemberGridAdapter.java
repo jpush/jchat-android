@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
@@ -43,7 +44,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private int mDefaultSize;
     private boolean mIsGroup;
     private String mTargetID;
-    private String mNickName;
 
     //群聊
     public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator) {
@@ -58,9 +58,8 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     }
 
     //单聊
-    public GroupMemberGridAdapter(Context context, String targetID, String nickName) {
+    public GroupMemberGridAdapter(Context context, String targetID) {
         this.mTargetID = targetID;
-        this.mNickName = nickName;
         initData(context);
     }
 
@@ -247,48 +246,40 @@ public class GroupMemberGridAdapter extends BaseAdapter {
             }
         } else {
             if (position == 0) {
+                Conversation conv = JMessageClient.getSingleConversation(mTargetID);
+                UserInfo userInfo = (UserInfo)conv.getTargetInfo();
                 bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mTargetID);
                 if (bitmap != null) {
                     viewTag.icon.setImageBitmap(bitmap);
                 } else {
-                    JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
-                        @Override
-                        public void gotResult(int status, String desc, UserInfo userInfo) {
-                            if (status == 0) {
-                                if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-                                    File file = userInfo.getAvatarFile();
-                                    if (file != null && file.isFile()) {
-                                        Bitmap bitmap1 = BitmapLoader
+                    if (!TextUtils.isEmpty(userInfo.getAvatar())) {
+                        File file = userInfo.getAvatarFile();
+                        if (file != null && file.isFile()) {
+                            Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                                    mDefaultSize, mDefaultSize);
+                            NativeImageLoader.getInstance()
+                                    .updateBitmapFromCache(userInfo.getUserName(), bitmap1);
+                            viewTag.icon.setImageBitmap(bitmap1);
+                        } else {
+                            viewTag.icon.setImageResource(R.drawable.head_icon);
+                            final String userName = userInfo.getUserName();
+                            userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                                @Override
+                                public void gotResult(int status, String desc, File file) {
+                                    if (status == 0) {
+                                        Bitmap bitmap = BitmapLoader
                                                 .getBitmapFromFile(file.getAbsolutePath(),
                                                         mDefaultSize, mDefaultSize);
                                         NativeImageLoader.getInstance()
-                                                .updateBitmapFromCache(userInfo.getUserName(), bitmap1);
-                                        viewTag.icon.setImageBitmap(bitmap1);
-                                    } else {
-                                        viewTag.icon.setImageResource(R.drawable.head_icon);
-                                        final String userName = userInfo.getUserName();
-                                        userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
-                                            @Override
-                                            public void gotResult(int status, String desc, File file) {
-                                                if (status == 0) {
-                                                    Bitmap bitmap = BitmapLoader
-                                                            .getBitmapFromFile(file.getAbsolutePath(),
-                                                                    mDefaultSize, mDefaultSize);
-                                                    NativeImageLoader.getInstance()
-                                                            .updateBitmapFromCache(userName, bitmap);
-                                                    notifyDataSetChanged();
-                                                }
-                                            }
-                                        });
+                                                .updateBitmapFromCache(userName, bitmap);
+                                        notifyDataSetChanged();
                                     }
                                 }
-                            } else {
-                                viewTag.icon.setImageResource(R.drawable.head_icon);
-                            }
+                            });
                         }
-                    });
+                    }
                 }
-                viewTag.name.setText(mNickName);
+                viewTag.name.setText(userInfo.getNickname());
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
             } else {

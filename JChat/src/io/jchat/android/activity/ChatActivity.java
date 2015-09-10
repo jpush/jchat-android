@@ -273,23 +273,23 @@ public class ChatActivity extends BaseActivity {
                 UserInfo userInfo = groupInfo.getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
                 //如果自己在群聊中，同时显示群人数
                 if (userInfo != null){
-                    if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))) {
+                    if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.NAME))) {
                         mChatView.setChatTitle(this.getString(R.string.group),
                                 data.getIntExtra("currentCount", 0), mDensityDpi);
                     } else {
-                        mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.GROUP_NAME),
+                        mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.NAME),
                                 data.getIntExtra("currentCount", 0), mDensityDpi);
                     }
                 }else {
-                    if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.GROUP_NAME))) {
+                    if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.NAME))) {
                         mChatView.setChatTitle(this.getString(R.string.group), mDensityDpi);
                     } else {
-                        mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.GROUP_NAME),
+                        mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.NAME),
                                 mDensityDpi);
                     }
                 }
 
-            }
+            }else mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.NAME), mDensityDpi);
             if (data.getBooleanExtra("deleteMsg", false)){
                 mChatController.getAdapter().clearMsgList();
             }

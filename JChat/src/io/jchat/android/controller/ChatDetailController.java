@@ -121,7 +121,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         } else {
             Conversation conv = JMessageClient.getSingleConversation(mTargetID);
             mCurrentNum = 1;
-            mGridAdapter = new GroupMemberGridAdapter(mContext, mTargetID, conv.getTitle());
+            mGridAdapter = new GroupMemberGridAdapter(mContext, mTargetID);
             mChatDetailView.setAdapter(mGridAdapter);
             // 设置单聊界面
             mChatDetailView.setSingleView();
@@ -143,7 +143,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             case R.id.return_btn:
                 Intent intent = new Intent();
                 intent.putExtra("deleteMsg", mDeleteMsg);
-                intent.putExtra(JPushDemoApplication.GROUP_NAME, getGroupName());
+                intent.putExtra(JPushDemoApplication.NAME, getName());
                 intent.putExtra("currentCount", mCurrentNum);
                 mContext.setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
                 mContext.finish();
@@ -575,8 +575,13 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         return true;
     }
 
-    public String getGroupName() {
-        return mGroupName;
+    public String getName() {
+        if (mIsGroup){
+            return mGroupName;
+        }else {
+            Conversation conv = JMessageClient.getSingleConversation(mTargetID);
+            return ((UserInfo)conv.getTargetInfo()).getNickname();
+        }
     }
 
     public int getCurrentCount() {
