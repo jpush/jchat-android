@@ -169,4 +169,13 @@ public class FriendInfoActivity extends BaseActivity {
             });
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra(JPushDemoApplication.NICKNAME, mNickname);
+        setResult(JPushDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
+        finish();
+        super.onBackPressed();
+    }
 }
