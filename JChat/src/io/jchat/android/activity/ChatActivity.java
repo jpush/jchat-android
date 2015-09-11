@@ -394,7 +394,8 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void refreshGroupNum() {
-        GroupInfo groupInfo = (GroupInfo)mChatController.getConversation().getTargetInfo();
+        Conversation conv = JMessageClient.getGroupConversation(mChatController.getGroupID());
+        GroupInfo groupInfo = (GroupInfo)conv.getTargetInfo();
         if (!TextUtils.isEmpty(groupInfo.getGroupName())){
             android.os.Message handleMessage = mHandler.obtainMessage();
             handleMessage.what = JPushDemoApplication.REFRESH_GROUP_NAME;
