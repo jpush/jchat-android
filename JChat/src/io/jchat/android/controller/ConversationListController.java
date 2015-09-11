@@ -39,11 +39,9 @@ public class ConversationListController implements OnClickListener,
     private Dialog mDialog;
 
     public ConversationListController(ConversationListView listView,
-                                      ConversationListFragment context) {
+                                      ConversationListFragment context, DisplayMetrics dm) {
         this.mConvListView = listView;
         this.mContext = context;
-        DisplayMetrics dm = new DisplayMetrics();
-        mContext.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
         mWidth = dm.widthPixels;
         initConvListAdapter();

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 
@@ -109,34 +110,11 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         mRestNum = mRestArray[mCurrentNum % 4];
     }
 
-    public void refreshGroupMember(List<UserInfo> memberList) {
-        mMemberList.clear();
-        mMemberList = memberList;
-        initBlankItem();
-        notifyDataSetChanged();
-    }
-
-    public void refreshMemberList(){
+    public void refreshMemberList(long groupID){
+        Conversation conv = JMessageClient.getGroupConversation(groupID);
+        GroupInfo groupInfo = (GroupInfo)conv.getTargetInfo();
+        mMemberList = groupInfo.getGroupMembers();
         mCurrentNum = mMemberList.size();
-        mRestNum = mRestArray[mCurrentNum % 4];
-        notifyDataSetChanged();
-    }
-
-    public void addMemberToList(UserInfo userInfo) {
-        if (!mMemberList.contains(userInfo)) {
-            mMemberList.add(userInfo);
-            ++mCurrentNum;
-            mRestNum = mRestArray[mCurrentNum % 4];
-        }
-        notifyDataSetChanged();
-    }
-
-    public void remove(int position) {
-        if (position >= mMemberList.size()) {
-            return;
-        }
-        mMemberList.remove(position);
-        --mCurrentNum;
         mRestNum = mRestArray[mCurrentNum % 4];
         notifyDataSetChanged();
     }

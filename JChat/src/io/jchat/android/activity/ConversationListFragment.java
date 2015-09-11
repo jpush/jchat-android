@@ -2,10 +2,12 @@ package io.jchat.android.activity;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +30,7 @@ import io.jchat.android.R;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
 import io.jchat.android.entity.Event;
+import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ConversationListView;
 import io.jchat.android.view.MenuItemView;
@@ -45,14 +48,19 @@ public class ConversationListFragment extends BaseFragment {
     private View mMenuView;
     private MenuItemView mMenuItemView;
     private MenuItemController mMenuController;
-    //MainActivity要实现的接口，用来显示或者隐藏ActionBar中新消息提示
+    private double mDensity;
+    private Activity mContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
+        mContext = this.getActivity();
         JMessageClient.registerEventReceiver(this);
         EventBus.getDefault().register(this);
+        DisplayMetrics dm = new DisplayMetrics();
+        this.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mDensity = dm.density;
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mRootView = layoutInflater.inflate(R.layout.fragment_conv_list,
                 (ViewGroup) getActivity().findViewById(R.id.main_view),
@@ -60,7 +68,7 @@ public class ConversationListFragment extends BaseFragment {
         mConvListView = new ConversationListView(mRootView, this.getActivity());
         mConvListView.initModule();
         mMenuView = getActivity().getLayoutInflater().inflate(R.layout.drop_down_menu, null);
-        mConvListController = new ConversationListController(mConvListView, this);
+        mConvListController = new ConversationListController(mConvListView, this, dm);
         mConvListView.setListener(mConvListController);
         mConvListView.setItemListeners(mConvListController);
         mConvListView.setLongClickListener(mConvListController);
@@ -69,6 +77,8 @@ public class ConversationListFragment extends BaseFragment {
         mMenuItemView.initModule();
         mMenuController = new MenuItemController(mMenuItemView, this, mConvListController);
         mMenuItemView.setListeners(mMenuController);
+
+
     }
 
     @Override
@@ -96,26 +106,6 @@ public class ConversationListFragment extends BaseFragment {
     }
 
     /**
-     * 当触发GetUserInfo后，得到Conversation后，刷新界面
-     * 通常触发的情况是新会话创建时刷新目标头像
-     *
-     * @param conversationRefreshEvent
-     */
-    public void onEvent(ConversationRefreshEvent conversationRefreshEvent) {
-        Log.i(TAG, "ConversationRefreshEvent execute");
-        Conversation conv = conversationRefreshEvent.getConversation();
-        if (conv.getType() == ConversationType.single) {
-            File file = conv.getAvatarFile();
-            if (file != null) {
-                mConvListController.loadAvatarAndRefresh(conv.getTargetId(),
-                        file.getAbsolutePath());
-            }
-        } else {
-            mConvListController.getAdapter().notifyDataSetChanged();
-        }
-    }
-
-    /**
      * 在会话列表中接收消息
      *
      * @param event 消息事件
@@ -133,7 +123,8 @@ public class ConversationListFragment extends BaseFragment {
                 mConvListController.refreshConvList(conv);
             }
         } else {
-            String targetID = ((UserInfo)msg.getTargetInfo()).getUserName();
+            UserInfo userInfo = (UserInfo)msg.getTargetInfo();
+            String targetID = userInfo.getUserName();
             conv = JMessageClient.getSingleConversation(targetID);
             if (conv != null && mConvListController != null){
                 //如果缓存了头像，直接刷新会话列表
@@ -142,13 +133,34 @@ public class ConversationListFragment extends BaseFragment {
                     mConvListController.refreshConvList(conv);
                     //没有头像，从Conversation拿
                 } else {
-                    File file = conv.getAvatarFile();
-                    //拿到后缓存并刷新
-                    if (file != null) {
-                        mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
-                        mConvListController.refreshConvList(conv);
-                        //conversation中没有头像，直接刷新，SDK会在后台获得头像，拿到后会执行onEvent(ConversationRefreshEvent conversationRefreshEvent)
-                    } else mConvListController.refreshConvList(conv);
+                    if (userInfo.getAvatar() != null){
+                        File file = conv.getAvatarFile();
+                        //拿到后缓存并刷新
+                        if (file != null) {
+                            mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
+                            //conversation中没有头像，从服务器上拿
+                        }else {
+                            NativeImageLoader.getInstance().setAvatarCache(targetID,
+                                    (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
+                                        @Override
+                                        public void onCacheAvatarCallBack(final int status) {
+                                            mContext.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    if (status == 0){
+                                                        mConvListController.getAdapter()
+                                                                .notifyDataSetChanged();
+                                                    }else {
+                                                        HandleResponseCode.onHandle(mContext, status,
+                                                                false);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                        }
+                    }
+                    mConvListController.refreshConvList(conv);
                 }
             }
         }

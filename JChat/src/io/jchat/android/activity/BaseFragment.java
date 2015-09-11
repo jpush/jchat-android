@@ -38,6 +38,9 @@ public class BaseFragment extends Fragment {
     @Override
     public void onDestroy() {
         JMessageClient.unRegisterEventReceiver(this);
+        if (dialog != null){
+            dialog.dismiss();
+        }
         super.onDestroy();
     }
 
@@ -77,6 +80,7 @@ public class BaseFragment extends Fragment {
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog.dismiss();
                 Intent intent = new Intent();
                 intent.setClass(BaseFragment.this.getActivity(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

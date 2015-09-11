@@ -298,11 +298,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 }
                 // 点击空白项时, 恢复GridView界面
             } else {
-                if (mIsShowDelete) {
-                    mIsShowDelete = false;
-                    mGridAdapter.setIsShowDelete(false,
-                            mRestArray[mCurrentNum % 4]);
-                }
+                mIsShowDelete = false;
+                mGridAdapter.setIsShowDelete(false, mRestArray[mCurrentNum % 4]);
             }
         }
     }
@@ -418,7 +415,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             if (status == 0) {
                                 // 添加群成员
                                 ++mCurrentNum;
-                                mGridAdapter.refreshMemberList();
+                                mGridAdapter.refreshMemberList(mGroupID);
+                                refreshMemberList();
                                 mChatDetailView.setTitle(mCurrentNum);
                                 Log.i("ADD_TO_GRIDVIEW", "已添加");
                                 mLoadingDialog.dismiss();
@@ -436,6 +434,13 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         }
     }
 
+    //添加或者删除成员后重新获得MemberInfoList
+    private void refreshMemberList() {
+        Conversation conv = JMessageClient.getGroupConversation(mGroupID);
+        GroupInfo groupInfo = (GroupInfo)conv.getTargetInfo();
+        mMemberInfoList = groupInfo.getGroupMembers();
+    }
+
     /**
      * 删除成员
      *
@@ -451,12 +456,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 public void gotResult(final int status, final String desc) {
                     mLoadingDialog.dismiss();
                     if (status == 0) {
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = DELETE_FROM_GRIDVIEW;
-                        Bundle bundle = new Bundle();
-                        bundle.putInt(JPushDemoApplication.POSITION, position);
-                        msg.setData(bundle);
-                        msg.sendToTarget();
+                        myHandler.sendEmptyMessage(DELETE_FROM_GRIDVIEW);
                     } else {
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
@@ -507,8 +507,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                         // 更新GridView
                         --controller.mCurrentNum;
                         controller.mChatDetailView.setTitle(controller.mCurrentNum);
-                        int position = msg.getData().getInt(JPushDemoApplication.POSITION);
-                        controller.mGridAdapter.refreshMemberList();
+                        controller.mGridAdapter.refreshMemberList(controller.mGroupID);
+                        controller.refreshMemberList();
                         // 当前成员数为1，退出删除状态
                         if (controller.mCurrentNum == 1) {
                             controller.mIsShowDelete = false;
@@ -604,13 +604,11 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     public void refresh(long groupID) {
         //当前群聊
         if (mGroupID == groupID) {
-            Conversation conv = JMessageClient.getGroupConversation(groupID);
-            GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
-            mMemberInfoList = groupInfo.getGroupMembers();
+            refreshMemberList();
             mCurrentNum = mMemberInfoList.size();
             mChatDetailView.setTitle(mCurrentNum);
             if (mGridAdapter != null) {
-                mGridAdapter.refreshMemberList();
+                mGridAdapter.refreshMemberList(mGroupID);
             }
             Log.i(TAG, "Group Member Changing");
         }

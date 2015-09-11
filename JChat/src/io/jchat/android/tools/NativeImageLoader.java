@@ -81,7 +81,7 @@ public class NativeImageLoader {
     }
 
     private void getUserInfo(final String userID, final CacheAvatarCallBack callBack, final int length){
-        JMessageClient.getUserInfo(userID, new GetUserInfoCallback(false) {
+        JMessageClient.getUserInfo(userID, new GetUserInfoCallback() {
             @Override
             public void gotResult(int i, String s, UserInfo userInfo) {
                 if (i == 0) {

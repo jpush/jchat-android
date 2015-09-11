@@ -171,6 +171,24 @@ public class HandleResponseCode {
             case 871404:
                 content.setText(context.getString(R.string.sdk_87x_871404));
                 break;
+            case 871501:
+                content.setText(context.getString(R.string.sdk_87x_871501));
+                break;
+            case 871502:
+                content.setText(context.getString(R.string.sdk_87x_871502));
+                break;
+            case 871503:
+                content.setText(context.getString(R.string.sdk_87x_871503));
+                break;
+            case 871504:
+                content.setText(context.getString(R.string.sdk_87x_871504));
+                break;
+            case 871505:
+                content.setText(context.getString(R.string.sdk_87x_871505));
+                break;
+            case 871506:
+                content.setText(context.getString(R.string.sdk_87x_871506));
+                break;
             case 871102:
             case 871201:
                 content.setText(context.getString(R.string.sdk_87x_871201));
