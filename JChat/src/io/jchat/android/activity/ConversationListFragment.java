@@ -133,32 +133,30 @@ public class ConversationListFragment extends BaseFragment {
                     mConvListController.refreshConvList(conv);
                     //没有头像，从Conversation拿
                 } else {
-                    if (userInfo.getAvatar() != null){
-                        File file = conv.getAvatarFile();
-                        //拿到后缓存并刷新
-                        if (file != null) {
-                            mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
-                            //conversation中没有头像，从服务器上拿
-                        }else {
-                            NativeImageLoader.getInstance().setAvatarCache(targetID,
-                                    (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
-                                        @Override
-                                        public void onCacheAvatarCallBack(final int status) {
-                                            mContext.runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    if (status == 0){
-                                                        mConvListController.getAdapter()
-                                                                .notifyDataSetChanged();
-                                                    }else {
-                                                        HandleResponseCode.onHandle(mContext, status,
-                                                                false);
-                                                    }
+                    File file = conv.getAvatarFile();
+                    //拿到后缓存并刷新
+                    if (file != null && file.exists()) {
+                        mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
+                        //conversation中没有头像，从服务器上拿
+                    } else {
+                        NativeImageLoader.getInstance().setAvatarCache(targetID,
+                                (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
+                                    @Override
+                                    public void onCacheAvatarCallBack(final int status) {
+                                        mContext.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if (status == 0) {
+                                                    mConvListController.getAdapter()
+                                                            .notifyDataSetChanged();
+                                                } else {
+                                                    HandleResponseCode.onHandle(mContext, status,
+                                                            false);
                                                 }
-                                            });
-                                        }
-                                    });
-                        }
+                                            }
+                                        });
+                                    }
+                                });
                     }
                     mConvListController.refreshConvList(conv);
                 }
