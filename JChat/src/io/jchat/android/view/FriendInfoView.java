@@ -55,29 +55,34 @@ public class FriendInfoView extends LinearLayout{
 	}
 
     public void initInfo(UserInfo userInfo, double density){
-        File file = userInfo.getAvatarFile();
-        if(file != null){
-            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                    (int)(100 * density), (int)(100 * density));
-            mAvatarIv.setImageBitmap(bitmap);
-        }
-        if(TextUtils.isEmpty(userInfo.getNickname())){
-            mNickNameTv.setText(userInfo.getUserName());
-        }else {
-            mNickNameTv.setText(userInfo.getNickname());
-        }
-        mNoteName.setText(userInfo.getNotename());
-        if(userInfo.getGender() == UserInfo.Gender.male){
-            mGenderTv.setText(mContext.getString(R.string.man));
-            mGenderIv.setImageResource(R.drawable.sex_man);
-        }else if(userInfo.getGender() == UserInfo.Gender.female){
-            mGenderTv.setText(mContext.getString(R.string.woman));
-            mGenderIv.setImageResource(R.drawable.sex_woman);
+        if (userInfo != null){
+            File file = userInfo.getAvatarFile();
+            if(file != null){
+                Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                        (int)(100 * density), (int)(100 * density));
+                mAvatarIv.setImageBitmap(bitmap);
+            }
+            if(TextUtils.isEmpty(userInfo.getNickname())){
+                mNickNameTv.setText(userInfo.getUserName());
+            }else {
+                mNickNameTv.setText(userInfo.getNickname());
+            }
+            mNoteName.setText(userInfo.getNotename());
+            if(userInfo.getGender() == UserInfo.Gender.male){
+                mGenderTv.setText(mContext.getString(R.string.man));
+                mGenderIv.setImageResource(R.drawable.sex_man);
+            }else if(userInfo.getGender() == UserInfo.Gender.female){
+                mGenderTv.setText(mContext.getString(R.string.woman));
+                mGenderIv.setImageResource(R.drawable.sex_woman);
+            }else {
+                mGenderTv.setText(mContext.getString(R.string.unknown));
+            }
+            mAreaTv.setText(userInfo.getRegion());
+            mSignatureTv.setText(userInfo.getSignature());
         }else {
             mGenderTv.setText(mContext.getString(R.string.unknown));
         }
-        mAreaTv.setText(userInfo.getRegion());
-        mSignatureTv.setText(userInfo.getSignature());
+
     }
 
 	public void setListeners(OnClickListener onClickListener) {

@@ -38,6 +38,9 @@ public class BaseFragment extends Fragment {
     @Override
     public void onDestroy() {
         JMessageClient.unRegisterEventReceiver(this);
+        if (dialog != null){
+            dialog.dismiss();
+        }
         super.onDestroy();
     }
 
