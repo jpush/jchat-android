@@ -111,41 +111,38 @@ public class ConversationListFragment extends BaseFragment {
      * @param event 消息事件
      */
     public void onEvent(MessageEvent event) {
-        Log.i(TAG, "onEventMainThread MessageEvent execute");
         Message msg = event.getMessage();
         Log.d("JMessage", "收到消息：msg = " + msg.toString());
         ConversationType convType = msg.getTargetType();
-        Conversation conv;
         if (convType == ConversationType.group) {
-            long groupID = ((GroupInfo)msg.getTargetInfo()).getGroupID();
-            conv = JMessageClient.getGroupConversation(groupID);
-            if (conv != null && mConvListController != null){
+            long groupID = ((GroupInfo) msg.getTargetInfo()).getGroupID();
+            Conversation conv = JMessageClient.getGroupConversation(groupID);
+            if (conv != null && mConvListController != null) {
                 mConvListController.refreshConvList(conv);
             }
         } else {
-            UserInfo userInfo = (UserInfo)msg.getTargetInfo();
-            String targetID = userInfo.getUserName();
-            conv = JMessageClient.getSingleConversation(targetID);
-            if (conv != null && mConvListController != null){
-                //如果缓存了头像，直接刷新会话列表
-                if (NativeImageLoader.getInstance().getBitmapFromMemCache(targetID) != null) {
-                    Log.i("Test", "conversation ");
-                    mConvListController.refreshConvList(conv);
-                    //没有头像，从Conversation拿
-                } else {
-                    File file = conv.getAvatarFile();
-                    //拿到后缓存并刷新
-                    if (file != null && file.exists()) {
-                        mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
-                        //conversation中没有头像，从服务器上拿
-                    } else {
-                        NativeImageLoader.getInstance().setAvatarCache(targetID,
-                                (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
-                                    @Override
-                                    public void onCacheAvatarCallBack(final int status) {
-                                        mContext.runOnUiThread(new Runnable() {
+            UserInfo userInfo = (UserInfo) msg.getTargetInfo();
+            final String targetID = userInfo.getUserName();
+            final Conversation conv = JMessageClient.getSingleConversation(targetID);
+            if (conv != null && mConvListController != null) {
+                mContext.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //如果缓存了头像，直接刷新会话列表
+                        if (NativeImageLoader.getInstance().getBitmapFromMemCache(targetID) != null) {
+                            Log.i("Test", "conversation ");
+                            //没有头像，从Conversation拿
+                        } else {
+                            File file = conv.getAvatarFile();
+                            //拿到后缓存并刷新
+                            if (file != null && file.exists()) {
+                                mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
+                                //conversation中没有头像，从服务器上拿
+                            } else {
+                                NativeImageLoader.getInstance().setAvatarCache(targetID,
+                                        (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
                                             @Override
-                                            public void run() {
+                                            public void onCacheAvatarCallBack(final int status) {
                                                 if (status == 0) {
                                                     mConvListController.getAdapter()
                                                             .notifyDataSetChanged();
@@ -155,11 +152,11 @@ public class ConversationListFragment extends BaseFragment {
                                                 }
                                             }
                                         });
-                                    }
-                                });
+                            }
+                        }
                     }
-                    mConvListController.refreshConvList(conv);
-                }
+                });
+                mConvListController.refreshConvList(conv);
             }
         }
     }

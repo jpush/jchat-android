@@ -28,6 +28,7 @@ public class FriendInfoActivity extends BaseActivity {
     private FriendInfoView mFriendInfoView;
     private FriendInfoController mFriendInfoController;
     private String mTargetID;
+    private long mGroupID;
     private UserInfo mUserInfo;
     private double mDensity;
     private final MyHandler myHandler = new MyHandler(this);
@@ -40,11 +41,11 @@ public class FriendInfoActivity extends BaseActivity {
         setContentView(R.layout.activity_friend_info);
         mFriendInfoView = (FriendInfoView) findViewById(R.id.friend_info_view);
         mTargetID = getIntent().getStringExtra(JPushDemoApplication.TARGET_ID);
+        mGroupID = getIntent().getLongExtra(JPushDemoApplication.GROUP_ID, 0);
         Conversation conv;
         conv = JMessageClient.getSingleConversation(mTargetID);
         if (conv == null) {
-            long groupID = getIntent().getLongExtra(JPushDemoApplication.GROUP_ID, 0);
-            conv = JMessageClient.getGroupConversation(groupID);
+            conv = JMessageClient.getGroupConversation(mGroupID);
             GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
             mUserInfo = groupInfo.getGroupMemberInfo(mTargetID);
         } else {
@@ -87,11 +88,17 @@ public class FriendInfoActivity extends BaseActivity {
     }
 
     public void startChatActivity() {
-        Intent intent = new Intent();
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
-        intent.setClass(this, ChatActivity.class);
-        startActivity(intent);
+        if (mGroupID != 0){
+            Intent intent = new Intent();
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
+            intent.setClass(this, ChatActivity.class);
+            startActivity(intent);
+        }else {
+            Intent intent = new Intent();
+            intent.putExtra("returnChatActivity", true);
+            setResult(JPushDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
+        }
         Conversation conv = JMessageClient.getSingleConversation(mTargetID);
         if (conv == null) {
             conv = Conversation.createSingleConversation(mTargetID);

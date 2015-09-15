@@ -119,10 +119,17 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                     @Override
                     public void gotResult(int status, String desc, GroupInfo groupInfo) {
                         if (status == 0){
+                            UserInfo info = groupInfo.getGroupMemberInfo(JMessageClient.getMyInfo()
+                                    .getUserName());
                             if (!TextUtils.isEmpty(groupInfo.getGroupName())){
-                                mGroupName = groupInfo.getGroupName();
-                                mChatView.setChatTitle(mGroupName,
-                                        groupInfo.getGroupMembers().size(), mDensityDpi);
+                                if (info != null){
+                                    mGroupName = groupInfo.getGroupName();
+                                    mChatView.setChatTitle(mGroupName,
+                                            groupInfo.getGroupMembers().size(), mDensityDpi);
+                                }else {
+                                    mGroupName = groupInfo.getGroupName();
+                                    mChatView.setChatTitle(mGroupName, mDensityDpi);
+                                }
                             }
                         }
                     }

@@ -54,7 +54,7 @@ public class BitmapLoader {
         }
         String filePath;
         FileOutputStream fileOutput = null;
-        File imgFile = null;
+        File imgFile;
         try {
             String dir = "sdcard/JPushDemo/pictures/";
             File desDir = new File(dir);

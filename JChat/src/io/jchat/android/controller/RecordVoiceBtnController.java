@@ -345,18 +345,19 @@ public class RecordVoiceBtnController extends Button {
             mThread.exit();
             mThread = null;
         }
-        if (recorder != null) {
-            recorder.stop();
-            recorder.release();
-            recorder = null;
-        }
+        releaseRecorder();
     }
 
     public void releaseRecorder() {
         if (recorder != null) {
-            recorder.stop();
-            recorder.release();
-            recorder = null;
+            try {
+                recorder.stop();
+            }catch (Exception e){
+                Log.d("RecordVoice", "Catch exception: stop recorder failed!");
+            }finally {
+                recorder.release();
+                recorder = null;
+            }
         }
     }
 

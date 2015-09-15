@@ -274,7 +274,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             } else if (position < mCurrentNum) {
                 intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
                 intent.setClass(mContext, FriendInfoActivity.class);
-                mContext.startActivity(intent);
+                mContext.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_FRIEND_INFO);
             } else if (position == mCurrentNum) {
                 addMemberToGroup();
             }
