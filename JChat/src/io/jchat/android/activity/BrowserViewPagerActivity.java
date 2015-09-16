@@ -24,16 +24,12 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import io.jchat.android.R;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.Message;
@@ -74,10 +70,17 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private int mHeight;
     private Context mContext;
     private boolean mDownloading = false;
-    private boolean mIsGroup;
     private Long mGroupID;
     private int[] mMsgIDs;
     private final MyHandler myHandler = new MyHandler(this);
+    private final static int DOWNLOAD_ORIGIN_IMAGE_SUCCEED = 1;
+    private final static int DOWNLOAD_PROGRESS = 2;
+    private final static int DOWNLOAD_COMPLETED = 3;
+    private final static int DOWNLOAD_ORIGIN_IMAGE_FAILED = 4;
+    private final static int SEND_PICTURE = 5;
+    private final static int DOWNLOAD_ORIGIN_PROGRESS = 6;
+    private final static int DOWNLOAD_ORIGIN_COMPLETED = 7;
+
     /**
      * 用来存储图片的选中情况
      */
@@ -108,8 +111,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
         mLoadBtn = (Button) findViewById(R.id.load_image_btn);
 
         Intent intent = this.getIntent();
-        mIsGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
-        if (mIsGroup) {
+        boolean isGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
+        if (isGroup) {
             mGroupID = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
             mConv = JMessageClient.getGroupConversation(mGroupID);
         } else {
@@ -323,9 +326,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
         @Override
         public void onPageSelected(final int i) {
-            Log.i(TAG, "onPageSelected !");
             if (mFromChatActivity) {
                 mMsg = mConv.getMessage(mMsgIDList.get(i));
+                Log.d(TAG, "onPageSelected Image Message ID: " + mMsg.getId());
                 ImageContent ic = (ImageContent) mMsg.getContent();
                 //每次选择或滑动图片，如果不存在本地图片则下载，显示大图
                 if (ic.getLocalPath() == null) {
@@ -353,10 +356,12 @@ public class BrowserViewPagerActivity extends BaseActivity {
      */
     private void initImgPathList() {
         List<Message> msgList = mConv.getAllMessage();
+        Message msg;
+        ImageContent ic;
         for (int i = 0; i < msgList.size(); i++) {
-            Message msg = msgList.get(i);
+            msg = msgList.get(i);
             if (msg.getContentType().equals(ContentType.image)) {
-                ImageContent ic = (ImageContent) msg.getContent();
+                ic = (ImageContent) msg.getContent();
                 if (msg.getDirect().equals(MessageDirect.send)){
                     if (TextUtils.isEmpty(ic.getStringExtra("localPath"))){
                         if (!TextUtils.isEmpty(ic.getLocalPath())){
@@ -367,14 +372,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }else {
                         mPathList.add(ic.getStringExtra("localPath"));
                     }
-                }else {
-                    if (ic.getLocalPath() != null) {
-                        mPathList.add(ic.getLocalPath());
-                    } else mPathList.add(ic.getLocalThumbnailPath());
-                }
+                }else if (ic.getLocalPath() != null) {
+                    mPathList.add(ic.getLocalPath());
+                } else mPathList.add(ic.getLocalThumbnailPath());
                 mMsgIDList.add(msg.getId());
             }
         }
+        Log.d(TAG, "Image Message List: " + mPathList.toString());
     }
 
     private OnClickListener listener = new OnClickListener() {
@@ -406,13 +410,12 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         public void run() {
                             if (mOriginPictureCb.isChecked()) {
                                 Log.i(TAG, "发送原图");
-                                mPictureSelectedCb.setChecked(true);
                                 getOriginPictures(mPosition);
                             } else {
                                 Log.i(TAG, "发送缩略图");
                                 getThumbnailPictures(mPosition);
                             }
-                            myHandler.sendEmptyMessageDelayed(5, 1000);
+                            myHandler.sendEmptyMessageDelayed(SEND_PICTURE, 1000);
                         }
                     });
                     thread.start();
@@ -435,12 +438,12 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     android.os.Message msg = myHandler.obtainMessage();
                     Bundle bundle = new Bundle();
                     if (progress < 1.0) {
-                        msg.what = 6;
+                        msg.what = DOWNLOAD_ORIGIN_PROGRESS;
                         bundle.putInt("progress", (int) (progress * 100));
                         msg.setData(bundle);
                         msg.sendToTarget();
                     } else {
-                        msg.what = 7;
+                        msg.what = DOWNLOAD_ORIGIN_COMPLETED;
                         msg.sendToTarget();
                     }
                 }
@@ -453,7 +456,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }else{
                         imgContent.setBooleanExtra("hasDownloaded", false);
                         android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = 4;
+                        msg.what = DOWNLOAD_ORIGIN_IMAGE_FAILED;
                         Bundle bundle = new Bundle();
                         bundle.putInt(JPushDemoApplication.STATUS, status);
                         msg.setData(bundle);
@@ -612,12 +615,12 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         android.os.Message msg = myHandler.obtainMessage();
                         Bundle bundle = new Bundle();
                         if (progress < 1.0) {
-                            msg.what = 2;
+                            msg.what = DOWNLOAD_PROGRESS;
                             bundle.putInt("progress", (int) (progress * 100));
                             msg.setData(bundle);
                             msg.sendToTarget();
                         } else {
-                            msg.what = 3;
+                            msg.what = DOWNLOAD_COMPLETED;
                             msg.sendToTarget();
                         }
                     }
@@ -630,7 +633,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                 mDownloading = false;
                                 if (status == 0) {
                                     android.os.Message msg = myHandler.obtainMessage();
-                                    msg.what = 1;
+                                    msg.what = DOWNLOAD_ORIGIN_IMAGE_SUCCEED;
                                     Bundle bundle = new Bundle();
                                     bundle.putString("path", file.getAbsolutePath());
                                     bundle.putInt(JPushDemoApplication.POSITION,
@@ -639,7 +642,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                     msg.sendToTarget();
                                 } else {
                                     android.os.Message msg = myHandler.obtainMessage();
-                                    msg.what = 4;
+                                    msg.what = DOWNLOAD_ORIGIN_IMAGE_FAILED;
                                     Bundle bundle = new Bundle();
                                     bundle.putInt(JPushDemoApplication.STATUS, status);
                                     msg.setData(bundle);
@@ -664,26 +667,26 @@ public class BrowserViewPagerActivity extends BaseActivity {
             BrowserViewPagerActivity activity = mActivity.get();
             if(activity != null){
                 switch (msg.what) {
-                    case 1:
+                    case DOWNLOAD_ORIGIN_IMAGE_SUCCEED:
                         //更新图片并显示
                         Bundle bundle = msg.getData();
                         activity.mPathList.set(bundle.getInt(JPushDemoApplication.POSITION), bundle.getString("path"));
                         activity.mViewPager.getAdapter().notifyDataSetChanged();
                         activity.mLoadBtn.setVisibility(View.GONE);
                         break;
-                    case 2:
+                    case DOWNLOAD_PROGRESS:
                         activity.mProgressDialog.setProgress(msg.getData().getInt("progress"));
                         break;
-                    case 3:
+                    case DOWNLOAD_COMPLETED:
                         activity.mProgressDialog.dismiss();
                         break;
-                    case 4:
+                    case DOWNLOAD_ORIGIN_IMAGE_FAILED:
                         if(activity.mProgressDialog != null){
                             activity.mProgressDialog.dismiss();
                         }
                         HandleResponseCode.onHandle(activity, msg.getData().getInt(JPushDemoApplication.STATUS), false);
                         break;
-                    case 5:
+                    case SEND_PICTURE:
                         Intent intent = new Intent();
                         intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetID);
                         intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupID);
@@ -692,10 +695,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         activity.finish();
                         break;
                     //显示下载原图进度
-                    case 6:
+                    case DOWNLOAD_ORIGIN_PROGRESS:
                         activity.mLoadBtn.setText(msg.getData().getInt("progress") + "%");
                         break;
-                    case 7:
+                    case DOWNLOAD_ORIGIN_COMPLETED:
                         activity.mLoadBtn.setText(activity.getString(R.string.download_completed_toast));
                         activity.mLoadBtn.setVisibility(View.GONE);
                         break;
