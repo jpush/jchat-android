@@ -33,6 +33,8 @@ public class FriendInfoActivity extends BaseActivity {
     private double mDensity;
     private final MyHandler myHandler = new MyHandler(this);
     private String mNickname;
+    private final static int GET_INFO_SUCCEED = 1;
+    private final static int GET_INFO_FAILED = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,12 +74,12 @@ public class FriendInfoActivity extends BaseActivity {
                         NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
                     }
                     android.os.Message msg = myHandler.obtainMessage();
-                    msg.what = 1;
+                    msg.what = GET_INFO_SUCCEED;
                     msg.obj = userInfo;
                     msg.sendToTarget();
                 } else {
                     android.os.Message msg = myHandler.obtainMessage();
-                    msg.what = 2;
+                    msg.what = GET_INFO_FAILED;
                     Bundle bundle = new Bundle();
                     bundle.putInt("status", status);
                     msg.setData(bundle);
@@ -120,12 +122,12 @@ public class FriendInfoActivity extends BaseActivity {
             FriendInfoActivity activity = mActivity.get();
             if (activity != null) {
                 switch (msg.what) {
-                    case 1:
+                    case GET_INFO_SUCCEED:
                         activity.mUserInfo = (UserInfo) msg.obj;
                         activity.mFriendInfoView.initInfo(activity.mUserInfo, activity.mDensity);
                         activity.mNickname = activity.mUserInfo.getNickname();
                         break;
-                    case 2:
+                    case GET_INFO_FAILED:
                         HandleResponseCode.onHandle(activity, msg.getData().getInt("status"), false);
                         break;
                 }
@@ -150,7 +152,7 @@ public class FriendInfoActivity extends BaseActivity {
                 startActivity(intent);
             }
         } else {
-            JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback(false) {
+            JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
                 @Override
                 public void gotResult(int status, String desc, UserInfo userInfo) {
                     if (status == 0) {
@@ -161,12 +163,12 @@ public class FriendInfoActivity extends BaseActivity {
                             NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
                         }
                         android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = 1;
+                        msg.what = GET_INFO_SUCCEED;
                         msg.obj = userInfo;
                         msg.sendToTarget();
                     } else {
                         android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = 2;
+                        msg.what = GET_INFO_FAILED;
                         Bundle bundle = new Bundle();
                         bundle.putInt("status", status);
                         msg.setData(bundle);

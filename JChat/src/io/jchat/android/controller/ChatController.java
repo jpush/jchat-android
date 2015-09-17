@@ -142,7 +142,12 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             Log.i("Tag", "targetID is " + mTargetID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
             if (mConv != null) {
-                mChatView.setChatTitle(((UserInfo)mConv.getTargetInfo()).getNickname(), mDensityDpi);
+                UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
+                if (TextUtils.isEmpty(userInfo.getNickname())){
+                    mChatView.setChatTitle(userInfo.getUserName(), mDensityDpi);
+                }else {
+                    mChatView.setChatTitle(userInfo.getNickname(), mDensityDpi);
+                }
             }
         }
 
@@ -153,7 +158,12 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             // 是单聊
         } else if (mConv == null && !mIsGroup) {
             mConv = Conversation.createSingleConversation(mTargetID);
-            mChatView.setChatTitle(((UserInfo)mConv.getTargetInfo()).getNickname(), mDensityDpi);
+            UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
+            if (TextUtils.isEmpty(userInfo.getNickname())){
+                mChatView.setChatTitle(userInfo.getUserName(), mDensityDpi);
+            }else {
+                mChatView.setChatTitle(userInfo.getNickname(), mDensityDpi);
+            }
         }
         if (mConv != null) {
             if (mIsGroup) {

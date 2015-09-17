@@ -61,6 +61,8 @@ public class FriendInfoView extends LinearLayout{
                 Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
                         (int)(100 * density), (int)(100 * density));
                 mAvatarIv.setImageBitmap(bitmap);
+            }else {
+                mAvatarIv.setImageResource(R.drawable.head_icon);
             }
             if(TextUtils.isEmpty(userInfo.getNickname())){
                 mNickNameTv.setText(userInfo.getUserName());

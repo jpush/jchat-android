@@ -162,6 +162,9 @@ public class ConversationListAdapter extends BaseAdapter {
                 case eventNotification:
                     viewHolder.content.setText(mContext.getString(R.string.group_notification));
                     break;
+                case custom:
+                    viewHolder.content.setText(mContext.getString(R.string.type_custom));
+                    break;
                 default:
                     viewHolder.content.setText(((TextContent) lastMsg.getContent()).getText());
             }
