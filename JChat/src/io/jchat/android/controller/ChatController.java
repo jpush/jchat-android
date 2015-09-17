@@ -25,6 +25,7 @@ import java.util.Locale;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -242,7 +243,12 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                     @Override
                     public void gotResult(final int status, String desc) {
                         Log.i("ChatController", "send callback " + status + " desc " + desc);
-                        if (status != 0) {
+                        if (status == 803008) {
+                            CustomContent customContent = new CustomContent();
+                            customContent.setBooleanValue("blackList", true);
+                            Message customMsg = mConv.createSendMessage(customContent);
+                            mChatAdapter.addMsgToList(customMsg);
+                        }else if (status != 0){
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                         // 发送成功或失败都要刷新一次

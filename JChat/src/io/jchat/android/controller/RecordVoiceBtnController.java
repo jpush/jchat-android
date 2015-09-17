@@ -21,12 +21,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.Message;
-import cn.jpush.im.android.api.content.VoiceContent;
-import io.jchat.android.R;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,9 +30,15 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.CustomContent;
+import cn.jpush.im.android.api.content.VoiceContent;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.R;
 import io.jchat.android.adapter.MsgListAdapter;
 import io.jchat.android.tools.HandleResponseCode;
-import cn.jpush.im.api.BasicCallback;
 
 public class RecordVoiceBtnController extends Button {
 
@@ -46,6 +46,9 @@ public class RecordVoiceBtnController extends Button {
 
     private MsgListAdapter mMsgListAdapter;
     private static final int MIN_INTERVAL_TIME = 1000;// 1s
+    private final static int CANCEL_RECORD = 5;
+    private final static int SEND_CALLBACK = 6;
+    private final static int START_RECORD = 7;
     //依次为按下录音键坐标、手指离开屏幕坐标、手指移动坐标
     float mTouchY1, mTouchY2, mTouchY;
     private final float MIN_CANCEL_DISTANCE = 300f;
@@ -121,7 +124,7 @@ public class RecordVoiceBtnController extends Button {
                         @Override
                         public void run() {
                             android.os.Message msg = myHandler.obtainMessage();
-                            msg.what = 7;
+                            msg.what = START_RECORD;
                             msg.sendToTarget();
                         }
                     }, 500);
@@ -154,7 +157,7 @@ public class RecordVoiceBtnController extends Button {
                 //手指上滑到超出限定后，显示松开取消发送提示
                 if (mTouchY1 - mTouchY > MIN_CANCEL_DISTANCE) {
                     this.setText(mContext.getString(R.string.cancel_record_voice_hint));
-                    mVolumeHandler.sendEmptyMessage(5);
+                    mVolumeHandler.sendEmptyMessage(CANCEL_RECORD);
                     if (mThread != null)
                         mThread.exit();
                     mThread = null;
@@ -250,7 +253,7 @@ public class RecordVoiceBtnController extends Button {
                             public void gotResult(int status, String desc) {
                                 //Callback返回时刷新界面
                                 android.os.Message msg = myHandler.obtainMessage();
-                                msg.what = 6;
+                                msg.what = SEND_CALLBACK;
                                 Bundle bundle = new Bundle();
                                 bundle.putInt("status", status);
                                 bundle.putString("desc", desc);
@@ -447,7 +450,7 @@ public class RecordVoiceBtnController extends Button {
                 } else {
                     // 没有进入倒计时状态
                     if (!controller.mTimeUp) {
-                        if (msg.what < 5)
+                        if (msg.what < CANCEL_RECORD)
                             controller.mRecordHintTv.setText(controller.mContext
                                     .getString(R.string.move_to_cancel_hint));
                         else
@@ -455,7 +458,7 @@ public class RecordVoiceBtnController extends Button {
                                     .getString(R.string.cancel_record_voice_hint));
                         // 进入倒计时
                     } else {
-                        if (msg.what == 5) {
+                        if (msg.what == CANCEL_RECORD) {
                             controller.mRecordHintTv.setText(controller.mContext
                                     .getString(R.string.cancel_record_voice_hint));
                             if (!mIsPressed)
@@ -481,16 +484,22 @@ public class RecordVoiceBtnController extends Button {
             RecordVoiceBtnController controller = mController.get();
             if (controller != null){
                 switch (msg.what) {
-                    case 6:
+                    case SEND_CALLBACK:
                         int status = msg.getData().getInt("status", -1);
-                        if(status != 0){
+                        if(status == 803008){
+                            CustomContent customContent = new CustomContent();
+                            customContent.setBooleanValue("blackList", true);
+                            Message customMsg = controller.mConv.createSendMessage(customContent);
+                            controller.mMsgListAdapter.addMsgToList(customMsg);
+                            return;
+                        }else if (status != 0){
                             HandleResponseCode.onHandle(controller.mContext, status, false);
                             Log.i("RecordVoiceController", "desc：" + msg.getData().getString("desc"));
                             Log.i("RecordVoiceController", "refreshing!");
                         }
                         controller.mMsgListAdapter.notifyDataSetChanged();
                         break;
-                    case 7:
+                    case START_RECORD:
                         if (mIsPressed)
                             controller.initDialogAndStartRecord();
                         break;

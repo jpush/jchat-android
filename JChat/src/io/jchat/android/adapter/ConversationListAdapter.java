@@ -10,18 +10,17 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import cn.jpush.im.android.api.content.TextContent;
-import cn.jpush.im.android.api.model.Message;
-import cn.jpush.im.android.api.model.UserInfo;
-import io.jchat.android.R;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.content.CustomContent;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
-
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
+import io.jchat.android.R;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.SortConvList;
@@ -163,7 +162,10 @@ public class ConversationListAdapter extends BaseAdapter {
                     viewHolder.content.setText(mContext.getString(R.string.group_notification));
                     break;
                 case custom:
-                    viewHolder.content.setText(mContext.getString(R.string.type_custom));
+                    CustomContent content = (CustomContent)lastMsg.getContent();
+                    if (content.getBooleanValue("blackList")){
+                        viewHolder.content.setText(mContext.getString(R.string.server_803008));
+                    }else viewHolder.content.setText(mContext.getString(R.string.type_custom));
                     break;
                 default:
                     viewHolder.content.setText(((TextContent) lastMsg.getContent()).getText());

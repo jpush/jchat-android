@@ -38,6 +38,7 @@ import android.widget.Toast;
 
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -511,7 +512,7 @@ public class MsgListAdapter extends BaseAdapter {
                 handleGroupChangeMsg(msg, holder);
                 break;
             default:
-                handleCustomMsg(holder);
+                handleCustomMsg(msg, holder);
         }
         //显示时间
         TextView msgTime = (TextView) convertView
@@ -700,8 +701,11 @@ public class MsgListAdapter extends BaseAdapter {
         holder.groupChange.setVisibility(View.VISIBLE);
     }
 
-    private void handleCustomMsg(ViewHolder holder) {
-        holder.groupChange.setVisibility(View.GONE);
+    private void handleCustomMsg(Message msg, ViewHolder holder) {
+        CustomContent content = (CustomContent)msg.getContent();
+        if (content.getBooleanValue("blackList")){
+            holder.groupChange.setText(mContext.getString(R.string.server_803008));
+        }else holder.groupChange.setVisibility(View.GONE);
     }
 
     private void handleTextMsg(final Message msg, final ViewHolder holder) {
@@ -978,7 +982,12 @@ public class MsgListAdapter extends BaseAdapter {
                         holder.progressTv.setVisibility(View.GONE);
                         holder.sendingIv.clearAnimation();
                         holder.sendingIv.setVisibility(View.GONE);
-                    }
+                    }else if (status == 803008){
+                        CustomContent customContent = new CustomContent();
+                        customContent.setBooleanValue("blackList", true);
+                        Message customMsg = mConv.createSendMessage(customContent);
+                        addMsgToList(customMsg);
+                    }else HandleResponseCode.onHandle(mContext, status, false);
                 }
             });
         }
