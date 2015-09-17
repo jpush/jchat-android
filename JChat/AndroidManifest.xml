@@ -115,7 +115,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="cn.jpush.android.intent.DaemonService" />
-                <category android:name="您应用的包名" />
+                <category android:name="io.jchat.android" />
             </intent-filter>
 
         </service>
