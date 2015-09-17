@@ -18,10 +18,8 @@ import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import java.io.UnsupportedEncodingException;
-
-import io.jchat.android.R;
 import cn.jpush.im.android.api.model.Conversation;
+import io.jchat.android.R;
 import io.jchat.android.adapter.MsgListAdapter;
 import io.jchat.android.controller.RecordVoiceBtnController;
 import io.jchat.android.tools.SharePreferenceManager;
@@ -34,6 +32,7 @@ public class ChatView extends RelativeLayout{
 	private ImageButton mReturnBtn;
 	private ImageButton mRightBtn;
 	private TextView mChatTitle;
+    private TextView mGroupNumTv;
 	private RecordVoiceBtnController mVoiceBtn;
 	public EditText mChatInputEt;
 	private ImageButton mSwitchIb;
@@ -62,11 +61,17 @@ public class ChatView extends RelativeLayout{
 	}
 
 
-	public void initModule(){
+	public void initModule(float density, int densityDpi){
 		mChatListView = (DropDownListView) findViewById(R.id.chat_list);
 		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
 		mRightBtn = (ImageButton) findViewById(R.id.right_btn);
 		mChatTitle = (TextView) findViewById(R.id.title);
+        mGroupNumTv = (TextView) findViewById(R.id.group_num_tv);
+        if (densityDpi <= 160){
+            mChatTitle.setMaxWidth((int)(180 * density + 0.5f));
+        }else if (densityDpi <= 240){
+            mChatTitle.setMaxWidth((int)(190 * density + 0.5f));
+        }else mChatTitle.setMaxWidth((int)(200 * density + 0.5f));
 		mVoiceBtn = (RecordVoiceBtnController) findViewById(R.id.voice_btn);
 		mChatInputEt = (EditText) findViewById(R.id.chat_input_et);
 		mSwitchIb = (ImageButton) findViewById(R.id.switch_voice_ib);
@@ -273,47 +278,14 @@ public class ChatView extends RelativeLayout{
 
 
 
-	public void setChatTitle(String title, int densityDpi){
-        if (densityDpi <= 160){
-            if (title.length() > 6){
-                title = title.substring(0, 6);
-                title = title + "...";
-            }
-        }else if (densityDpi <= 240){
-            if (title.length() > 8){
-                title = title.substring(0, 8);
-                title = title + "...";
-            }
-        }else {
-            if (title.length() > 10){
-                title = title.substring(0, 10);
-                title = title + "...";
-            }
-        }
+	public void setChatTitle(String title){
 		mChatTitle.setText(title);
 	}
 
 	//设置群聊名字
-	public void setChatTitle(String name, int count, int densityDpi){
-        String title;
-        if (densityDpi <= 160){
-            if (name.length() > 6){
-                name = name.substring(0, 6);
-                name = name + "...";
-            }
-        }else if (densityDpi <= 240){
-            if (name.length() > 8){
-                name = name.substring(0, 8);
-                name = name + "...";
-            }
-        }else {
-            if (name.length() > 10){
-                name = name.substring(0, 10);
-                name = name + "...";
-            }
-        }
-        title = name + mContext.getString(R.string.combine_title);
-		mChatTitle.setText(String.format(title, count));
+	public void setChatTitle(String name, int count){
+        mChatTitle.setText(name);
+        mGroupNumTv.setText(String.format(mContext.getString(R.string.combine_title), count));
 	}
 
 	public void clearInput() {

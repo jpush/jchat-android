@@ -17,26 +17,28 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.Calendar;
+import java.util.Locale;
+
+import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
+import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.Calendar;
-import java.util.Locale;
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.content.TextContent;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.adapter.MsgListAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.entity.Event;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ChatView;
-import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.view.DropDownListView;
 
 public class ChatController implements OnClickListener, View.OnTouchListener,
@@ -59,12 +61,10 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     private String mGroupName;
     Window mWindow;
     InputMethodManager mImm;
-    private int mDensityDpi;
 
-    public ChatController(ChatView mChatView, ChatActivity context, int densityDpi) {
+    public ChatController(ChatView mChatView, ChatActivity context) {
         this.mChatView = mChatView;
         this.mContext = context;
-        this.mDensityDpi = densityDpi;
         this.mWindow = mContext.getWindow();
         this.mImm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         // 得到消息列表
@@ -85,7 +85,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             //判断是否从创建群组跳转过来
             if (fromGroup) {
                 mChatView.setChatTitle(mContext.getString(R.string.group),
-                        intent.getIntExtra("memberCount", 0), mDensityDpi);
+                        intent.getIntExtra("memberCount", 0));
                 mConv = JMessageClient.getGroupConversation(mGroupID);
             } else {
                 if (mTargetID != null){
@@ -99,18 +99,18 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                 if (userInfo != null) {
                     if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
                         mGroupName = mGroupInfo.getGroupName();
-                        mChatView.setChatTitle(mGroupName, mGroupInfo.getGroupMembers().size(), mDensityDpi);
+                        mChatView.setChatTitle(mGroupName, mGroupInfo.getGroupMembers().size());
                     } else {
                         mChatView.setChatTitle(mContext.getString(R.string.group),
-                                mGroupInfo.getGroupMembers().size(), mDensityDpi);
+                                mGroupInfo.getGroupMembers().size());
                     }
                     mChatView.showRightBtn();
                 } else {
                     if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
                         mGroupName = mGroupInfo.getGroupName();
-                        mChatView.setChatTitle(mGroupName, mDensityDpi);
+                        mChatView.setChatTitle(mGroupName);
                     } else {
-                        mChatView.setChatTitle(mContext.getString(R.string.group), mDensityDpi);
+                        mChatView.setChatTitle(mContext.getString(R.string.group));
                     }
                     mChatView.dismissRightBtn();
                 }
@@ -125,10 +125,10 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                                 if (info != null){
                                     mGroupName = groupInfo.getGroupName();
                                     mChatView.setChatTitle(mGroupName,
-                                            groupInfo.getGroupMembers().size(), mDensityDpi);
+                                            groupInfo.getGroupMembers().size());
                                 }else {
                                     mGroupName = groupInfo.getGroupName();
-                                    mChatView.setChatTitle(mGroupName, mDensityDpi);
+                                    mChatView.setChatTitle(mGroupName);
                                 }
                             }
                         }
@@ -144,9 +144,9 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             if (mConv != null) {
                 UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
                 if (TextUtils.isEmpty(userInfo.getNickname())){
-                    mChatView.setChatTitle(userInfo.getUserName(), mDensityDpi);
+                    mChatView.setChatTitle(userInfo.getUserName());
                 }else {
-                    mChatView.setChatTitle(userInfo.getNickname(), mDensityDpi);
+                    mChatView.setChatTitle(userInfo.getNickname());
                 }
             }
         }
@@ -160,9 +160,9 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             mConv = Conversation.createSingleConversation(mTargetID);
             UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
             if (TextUtils.isEmpty(userInfo.getNickname())){
-                mChatView.setChatTitle(userInfo.getUserName(), mDensityDpi);
+                mChatView.setChatTitle(userInfo.getUserName());
             }else {
-                mChatView.setChatTitle(userInfo.getNickname(), mDensityDpi);
+                mChatView.setChatTitle(userInfo.getNickname());
             }
         }
         if (mConv != null) {

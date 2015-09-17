@@ -15,23 +15,21 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.List;
+
+import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.enums.ContentType;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.List;
-
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.ChatController;
 import io.jchat.android.controller.RecordVoiceBtnController;
@@ -49,7 +47,6 @@ public class ChatActivity extends BaseActivity {
     private ChatController mChatController;
     private MyReceiver mReceiver;
     private String mTargetID;
-    private int mDensityDpi;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,11 +55,10 @@ public class ChatActivity extends BaseActivity {
         JMessageClient.registerEventReceiver(this);
         setContentView(R.layout.activity_chat);
         mChatView = (ChatView) findViewById(R.id.chat_view);
-        mChatView.initModule();
         DisplayMetrics dm = new DisplayMetrics();
         this.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDensityDpi = dm.densityDpi;
-        mChatController = new ChatController(mChatView, this, mDensityDpi);
+        mChatView.initModule(dm.density, dm.densityDpi);
+        mChatController = new ChatController(mChatView, this);
         mChatView.setListeners(mChatController);
         mChatView.setOnTouchListener(mChatController);
         mChatView.setOnSizeChangedListener(mChatController);
@@ -104,12 +100,12 @@ public class ChatActivity extends BaseActivity {
                 if (mChatController.getConversation() != null) {
                     int num = msg.getData().getInt("membersCount");
                     String groupName = msg.getData().getString(JPushDemoApplication.GROUP_NAME);
-                    mChatView.setChatTitle(groupName, num, mDensityDpi);
+                    mChatView.setChatTitle(groupName, num);
                 }
                 break;
             case JPushDemoApplication.REFRESH_GROUP_NUM:
                 int num = msg.getData().getInt("membersCount");
-                mChatView.setChatTitle(ChatActivity.this.getString(R.string.group), num, mDensityDpi);
+                mChatView.setChatTitle(ChatActivity.this.getString(R.string.group), num);
                 break;
         }
     }
@@ -275,21 +271,20 @@ public class ChatActivity extends BaseActivity {
                 if (userInfo != null){
                     if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.NAME))) {
                         mChatView.setChatTitle(this.getString(R.string.group),
-                                data.getIntExtra("currentCount", 0), mDensityDpi);
+                                data.getIntExtra("currentCount", 0));
                     } else {
                         mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.NAME),
-                                data.getIntExtra("currentCount", 0), mDensityDpi);
+                                data.getIntExtra("currentCount", 0));
                     }
                 }else {
                     if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.NAME))) {
-                        mChatView.setChatTitle(this.getString(R.string.group), mDensityDpi);
+                        mChatView.setChatTitle(this.getString(R.string.group));
                     } else {
-                        mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.NAME),
-                                mDensityDpi);
+                        mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.NAME));
                     }
                 }
 
-            }else mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.NAME), mDensityDpi);
+            }else mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.NAME));
             if (data.getBooleanExtra("deleteMsg", false)){
                 mChatController.getAdapter().clearMsgList();
             }
@@ -297,7 +292,7 @@ public class ChatActivity extends BaseActivity {
             if (!mChatController.isGroup()) {
                 String nickname = data.getStringExtra(JPushDemoApplication.NICKNAME);
                 if (nickname != null) {
-                    mChatView.setChatTitle(nickname, mDensityDpi);
+                    mChatView.setChatTitle(nickname);
                 }
             }
         }
@@ -348,7 +343,7 @@ public class ChatActivity extends BaseActivity {
                                 mChatView.dismissRightBtn();
                                 GroupInfo groupInfo = (GroupInfo)mChatController.getConversation()
                                         .getTargetInfo();
-                                mChatView.setChatTitle(groupInfo.getGroupName(), mDensityDpi);
+                                mChatView.setChatTitle(groupInfo.getGroupName());
                             }
                         });
                     }else {
