@@ -14,6 +14,7 @@ import android.view.View;
 import java.io.File;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.event.UserDeletedEvent;
 import cn.jpush.im.android.api.event.UserLogoutEvent;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -71,10 +72,32 @@ public class BaseActivity extends Activity {
         dialog.show();
     }
 
+    public void onEventMainThread(UserDeletedEvent event){
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                Intent intent = new Intent();
+                intent.setClass(BaseActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                BaseActivity.this.finish();
+            }
+        };
+        Context context = BaseActivity.this;
+        String title = context.getString(R.string.user_logout_dialog_title);
+        String msg = context.getString(R.string.user_delete_hint_message);
+        dialog = DialogCreator.createBaseCustomDialog(context, title, msg, listener);
+        dialog.show();
+    }
+
 
     @Override
     protected void onDestroy() {
         JMessageClient.unRegisterEventReceiver(this);
+        if (dialog != null){
+            dialog.dismiss();
+        }
         super.onDestroy();
     }
 

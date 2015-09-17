@@ -97,6 +97,7 @@
     <string name="type_location">[位置]</string>
     <string name="video">视频</string>
     <string name="group_notification">[群成员变动]</string>
+    <string name="type_custom">[自定义消息]</string>
     <string name="yesterday">昨天</string>
     <string name="before_dawn">凌晨</string>
     <string name="morning">早上</string>
@@ -241,7 +242,7 @@
     <string name="server_803003">发送失败，目标用户未注册或从未登录过</string>
     <string name="server_803004">发送失败，此群已被删除</string>
     <string name="server_803005">您已被请出此群，不能发送消息</string>
-    <string name="server_803008">您已被拉入黑名单，发送失败</string>
+    <string name="server_803008">消息已发出，但被对方拒收了。</string>
     <string name="server_808003">讨论组数量已达上限，创建失败</string>
     <string name="server_808004">群组名长度超出上限</string>
     <string name="server_810003">用户不属于该群组</string>

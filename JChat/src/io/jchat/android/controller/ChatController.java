@@ -17,26 +17,29 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.Calendar;
+import java.util.Locale;
+
+import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.content.CustomContent;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
+import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.Calendar;
-import java.util.Locale;
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.content.TextContent;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.adapter.MsgListAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.entity.Event;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ChatView;
-import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.view.DropDownListView;
 
 public class ChatController implements OnClickListener, View.OnTouchListener,
@@ -59,12 +62,10 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     private String mGroupName;
     Window mWindow;
     InputMethodManager mImm;
-    private int mDensityDpi;
 
-    public ChatController(ChatView mChatView, ChatActivity context, int densityDpi) {
+    public ChatController(ChatView mChatView, ChatActivity context) {
         this.mChatView = mChatView;
         this.mContext = context;
-        this.mDensityDpi = densityDpi;
         this.mWindow = mContext.getWindow();
         this.mImm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         // 得到消息列表
@@ -85,7 +86,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             //判断是否从创建群组跳转过来
             if (fromGroup) {
                 mChatView.setChatTitle(mContext.getString(R.string.group),
-                        intent.getIntExtra("memberCount", 0), mDensityDpi);
+                        intent.getIntExtra("memberCount", 0));
                 mConv = JMessageClient.getGroupConversation(mGroupID);
             } else {
                 if (mTargetID != null){
@@ -99,18 +100,18 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                 if (userInfo != null) {
                     if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
                         mGroupName = mGroupInfo.getGroupName();
-                        mChatView.setChatTitle(mGroupName, mGroupInfo.getGroupMembers().size(), mDensityDpi);
+                        mChatView.setChatTitle(mGroupName, mGroupInfo.getGroupMembers().size());
                     } else {
                         mChatView.setChatTitle(mContext.getString(R.string.group),
-                                mGroupInfo.getGroupMembers().size(), mDensityDpi);
+                                mGroupInfo.getGroupMembers().size());
                     }
                     mChatView.showRightBtn();
                 } else {
                     if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
                         mGroupName = mGroupInfo.getGroupName();
-                        mChatView.setChatTitle(mGroupName, mDensityDpi);
+                        mChatView.setChatTitle(mGroupName);
                     } else {
-                        mChatView.setChatTitle(mContext.getString(R.string.group), mDensityDpi);
+                        mChatView.setChatTitle(mContext.getString(R.string.group));
                     }
                     mChatView.dismissRightBtn();
                 }
@@ -119,10 +120,17 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                     @Override
                     public void gotResult(int status, String desc, GroupInfo groupInfo) {
                         if (status == 0){
+                            UserInfo info = groupInfo.getGroupMemberInfo(JMessageClient.getMyInfo()
+                                    .getUserName());
                             if (!TextUtils.isEmpty(groupInfo.getGroupName())){
-                                mGroupName = groupInfo.getGroupName();
-                                mChatView.setChatTitle(mGroupName,
-                                        groupInfo.getGroupMembers().size(), mDensityDpi);
+                                if (info != null){
+                                    mGroupName = groupInfo.getGroupName();
+                                    mChatView.setChatTitle(mGroupName,
+                                            groupInfo.getGroupMembers().size());
+                                }else {
+                                    mGroupName = groupInfo.getGroupName();
+                                    mChatView.setChatTitle(mGroupName);
+                                }
                             }
                         }
                     }
@@ -135,7 +143,12 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             Log.i("Tag", "targetID is " + mTargetID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
             if (mConv != null) {
-                mChatView.setChatTitle(((UserInfo)mConv.getTargetInfo()).getNickname(), mDensityDpi);
+                UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
+                if (TextUtils.isEmpty(userInfo.getNickname())){
+                    mChatView.setChatTitle(userInfo.getUserName());
+                }else {
+                    mChatView.setChatTitle(userInfo.getNickname());
+                }
             }
         }
 
@@ -146,7 +159,12 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             // 是单聊
         } else if (mConv == null && !mIsGroup) {
             mConv = Conversation.createSingleConversation(mTargetID);
-            mChatView.setChatTitle(((UserInfo)mConv.getTargetInfo()).getNickname(), mDensityDpi);
+            UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
+            if (TextUtils.isEmpty(userInfo.getNickname())){
+                mChatView.setChatTitle(userInfo.getUserName());
+            }else {
+                mChatView.setChatTitle(userInfo.getNickname());
+            }
         }
         if (mConv != null) {
             if (mIsGroup) {
@@ -225,7 +243,12 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                     @Override
                     public void gotResult(final int status, String desc) {
                         Log.i("ChatController", "send callback " + status + " desc " + desc);
-                        if (status != 0) {
+                        if (status == 803008) {
+                            CustomContent customContent = new CustomContent();
+                            customContent.setBooleanValue("blackList", true);
+                            Message customMsg = mConv.createSendMessage(customContent);
+                            mChatAdapter.addMsgToList(customMsg);
+                        }else if (status != 0){
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                         // 发送成功或失败都要刷新一次

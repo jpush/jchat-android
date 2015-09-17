@@ -257,7 +257,11 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                         }
                     }
                 }
-                viewTag.name.setText(userInfo.getNickname());
+                if (TextUtils.isEmpty(userInfo.getNickname())){
+                    viewTag.name.setText(userInfo.getUserName());
+                }else {
+                    viewTag.name.setText(userInfo.getNickname());
+                }
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
             } else {

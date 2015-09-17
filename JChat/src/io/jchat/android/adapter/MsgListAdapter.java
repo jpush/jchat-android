@@ -38,6 +38,7 @@ import android.widget.Toast;
 
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -77,6 +78,7 @@ import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.TimeFormat;
 import io.jchat.android.view.CircleImageView;
 import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.view.LoginDialog;
 
 @SuppressLint("NewApi")
 public class MsgListAdapter extends BaseAdapter {
@@ -510,7 +512,7 @@ public class MsgListAdapter extends BaseAdapter {
                 handleGroupChangeMsg(msg, holder);
                 break;
             default:
-                handleCustomMsg(holder);
+                handleCustomMsg(msg, holder);
         }
         //显示时间
         TextView msgTime = (TextView) convertView
@@ -699,8 +701,11 @@ public class MsgListAdapter extends BaseAdapter {
         holder.groupChange.setVisibility(View.VISIBLE);
     }
 
-    private void handleCustomMsg(ViewHolder holder) {
-        holder.groupChange.setVisibility(View.GONE);
+    private void handleCustomMsg(Message msg, ViewHolder holder) {
+        CustomContent content = (CustomContent)msg.getContent();
+        if (content.getBooleanValue("blackList")){
+            holder.groupChange.setText(mContext.getString(R.string.server_803008));
+        }else holder.groupChange.setVisibility(View.GONE);
     }
 
     private void handleTextMsg(final Message msg, final ViewHolder holder) {
@@ -803,6 +808,7 @@ public class MsgListAdapter extends BaseAdapter {
 
     // 处理图片
     private void handleImgMsg(final Message msg, final ViewHolder holder, final int position) {
+        Log.d(TAG, "Image Message ID: " + msg.getId() + " Position: " + position);
         final ImageContent imgContent = (ImageContent) msg.getContent();
         // 先拿本地缩略图
         final String path = imgContent.getLocalThumbnailPath();
@@ -829,6 +835,7 @@ public class MsgListAdapter extends BaseAdapter {
                 setPictureScale(path, holder.picture);
                 Picasso.with(mContext).load(new File(path))
                         .into(holder.picture);
+                Log.d(TAG, "Image Message Path: " + path);
             }
             //群聊中显示昵称
             if (mIsGroup) {
@@ -870,6 +877,14 @@ public class MsgListAdapter extends BaseAdapter {
                     holder.picture.setAlpha(1.0f);
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
+                    if (!TextUtils.isEmpty(imgContent.getStringExtra("tempPath"))){
+                        File file = new File(imgContent.getStringExtra("tempPath"));
+                        if (file.isFile()){
+                            if (file.delete()){
+                                Log.d(TAG, "delete temp picture success");
+                            }
+                        }
+                    }
                     break;
                 case send_fail:
                     if (sendingAnim != null) {
@@ -942,7 +957,7 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    private void sendingImage(final ViewHolder holder, Animation sendingAnim, Message msg) {
+    private void sendingImage(final ViewHolder holder, final Animation sendingAnim, Message msg) {
         holder.picture.setAlpha(0.75f);
         holder.sendingIv.setVisibility(View.VISIBLE);
         holder.sendingIv.startAnimation(sendingAnim);
@@ -961,7 +976,18 @@ public class MsgListAdapter extends BaseAdapter {
             msg.setOnSendCompleteCallback(new BasicCallback() {
                 @Override
                 public void gotResult(final int status, String desc) {
-                    notifyDataSetChanged();
+                    Log.d(TAG, "Got result status: " + status);
+                    if (status == 0) {
+                        holder.picture.setAlpha(1f);
+                        holder.progressTv.setVisibility(View.GONE);
+                        holder.sendingIv.clearAnimation();
+                        holder.sendingIv.setVisibility(View.GONE);
+                    }else if (status == 803008){
+                        CustomContent customContent = new CustomContent();
+                        customContent.setBooleanValue("blackList", true);
+                        Message customMsg = mConv.createSendMessage(customContent);
+                        addMsgToList(customMsg);
+                    }else HandleResponseCode.onHandle(mContext, status, false);
                 }
             });
         }

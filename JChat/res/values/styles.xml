@@ -375,4 +375,12 @@
     <item name="android:maxHeight">@dimen/drop_down_list_header_progress_bar_height</item>
     </style>
 
+    <style name="TimePicker">
+        <item name="android:editTextStyle">@style/Widget.EditText.White</item>
+    </style>
+
+    <style name="Widget.EditText.White" parent="@android:style/Widget.EditText">
+        <item name="android:textColor">#1a1a1a</item>
+    </style>
+
 </resources>

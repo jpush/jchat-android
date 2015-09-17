@@ -110,12 +110,7 @@ public class ConversationListController implements OnClickListener,
     public void loadAvatarAndRefresh(String targetID, String path) {
         int size = (int) (50 * mDensity);
         NativeImageLoader.getInstance().putUserAvatar(targetID, path, size);
-        mContext.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mListAdapter.notifyDataSetChanged();
-            }
-        });
+        mListAdapter.notifyDataSetChanged();
     }
 
     @Override

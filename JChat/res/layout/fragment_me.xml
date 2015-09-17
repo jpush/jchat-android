@@ -35,10 +35,13 @@
 
             <TextView
                 android:id="@+id/nick_name_tv"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxWidth="200dp"
+                android:singleLine="true"
                 android:layout_marginTop="15dp"
-                android:gravity="center_horizontal"
+                android:gravity="center"
                 android:textColor="#fffdfe"
                 android:shadowColor="#000000"
                 android:shadowDx="1"

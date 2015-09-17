@@ -128,8 +128,7 @@ public class PickPictureActivity extends BaseActivity {
                         Thread thread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                final List<String> pathList = new ArrayList<String>();
-                                getThumbnailPictures(pathList);
+                                getThumbnailPictures();
                                 myHandler.sendEmptyMessageDelayed(SEND_PICTURE, 1000);
                             }
                         });
@@ -147,10 +146,8 @@ public class PickPictureActivity extends BaseActivity {
     /**
      * 获得选中图片的缩略图路径
      *
-     * @param pathList
      */
-    private void getThumbnailPictures(List<String> pathList) {
-        String tempPath;
+    private void getThumbnailPictures() {
         Bitmap bitmap;
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -158,27 +155,39 @@ public class PickPictureActivity extends BaseActivity {
         for (int i = 0; i < mPickedList.size(); i++) {
             final int index = i;
             //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
-            if (BitmapLoader.verifyPictureSize(mPickedList.get(i)))
-                pathList.add(mPickedList.get(i));
-            else {
-                bitmap = BitmapLoader.getBitmapFromFile(mPickedList.get(i), 720, 1280);
-                tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-                pathList.add(tempPath);
-            }
-
-            File file = new File(pathList.get(i));
-            ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
-                @Override
-                public void gotResult(int status, String desc, ImageContent imageContent) {
-                    if (status == 0){
-                        Message msg = mConv.createSendMessage(imageContent);
-                        mMsgIDs[index] = msg.getId();
-                    }else {
-                        Log.d("PickPictureActivity", "create image content failed! status:" + status);
-                        HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
+            if (BitmapLoader.verifyPictureSize(mPickedList.get(i))){
+                File file = new File(mPickedList.get(i));
+                ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, ImageContent imageContent) {
+                        if (status == 0){
+                            Message msg = mConv.createSendMessage(imageContent);
+                            mMsgIDs[index] = msg.getId();
+                        }else {
+                            Log.d("PickPictureActivity", "create image content failed! status:" + status);
+                            HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                bitmap = BitmapLoader.getBitmapFromFile(mPickedList.get(i), 720, 1280);
+                final String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
+                File file = new File(tempPath);
+                ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, ImageContent imageContent) {
+                        if (status == 0) {
+                            imageContent.setStringExtra("localPath", mPickedList.get(index));
+                            imageContent.setStringExtra("tempPath", tempPath);
+                            Message msg = mConv.createSendMessage(imageContent);
+                            mMsgIDs[index] = msg.getId();
+                        } else {
+                            Log.d("PickPictureActivity", "create image content failed! status:" + status);
+                            HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
+                        }
+                    }
+                });
+            }
         }
     }
 

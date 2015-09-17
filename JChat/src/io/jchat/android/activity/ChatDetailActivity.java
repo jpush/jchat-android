@@ -233,6 +233,10 @@ public class ChatDetailActivity extends BaseActivity {
         } else if (requestCode == MY_NAME_REQUEST_CODE) {
             Log.i(TAG, "myName = " + data.getStringExtra("resultName"));
             mChatDetailView.setMyName(data.getStringExtra("resultName"));
+        }else if (resultCode == JPushDemoApplication.RESULT_CODE_FRIEND_INFO){
+            if (data.getBooleanExtra("returnChatActivity", false)){
+                finish();
+            }
         }
     }
 
