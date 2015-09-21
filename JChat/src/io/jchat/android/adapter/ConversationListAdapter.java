@@ -163,7 +163,8 @@ public class ConversationListAdapter extends BaseAdapter {
                     break;
                 case custom:
                     CustomContent content = (CustomContent)lastMsg.getContent();
-                    if (content.getBooleanValue("blackList")){
+                    Boolean isBlackListHint = content.getBooleanValue("blackList");
+                    if (isBlackListHint != null && isBlackListHint){
                         viewHolder.content.setText(mContext.getString(R.string.server_803008));
                     }else viewHolder.content.setText(mContext.getString(R.string.type_custom));
                     break;
