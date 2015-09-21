@@ -703,7 +703,8 @@ public class MsgListAdapter extends BaseAdapter {
 
     private void handleCustomMsg(Message msg, ViewHolder holder) {
         CustomContent content = (CustomContent)msg.getContent();
-        if (content.getBooleanValue("blackList")){
+        Boolean isBlackListHint = content.getBooleanValue("blackList");
+        if (isBlackListHint != null && isBlackListHint){
             holder.groupChange.setText(mContext.getString(R.string.server_803008));
         }else holder.groupChange.setVisibility(View.GONE);
     }
@@ -914,10 +915,10 @@ public class MsgListAdapter extends BaseAdapter {
                 public void onClick(View arg0) {
                     Intent intent = new Intent();
                     intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
-                    intent.putExtra(JPushDemoApplication.POSITION, position);
                     intent.putExtra("msgID", msg.getId());
                     intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
-                    intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
+                    intent.putExtra("msgCount", mMsgList.size());
+                    intent.putIntegerArrayListExtra(JPushDemoApplication.MsgIDs, getImgMsgIDList());
                     intent.putExtra("fromChatActivity", true);
                     intent.setClass(mContext, BrowserViewPagerActivity.class);
                     mContext.startActivity(intent);
@@ -982,15 +983,25 @@ public class MsgListAdapter extends BaseAdapter {
                         holder.progressTv.setVisibility(View.GONE);
                         holder.sendingIv.clearAnimation();
                         holder.sendingIv.setVisibility(View.GONE);
-                    }else if (status == 803008){
+                    } else if (status == 803008) {
                         CustomContent customContent = new CustomContent();
                         customContent.setBooleanValue("blackList", true);
                         Message customMsg = mConv.createSendMessage(customContent);
                         addMsgToList(customMsg);
-                    }else HandleResponseCode.onHandle(mContext, status, false);
+                    } else HandleResponseCode.onHandle(mContext, status, false);
                 }
             });
         }
+    }
+
+    private ArrayList<Integer> getImgMsgIDList(){
+        ArrayList<Integer> imgMsgIDList = new ArrayList<Integer>();
+        for (Message msg : mMsgList){
+            if (msg.getContentType().equals(ContentType.image)){
+                imgMsgIDList.add(msg.getId());
+            }
+        }
+        return imgMsgIDList;
     }
 
     /**

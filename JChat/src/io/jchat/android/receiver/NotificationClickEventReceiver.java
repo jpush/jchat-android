@@ -29,26 +29,28 @@ public class NotificationClickEventReceiver {
             return;
         }
         Message msg = notificationClickEvent.getMessage();
-        String targetID = msg.getTargetID();
-        ConversationType type = msg.getTargetType();
-        Conversation conv;
-        if (type.equals(ConversationType.single)){
-            conv = JMessageClient.getSingleConversation(targetID);
-        }else conv = JMessageClient.getGroupConversation(Long.parseLong(targetID));
-        conv.resetUnreadCount();
-        Log.d("Notification", "Conversation unread msg reset");
-        Intent notificationIntent = new Intent(mContext, ChatActivity.class);
+        if (msg != null){
+            String targetID = msg.getTargetID();
+            ConversationType type = msg.getTargetType();
+            Conversation conv;
+            if (type.equals(ConversationType.single)){
+                conv = JMessageClient.getSingleConversation(targetID);
+            }else conv = JMessageClient.getGroupConversation(Long.parseLong(targetID));
+            conv.resetUnreadCount();
+            Log.d("Notification", "Conversation unread msg reset");
+            Intent notificationIntent = new Intent(mContext, ChatActivity.class);
 //        notificationIntent.setAction(Intent.ACTION_MAIN);
-        notificationIntent.putExtra("targetID", targetID);
-        if (ConversationType.group == type) {
-            notificationIntent.putExtra("isGroup", true);
-        } else {
-            notificationIntent.putExtra("isGroup", false);
+            notificationIntent.putExtra("targetID", targetID);
+            if (ConversationType.group == type) {
+                notificationIntent.putExtra("isGroup", true);
+            } else {
+                notificationIntent.putExtra("isGroup", false);
+            }
+            notificationIntent.putExtra("fromGroup", false);
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            mContext.startActivity(notificationIntent);
         }
-        notificationIntent.putExtra("fromGroup", false);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        mContext.startActivity(notificationIntent);
     }
 
 }
