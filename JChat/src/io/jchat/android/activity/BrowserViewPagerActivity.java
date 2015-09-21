@@ -24,20 +24,22 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import io.jchat.android.R;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import cn.jpush.im.android.api.model.Conversation;
+
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.MessageDirect;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.Message;
+import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
@@ -68,6 +70,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private boolean mFromChatActivity = true;
     private int mWidth;
     private int mHeight;
+    //当前消息数
+    private int mStart;
+    private int mOffset = 18;
     private Context mContext;
     private boolean mDownloading = false;
     private Long mGroupID;
@@ -111,14 +116,14 @@ public class BrowserViewPagerActivity extends BaseActivity {
         mLoadBtn = (Button) findViewById(R.id.load_image_btn);
 
         Intent intent = this.getIntent();
-        boolean isGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
-        if (isGroup) {
-            mGroupID = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+        mGroupID = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+        if (mGroupID != 0){
             mConv = JMessageClient.getGroupConversation(mGroupID);
-        } else {
+        }else {
             mTargetID = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
         }
+        mStart = intent.getIntExtra("msgCount", 0);
         mPosition = intent.getIntExtra(JPushDemoApplication.POSITION, 0);
         mFromChatActivity = intent.getBooleanExtra("fromChatActivity", true);
         boolean browserAvatar = intent.getBooleanExtra("browserAvatar", false);
@@ -201,6 +206,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 }
                 mMsg = mConv.getMessage(intent.getIntExtra("msgID", 0));
                 photoView = new PhotoView(mFromChatActivity, this);
+                int currentItem = mMsgIDList.indexOf(mMsg.getId());
                 try {
                     ImageContent ic = (ImageContent) mMsg.getContent();
                     //如果点击的是第一张图片并且图片未下载过，则显示大图
@@ -214,10 +220,14 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }
                     photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(mMsgIDList
                             .indexOf(mMsg.getId())), mWidth, mHeight));
-                    mViewPager.setCurrentItem(mMsgIDList.indexOf(mMsg.getId()));
+                    mViewPager.setCurrentItem(currentItem);
                 } catch (NullPointerException e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
-                    mViewPager.setCurrentItem(mMsgIDList.indexOf(mMsg.getId()));
+                    mViewPager.setCurrentItem(currentItem);
+                }finally {
+                    if (currentItem == 0){
+                        getImgMsg();
+                    }
                 }
             }
             // 在选择图片时点击预览图片
@@ -320,12 +330,12 @@ public class BrowserViewPagerActivity extends BaseActivity {
         public void onPageScrolled(final int i, float v, int i2) {
             checkPictureSelected(i);
             checkOriginPictureSelected();
-
             mPictureSelectedCb.setChecked(mSelectMap.get(i));
         }
 
         @Override
         public void onPageSelected(final int i) {
+            Log.d(TAG, "onPageSelected current position: " + i);
             if (mFromChatActivity) {
                 mMsg = mConv.getMessage(mMsgIDList.get(i));
                 Log.d(TAG, "onPageSelected Image Message ID: " + mMsg.getId());
@@ -340,6 +350,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 }else {
                     mLoadBtn.setVisibility(View.GONE);
                 }
+                if (i == 0){
+                    getImgMsg();
+                }
             } else {
                 mNumberTv.setText(i + 1 + "/" + mPathList.size());
             }
@@ -351,15 +364,51 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
     };
 
+    private void getImgMsg() {
+        ImageContent ic;
+        int msgSize = mMsgIDList.size();
+        List<Message> msgList = mConv.getMessagesFromNewest(mStart, mOffset);
+        mOffset = msgList.size();
+        if (mOffset > 0){
+            for (Message msg : msgList){
+                if (msg.getContentType().equals(ContentType.image)){
+                    mMsgIDList.add(0, msg.getId());
+                    ic = (ImageContent) msg.getContent();
+                    if (msg.getDirect().equals(MessageDirect.send)){
+                        if (TextUtils.isEmpty(ic.getStringExtra("localPath"))){
+                            if (!TextUtils.isEmpty(ic.getLocalPath())){
+                                mPathList.add(0, ic.getLocalPath());
+                            }else {
+                                mPathList.add(0, ic.getLocalThumbnailPath());
+                            }
+                        }else {
+                            mPathList.add(0, ic.getStringExtra("localPath"));
+                        }
+                    }else if (ic.getLocalPath() != null) {
+                        mPathList.add(0, ic.getLocalPath());
+                    } else mPathList.add(0, ic.getLocalThumbnailPath());
+                }
+            }
+            mStart += mOffset;
+            if (msgSize == mMsgIDList.size()){
+                getImgMsg();
+            }else {
+                mPosition = mMsgIDList.size() - msgSize;
+                mViewPager.setCurrentItem(mPosition);
+                mViewPager.getAdapter().notifyDataSetChanged();
+            }
+        }
+    }
+
     /**
      * 初始化会话中的所有图片路径
      */
     private void initImgPathList() {
-        List<Message> msgList = mConv.getAllMessage();
+        mMsgIDList = this.getIntent().getIntegerArrayListExtra(JPushDemoApplication.MsgIDs);
         Message msg;
         ImageContent ic;
-        for (int i = 0; i < msgList.size(); i++) {
-            msg = msgList.get(i);
+        for (int msgID : mMsgIDList){
+            msg = mConv.getMessage(msgID);
             if (msg.getContentType().equals(ContentType.image)) {
                 ic = (ImageContent) msg.getContent();
                 if (msg.getDirect().equals(MessageDirect.send)){
@@ -375,10 +424,32 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 }else if (ic.getLocalPath() != null) {
                     mPathList.add(ic.getLocalPath());
                 } else mPathList.add(ic.getLocalThumbnailPath());
-                mMsgIDList.add(msg.getId());
             }
         }
-        Log.d(TAG, "Image Message List: " + mPathList.toString());
+//        List<Message> msgList = mConv.getAllMessage();
+//        Message msg;
+//        ImageContent ic;
+//        for (int i = 0; i < msgList.size(); i++) {
+//            msg = msgList.get(i);
+//            if (msg.getContentType().equals(ContentType.image)) {
+//                ic = (ImageContent) msg.getContent();
+//                if (msg.getDirect().equals(MessageDirect.send)){
+//                    if (TextUtils.isEmpty(ic.getStringExtra("localPath"))){
+//                        if (!TextUtils.isEmpty(ic.getLocalPath())){
+//                            mPathList.add(ic.getLocalPath());
+//                        }else {
+//                            mPathList.add(ic.getLocalThumbnailPath());
+//                        }
+//                    }else {
+//                        mPathList.add(ic.getStringExtra("localPath"));
+//                    }
+//                }else if (ic.getLocalPath() != null) {
+//                    mPathList.add(ic.getLocalPath());
+//                } else mPathList.add(ic.getLocalThumbnailPath());
+//                mMsgIDList.add(msg.getId());
+//            }
+//        }
+//        Log.d(TAG, "Image Message List: " + mPathList.toString());
     }
 
     private OnClickListener listener = new OnClickListener() {
