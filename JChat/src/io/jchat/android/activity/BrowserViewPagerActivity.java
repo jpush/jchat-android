@@ -365,39 +365,50 @@ public class BrowserViewPagerActivity extends BaseActivity {
     };
 
     private void getImgMsg() {
-        ImageContent ic;
-        int msgSize = mMsgIDList.size();
-        List<Message> msgList = mConv.getMessagesFromNewest(mStart, mOffset);
-        mOffset = msgList.size();
-        if (mOffset > 0){
-            for (Message msg : msgList){
-                if (msg.getContentType().equals(ContentType.image)){
-                    mMsgIDList.add(0, msg.getId());
-                    ic = (ImageContent) msg.getContent();
-                    if (msg.getDirect().equals(MessageDirect.send)){
-                        if (TextUtils.isEmpty(ic.getStringExtra("localPath"))){
-                            if (!TextUtils.isEmpty(ic.getLocalPath())){
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ImageContent ic;
+                final int msgSize = mMsgIDList.size();
+                List<Message> msgList = mConv.getMessagesFromNewest(mStart, mOffset);
+                mOffset = msgList.size();
+                if (mOffset > 0){
+                    for (Message msg : msgList){
+                        if (msg.getContentType().equals(ContentType.image)){
+                            mMsgIDList.add(0, msg.getId());
+                            ic = (ImageContent) msg.getContent();
+                            if (msg.getDirect().equals(MessageDirect.send)){
+                                if (TextUtils.isEmpty(ic.getStringExtra("localPath"))){
+                                    if (!TextUtils.isEmpty(ic.getLocalPath())){
+                                        mPathList.add(0, ic.getLocalPath());
+                                    }else {
+                                        mPathList.add(0, ic.getLocalThumbnailPath());
+                                    }
+                                }else {
+                                    mPathList.add(0, ic.getStringExtra("localPath"));
+                                }
+                            }else if (ic.getLocalPath() != null) {
                                 mPathList.add(0, ic.getLocalPath());
-                            }else {
-                                mPathList.add(0, ic.getLocalThumbnailPath());
-                            }
-                        }else {
-                            mPathList.add(0, ic.getStringExtra("localPath"));
+                            } else mPathList.add(0, ic.getLocalThumbnailPath());
                         }
-                    }else if (ic.getLocalPath() != null) {
-                        mPathList.add(0, ic.getLocalPath());
-                    } else mPathList.add(0, ic.getLocalThumbnailPath());
+                    }
+                    mStart += mOffset;
+                    if (msgSize == mMsgIDList.size()){
+                        getImgMsg();
+                    }else {
+                        BrowserViewPagerActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mPosition = mMsgIDList.size() - msgSize;
+                                mViewPager.setCurrentItem(mPosition);
+                                mViewPager.getAdapter().notifyDataSetChanged();
+                            }
+                        });
+                    }
                 }
             }
-            mStart += mOffset;
-            if (msgSize == mMsgIDList.size()){
-                getImgMsg();
-            }else {
-                mPosition = mMsgIDList.size() - msgSize;
-                mViewPager.setCurrentItem(mPosition);
-                mViewPager.getAdapter().notifyDataSetChanged();
-            }
-        }
+        });
+        thread.start();
     }
 
     /**
