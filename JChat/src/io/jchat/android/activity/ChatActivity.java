@@ -345,7 +345,9 @@ public class ChatActivity extends BaseActivity {
                                 mChatView.dismissRightBtn();
                                 GroupInfo groupInfo = (GroupInfo)mChatController.getConversation()
                                         .getTargetInfo();
-                                mChatView.setChatTitle(groupInfo.getGroupName());
+                                if (TextUtils.isEmpty(groupInfo.getGroupName())){
+                                    mChatView.setChatTitle(ChatActivity.this.getString(R.string.group));
+                                }else mChatView.setChatTitle(groupInfo.getGroupName());
                                 mChatView.dismissGroupNum();
                             }
                         });

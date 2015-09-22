@@ -15,14 +15,12 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import io.jchat.android.R;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
-
+import io.jchat.android.R;
 import io.jchat.android.tools.BitmapLoader;
 
 public class MeView extends LinearLayout {
@@ -117,8 +115,8 @@ public class MeView extends LinearLayout {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Bitmap bmp = BitmapLoader.doBlur(bitmap, false);
-                if (null != bmp) {
+                if (bitmap != null){
+                    Bitmap bmp = BitmapLoader.doBlur(bitmap, false);
                     android.os.Message msg = myHandler.obtainMessage();
                     msg.obj = bmp;
                     msg.sendToTarget();
