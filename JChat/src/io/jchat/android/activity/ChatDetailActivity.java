@@ -275,6 +275,7 @@ public class ChatDetailActivity extends BaseActivity {
 
     public void startChatActivity(long groupID, String groupName) {
         Intent intent = new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("isGroup", true);
         //设置跳转标志
         intent.putExtra("fromGroup", true);
