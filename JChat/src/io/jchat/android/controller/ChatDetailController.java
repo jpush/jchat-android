@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -20,18 +19,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import cn.jpush.im.android.eventbus.EventBus;
-import io.jchat.android.R;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.model.GroupInfo;
+
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.eventbus.EventBus;
+import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.R;
 import io.jchat.android.activity.ChatDetailActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
@@ -39,11 +41,10 @@ import io.jchat.android.adapter.GroupMemberGridAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.entity.Event;
 import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ChatDetailView;
-import io.jchat.android.tools.DialogCreator;
-import cn.jpush.im.api.BasicCallback;
 
 public class ChatDetailController implements OnClickListener, OnItemClickListener, OnItemLongClickListener {
 
@@ -119,7 +120,6 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             }
             // 是单聊
         } else {
-            Conversation conv = JMessageClient.getSingleConversation(mTargetID);
             mCurrentNum = 1;
             mGridAdapter = new GroupMemberGridAdapter(mContext, mTargetID);
             mChatDetailView.setAdapter(mGridAdapter);
