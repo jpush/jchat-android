@@ -133,6 +133,7 @@
     <string name="about">关于</string>
     <string name="demo_version_name">demo版本号:%s</string>
     <string name="about_version">\nsdk版本号:1.1.4</string>
+    <string name="about_date">\n9月22日</string>
     <string name="add_to_friend">加为好友</string>
     <string name="setting_username_hit">昵称</string>
     <string name="setting_username_big_hit">更改名字</string>
