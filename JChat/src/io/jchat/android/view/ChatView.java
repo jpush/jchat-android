@@ -152,6 +152,10 @@ public class ChatView extends RelativeLayout{
         this.mListener = listener;
     }
 
+    public void dismissGroupNum() {
+        mGroupNumTv.setVisibility(View.GONE);
+    }
+
     public interface OnSizeChangedListener {
         void onSizeChanged(int w, int h, int oldw, int oldh);
     }
@@ -286,6 +290,7 @@ public class ChatView extends RelativeLayout{
 	public void setChatTitle(String name, int count){
         mChatTitle.setText(name);
         mGroupNumTv.setText(String.format(mContext.getString(R.string.combine_title), count));
+        mGroupNumTv.setVisibility(View.VISIBLE);
 	}
 
 	public void clearInput() {
