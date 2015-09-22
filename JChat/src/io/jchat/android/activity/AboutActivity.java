@@ -27,7 +27,7 @@ public class AboutActivity extends Activity {
             String version = info.versionName;
             String demoVersionName = this.getString(R.string.demo_version_name);
             mAboutTv.setText(String.format(demoVersionName, version)
-                    + this.getString(R.string.about_version));
+                    + this.getString(R.string.about_version) + this.getString(R.string.about_date));
         }catch (PackageManager.NameNotFoundException e){
             Log.d("AboutActivity", "Name not Found");
         }
