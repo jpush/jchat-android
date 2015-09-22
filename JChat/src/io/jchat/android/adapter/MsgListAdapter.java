@@ -988,7 +988,14 @@ public class MsgListAdapter extends BaseAdapter {
                         customContent.setBooleanValue("blackList", true);
                         Message customMsg = mConv.createSendMessage(customContent);
                         addMsgToList(customMsg);
-                    } else HandleResponseCode.onHandle(mContext, status, false);
+                    } else {
+                        HandleResponseCode.onHandle(mContext, status, false);
+                        holder.sendingIv.clearAnimation();
+                        holder.sendingIv.setVisibility(View.GONE);
+                        holder.picture.setAlpha(1.0f);
+                        holder.progressTv.setVisibility(View.GONE);
+                        holder.resend.setVisibility(View.VISIBLE);
+                    }
                 }
             });
         }
