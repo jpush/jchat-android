@@ -279,8 +279,10 @@ public class ChatActivity extends BaseActivity {
                 }else {
                     if (TextUtils.isEmpty(data.getStringExtra(JPushDemoApplication.NAME))) {
                         mChatView.setChatTitle(this.getString(R.string.group));
+                        mChatView.dismissGroupNum();
                     } else {
                         mChatView.setChatTitle(data.getStringExtra(JPushDemoApplication.NAME));
+                        mChatView.dismissGroupNum();
                     }
                 }
 
@@ -344,6 +346,7 @@ public class ChatActivity extends BaseActivity {
                                 GroupInfo groupInfo = (GroupInfo)mChatController.getConversation()
                                         .getTargetInfo();
                                 mChatView.setChatTitle(groupInfo.getGroupName());
+                                mChatView.dismissGroupNum();
                             }
                         });
                     }else {
