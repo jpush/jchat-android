@@ -123,13 +123,14 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                             UserInfo info = groupInfo.getGroupMemberInfo(JMessageClient.getMyInfo()
                                     .getUserName());
                             if (!TextUtils.isEmpty(groupInfo.getGroupName())){
+                                mGroupName = groupInfo.getGroupName();
                                 if (info != null){
-                                    mGroupName = groupInfo.getGroupName();
                                     mChatView.setChatTitle(mGroupName,
                                             groupInfo.getGroupMembers().size());
+                                    mChatView.showRightBtn();
                                 }else {
-                                    mGroupName = groupInfo.getGroupName();
                                     mChatView.setChatTitle(mGroupName);
+                                    mChatView.dismissRightBtn();
                                 }
                             }
                         }
