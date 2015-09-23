@@ -23,6 +23,9 @@ public class HandleResponseCode {
         switch (status){
             case 0:
                 break;
+            case 1000:
+                content.setText(context.getString(R.string.record_voice_permission_denied));
+                break;
             case 800002:
                 content.setText(context.getString(R.string.server_800002));
                 break;
