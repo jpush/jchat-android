@@ -216,7 +216,7 @@
             android:name="io.jchat.android.activity.EditNoteNameActivity"
             android:theme="@style/notitle"/>
 
-        <activity android:name=".activity.AboutActivity"
+        <activity android:name="io.jchat.android.activity.AboutActivity"
             android:theme="@style/notitle"/>
 
     </application>
