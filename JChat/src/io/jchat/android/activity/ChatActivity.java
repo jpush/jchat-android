@@ -245,6 +245,7 @@ public class ChatActivity extends BaseActivity {
                 String thumbnailPath = BitmapLoader.saveBitmapToLocal(bitmap);
                 File file = new File(thumbnailPath);
                 ImageContent content = new ImageContent(file);
+                content.setStringExtra("tempPath", thumbnailPath);
                 Message msg = conv.createSendMessage(content);
                 Intent intent = new Intent();
                 intent.putExtra(JPushDemoApplication.MsgIDs, new int[]{msg.getId()});

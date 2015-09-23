@@ -89,7 +89,9 @@
     <string name="voice_length">10"</string>
     <string name="time_too_short_toast">时间太短！</string>
     <string name="file_fetch_failed">文件获取失败</string>
-    <string name="record_voice_permission_toast">若要使用语音功能，请选择允许录音</string>
+    <string name="record_voice_permission_denied">请在应用的权限管理中将使用录音选项设置为允许，
+        否则将无法使用录音功能</string>
+    <string name="record_voice_permission_request">若要使用语音功能，请选择允许录音</string>
     <string name="voice_fetch_failed_toast">获取语音失败，请重试</string>
     <string name="picture">图片</string>
     <string name="type_picture">[图片]</string>

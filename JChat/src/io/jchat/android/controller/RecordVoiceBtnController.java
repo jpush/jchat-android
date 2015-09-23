@@ -49,6 +49,7 @@ public class RecordVoiceBtnController extends Button {
     private final static int CANCEL_RECORD = 5;
     private final static int SEND_CALLBACK = 6;
     private final static int START_RECORD = 7;
+    private final static int RECORD_DENIED_STATUS = 1000;
     //依次为按下录音键坐标、手指离开屏幕坐标、手指移动坐标
     float mTouchY1, mTouchY2, mTouchY;
     private final float MIN_CANCEL_DISTANCE = 300f;
@@ -266,7 +267,8 @@ public class RecordVoiceBtnController extends Button {
                     } catch (FileNotFoundException e) {
                     }
                 } else {
-                    Toast.makeText(mContext, mContext.getString(R.string.record_voice_permission_toast), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.record_voice_permission_request),
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -289,13 +291,12 @@ public class RecordVoiceBtnController extends Button {
     }
 
     private void startRecording() {
-        recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-        recorder.setOutputFile(myRecAudioFile.getAbsolutePath());
-
         try {
+            recorder = new MediaRecorder();
+            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            recorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+            recorder.setOutputFile(myRecAudioFile.getAbsolutePath());
             myRecAudioFile.createNewFile();
             recorder.prepare();
             recorder.setOnErrorListener(new MediaRecorder.OnErrorListener() {
@@ -324,6 +325,7 @@ public class RecordVoiceBtnController extends Button {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (RuntimeException e) {
+            HandleResponseCode.onHandle(mContext, RECORD_DENIED_STATUS, false);
             cancelTimer();
             dismissDialog();
             if (mThread != null) {

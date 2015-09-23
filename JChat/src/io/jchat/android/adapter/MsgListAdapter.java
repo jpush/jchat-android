@@ -983,6 +983,7 @@ public class MsgListAdapter extends BaseAdapter {
                         holder.progressTv.setVisibility(View.GONE);
                         holder.sendingIv.clearAnimation();
                         holder.sendingIv.setVisibility(View.GONE);
+                        notifyDataSetChanged();
                     } else if (status == 803008) {
                         CustomContent customContent = new CustomContent();
                         customContent.setBooleanValue("blackList", true);
