@@ -246,6 +246,7 @@ public class ChatActivity extends BaseActivity {
                 File file = new File(thumbnailPath);
                 ImageContent content = new ImageContent(file);
                 content.setStringExtra("tempPath", thumbnailPath);
+                content.setStringExtra("localPath", originPath);
                 Message msg = conv.createSendMessage(content);
                 Intent intent = new Intent();
                 intent.putExtra(JPushDemoApplication.MsgIDs, new int[]{msg.getId()});
