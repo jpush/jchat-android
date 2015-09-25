@@ -235,6 +235,9 @@ public class ChatDetailActivity extends BaseActivity {
             mChatDetailView.setMyName(data.getStringExtra("resultName"));
         }else if (resultCode == JPushDemoApplication.RESULT_CODE_FRIEND_INFO){
             if (data.getBooleanExtra("returnChatActivity", false)){
+                data.putExtra("deleteMsg", mChatDetailController.getDeleteFlag());
+                data.putExtra(JPushDemoApplication.NAME, mChatDetailController.getName());
+                setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, data);
                 finish();
             }
         }
