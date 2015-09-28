@@ -3,6 +3,7 @@ package io.jchat.android.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -10,15 +11,14 @@ import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import cn.jpush.android.api.JPushInterface;
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.Conversation;
-import io.jchat.android.R;
-
 import java.io.File;
 
+import cn.jpush.android.api.JPushInterface;
+import cn.jpush.im.android.api.JMessageClient;
+import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MainController;
+import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.MainView;
 
@@ -94,8 +94,11 @@ public class MainActivity extends FragmentActivity{
         }
         if (requestCode == JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
             String path = mMainController.getPhotoPath();
-            if (path != null)
-                mMainController.calculateAvatar(path);
+            File file = new File(path);
+            if (file.isFile()){
+                mMainController.cropRawPhoto(Uri.fromFile(file));
+            }
+//                mMainController.calculateAvatar(path);
         } else if (requestCode == JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
             if (data != null) {
                 Uri selectedImg = data.getData();
@@ -110,15 +113,23 @@ public class MainActivity extends FragmentActivity{
                     String path = cursor.getString(columnIndex);
                     if (path != null) {
                         File file = new File(path);
-                        if (file == null || !file.exists()) {
+                        if (!file.isFile()) {
                             Toast.makeText(this, this.getString(R.string.picture_not_found), Toast.LENGTH_SHORT).show();
+                            cursor.close();
                             return;
+                        }else {
+                            mMainController.cropRawPhoto(Uri.fromFile(file));
+                            cursor.close();
                         }
                     }
-                    cursor.close();
-                    mMainController.calculateAvatar(path);
+//                    mMainController.calculateAvatar(path);
                 }
             }
+        }else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE){
+            Bundle bundle = data.getExtras();
+            Bitmap bitmap = bundle.getParcelable("data");
+            String path = BitmapLoader.saveBitmapToLocal(bitmap);
+            mMainController.calculateAvatar(path);
         }
     }
 

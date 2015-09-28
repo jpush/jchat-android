@@ -1,7 +1,6 @@
 package io.jchat.android.application;
 
 import android.app.Application;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import cn.jpush.im.android.api.JMessageClient;
@@ -21,6 +20,7 @@ public class JPushDemoApplication extends Application {
     public static final int RESULT_CODE_CHAT_DETAIL = 15;
     public static final int REQUEST_CODE_FRIEND_INFO = 16;
     public static final int RESULT_CODE_FRIEND_INFO = 17;
+    public static final int REQUEST_CODE_CROP_PICTURE = 18;
     public static final int REFRESH_GROUP_NAME = 3000;
     public static final int REFRESH_GROUP_NUM = 3001;
     public static final int ON_GROUP_EVENT = 3004;

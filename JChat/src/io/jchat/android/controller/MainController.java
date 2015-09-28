@@ -1,30 +1,31 @@
 package io.jchat.android.controller;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-import cn.jpush.im.android.api.model.Conversation;
-import io.jchat.android.R;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.R;
 import io.jchat.android.activity.ContactsFragment;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.activity.MainActivity;
 import io.jchat.android.activity.MeFragment;
-import io.jchat.android.adapter.ConversationListAdapter;
 import io.jchat.android.adapter.ViewPagerAdapter;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MainView;
-import cn.jpush.im.api.BasicCallback;
 
 public class MainController implements OnClickListener, OnPageChangeListener{
 
@@ -33,6 +34,9 @@ public class MainController implements OnClickListener, OnPageChangeListener{
 	private MainView mMainView;
 	private MainActivity mContext;
     private ProgressDialog mDialog;
+    // 裁剪后图片的宽(X)和高(Y),480 X 480的正方形。
+    private static int output_X = 480;
+    private static int output_Y = 480;
 	
 	public MainController(MainView mMainView, MainActivity context){
 		this.mMainView = mMainView;
@@ -71,6 +75,29 @@ public class MainController implements OnClickListener, OnPageChangeListener{
 
     public String getPhotoPath(){
         return mMeActivity.getPhotoPath();
+    }
+
+    /**
+     * 裁剪原始的图片
+     */
+    public void cropRawPhoto(Uri uri) {
+
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.setDataAndType(uri, "image/*");
+
+        // 设置裁剪
+        intent.putExtra("crop", "true");
+
+        // aspectX , aspectY :宽高的比例
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+
+        // outputX , outputY : 裁剪图片宽高
+        intent.putExtra("outputX", output_X);
+        intent.putExtra("outputY", output_Y);
+        intent.putExtra("return-data", true);
+
+        mContext.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CROP_PICTURE);
     }
 
     public void calculateAvatar(final String originPath) {
