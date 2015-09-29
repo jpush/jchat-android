@@ -31,8 +31,8 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:gravity">center_horizontal</item>
-        <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingBottom">7dp</item>
+        <item name="android:paddingTop">7dp</item>
+        <item name="android:paddingBottom">5dp</item>
         <item name="android:textColor">@color/action_bar_txt_color</item>
         <item name="android:background">#3C3C3C</item>
         <item name="android:textSize">@dimen/text_minimum_size</item>

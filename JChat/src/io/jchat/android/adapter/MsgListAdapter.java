@@ -128,7 +128,7 @@ public class MsgListAdapter extends BaseAdapter {
     //当前第0项消息的位置
     private int mStart;
     //上一页的消息数
-    private int mOffset = 18;
+    private int mOffset = JPushDemoApplication.PAGE_MESSAGE_COUNT;
     private boolean mHasLastPage = false;
     private Dialog mDialog;
 
@@ -198,7 +198,7 @@ public class MsgListAdapter extends BaseAdapter {
 
     public void dropDownToRefresh() {
         if (mConv != null) {
-            List<Message> msgList = mConv.getMessagesFromNewest(mStart, 18);
+            List<Message> msgList = mConv.getMessagesFromNewest(mStart, JPushDemoApplication.PAGE_MESSAGE_COUNT);
             if (msgList != null) {
                 for (Message msg : msgList) {
                     mMsgList.add(0, msg);
@@ -206,7 +206,10 @@ public class MsgListAdapter extends BaseAdapter {
                 if (msgList.size() > 0) {
                     mOffset = msgList.size();
                     mHasLastPage = true;
-                } else mHasLastPage = false;
+                } else {
+                    mOffset = 0;
+                    mHasLastPage = false;
+                }
                 notifyDataSetChanged();
             }
         }
@@ -720,17 +723,13 @@ public class MsgListAdapter extends BaseAdapter {
             sendingAnim.setInterpolator(lin);
             switch (msg.getStatus()) {
                 case send_success:
-                    if (sendingAnim != null) {
-                        holder.sendingIv.clearAnimation();
-                        holder.sendingIv.setVisibility(View.GONE);
-                    }
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
-                    if (sendingAnim != null) {
-                        holder.sendingIv.clearAnimation();
-                        holder.sendingIv.setVisibility(View.GONE);
-                    }
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
@@ -871,10 +870,8 @@ public class MsgListAdapter extends BaseAdapter {
             //检查状态
             switch (msg.getStatus()) {
                 case send_success:
-                    if (sendingAnim != null) {
-                        holder.sendingIv.clearAnimation();
-                        holder.sendingIv.setVisibility(View.GONE);
-                    }
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
                     holder.picture.setAlpha(1.0f);
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
@@ -888,10 +885,8 @@ public class MsgListAdapter extends BaseAdapter {
                     }
                     break;
                 case send_fail:
-                    if (sendingAnim != null) {
-                        holder.sendingIv.clearAnimation();
-                        holder.sendingIv.setVisibility(View.GONE);
-                    }
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
                     holder.picture.setAlpha(1.0f);
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
@@ -1112,17 +1107,13 @@ public class MsgListAdapter extends BaseAdapter {
             sendingAnim.setInterpolator(lin);
             switch (msg.getStatus()) {
                 case send_success:
-                    if (sendingAnim != null) {
-                        holder.sendingIv.clearAnimation();
-                        holder.sendingIv.setVisibility(View.GONE);
-                    }
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
-                    if (sendingAnim != null) {
-                        holder.sendingIv.clearAnimation();
-                        holder.sendingIv.setVisibility(View.GONE);
-                    }
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:

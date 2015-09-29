@@ -225,7 +225,8 @@ public class ChatActivity extends BaseActivity {
     }
 
     /**
-     * 用于处理拍照发送图片返回结果
+     * 用于处理拍照发送图片返回结果以及从其他界面回来后刷新聊天标题
+     * 或者聊天消息
      *
      * @param requestCode 请求码
      * @param resultCode  返回码

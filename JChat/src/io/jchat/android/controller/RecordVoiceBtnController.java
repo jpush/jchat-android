@@ -38,6 +38,7 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.adapter.MsgListAdapter;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.HandleResponseCode;
 
 public class RecordVoiceBtnController extends Button {
@@ -200,14 +201,13 @@ public class RecordVoiceBtnController extends Button {
 
     private void initDialogAndStartRecord() {
         //存放录音文件目录
-        String filePath = "sdcard/JPushDemo/voice/";
-        File destDir = new File(filePath);
+        File destDir = new File(JPushDemoApplication.VOICE_DIR);
         if (!destDir.exists()) {
             destDir.mkdirs();
         }
         //录音文件的命名格式
-        myRecAudioFile = new File(filePath, new DateFormat().format("yyyyMMdd_hhmmss",
-                Calendar.getInstance(Locale.CHINA)) + ".amr");
+        myRecAudioFile = new File(JPushDemoApplication.VOICE_DIR,
+                new DateFormat().format("yyyyMMdd_hhmmss", Calendar.getInstance(Locale.CHINA)) + ".amr");
         if (myRecAudioFile == null) {
             cancelTimer();
             stopRecording();
@@ -234,7 +234,6 @@ public class RecordVoiceBtnController extends Button {
         if (intervalTime < MIN_INTERVAL_TIME) {
             Toast.makeText(getContext(), mContext.getString(R.string.time_too_short_toast), Toast.LENGTH_SHORT).show();
             myRecAudioFile.delete();
-            return;
         } else {
             if (myRecAudioFile != null && myRecAudioFile.exists()) {
                 MediaPlayer mp = MediaPlayer.create(mContext, Uri.parse(myRecAudioFile.getAbsolutePath()));
