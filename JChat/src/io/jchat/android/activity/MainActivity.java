@@ -1,9 +1,11 @@
 package io.jchat.android.activity;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -12,6 +14,10 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
@@ -19,12 +25,14 @@ import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MainController;
 import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.MainView;
 
 public class MainActivity extends FragmentActivity{
     private MainController mMainController;
     private MainView mMainView;
+    private Uri mUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +104,9 @@ public class MainActivity extends FragmentActivity{
             String path = mMainController.getPhotoPath();
             File file = new File(path);
             if (file.isFile()){
-                mMainController.cropRawPhoto(Uri.fromFile(file));
+                mUri = Uri.fromFile(file);
+                //拍照后直接进行裁剪
+                mMainController.cropRawPhoto(mUri);
             }
 //                mMainController.calculateAvatar(path);
         } else if (requestCode == JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
@@ -114,11 +124,14 @@ public class MainActivity extends FragmentActivity{
                     if (path != null) {
                         File file = new File(path);
                         if (!file.isFile()) {
-                            Toast.makeText(this, this.getString(R.string.picture_not_found), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, this.getString(R.string.picture_not_found),
+                                    Toast.LENGTH_SHORT).show();
                             cursor.close();
-                            return;
                         }else {
-                            mMainController.cropRawPhoto(Uri.fromFile(file));
+                            //如果是选择本地图片进行头像设置，复制到临时文件，并进行裁剪
+                            copyAndCrop(file);
+//                            mUri = Uri.fromFile(file);
+//                            mMainController.cropRawPhoto(mUri);
                             cursor.close();
                         }
                     }
@@ -126,11 +139,75 @@ public class MainActivity extends FragmentActivity{
                 }
             }
         }else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE){
-            Bundle bundle = data.getExtras();
-            Bitmap bitmap = bundle.getParcelable("data");
+            Bitmap bitmap = decodeUriAsBitmap(mUri);
             String path = BitmapLoader.saveBitmapToLocal(bitmap);
             mMainController.calculateAvatar(path);
         }
+    }
+
+    /**
+     * 复制后裁剪文件
+     * @param file 要复制的文件
+     */
+    private void copyAndCrop(final File file) {
+        final Dialog dialog = DialogCreator.createLoadingDialog(MainActivity.this,
+                MainActivity.this.getString(R.string.loading));
+        dialog.show();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    FileInputStream fis = new FileInputStream(file);
+                    File destDir = new File(JPushDemoApplication.PICTURE_DIR);
+                    if (!destDir.exists()) {
+                        destDir.mkdirs();
+                    }
+                    final File tempFile = new File(JPushDemoApplication.PICTURE_DIR,
+                            JMessageClient.getMyInfo().getUserName() + ".jpg");
+                    FileOutputStream fos = new FileOutputStream(tempFile);
+                    byte[] bt = new byte[1024];
+                    int c;
+                    while((c = fis.read(bt)) > 0){
+                        fos.write(bt,0,c);
+                    }
+                    //关闭输入、输出流
+                    fis.close();
+                    fos.close();
+
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                            mUri = Uri.fromFile(tempFile);
+                            mMainController.cropRawPhoto(mUri);
+                        }
+                    });
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }finally {
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                        }
+                    });
+                }
+            }
+        });
+        thread.run();
+    }
+
+    private Bitmap decodeUriAsBitmap(Uri uri){
+        Bitmap bitmap = null;
+        try {
+            bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return bitmap;
     }
 
 }

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,17 +23,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import io.jchat.android.R;
-
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.CircleImageView;
-import cn.jpush.im.api.BasicCallback;
 
 /**
  * Created by Ken on 2015/1/26.
@@ -47,6 +51,10 @@ public class FixProfileActivity extends BaseActivity {
     private double mDensity;
     private Context mContext;
     private int mWidth;
+    // 裁剪后图片的宽(X)和高(Y), 480 X 480的正方形。
+    private static int OUTPUT_X = 480;
+    private static int OUTPUT_Y = 480;
+    private Uri mUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,7 +207,9 @@ public class FixProfileActivity extends BaseActivity {
         }
         if (requestCode == JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
             if (mPath != null) {
-                calculateAvatar(mPath);
+//                calculateAvatar(mPath);
+                mUri = Uri.fromFile(new File(mPath));
+                cropRawPhoto(mUri);
             }
         } else if (requestCode == JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
             if (data != null) {
@@ -212,16 +222,110 @@ public class FixProfileActivity extends BaseActivity {
                     String path = cursor.getString(columnIndex);
                     if (path != null) {
                         File file = new File(path);
-                        if (file == null || !file.exists()) {
-                            Toast.makeText(this, this.getString(R.string.picture_not_found), Toast.LENGTH_SHORT).show();
-                            return;
+                        if (!file.isFile()) {
+                            Toast.makeText(this, this.getString(R.string.picture_not_found),
+                                    Toast.LENGTH_SHORT).show();
+                            cursor.close();
+                        }else {
+                            copyAndCrop(file);
+                            cursor.close();
                         }
                     }
-                    cursor.close();
-                    calculateAvatar(path);
+//                    calculateAvatar(path);
                 }
             }
+        }else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE){
+            Bitmap bitmap = decodeUriAsBitmap(mUri);
+            String path = BitmapLoader.saveBitmapToLocal(bitmap);
+            calculateAvatar(path);
         }
+    }
+
+    /**
+     * 裁剪图片
+     */
+    public void cropRawPhoto(Uri uri) {
+
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.setDataAndType(uri, "image/*");
+
+        // 设置裁剪
+        intent.putExtra("crop", "true");
+
+        // aspectX , aspectY :宽高的比例
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+        // outputX , outputY : 裁剪图片宽高
+        intent.putExtra("outputX", OUTPUT_X);
+        intent.putExtra("outputY", OUTPUT_Y);
+        intent.putExtra("return-data", false);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        this.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CROP_PICTURE);
+    }
+
+    /**
+     * 复制后裁剪文件
+     * @param file 要复制的文件
+     */
+    private void copyAndCrop(final File file) {
+        final Dialog dialog = DialogCreator.createLoadingDialog(this,
+                this.getString(R.string.loading));
+        dialog.show();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    FileInputStream fis = new FileInputStream(file);
+                    File destDir = new File(JPushDemoApplication.PICTURE_DIR);
+                    if (!destDir.exists()) {
+                        destDir.mkdirs();
+                    }
+                    final File tempFile = new File(JPushDemoApplication.PICTURE_DIR,
+                            JMessageClient.getMyInfo().getUserName() + ".jpg");
+                    FileOutputStream fos = new FileOutputStream(tempFile);
+                    byte[] bt = new byte[1024];
+                    int c;
+                    while((c = fis.read(bt)) > 0){
+                        fos.write(bt,0,c);
+                    }
+                    //关闭输入、输出流
+                    fis.close();
+                    fos.close();
+
+                    FixProfileActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                            mUri = Uri.fromFile(tempFile);
+                            cropRawPhoto(mUri);
+                        }
+                    });
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }finally {
+                    FixProfileActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                        }
+                    });
+                }
+            }
+        });
+        thread.run();
+    }
+
+    private Bitmap decodeUriAsBitmap(Uri uri){
+        Bitmap bitmap = null;
+        try {
+            bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return bitmap;
     }
 
     private void calculateAvatar(final String originPath) {
@@ -283,8 +387,6 @@ public class FixProfileActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-//        mAvatarIv.setDrawingCacheEnabled(true);
-//        mAvatarIv.getDrawingCache().recycle();
         super.onDestroy();
     }
 }

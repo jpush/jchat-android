@@ -36,6 +36,8 @@ public class JPushDemoApplication extends Application {
     public static final String POSITION = "position";
     public static final String MsgIDs = "msgIDs";
 
+    public static final String PICTURE_DIR = "sdcard/JPushDemo/pictures/";
+
 
     @Override
     public void onCreate() {

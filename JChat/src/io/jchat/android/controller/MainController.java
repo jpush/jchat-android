@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
@@ -27,58 +28,59 @@ import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MainView;
 
-public class MainController implements OnClickListener, OnPageChangeListener{
+public class MainController implements OnClickListener, OnPageChangeListener {
 
     private ConversationListFragment mConvListFragment;
-	private MeFragment mMeActivity;
-	private MainView mMainView;
-	private MainActivity mContext;
+    private MeFragment mMeActivity;
+    private MainView mMainView;
+    private MainActivity mContext;
     private ProgressDialog mDialog;
-    // 裁剪后图片的宽(X)和高(Y),480 X 480的正方形。
-    private static int output_X = 480;
-    private static int output_Y = 480;
-	
-	public MainController(MainView mMainView, MainActivity context){
-		this.mMainView = mMainView;
-		this.mContext = context;
-		setViewPager();
-	}
+    // 裁剪后图片的宽(X)和高(Y), 480 X 480的正方形。
+    private static int OUTPUT_X = 480;
+    private static int OUTPUT_Y = 480;
 
-	private void setViewPager() {
+    public MainController(MainView mMainView, MainActivity context) {
+        this.mMainView = mMainView;
+        this.mContext = context;
+        setViewPager();
+    }
+
+    private void setViewPager() {
         List<Fragment> fragments = new ArrayList<Fragment>();
-		// init Fragment
+        // init Fragment
         mConvListFragment = new ConversationListFragment();
         ContactsFragment contactsActivity = new ContactsFragment();
-		mMeActivity = new MeFragment();
-		fragments.add(mConvListFragment);
-		fragments.add(contactsActivity);
-		fragments.add(mMeActivity);
+        mMeActivity = new MeFragment();
+        fragments.add(mConvListFragment);
+        fragments.add(contactsActivity);
+        fragments.add(mMeActivity);
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(
-				mContext.getSupportFragmentManger(), fragments);
-		mMainView.setViewPagerAdapter(viewPagerAdapter);
-	}
-	@Override
-	public void onClick(View v) {
-		// TODO Auto-generated method stub
-		switch (v.getId()) {
-		case R.id.actionbar_msg_btn:
-			mMainView.setCurrentItem(0);
-			break;
-		case R.id.actionbar_contact_btn:
-			mMainView.setCurrentItem(1);
-			break;
-		case R.id.actionbar_me_btn:
-			mMainView.setCurrentItem(2);
-			break;
-		}
-	}
+                mContext.getSupportFragmentManger(), fragments);
+        mMainView.setViewPagerAdapter(viewPagerAdapter);
+    }
 
-    public String getPhotoPath(){
+    @Override
+    public void onClick(View v) {
+        // TODO Auto-generated method stub
+        switch (v.getId()) {
+            case R.id.actionbar_msg_btn:
+                mMainView.setCurrentItem(0);
+                break;
+            case R.id.actionbar_contact_btn:
+                mMainView.setCurrentItem(1);
+                break;
+            case R.id.actionbar_me_btn:
+                mMainView.setCurrentItem(2);
+                break;
+        }
+    }
+
+    public String getPhotoPath() {
         return mMeActivity.getPhotoPath();
     }
 
     /**
-     * 裁剪原始的图片
+     * 裁剪图片
      */
     public void cropRawPhoto(Uri uri) {
 
@@ -91,12 +93,11 @@ public class MainController implements OnClickListener, OnPageChangeListener{
         // aspectX , aspectY :宽高的比例
         intent.putExtra("aspectX", 1);
         intent.putExtra("aspectY", 1);
-
         // outputX , outputY : 裁剪图片宽高
-        intent.putExtra("outputX", output_X);
-        intent.putExtra("outputY", output_Y);
-        intent.putExtra("return-data", true);
-
+        intent.putExtra("outputX", OUTPUT_X);
+        intent.putExtra("outputY", OUTPUT_Y);
+        intent.putExtra("return-data", false);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         mContext.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CROP_PICTURE);
     }
 
@@ -116,45 +117,51 @@ public class MainController implements OnClickListener, OnPageChangeListener{
     }
 
     private void updateAvatar(final String path) {
-        JMessageClient.updateUserAvatar(new File(path), new BasicCallback(false) {
+        JMessageClient.updateUserAvatar(new File(path), new BasicCallback() {
             @Override
             public void gotResult(final int status, final String desc) {
-                mContext.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDialog.dismiss();
-                        if (status == 0) {
-                            Log.i("MeFragment", "Update avatar succeed path " + path);
-                            loadUserAvatar(path);
-                        } else {
-                            HandleResponseCode.onHandle(mContext, status, false);
+                mDialog.dismiss();
+                if (status == 0) {
+                    Log.i("MeFragment", "Update avatar succeed path " + path);
+                    loadUserAvatar(path);
+                    //如果是拍照，删除临时文件
+                    if (mMeActivity.getPhotoPath() != null){
+                        File file = new File(mMeActivity.getPhotoPath());
+                        if (file.isFile()){
+                            if (file.delete()){
+                                Log.d("MainController", "delete temp file");
+                            }
                         }
                     }
-                });
+                } else {
+                    HandleResponseCode.onHandle(mContext, status, false);
+                }
             }
         });
     }
 
-    private void loadUserAvatar(String path){
-        if(path != null)
+    private void loadUserAvatar(String path) {
+        if (path != null)
             mMeActivity.loadUserAvatar(path);
     }
-	
-	@Override
-	public void onPageSelected(int index) {
-		// TODO Auto-generated method stub
-		mMainView.setButtonColor(index);
-	}
-	@Override
-	public void onPageScrollStateChanged(int arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void onPageScrolled(int arg0, float arg1, int arg2) {
-		// TODO Auto-generated method stub
-		
-	}
+
+    @Override
+    public void onPageSelected(int index) {
+        // TODO Auto-generated method stub
+        mMainView.setButtonColor(index);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onPageScrolled(int arg0, float arg1, int arg2) {
+        // TODO Auto-generated method stub
+
+    }
 
     public void sortConvList() {
         mConvListFragment.sortConvList();

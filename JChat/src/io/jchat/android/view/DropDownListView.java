@@ -3,16 +3,12 @@ package io.jchat.android.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -60,6 +56,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
     private float actionDownPointY;
 
     private float actionMovePointY;
+    private int mOffset = 18;
 
     public DropDownListView(Context context) {
         super(context);
@@ -172,7 +169,8 @@ public class DropDownListView extends ListView implements OnScrollListener {
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         if (isDropDownStyle) {
             if (currentScrollState == SCROLL_STATE_TOUCH_SCROLL && currentHeaderStatus != HEADER_STATUS_LOADING) {
-                if (firstVisibleItem == 0 && actionMovePointY - actionDownPointY > 0) {
+                if (firstVisibleItem == 0 && actionMovePointY - actionDownPointY > 0
+                        && mOffset == 18) {
                     onDropDown();
                 }
 
@@ -183,7 +181,9 @@ public class DropDownListView extends ListView implements OnScrollListener {
                  * first item(header layout) is visible and header status is not HEADER_STATUS_LOADING, then hide first
                  * item, set second item visible and set hasReachedTop true.
                  */
-                onDropDown();
+                if (mOffset == 18){
+                    onDropDown();
+                }
                 hasReachedTop = true;
             } else if (currentScrollState == SCROLL_STATE_FLING && hasReachedTop) {
                 setSelection(0);
@@ -280,6 +280,10 @@ public class DropDownListView extends ListView implements OnScrollListener {
         if (getAdapter() != null && getAdapter().getCount() > 0 && getFirstVisiblePosition() == 0) {
             setSelection(1);
         }
+    }
+
+    public void setOffset(int offset){
+        mOffset = offset;
     }
 
     /**

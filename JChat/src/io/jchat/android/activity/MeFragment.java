@@ -18,12 +18,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+
+import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import java.io.File;
-import java.lang.ref.WeakReference;
-import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MeController;
 import io.jchat.android.tools.HandleResponseCode;
@@ -161,7 +163,7 @@ public class MeFragment extends BaseFragment {
 
     public void takePhoto() {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            String dir = "sdcard/JPushDemo/pictures/";
+            String dir = JPushDemoApplication.PICTURE_DIR;
             File destDir = new File(dir);
             if (!destDir.exists()) {
                 destDir.mkdirs();
