@@ -169,12 +169,12 @@ public class FixProfileActivity extends BaseActivity {
 
     private void takePhoto() {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            String dir = "sdcard/JPushDemo/pictures/";
-            File destDir = new File(dir);
+            File destDir = new File(JPushDemoApplication.PICTURE_DIR);
             if (!destDir.exists()) {
                 destDir.mkdirs();
             }
-            File file = new File(dir, JMessageClient.getMyInfo().getUserName() + ".jpg");
+            File file = new File(JPushDemoApplication.PICTURE_DIR,
+                    JMessageClient.getMyInfo().getUserName() + ".jpg");
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             mPath = file.getAbsolutePath();

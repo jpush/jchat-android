@@ -24,6 +24,7 @@ public class JPushDemoApplication extends Application {
     public static final int REFRESH_GROUP_NAME = 3000;
     public static final int REFRESH_GROUP_NUM = 3001;
     public static final int ON_GROUP_EVENT = 3004;
+    public static final int PAGE_MESSAGE_COUNT = 18;
     private static final String JCHAT_CONFIGS = "JChat_configs";
 
     public static final String TARGET_ID = "targetID";
@@ -37,6 +38,7 @@ public class JPushDemoApplication extends Application {
     public static final String MsgIDs = "msgIDs";
 
     public static final String PICTURE_DIR = "sdcard/JPushDemo/pictures/";
+    public static final String VOICE_DIR = "sdcard/JPushDemo/voice/";
 
 
     @Override

@@ -456,12 +456,12 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                         if (controller.mChatAdapter.isHasLastPage()) {
                             controller.mChatView.getListView()
                                     .setSelection(controller.mChatAdapter.getOffset());
-                            controller.mChatView.getListView()
-                                    .setOffset(controller.mChatAdapter.getOffset());
                             controller.mChatAdapter.refreshStartPosition();
                         } else {
                             controller.mChatView.getListView().setSelection(0);
                         }
+                        controller.mChatView.getListView()
+                                .setOffset(controller.mChatAdapter.getOffset());
                         break;
                     case UPDATE_CHAT_LISTVIEW:
                         controller.mChatAdapter.notifyDataSetChanged();
