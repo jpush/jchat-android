@@ -20,6 +20,7 @@ import io.jchat.android.R;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
+import io.jchat.android.tools.DialogCreator;
 
 
 public class MeInfoView extends LinearLayout{
@@ -39,10 +40,10 @@ public class MeInfoView extends LinearLayout{
 	private TextView mTitle;
 	private ImageButton mMenuBtn;
 
-    private RelativeLayout mNickNameRl;
-    private RelativeLayout mSexRl;
-    private RelativeLayout mAreaRl;
-    private RelativeLayout mSignatureRl;
+    private LinearLayout mNickNameRl;
+    private LinearLayout mSexRl;
+    private LinearLayout mAreaRl;
+    private LinearLayout mSignatureRl;
 	private LinearLayout mBirthdayLayout;
 	private LinearLayout mPasswordLayout;
 	private LinearLayout mSettingLayout;
@@ -105,11 +106,11 @@ public class MeInfoView extends LinearLayout{
 		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
 		mTitle = (TextView) findViewById(R.id.title);
 		mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
-        mNickNameRl = (RelativeLayout) findViewById(R.id.nick_name_rl);
-        mSexRl = (RelativeLayout) findViewById(R.id.sex_rl);
-        mAreaRl = (RelativeLayout) findViewById(R.id.location_rl);
+        mNickNameRl = (LinearLayout) findViewById(R.id.nick_name_rl);
+        mSexRl = (LinearLayout) findViewById(R.id.sex_rl);
+        mAreaRl = (LinearLayout) findViewById(R.id.location_rl);
         mRegionTv = (TextView) findViewById(R.id.region_tv);
-        mSignatureRl = (RelativeLayout) findViewById(R.id.sign_rl);
+        mSignatureRl = (LinearLayout) findViewById(R.id.sign_rl);
 		mNicknameTv = (TextView) findViewById(R.id.nick_name_tv);
 		mGenderTv = (TextView) findViewById(R.id.gender_tv);
         mGenderIv = (ImageView) findViewById(R.id.sex_icon);

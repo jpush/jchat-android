@@ -23,6 +23,9 @@ public class HandleResponseCode {
         switch (status){
             case 0:
                 break;
+            case 1000:
+                content.setText(context.getString(R.string.record_voice_permission_denied));
+                break;
             case 800002:
                 content.setText(context.getString(R.string.server_800002));
                 break;
@@ -76,6 +79,9 @@ public class HandleResponseCode {
             case 803005:
                 content.setText(context.getString(R.string.server_803005));
                 break;
+            case 803008:
+                content.setText(context.getString(R.string.server_803008));
+                break;
             case 808003:
                 content.setText(context.getString(R.string.server_808003));
                 break;
@@ -102,6 +108,18 @@ public class HandleResponseCode {
                 break;
             case 812002:
                 content.setText(context.getString(R.string.server_812002));
+                break;
+            case 818001:
+                content.setText(context.getString(R.string.server_818001));
+                break;
+            case 818002:
+                content.setText(context.getString(R.string.server_818002));
+                break;
+            case 818003:
+                content.setText(context.getString(R.string.server_818003));
+                break;
+            case 818004:
+                content.setText(context.getString(R.string.server_818004));
                 break;
             case 899001:
             case 898001:
@@ -147,11 +165,32 @@ public class HandleResponseCode {
             case 871311:
                 content.setText(context.getString(R.string.sdk_87x_871311));
                 break;
+            case 871312:
+                content.setText(context.getString(R.string.sdk_87x_871312));
+                break;
             case 871403:
                 content.setText(context.getString(R.string.sdk_87x_871403));
                 break;
             case 871404:
                 content.setText(context.getString(R.string.sdk_87x_871404));
+                break;
+            case 871501:
+                content.setText(context.getString(R.string.sdk_87x_871501));
+                break;
+            case 871502:
+                content.setText(context.getString(R.string.sdk_87x_871502));
+                break;
+            case 871503:
+                content.setText(context.getString(R.string.sdk_87x_871503));
+                break;
+            case 871504:
+                content.setText(context.getString(R.string.sdk_87x_871504));
+                break;
+            case 871505:
+                content.setText(context.getString(R.string.sdk_87x_871505));
+                break;
+            case 871506:
+                content.setText(context.getString(R.string.sdk_87x_871506));
                 break;
             case 871102:
             case 871201:

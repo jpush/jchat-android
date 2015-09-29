@@ -13,7 +13,7 @@ import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.activity.ReloginActivity;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.DialogCreator;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.view.ReloginView;
 import cn.jpush.im.api.BasicCallback;
 

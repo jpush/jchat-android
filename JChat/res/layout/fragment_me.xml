@@ -17,7 +17,7 @@
             android:id="@+id/my_avatar_iv"
             android:layout_width="match_parent"
             android:layout_height="190dp"
-            android:scaleType="fitXY"
+            android:scaleType="centerCrop"
             android:background="@color/me_no_picture_color" />
 
         <LinearLayout
@@ -30,15 +30,18 @@
                 android:id="@+id/take_photo_iv"
                 android:layout_width="@dimen/me_head_icon_size"
                 android:layout_height="@dimen/me_head_icon_size"
-                android:background="@drawable/take_photo_me"
+                android:src="@drawable/take_photo_me"
                 android:layout_gravity="center" />
 
             <TextView
                 android:id="@+id/nick_name_tv"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxWidth="200dp"
+                android:singleLine="true"
                 android:layout_marginTop="15dp"
-                android:gravity="center_horizontal"
+                android:gravity="center"
                 android:textColor="#fffdfe"
                 android:shadowColor="#000000"
                 android:shadowDx="1"
@@ -72,7 +75,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:layout_centerVertical="true"
-                        android:background="@drawable/me_man" />
+                        android:src="@drawable/me_man" />
 
                     <TextView
                         android:id="@+id/user_name_tv"
@@ -104,7 +107,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:layout_centerVertical="true"
-                        android:background="@drawable/setting" />
+                        android:src="@drawable/setting" />
 
                     <TextView
                         style="@style/info_left_txt_style"
@@ -135,13 +138,46 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:layout_centerVertical="true"
-                        android:background="@drawable/exit" />
+                        android:src="@drawable/exit" />
 
                     <TextView
                         android:id="@+id/logout_tv"
                         style="@style/info_left_txt_style"
                         android:layout_toRightOf="@id/exit_iv"
                         android:text="@string/login_out"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/arrow" />
+
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/me_split_line_color" />
+
+                <RelativeLayout
+                    android:id="@+id/about_rl"
+                    style="@style/SettingItemStyle">
+
+                    <ImageView
+                        android:id="@+id/later_focus_iv"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/later_focus" />
+
+                    <TextView
+                        style="@style/info_left_txt_style"
+                        android:layout_toRightOf="@+id/later_focus_iv"
+                        android:text="@string/about"
+                        />
 
                     <ImageView
                         android:layout_width="wrap_content"

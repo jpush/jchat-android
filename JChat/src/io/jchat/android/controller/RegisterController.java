@@ -9,7 +9,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.activity.RegisterActivity;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.SharePreferenceManager;
-import io.jchat.android.view.DialogCreator;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.view.LoginDialog;
 import io.jchat.android.view.RegisterView;
 import cn.jpush.im.api.BasicCallback;
@@ -19,8 +19,6 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
     private RegisterView mRegisterView;
     private RegisterActivity mContext;
     private Dialog mLoginDialog;
-    private int mAfterMeasureSize;
-    private int mPreMeasureSize;
 
     public RegisterController(RegisterView registerView, RegisterActivity context) {
         this.mRegisterView = registerView;
@@ -47,8 +45,7 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
                     break;
                 }
 
-                DialogCreator ld = new DialogCreator();
-                final Dialog dialog = ld.createLoadingDialog(mContext, mContext.getString(R.string.registering_hint));
+                final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.registering_hint));
                 dialog.show();
                 JMessageClient.register(userId, password, new BasicCallback() {
 
@@ -66,7 +63,7 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
                                         @Override
                                         public void gotResult(final int status, String desc) {
                                             if(status == 0){
-                                                mContext.OnRegistSuccess();
+                                                mContext.onRegistSuccess();
                                             }else {
                                                 mContext.runOnUiThread(new Runnable() {
                                                     @Override
@@ -98,17 +95,12 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
     }
 
     @Override
-    public void onSoftKeyboardShown(int softKeyboardHeight) {
-        if (softKeyboardHeight > 300) {
-            mAfterMeasureSize = softKeyboardHeight;
-        } else {
-            mPreMeasureSize = softKeyboardHeight;
-        }
-        int h = mAfterMeasureSize - mPreMeasureSize;
-        if (h > 300) {
+    public void onSoftKeyboardShown(int w, int h, int oldw, int oldh) {
+        int softKeyboardHeight = oldh - h;
+        if(softKeyboardHeight > 300){
             boolean writable = SharePreferenceManager.getCachedWritableFlag();
             if (writable) {
-                SharePreferenceManager.setCachedKeyboardHeight(h);
+                SharePreferenceManager.setCachedKeyboardHeight(softKeyboardHeight);
                 SharePreferenceManager.setCachedWritableFlag(false);
             }
         }

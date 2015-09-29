@@ -14,6 +14,7 @@
         android:layout_marginTop="25dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:paddingBottom="5dp"
         android:cursorVisible="true"
         android:textCursorDrawable="@drawable/text_cursor_bg"
         android:textColorHint="@color/chat_detail_item_content_color"

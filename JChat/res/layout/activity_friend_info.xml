@@ -77,7 +77,7 @@
                 </LinearLayout>
             </FrameLayout>
 
-            <RelativeLayout
+            <LinearLayout
                 android:id="@+id/name_rl"
                 style="@style/MeItemStyle">
 
@@ -89,14 +89,13 @@
 
                 <TextView
                     style="@style/info_left_txt_style"
-                    android:layout_toRightOf="@+id/note_name_icon_iv"
                     android:text="@string/note_name" />
 
                 <TextView
                     android:id="@+id/note_name_tv"
                     style="@style/info_right_txt_style"
                     android:ems="10" />
-            </RelativeLayout>
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -137,7 +136,7 @@
                 android:layout_height="1dp"
                 android:background="@color/me_split_line_color" />
 
-            <RelativeLayout
+            <LinearLayout
                 android:id="@+id/sex"
                 style="@style/MeItemStyle">
 
@@ -149,20 +148,19 @@
 
                 <TextView
                     style="@style/info_left_txt_style"
-                    android:layout_toRightOf="@+id/gender_iv"
                     android:text="@string/sex" />
 
                 <TextView
                     android:id="@+id/gender_tv"
-                    style="@style/info_right_txt_style" />
-            </RelativeLayout>
+                    style="@style/info_right_txt_style"/>
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/me_split_line_color" />
 
-            <RelativeLayout
+            <LinearLayout
                 android:id="@+id/location"
                 style="@style/MeItemStyle">
 
@@ -181,14 +179,14 @@
                 <TextView
                     android:id="@+id/region_tv"
                     style="@style/info_right_txt_style" />
-            </RelativeLayout>
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/me_split_line_color" />
 
-            <RelativeLayout
+            <LinearLayout
                 android:id="@+id/sign"
                 style="@style/MeItemStyle">
 
@@ -196,18 +194,16 @@
                     android:id="@+id/signature_icon_iv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
                     android:background="@drawable/sign" />
 
                 <TextView
                     style="@style/info_left_txt_style"
-                    android:layout_toRightOf="@+id/signature_icon_iv"
                     android:text="@string/sign" />
 
                 <TextView
                     android:id="@+id/signature_tv"
-                    style="@style/info_right_txt_style" />
-            </RelativeLayout>
+                    style="@style/info_right_txt_style"/>
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"

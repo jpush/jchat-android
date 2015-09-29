@@ -25,7 +25,7 @@ public class FriendInfoView extends LinearLayout{
 
     private TextView mNickNameTv;
 	private TextView mNoteName;
-    private RelativeLayout mNameRl;
+    private LinearLayout mNameRl;
 	private ImageButton mReturnBtn;
     private CircleImageView mAvatarIv;
 	private Button mSendMsgBtn;
@@ -41,14 +41,13 @@ public class FriendInfoView extends LinearLayout{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void initModule(String targetID){
+	public void initModule(){
         mNickNameTv = (TextView) findViewById(R.id.nick_name_tv);
 		mNoteName = (TextView) findViewById(R.id.note_name_tv);
-        mNameRl = (RelativeLayout) findViewById(R.id.name_rl);
+        mNameRl = (LinearLayout) findViewById(R.id.name_rl);
 		mReturnBtn = (ImageButton) findViewById(R.id.friend_info_return_btn);
         mAvatarIv = (CircleImageView) findViewById(R.id.friend_detail_avatar);
 		mSendMsgBtn = (Button) findViewById(R.id.friend_send_msg_btn);
-        mNoteName.setText(targetID);
         mGenderIv = (ImageView) findViewById(R.id.gender_iv);
         mGenderTv = (TextView) findViewById(R.id.gender_tv);
         mAreaTv = (TextView) findViewById(R.id.region_tv);
@@ -56,28 +55,36 @@ public class FriendInfoView extends LinearLayout{
 	}
 
     public void initInfo(UserInfo userInfo, double density){
-        File file = userInfo.getAvatarFile();
-        if(file != null){
-            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(100 * density), (int)(100 * density));
-            mAvatarIv.setImageBitmap(bitmap);
-        }
-        if(TextUtils.isEmpty(userInfo.getNickname())){
-            mNickNameTv.setText(userInfo.getUserName());
-        }else {
-            mNickNameTv.setText(userInfo.getNickname());
-        }
-        mNoteName.setText(userInfo.getNotename());
-        if(userInfo.getGender() == UserInfo.Gender.male){
-            mGenderTv.setText(mContext.getString(R.string.man));
-            mGenderIv.setImageResource(R.drawable.sex_man);
-        }else if(userInfo.getGender() == UserInfo.Gender.female){
-            mGenderTv.setText(mContext.getString(R.string.woman));
-            mGenderIv.setImageResource(R.drawable.sex_woman);
+        if (userInfo != null){
+            File file = userInfo.getAvatarFile();
+            if(file != null){
+                Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                        (int)(100 * density), (int)(100 * density));
+                mAvatarIv.setImageBitmap(bitmap);
+            }else {
+                mAvatarIv.setImageResource(R.drawable.head_icon);
+            }
+            if(TextUtils.isEmpty(userInfo.getNickname())){
+                mNickNameTv.setText(userInfo.getUserName());
+            }else {
+                mNickNameTv.setText(userInfo.getNickname());
+            }
+            mNoteName.setText(userInfo.getNotename());
+            if(userInfo.getGender() == UserInfo.Gender.male){
+                mGenderTv.setText(mContext.getString(R.string.man));
+                mGenderIv.setImageResource(R.drawable.sex_man);
+            }else if(userInfo.getGender() == UserInfo.Gender.female){
+                mGenderTv.setText(mContext.getString(R.string.woman));
+                mGenderIv.setImageResource(R.drawable.sex_woman);
+            }else {
+                mGenderTv.setText(mContext.getString(R.string.unknown));
+            }
+            mAreaTv.setText(userInfo.getRegion());
+            mSignatureTv.setText(userInfo.getSignature());
         }else {
             mGenderTv.setText(mContext.getString(R.string.unknown));
         }
-        mAreaTv.setText(userInfo.getRegion());
-        mSignatureTv.setText(userInfo.getSignature());
+
     }
 
 	public void setListeners(OnClickListener onClickListener) {

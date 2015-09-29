@@ -1,30 +1,25 @@
 package io.jchat.android.activity;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.eventbus.EventBus;
+import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.FriendInfoController;
+import io.jchat.android.entity.Event;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.FriendInfoView;
-
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
-import android.view.View;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
-
 import io.jchat.android.R;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 
@@ -33,79 +28,91 @@ public class FriendInfoActivity extends BaseActivity {
     private FriendInfoView mFriendInfoView;
     private FriendInfoController mFriendInfoController;
     private String mTargetID;
+    private long mGroupID;
     private UserInfo mUserInfo;
     private double mDensity;
-    private Context mContext;
     private final MyHandler myHandler = new MyHandler(this);
+    private String mNickname;
+    private final static int GET_INFO_SUCCEED = 1;
+    private final static int GET_INFO_FAILED = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_info);
-        mContext = this;
         mFriendInfoView = (FriendInfoView) findViewById(R.id.friend_info_view);
-        mTargetID = getIntent().getStringExtra("targetID");
+        mTargetID = getIntent().getStringExtra(JPushDemoApplication.TARGET_ID);
+        mGroupID = getIntent().getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+        Conversation conv;
+        conv = JMessageClient.getSingleConversation(mTargetID);
+        if (conv == null) {
+            conv = JMessageClient.getGroupConversation(mGroupID);
+            GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
+            mUserInfo = groupInfo.getGroupMemberInfo(mTargetID);
+        } else {
+            mUserInfo = (UserInfo) conv.getTargetInfo();
+        }
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
-        mFriendInfoView.initModule(mTargetID);
+        mFriendInfoView.initModule();
+        //先从Conversation里获得UserInfo展示出来
+        mFriendInfoView.initInfo(mUserInfo, mDensity);
         mFriendInfoController = new FriendInfoController(mFriendInfoView, this);
         mFriendInfoView.setListeners(mFriendInfoController);
-        if (mTargetID != null) {
-            final Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mTargetID);
-            if (bitmap != null) {
-                mFriendInfoView.setFriendAvatar(bitmap);
-            }
-            final ProgressDialog dialog = new ProgressDialog(mContext);
-            dialog.setMessage(mContext.getString(R.string.loading));
-            dialog.show();
-            JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
-                @Override
-                public void gotResult(int status, String desc, UserInfo userInfo) {
-                    FriendInfoActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.dismiss();
-                        }
-                    });
-                    if (status == 0) {
-                        File file = userInfo.getAvatarFile();
-                        if (file != null && file.isFile()) {
-                            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
-                            //更新头像缓存
-                            NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
-                        }
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = 1;
-                        msg.obj = userInfo;
-                        msg.sendToTarget();
-                    } else {
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = 2;
-                        Bundle bundle = new Bundle();
-                        bundle.putInt("status", status);
-                        msg.setData(bundle);
-                        msg.sendToTarget();
+        //再到服务器上拿一次，更新UserInfo
+        JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int status, String desc, UserInfo userInfo) {
+                if (status == 0) {
+                    File file = userInfo.getAvatarFile();
+                    if (file != null && file.isFile()) {
+                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                                (int) (50 * mDensity), (int) (50 * mDensity));
+                        //更新头像缓存
+                        NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
                     }
+                    android.os.Message msg = myHandler.obtainMessage();
+                    msg.what = GET_INFO_SUCCEED;
+                    msg.obj = userInfo;
+                    msg.sendToTarget();
+                } else {
+                    android.os.Message msg = myHandler.obtainMessage();
+                    msg.what = GET_INFO_FAILED;
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("status", status);
+                    msg.setData(bundle);
+                    msg.sendToTarget();
                 }
-            });
-        }
+            }
+        });
     }
 
-    public void StartChatActivity() {
-        Intent intent = new Intent();
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("targetID", mTargetID);
-        intent.setClass(this, ChatActivity.class);
-        startActivity(intent);
+    public void startChatActivity() {
+        if (mGroupID != 0){
+            Intent intent = new Intent();
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
+            intent.setClass(this, ChatActivity.class);
+            startActivity(intent);
+        }else {
+            Intent intent = new Intent();
+            intent.putExtra("returnChatActivity", true);
+            setResult(JPushDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
+        }
+        Conversation conv = JMessageClient.getSingleConversation(mTargetID);
+        if (conv == null) {
+            conv = Conversation.createSingleConversation(mTargetID);
+            EventBus.getDefault().post(new Event.StringEvent(mTargetID));
+        }
         finish();
     }
 
-    private static class MyHandler extends Handler{
+    private static class MyHandler extends Handler {
         private final WeakReference<FriendInfoActivity> mActivity;
 
-        public  MyHandler(FriendInfoActivity activity){
+        public MyHandler(FriendInfoActivity activity) {
             mActivity = new WeakReference<FriendInfoActivity>(activity);
         }
 
@@ -113,21 +120,23 @@ public class FriendInfoActivity extends BaseActivity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             FriendInfoActivity activity = mActivity.get();
-            if(activity != null){
+            if (activity != null) {
                 switch (msg.what) {
-                    case 1:
-                        DisplayMetrics dm = new DisplayMetrics();
-                        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-                        double density = dm.density;
+                    case GET_INFO_SUCCEED:
                         activity.mUserInfo = (UserInfo) msg.obj;
-                        activity.mFriendInfoView.initInfo(activity.mUserInfo, density);
+                        activity.mFriendInfoView.initInfo(activity.mUserInfo, activity.mDensity);
+                        activity.mNickname = activity.mUserInfo.getNickname();
                         break;
-                    case 2:
+                    case GET_INFO_FAILED:
                         HandleResponseCode.onHandle(activity, msg.getData().getInt("status"), false);
                         break;
                 }
             }
         }
+    }
+
+    public String getNickname() {
+        return mNickname;
     }
 
 
@@ -143,7 +152,7 @@ public class FriendInfoActivity extends BaseActivity {
                 startActivity(intent);
             }
         } else {
-            JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback(false) {
+            JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
                 @Override
                 public void gotResult(int status, String desc, UserInfo userInfo) {
                     if (status == 0) {
@@ -154,12 +163,12 @@ public class FriendInfoActivity extends BaseActivity {
                             NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
                         }
                         android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = 1;
+                        msg.what = GET_INFO_SUCCEED;
                         msg.obj = userInfo;
                         msg.sendToTarget();
                     } else {
                         android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = 2;
+                        msg.what = GET_INFO_FAILED;
                         Bundle bundle = new Bundle();
                         bundle.putInt("status", status);
                         msg.setData(bundle);
@@ -168,5 +177,14 @@ public class FriendInfoActivity extends BaseActivity {
                 }
             });
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra(JPushDemoApplication.NICKNAME, mNickname);
+        setResult(JPushDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
+        finish();
+        super.onBackPressed();
     }
 }

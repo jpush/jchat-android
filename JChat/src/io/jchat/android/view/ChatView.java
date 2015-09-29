@@ -1,36 +1,26 @@
 package io.jchat.android.view;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import io.jchat.android.R;
-
 import cn.jpush.im.android.api.model.Conversation;
-
+import io.jchat.android.R;
 import io.jchat.android.adapter.MsgListAdapter;
-import io.jchat.android.controller.ChatController;
 import io.jchat.android.controller.RecordVoiceBtnController;
 import io.jchat.android.tools.SharePreferenceManager;
 
@@ -38,10 +28,11 @@ public class ChatView extends RelativeLayout{
 
 	private LinearLayout mBackground;
 	private TableLayout mMoreMenuTl;
-	private ListView mChatListView;
+	private DropDownListView mChatListView;
 	private ImageButton mReturnBtn;
 	private ImageButton mRightBtn;
 	private TextView mChatTitle;
+    private TextView mGroupNumTv;
 	private RecordVoiceBtnController mVoiceBtn;
 	public EditText mChatInputEt;
 	private ImageButton mSwitchIb;
@@ -52,8 +43,16 @@ public class ChatView extends RelativeLayout{
 	private ImageButton mLocationIb;
 	private ImageButton mSendVoiceIb;
 	private Button mSendMsgBtn;
-	private View mLoadingMessage;
 	Context mContext;
+    private OnSizeChangedListener mListener;
+    private OnKeyBoardChangeListener mKeyboardListener;
+
+	public static final byte KEYBOARD_STATE_SHOW = -3;
+	public static final byte KEYBOARD_STATE_HIDE = -2;
+	public static final byte KEYBOARD_STATE_INIT = -1;
+	private boolean mHasInit;
+	private boolean mHasKeybord;
+	private int mHeight;
 
 	public ChatView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -62,11 +61,17 @@ public class ChatView extends RelativeLayout{
 	}
 
 
-	public void initModule(){
-		mChatListView = (ListView) findViewById(R.id.chat_list);
+	public void initModule(float density, int densityDpi){
+		mChatListView = (DropDownListView) findViewById(R.id.chat_list);
 		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
 		mRightBtn = (ImageButton) findViewById(R.id.right_btn);
 		mChatTitle = (TextView) findViewById(R.id.title);
+        mGroupNumTv = (TextView) findViewById(R.id.group_num_tv);
+        if (densityDpi <= 160){
+            mChatTitle.setMaxWidth((int)(180 * density + 0.5f));
+        }else if (densityDpi <= 240){
+            mChatTitle.setMaxWidth((int)(190 * density + 0.5f));
+        }else mChatTitle.setMaxWidth((int)(200 * density + 0.5f));
 		mVoiceBtn = (RecordVoiceBtnController) findViewById(R.id.voice_btn);
 		mChatInputEt = (EditText) findViewById(R.id.chat_input_et);
 		mSwitchIb = (ImageButton) findViewById(R.id.switch_voice_ib);
@@ -80,9 +85,8 @@ public class ChatView extends RelativeLayout{
 		mBackground = (LinearLayout) findViewById(R.id.chat_background);
 		mMoreMenuTl = (TableLayout) findViewById(R.id.more_menu_tl);
 		mBackground.requestFocus();
-		mLoadingMessage = LayoutInflater.from(mContext).inflate(R.layout.loading_message_view,null);
 		mChatInputEt.addTextChangedListener(watcher);
-		mChatInputEt.setOnFocusChangeListener(listener);
+        mChatInputEt.setOnFocusChangeListener(listener);
         mChatInputEt.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         mChatInputEt.setSingleLine(false);
         mChatInputEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -102,26 +106,67 @@ public class ChatView extends RelativeLayout{
     public void setMoreMenuHeight() {
         int softKeyboardHeight = SharePreferenceManager.getCachedKeyboardHeight();
         if(softKeyboardHeight > 0){
-            mMoreMenuTl.setLayoutParams(new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, softKeyboardHeight));
+            mMoreMenuTl.setLayoutParams(new LinearLayout
+                    .LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, softKeyboardHeight));
         }
 
     }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if(mListener != null){
+            mListener.onSizeChanged(w, h, oldw, oldh);
+        }
+    }
 
-//    @Override
-//    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//        int height = MeasureSpec.getSize(heightMeasureSpec);
-//        Rect rect = new Rect();
-//        Activity activity = (Activity)getContext();
-//        activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
-//        int statusBarHeight = rect.top;
-//        int screenHeight = activity.getWindowManager().getDefaultDisplay().getHeight();
-//        int diff = (screenHeight - statusBarHeight) - height;
-//        if(mListener != null){
-//            mListener.onSoftKeyboardShown(diff>128, diff);
-//        }
-//        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-//    }
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        if (!mHasInit) {
+            mHasInit = true;
+            mHeight = b;
+            if (mKeyboardListener != null) {
+                mKeyboardListener.onKeyBoardStateChange(KEYBOARD_STATE_INIT);
+            }
+        } else {
+            mKeyboardListener.onKeyBoardStateChange(KEYBOARD_STATE_INIT);
+
+            mHeight = mHeight < b ? b : mHeight;
+        }
+        if (mHasInit && mHeight > b) {
+            mHasKeybord = true;
+            if (mKeyboardListener != null) {
+                mKeyboardListener.onKeyBoardStateChange(KEYBOARD_STATE_SHOW);
+            }
+        }
+        if (mHasInit && mHasKeybord && mHeight == b) {
+            mHasKeybord = false;
+            if (mKeyboardListener != null) {
+                mKeyboardListener.onKeyBoardStateChange(KEYBOARD_STATE_HIDE);
+            }
+        }
+    }
+
+    public void setOnSizeChangedListener(OnSizeChangedListener listener) {
+        this.mListener = listener;
+    }
+
+    public void dismissGroupNum() {
+        mGroupNumTv.setVisibility(View.GONE);
+    }
+
+    public interface OnSizeChangedListener {
+        void onSizeChanged(int w, int h, int oldw, int oldh);
+    }
+
+    public interface OnKeyBoardChangeListener {
+        void onKeyBoardStateChange(int state);
+    }
+
+    public void setOnKbdStateListener(OnKeyBoardChangeListener listener){
+        mKeyboardListener = listener;
+    }
 
     private TextWatcher watcher = new TextWatcher(){
 		private CharSequence temp = "";
@@ -153,29 +198,32 @@ public class ChatView extends RelativeLayout{
 
 	};
 
-    public void focusToInput(boolean inputFocus){
-        if(inputFocus){
+    public void focusToInput(boolean inputFocus) {
+        if (inputFocus) {
             mChatInputEt.requestFocus();
             Log.i("ChatView", "show softInput");
-            InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
-        }else {
+        } else {
             mAddFileIb.requestFocusFromTouch();
         }
     }
 
-	OnFocusChangeListener listener = new OnFocusChangeListener() {
+    OnFocusChangeListener listener = new OnFocusChangeListener() {
 
-		@Override
-		public void onFocusChange(View v, boolean hasFocus) {
-			if(hasFocus){
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (hasFocus) {
                 Log.i("ChatView", "Input focus");
-                showMoreMenu();
-//				invisibleMoreMenu();
-                ChatController.mIsShowMoreMenu = true;
-			}
-		}
-	};
+                Handler handler = new Handler();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        dismissMoreMenu();
+                    }
+                });
+            }
+        }
+    };
+
 
 	public void setListeners(OnClickListener onClickListener){
 		mReturnBtn.setOnClickListener(onClickListener);
@@ -194,15 +242,12 @@ public class ChatView extends RelativeLayout{
 
     public void setOnTouchListener(OnTouchListener listener){
         mChatListView.setOnTouchListener(listener);
+        mChatInputEt.setOnTouchListener(listener);
     }
 
 	public void setChatListAdapter(MsgListAdapter adapter) {
 		mChatListView.setAdapter(adapter);
 		setToBottom();
-	}
-
-	public void setOnScrollListener(OnScrollListener onScrollChangedListener){
-		mChatListView.setOnScrollListener(onScrollChangedListener);
 	}
 
 	//如果是文字输入
@@ -237,14 +282,15 @@ public class ChatView extends RelativeLayout{
 
 
 
-	public void setChatTitle(String targetId){
-		mChatTitle.setText(targetId);
+	public void setChatTitle(String title){
+		mChatTitle.setText(title);
 	}
 
 	//设置群聊名字
 	public void setChatTitle(String name, int count){
-		String title = name + mContext.getString(R.string.combine_title);
-		mChatTitle.setText(String.format(title, count));
+        mChatTitle.setText(name);
+        mGroupNumTv.setText(String.format(mContext.getString(R.string.combine_title), count));
+        mGroupNumTv.setVisibility(View.VISIBLE);
 	}
 
 	public void clearInput() {
@@ -253,32 +299,31 @@ public class ChatView extends RelativeLayout{
 
 	public void setToBottom() {
 			mChatListView.post(new Runnable() {
-				@Override
-				public void run() {
-					mChatListView.setSelection(mChatListView.getBottom());
-				}
-			});
-	}
-
-	public void removeHeadView() {
-		mChatListView.removeHeaderView(mLoadingMessage);
-	}
-
-	public void addHeadView() {
-		mChatListView.addHeaderView(mLoadingMessage);
+                @Override
+                public void run() {
+                    mChatListView.setSelection(mChatListView.getBottom());
+                }
+            });
 	}
 
 	public void setGroupIcon() {
 		mRightBtn.setImageResource(R.drawable.group_chat_detail);
 	}
 
+    public EditText getInputView(){
+        return mChatInputEt;
+    }
+
+    public TableLayout getMoreMenu(){
+        return mMoreMenuTl;
+    }
 
 	public void showMoreMenu() {
 		mMoreMenuTl.setVisibility(View.VISIBLE);
 	}
 
-    public void invisibleMoreMenu(){
-        mMoreMenuTl.setVisibility(View.INVISIBLE);
+    public void invisibleMoreMenu() {
+        mMoreMenuTl.setVisibility(INVISIBLE);
     }
 
 	public void dismissMoreMenu(){
@@ -301,7 +346,7 @@ public class ChatView extends RelativeLayout{
         mVoiceBtn.releaseRecorder();
     }
 
-    public void resetMoreMenuHeight() {
-        mMoreMenuTl.setLayoutParams(new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, 0));
-    }
+	public DropDownListView getListView() {
+		return mChatListView;
+	}
 }

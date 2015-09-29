@@ -1,10 +1,9 @@
 package io.jchat.android.controller;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -14,59 +13,61 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.Toast;
 
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.Calendar;
+import java.util.Locale;
+
+import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.content.CustomContent;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.eventbus.EventBus;
+import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetGroupMembersCallback;
-import cn.jpush.im.android.api.content.TextContent;
-import cn.jpush.im.android.api.enums.ConversationType;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.adapter.MsgListAdapter;
 import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.entity.Event;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ChatView;
-import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.view.DropDownListView;
 
-public class ChatController implements OnClickListener, OnScrollListener, View.OnTouchListener {
+public class ChatController implements OnClickListener, View.OnTouchListener,
+        ChatView.OnSizeChangedListener, ChatView.OnKeyBoardChangeListener {
 
     private ChatView mChatView;
     private ChatActivity mContext;
     private MsgListAdapter mChatAdapter;
     Conversation mConv;
     private boolean isInputByKeyBoard = true;
-    public boolean mMoreMenuVisible = false;
-    public static boolean mIsShowMoreMenu = false;
-    private static final int UPDATE_GROUP_INFO = 1024;
-    public static final int UPDATE_LAST_PAGE_LISTVIEW = 1025;
-    public static final int UPDATE_CHAT_LISTVIEW = 1026;
+    private boolean mShowSoftInput = false;
+    private static final int REFRESH_LAST_PAGE = 1023;
+    private static final int UPDATE_CHAT_LISTVIEW = 1026;
     private String mTargetID;
     private long mGroupID;
     private boolean mIsGroup;
     private String mPhotoPath = null;
     private final MyHandler myHandler = new MyHandler(this);
     private GroupInfo mGroupInfo;
+    private String mGroupName;
+    Window mWindow;
+    InputMethodManager mImm;
 
     public ChatController(ChatView mChatView, ChatActivity context) {
         this.mChatView = mChatView;
         this.mContext = context;
+        this.mWindow = mContext.getWindow();
+        this.mImm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         // 得到消息列表
         initData();
 
@@ -74,63 +75,64 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
 
     private void initData() {
         Intent intent = mContext.getIntent();
-        mTargetID = intent.getStringExtra("targetID");
+        mTargetID = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
         Log.i("ChatController", "mTargetID " + mTargetID);
-        mGroupID = intent.getLongExtra("groupID", 0);
-        mIsGroup = intent.getBooleanExtra("isGroup", false);
+        mGroupID = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+        mIsGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
         final boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
         // 如果是群组，特别处理
         if (mIsGroup) {
             Log.i("Tag", "mGroupID is " + mGroupID);
             //判断是否从创建群组跳转过来
             if (fromGroup) {
-                mChatView.setChatTitle(mContext.getString(R.string.group), 1);
+                mChatView.setChatTitle(mContext.getString(R.string.group),
+                        intent.getIntExtra("memberCount", 0));
                 mConv = JMessageClient.getGroupConversation(mGroupID);
             } else {
-                if (mTargetID != null)
+                if (mTargetID != null){
                     mGroupID = Long.parseLong(mTargetID);
+                }
                 mConv = JMessageClient.getGroupConversation(mGroupID);
-                mChatView.setChatTitle(mContext.getString(R.string.group));
-                //设置群聊聊天标题
+                mGroupInfo = (GroupInfo)mConv.getTargetInfo();
+                Log.d("ChatController", "GroupInfo: " + mGroupInfo.toString());
+                UserInfo userInfo = mGroupInfo.getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
+                //如果自己在群聊中，聊天标题显示群人数
+                if (userInfo != null) {
+                    if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
+                        mGroupName = mGroupInfo.getGroupName();
+                        mChatView.setChatTitle(mGroupName, mGroupInfo.getGroupMembers().size());
+                    } else {
+                        mChatView.setChatTitle(mContext.getString(R.string.group),
+                                mGroupInfo.getGroupMembers().size());
+                    }
+                    mChatView.showRightBtn();
+                } else {
+                    if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
+                        mGroupName = mGroupInfo.getGroupName();
+                        mChatView.setChatTitle(mGroupName);
+                    } else {
+                        mChatView.setChatTitle(mContext.getString(R.string.group));
+                    }
+                    mChatView.dismissRightBtn();
+                }
+                //更新群名
                 JMessageClient.getGroupInfo(mGroupID, new GetGroupInfoCallback() {
                     @Override
                     public void gotResult(int status, String desc, GroupInfo groupInfo) {
-                        if(status == 0){
-                            android.os.Message msg = myHandler.obtainMessage();
-                            msg.obj = groupInfo;
-                            msg.what = UPDATE_GROUP_INFO;
-                            msg.sendToTarget();
-                            if(!TextUtils.isEmpty(groupInfo.getGroupName())){
-                                mChatView.setChatTitle(groupInfo.getGroupName(), groupInfo.getGroupMembers().size());
-                            }else {
-                                Log.i("ChatController", "GroupMember size: " + groupInfo.getGroupMembers().size());
-                                mChatView.setChatTitle(mContext.getString(R.string.group), groupInfo.getGroupMembers().size());
+                        if (status == 0){
+                            UserInfo info = groupInfo.getGroupMemberInfo(JMessageClient.getMyInfo()
+                                    .getUserName());
+                            if (!TextUtils.isEmpty(groupInfo.getGroupName())){
+                                mGroupName = groupInfo.getGroupName();
+                                if (info != null){
+                                    mChatView.setChatTitle(mGroupName,
+                                            groupInfo.getGroupMembers().size());
+                                    mChatView.showRightBtn();
+                                }else {
+                                    mChatView.setChatTitle(mGroupName);
+                                    mChatView.dismissRightBtn();
+                                }
                             }
-                        }
-                    }
-                });
-                //判断自己如果不在群聊中，隐藏群聊详情按钮
-                JMessageClient.getGroupMembers(mGroupID, new GetGroupMembersCallback() {
-                    @Override
-
-                    public void gotResult(final int status, final String desc, final List<UserInfo> members) {
-                        if (status == 0) {
-                            List<String> userNames = new ArrayList<String>();
-                            for(UserInfo info:members){
-                                userNames.add(info.getUserName());
-                            }
-                            //群主解散后，返回memberList为空
-                            if (userNames.isEmpty()) {
-                                mChatView.dismissRightBtn();
-                                //判断自己如果不在memberList中，则隐藏聊天详情按钮
-                            } else if (!userNames.contains(JMessageClient.getMyInfo().getUserName()))
-                                mChatView.dismissRightBtn();
-                            else mChatView.showRightBtn();
-                        } else {
-                            if (null == members || members.isEmpty()) {
-                                mChatView.dismissRightBtn();
-                            }
-                            HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });
@@ -141,28 +143,44 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             // 用targetID得到会话
             Log.i("Tag", "targetID is " + mTargetID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
-            if(mConv != null){
-                mChatView.setChatTitle(mConv.getTitle());
+            if (mConv != null) {
+                UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
+                if (TextUtils.isEmpty(userInfo.getNickname())){
+                    mChatView.setChatTitle(userInfo.getUserName());
+                }else {
+                    mChatView.setChatTitle(userInfo.getNickname());
+                }
             }
         }
 
         // 如果之前沒有会话记录并且是群聊
         if (mConv == null && mIsGroup) {
-            mConv = Conversation.createConversation(ConversationType.group, mGroupID);
+            mConv = Conversation.createGroupConversation(mGroupID);
             Log.i("ChatController", "create group success");
             // 是单聊
         } else if (mConv == null && !mIsGroup) {
-            mConv = Conversation.createConversation(ConversationType.single, mTargetID);
-            mChatView.setChatTitle(mConv.getTitle());
+            mConv = Conversation.createSingleConversation(mTargetID);
+            UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
+            if (TextUtils.isEmpty(userInfo.getNickname())){
+                mChatView.setChatTitle(userInfo.getUserName());
+            }else {
+                mChatView.setChatTitle(userInfo.getNickname());
+            }
         }
         if (mConv != null) {
-            mConv.resetUnreadCount();
-            if(mIsGroup){
+            if (mIsGroup) {
                 mChatAdapter = new MsgListAdapter(mContext, mGroupID, mGroupInfo);
-            }else {
+            } else {
                 mChatAdapter = new MsgListAdapter(mContext, mTargetID);
             }
             mChatView.setChatListAdapter(mChatAdapter);
+            //监听下拉刷新
+            mChatView.getListView().setOnDropDownListener(new DropDownListView.OnDropDownListener() {
+                @Override
+                public void onDropDown() {
+                    myHandler.sendEmptyMessageDelayed(REFRESH_LAST_PAGE, 1000);
+                }
+            });
         }
 
         // 滑动到底部
@@ -177,43 +195,40 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             // 返回按钮
             case R.id.return_btn:
                 mConv.resetUnreadCount();
+                dismissSoftInput();
                 JMessageClient.exitConversaion();
                 mContext.finish();
                 break;
             // 聊天详细信息
             case R.id.right_btn:
-                if (mIsShowMoreMenu) {
+                if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE) {
                     mChatView.dismissMoreMenu();
-                    dismissSoftInput();
-                    mIsShowMoreMenu = false;
                 }
-                mContext.StartChatDetailActivity(mIsGroup, mTargetID, mGroupID);
+                dismissSoftInput();
+                mContext.startChatDetailActivity(mIsGroup, mTargetID, mGroupID);
                 break;
             // 切换输入
             case R.id.switch_voice_ib:
                 mChatView.dismissMoreMenu();
                 isInputByKeyBoard = !isInputByKeyBoard;
+                //当前为语音输入，点击后切换为文字输入，弹出软键盘
                 if (isInputByKeyBoard) {
                     mChatView.isKeyBoard();
-                    mChatView.mChatInputEt.requestFocus();
-                    mIsShowMoreMenu = true;
-                    mChatView.focusToInput(true);
+                    showSoftInputAndDismissMenu();
                 } else {
+                    //否则切换到语音输入
                     mChatView.notKeyBoard(mConv, mChatAdapter);
-                    mIsShowMoreMenu = false;
+                    if (mShowSoftInput) {
+                        if (mImm != null) {
+                            mImm.hideSoftInputFromWindow(mChatView.getInputView().getWindowToken(), 0); //强制隐藏键盘
+                            mShowSoftInput = false;
+                        }
+                    } else if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE) {
+                        mChatView.dismissMoreMenu();
+                    }
                     Log.i("ChatController", "setConversation success");
-                    //关闭软键盘
-                    dismissSoftInput();
                 }
                 break;
-            case R.id.chat_input_et:
-                mChatView.setMoreMenuHeight();
-                mChatView.showMoreMenu();
-//                mChatView.invisibleMoreMenu();
-                mIsShowMoreMenu = true;
-                showSoftInput();
-                break;
-
             // 发送文本消息
             case R.id.send_msg_btn:
                 String msgContent = mChatView.getChatInput();
@@ -229,25 +244,22 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                     @Override
                     public void gotResult(final int status, String desc) {
                         Log.i("ChatController", "send callback " + status + " desc " + desc);
-                        if (status != 0) {
-                            mContext.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    HandleResponseCode.onHandle(mContext, status, false);
-                                }
-                            });
+                        if (status == 803008) {
+                            CustomContent customContent = new CustomContent();
+                            customContent.setBooleanValue("blackList", true);
+                            Message customMsg = mConv.createSendMessage(customContent);
+                            mChatAdapter.addMsgToList(customMsg);
+                        }else if (status != 0){
+                            HandleResponseCode.onHandle(mContext, status, false);
                         }
                         // 发送成功或失败都要刷新一次
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = UPDATE_CHAT_LISTVIEW;
-                        Bundle bundle = new Bundle();
-                        bundle.putString("desc", desc);
-                        msg.setData(bundle);
-                        msg.sendToTarget();
+                        myHandler.sendEmptyMessage(UPDATE_CHAT_LISTVIEW);
                     }
                 });
                 mChatAdapter.addMsgToList(msg);
                 JMessageClient.sendMessage(msg);
+                //暂时使用EventBus更新会话列表，以后sdk会同步更新Conversation
+                EventBus.getDefault().post(new Event.MessageEvent(msg));
                 break;
 
             case R.id.expression_btn:
@@ -265,50 +277,36 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
                     mChatView.isKeyBoard();
                     isInputByKeyBoard = true;
                     mChatView.showMoreMenu();
-                    mIsShowMoreMenu = true;
-                    mChatView.focusToInput(false);
                 } else {
-                    if (mIsShowMoreMenu) {
-                        if (mMoreMenuVisible) {
-                            mChatView.focusToInput(true);
-                            showSoftInput();
-                            mMoreMenuVisible = false;
-                        } else {
-                            dismissSoftInput();
-                            mChatView.focusToInput(false);
-                            mMoreMenuVisible = true;
-                        }
-                    } else {
+                    //如果弹出软键盘 则隐藏软键盘
+                    if (mChatView.getMoreMenu().getVisibility() != View.VISIBLE) {
+                        dismissSoftInputAndShowMenu();
                         mChatView.focusToInput(false);
-                        mChatView.showMoreMenu();
-                        mIsShowMoreMenu = true;
-                        mMoreMenuVisible = true;
+                        //如果弹出了更多选项菜单，则隐藏菜单并显示软键盘
+                    } else {
+                        showSoftInputAndDismissMenu();
                     }
                 }
                 break;
             // 拍照
             case R.id.pick_from_camera_btn:
                 takePhoto();
-                if (mIsShowMoreMenu) {
+                if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE) {
                     mChatView.dismissMoreMenu();
-                    dismissSoftInput();
-                    mIsShowMoreMenu = false;
                 }
                 break;
             case R.id.pick_from_local_btn:
-                if (mIsShowMoreMenu) {
+                if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE) {
                     mChatView.dismissMoreMenu();
-                    dismissSoftInput();
-                    mIsShowMoreMenu = false;
                 }
                 Intent intent = new Intent();
                 if (mIsGroup) {
-                    intent.putExtra("groupID", mGroupID);
+                    intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
                 } else {
-                    intent.putExtra("targetID", mTargetID);
+                    intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
                 }
-                intent.putExtra("isGroup", mIsGroup);
-                mContext.StartPickPictureTotalActivity(intent);
+                intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
+                mContext.startPickPictureTotalActivity(intent);
                 break;
             case R.id.send_location_btn:
                 break;
@@ -319,38 +317,77 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
     public boolean onTouch(View view, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (mIsShowMoreMenu) {
+                switch (view.getId()){
+                    case R.id.chat_input_et:
+                        if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE && !mShowSoftInput){
+                            showSoftInputAndDismissMenu();
+                            return false;
+                        }else return false;
+                }
+                if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE){
                     mChatView.dismissMoreMenu();
-                    dismissSoftInput();
-                    mIsShowMoreMenu = false;
-                    mMoreMenuVisible = false;
-                    mChatView.setToBottom();
+                }else if (mShowSoftInput){
+                    View v = mContext.getCurrentFocus();
+                    if (mImm != null && v != null) {
+                        mImm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                        mWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+                                | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                        mShowSoftInput = false;
+                    }
                 }
                 break;
         }
         return false;
     }
 
-    private void showSoftInput() {
-        if (mContext.getWindow().getAttributes().softInputMode == WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
-            if (mContext.getCurrentFocus() != null) {
-                InputMethodManager imm = ((InputMethodManager) mContext
-                        .getSystemService(Activity.INPUT_METHOD_SERVICE));
-                imm.showSoftInputFromInputMethod(mChatView.getWindowToken(), 0);
+    private void dismissSoftInput(){
+        if (mShowSoftInput){
+            if (mImm != null) {
+                mImm.hideSoftInputFromWindow(mChatView.getInputView().getWindowToken(), 0);
+                mShowSoftInput = false;
+            }
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    public void dismissSoftInput() {
-        //隐藏软键盘
-        InputMethodManager imm = ((InputMethodManager) mContext
-                .getSystemService(Activity.INPUT_METHOD_SERVICE));
-        if (mContext.getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
-            if (mContext.getCurrentFocus() != null)
-                imm.hideSoftInputFromWindow(mContext
-                                .getCurrentFocus().getWindowToken(),
-                        InputMethodManager.HIDE_NOT_ALWAYS);
+    private void showSoftInputAndDismissMenu() {
+        mWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+                | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN); // 隐藏软键盘
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
+        mChatView.invisibleMoreMenu();
+        mChatView.getInputView().requestFocus();
+        if (mImm != null) {
+            mImm.showSoftInput(mChatView.getInputView(),
+                    InputMethodManager.SHOW_FORCED);//强制显示键盘
+        }
+        mShowSoftInput = true;
+        mChatView.setMoreMenuHeight();
+    }
+
+    public void dismissSoftInputAndShowMenu() {
+        //隐藏软键盘
+        mWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+                | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN); // 隐藏软键盘
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        mChatView.showMoreMenu();
+        if (mImm != null) {
+            mImm.hideSoftInputFromWindow(mChatView.getInputView().getWindowToken(), 0); //强制隐藏键盘
+        }
+        mChatView.setMoreMenuHeight();
+        mShowSoftInput = false;
     }
 
     private void takePhoto() {
@@ -366,12 +403,14 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             setPhotoPath(file.getAbsolutePath());
             try {
-                mContext.startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_TAKE_PHOTO);
+                mContext.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO);
             } catch (ActivityNotFoundException anf) {
-                Toast.makeText(mContext, mContext.getString(R.string.camera_not_prepared), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, mContext.getString(R.string.camera_not_prepared),
+                        Toast.LENGTH_SHORT).show();
             }
         } else {
-            Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -392,10 +431,16 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         mChatAdapter.refreshGroupInfo(groupInfo);
     }
 
-    private static class MyHandler extends Handler{
+    public void resetUnreadMsg() {
+        if (mConv != null){
+            mConv.resetUnreadCount();
+        }
+    }
+
+    private static class MyHandler extends Handler {
         private final WeakReference<ChatController> mController;
 
-        public MyHandler(ChatController controller){
+        public MyHandler(ChatController controller) {
             mController = new WeakReference<ChatController>(controller);
         }
 
@@ -403,35 +448,27 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
             ChatController controller = mController.get();
-            if(controller != null){
+            if (controller != null) {
                 switch (msg.what) {
-                    case UPDATE_GROUP_INFO:
-                        controller.mGroupInfo = (GroupInfo)msg.obj;
-                        controller.mChatAdapter.refreshGroupInfo(controller.mGroupInfo);
-                        break;
-                    case UPDATE_LAST_PAGE_LISTVIEW:
-                        Log.i("Tag", "收到更新消息列表的消息");
-                        controller.mChatAdapter.refresh();
-                        controller.mChatView.removeHeadView();
+                    case REFRESH_LAST_PAGE:
+                        controller.mChatAdapter.dropDownToRefresh();
+                        controller.mChatView.getListView().onDropDownComplete();
+                        if (controller.mChatAdapter.isHasLastPage()) {
+                            controller.mChatView.getListView()
+                                    .setSelection(controller.mChatAdapter.getOffset());
+                            controller.mChatAdapter.refreshStartPosition();
+                        } else {
+                            controller.mChatView.getListView().setSelection(0);
+                        }
                         break;
                     case UPDATE_CHAT_LISTVIEW:
-                        controller.mChatAdapter.refresh();
+                        controller.mChatAdapter.notifyDataSetChanged();
                         break;
                 }
             }
         }
     }
 
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem,
-                         int visibleItemCount, int totalItemCount) {
-    }
-
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-//        int touchPosition = 0;
-    }
 
     public MsgListAdapter getAdapter() {
         return mChatAdapter;
@@ -457,17 +494,41 @@ public class ChatController implements OnClickListener, OnScrollListener, View.O
         return mIsGroup;
     }
 
-    public GroupInfo getGroupInfo(){
-        return mGroupInfo;
+    @Override
+    public void onSizeChanged(int w, int h, int oldw, int oldh) {
+        if (oldh - h > 300) {
+            Log.i("ChatController", "onSizeChanged, soft input is open");
+            mShowSoftInput = true;
+            mChatView.setMoreMenuHeight();
+        } else {
+            mShowSoftInput = false;
+            Log.i("ChatController", "onSizeChanged, soft input is close");
+        }
     }
 
-    public int getGroupMembersCount(){
-        if (mGroupInfo != null)
-            return mGroupInfo.getGroupMembers().size();
-        else return 1;
+    @Override
+    public void onKeyBoardStateChange(int state) {
+        switch (state) {
+            case ChatView.KEYBOARD_STATE_INIT:
+                if (mImm != null) {
+                    mImm.isActive();
+                }
+                if (mChatView.getMoreMenu().getVisibility() == View.INVISIBLE
+                        || (!mShowSoftInput && mChatView.getMoreMenu().getVisibility() == View.GONE)) {
+
+                    mWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+                            | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    mChatView.getMoreMenu().setVisibility(View.GONE);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
-    public void refresh() {
-        mChatAdapter.refresh();
-    }
 }

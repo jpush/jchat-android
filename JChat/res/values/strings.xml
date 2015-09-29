@@ -89,7 +89,9 @@
     <string name="voice_length">10"</string>
     <string name="time_too_short_toast">时间太短！</string>
     <string name="file_fetch_failed">文件获取失败</string>
-    <string name="record_voice_permission_toast">若要使用语音功能，请选择允许录音</string>
+    <string name="record_voice_permission_denied">请在应用的权限管理中将使用录音选项设置为允许，
+        否则将无法使用录音功能</string>
+    <string name="record_voice_permission_request">若要使用语音功能，请选择允许录音</string>
     <string name="voice_fetch_failed_toast">获取语音失败，请重试</string>
     <string name="picture">图片</string>
     <string name="type_picture">[图片]</string>
@@ -97,6 +99,7 @@
     <string name="type_location">[位置]</string>
     <string name="video">视频</string>
     <string name="group_notification">[群成员变动]</string>
+    <string name="type_custom">[自定义消息]</string>
     <string name="yesterday">昨天</string>
     <string name="before_dawn">凌晨</string>
     <string name="morning">早上</string>
@@ -129,6 +132,10 @@
     <string name="upload_avatar_title">请选择上传头像方式</string>
     <string name="setting">设置</string>
     <string name="login_out">退出登录</string>
+    <string name="about">关于</string>
+    <string name="demo_version_name">demo版本号:%s</string>
+    <string name="about_version">\nsdk版本号:1.1.4</string>
+    <string name="about_date">\n9月24日</string>
     <string name="add_to_friend">加为好友</string>
     <string name="setting_username_hit">昵称</string>
     <string name="setting_username_big_hit">更改名字</string>
@@ -205,12 +212,14 @@
     <string name="group_chat_history_hit">查找聊天内容</string>
     <string name="group_clear_history_hit">清空聊天记录</string>
     <string name="clear_history_confirm_title">确定清空聊天记录？</string>
+    <string name="delete_group_confirm_title">确定删除并退出群聊？</string>
     <string name="deleting_hint">删除中</string>
     <string name="group_exit_btn">删除并退出</string>
 
     <!-- 下线提示 -->
     <string name="user_logout_dialog_title">下线提示</string>
     <string name="user_logout_dialog_message">您的账号已经在另一台设备上登录，您被迫下线</string>
+    <string name="user_delete_hint_message">您的账号已被删除，您被迫下线</string>
 
 
     <string name="server_abnormal_toast">服务器返回异常，请重试</string>
@@ -236,6 +245,7 @@
     <string name="server_803003">发送失败，目标用户未注册或从未登录过</string>
     <string name="server_803004">发送失败，此群已被删除</string>
     <string name="server_803005">您已被请出此群，不能发送消息</string>
+    <string name="server_803008">消息已发出，但被对方拒收了。</string>
     <string name="server_808003">讨论组数量已达上限，创建失败</string>
     <string name="server_808004">群组名长度超出上限</string>
     <string name="server_810003">用户不属于该群组</string>
@@ -245,6 +255,10 @@
     <string name="server_810009">该用户拥有的讨论组数量已达上限，添加失败</string>
     <string name="server_811003">用户不在该讨论组中，删除成员失败</string>
     <string name="server_812002">您已被请出此群，不能修改相关信息</string>
+    <string name="server_818001">要添加的黑名单列表为空，添加失败</string>
+    <string name="server_818002">要添加的黑名单列表中有成员不存在，添加失败</string>
+    <string name="server_818003">要添加的黑名单列表中有成员不能被添加，添加失败</string>
+    <string name="server_818004">要添加的黑名单列表中有成员重复添加，添加失败</string>
     <string name="sdk_http_899001">用户已存在</string>
     <string name="sdk_http_899006">该群已被删除</string>
     <string name="sdk_http_898005">uid不存在</string>
@@ -260,8 +274,15 @@
     <string name="sdk_87x_871309">消息所含文件不存在</string>
     <string name="sdk_87x_871310">网络已断开，请检查网络连接</string>
     <string name="sdk_87x_871311">用户未设定头像，下载头像失败</string>
+    <string name="sdk_87x_871312">ImageContent创建失败</string>
     <string name="sdk_87x_871403">发送失败，请稍后重试</string>
     <string name="sdk_87x_871404">下载失败，请稍后重试</string>
+    <string name="sdk_87x_871501">appkey与appid不匹配或者token无效</string>
+    <string name="sdk_87x_871502">appkey无效</string>
+    <string name="sdk_87x_871503">appkey与platform不匹配</string>
+    <string name="sdk_87x_871504">push注册还未完成，请稍后重试</string>
+    <string name="sdk_87x_871505">包名不存在</string>
+    <string name="sdk_87x_871506">imei无效</string>
     <string name="sdk_87x_871201">请求超时，请检查您的网络</string>
 
 </resources>

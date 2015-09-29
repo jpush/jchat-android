@@ -4,25 +4,23 @@ package io.jchat.android.view;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
-import android.view.MotionEvent;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import io.jchat.android.R;
-
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
-
+import io.jchat.android.R;
 import io.jchat.android.tools.BitmapLoader;
 
 public class MeView extends LinearLayout {
@@ -36,10 +34,12 @@ public class MeView extends LinearLayout {
     private TextView mNickNameTv;
     private RelativeLayout mSettingRl;
     private RelativeLayout mLogoutRl;
+    private RelativeLayout mAboutRl;
     private Context mContext;
     private boolean mLoadAvatarSuccess = false;
     private int mWidth;
     private int mHeight;
+    private final MyHandler myHandler = new MyHandler(this);
 
     public MeView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -58,22 +58,29 @@ public class MeView extends LinearLayout {
         mUserNameTv = (TextView) findViewById(R.id.user_name_tv);
         mSettingRl = (RelativeLayout) findViewById(R.id.setting_rl);
         mLogoutRl = (RelativeLayout) findViewById(R.id.logout_rl);
+        mAboutRl = (RelativeLayout) findViewById(R.id.about_rl);
         DisplayMetrics dm = new DisplayMetrics();
         ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
         double density = dm.density;
         mWidth = dm.widthPixels;
-        mHeight = (int)(190 * density);
-        if(userInfo != null){
+        mHeight = (int) (190 * density);
+        if (userInfo != null) {
             mUserNameTv.setText(userInfo.getUserName());
-            File file = userInfo.getAvatarFile();
-            if(file != null && file.isFile()){
-                Log.i("MeView", "file.getAbsolutePath() " + file.getAbsolutePath());
-                showPhoto(file.getAbsolutePath());
+            //MediaID不为空
+            if (!TextUtils.isEmpty(userInfo.getAvatar())) {
+                File file = userInfo.getAvatarFile();
+                if (file != null && file.isFile()) {
+                    Log.i("MeView", "file.getAbsolutePath() " + file.getAbsolutePath());
+                    showPhoto(file.getAbsolutePath());
+                    loadAvatarSuccess(true);
+                } else {
+                    loadAvatarSuccess(false);
+                }
+                //没有设置过头像，将标志位置为True
+            } else {
                 loadAvatarSuccess(true);
-            }else {
-                loadAvatarSuccess(false);
             }
-            if(!TextUtils.isEmpty(userInfo.getNickname()))
+            if (!TextUtils.isEmpty(userInfo.getNickname()))
                 mNickNameTv.setText(userInfo.getNickname());
         }
     }
@@ -82,7 +89,7 @@ public class MeView extends LinearLayout {
         mLoadAvatarSuccess = value;
     }
 
-    public boolean getAvatarFlag(){
+    public boolean getAvatarFlag() {
         return mLoadAvatarSuccess;
     }
 
@@ -91,10 +98,11 @@ public class MeView extends LinearLayout {
         mUserInfoRl.setOnClickListener(onClickListener);
         mSettingRl.setOnClickListener(onClickListener);
         mLogoutRl.setOnClickListener(onClickListener);
+        mAboutRl.setOnClickListener(onClickListener);
         mAvatarIv.setOnClickListener(onClickListener);
     }
 
-    public void setOnTouchListener(OnTouchListener listener){
+    public void setOnTouchListener(OnTouchListener listener) {
         mUserInfoRl.setOnTouchListener(listener);
         mSettingRl.setOnTouchListener(listener);
         mLogoutRl.setOnTouchListener(listener);
@@ -103,18 +111,42 @@ public class MeView extends LinearLayout {
 
     public void showPhoto(final String path) {
         Log.i("MeView", "updated path:  " + path);
-        ((Activity)mContext).runOnUiThread(new Runnable() {
+        final Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
-                mAvatarIv.setImageBitmap(BitmapLoader.BoxBlurFilter(bitmap));
-                mAvatarIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                mTakePhotoBtn.setImageBitmap(bitmap);
+                if (bitmap != null){
+                    Bitmap bmp = BitmapLoader.doBlur(bitmap, false);
+                    android.os.Message msg = myHandler.obtainMessage();
+                    msg.obj = bmp;
+                    msg.sendToTarget();
+                }
             }
         });
+        thread.start();
+        mTakePhotoBtn.setImageBitmap(bitmap);
     }
 
     public void showNickName(String nickname) {
         mNickNameTv.setText(nickname);
+    }
+
+    private static class MyHandler extends Handler {
+        private final WeakReference<MeView> mMeView;
+
+        public MyHandler(MeView meView) {
+            mMeView = new WeakReference<MeView>(meView);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            MeView meView = mMeView.get();
+            if (null != meView) {
+                Bitmap bitmap = (Bitmap) msg.obj;
+                meView.mAvatarIv.setImageBitmap(bitmap);
+                meView.mAvatarIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            }
+        }
     }
 }

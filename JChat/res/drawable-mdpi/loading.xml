@@ -15,10 +15,4 @@
     <item android:duration="@integer/loading_frame_interval" android:drawable="@drawable/loading_12" />
     <item android:duration="@integer/loading_frame_interval" android:drawable="@drawable/loading_13" />
     <item android:duration="@integer/loading_frame_interval" android:drawable="@drawable/loading_14" />
-    <item android:duration="@integer/loading_frame_interval" android:drawable="@drawable/loading_15" />
-    <item android:duration="@integer/loading_frame_interval" android:drawable="@drawable/loading_16" />
-    <item android:duration="@integer/loading_frame_interval" android:drawable="@drawable/loading_17" />
-    <item android:duration="@integer/loading_frame_interval" android:drawable="@drawable/loading_18" />
-    <item android:duration="@integer/loading_frame_interval" android:drawable="@drawable/loading_19" />
-    <item android:duration="@integer/loading_frame_interval" android:drawable="@drawable/loading_20" />
 </animation-list>

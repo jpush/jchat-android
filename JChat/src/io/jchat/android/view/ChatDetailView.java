@@ -12,21 +12,19 @@ import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import io.jchat.android.R;
 
 public class ChatDetailView extends LinearLayout{
 	
-	private RelativeLayout mGroupNameRL;
+	private LinearLayout mGroupNameLL;
 	private LinearLayout mMyNameLL;
-	private RelativeLayout mGroupNumRL;
+	private LinearLayout mGroupNumLL;
 	private LinearLayout mGroupChatRecordLL;
-	private RelativeLayout mGroupChatDelRL;
+	private LinearLayout mGroupChatDelLL;
 	private ImageButton mReturnBtn;
 	private TextView mTitle;
 	private ImageButton mMenuBtn;
@@ -34,7 +32,7 @@ public class ChatDetailView extends LinearLayout{
 	private TextView mGroupName;
 	private TextView mGroupNum;
 	private TextView mMyName;
-	private GridView mGridView;
+	private GroupGridView mGridView;
     private Context mContext;
 	private View mDividingLine;
 
@@ -45,11 +43,11 @@ public class ChatDetailView extends LinearLayout{
 	}
 	
 	public void initModule(){
-		mGroupNameRL = (RelativeLayout) findViewById(R.id.group_name_rl);
+		mGroupNameLL = (LinearLayout) findViewById(R.id.group_name_ll);
 		mMyNameLL = (LinearLayout) findViewById(R.id.group_my_name_ll);
-		mGroupNumRL = (RelativeLayout) findViewById(R.id.group_num_rl);
+		mGroupNumLL = (LinearLayout) findViewById(R.id.group_num_ll);
 		mGroupChatRecordLL = (LinearLayout) findViewById(R.id.group_chat_record_ll);
-		mGroupChatDelRL = (RelativeLayout) findViewById(R.id.group_chat_del_rl);
+		mGroupChatDelLL = (LinearLayout) findViewById(R.id.group_chat_del_ll);
 		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
 		mTitle = (TextView) findViewById(R.id.title);
 		mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
@@ -58,8 +56,8 @@ public class ChatDetailView extends LinearLayout{
 		mGroupNum = (TextView) findViewById(R.id.chat_detail_group_num);
 		mDividingLine = findViewById(R.id.group_num_dividing_line);
 		mMyName = (TextView) findViewById(R.id.chat_detail_my_name);
-		mGridView = (GridView) findViewById(R.id.chat_detail_group_gv);
-		
+		mGridView = (GroupGridView) findViewById(R.id.chat_detail_group_gv);
+
 		mTitle.setText(mContext.getString(R.string.chat_detail_title));
 		mMenuBtn.setVisibility(View.GONE);
 		//自定义GridView点击背景为透明色
@@ -67,12 +65,12 @@ public class ChatDetailView extends LinearLayout{
 	}
 	
 	public void setListeners(OnClickListener onClickListener){
-		mGroupNameRL.setOnClickListener(onClickListener);
+		mGroupNameLL.setOnClickListener(onClickListener);
 		mMyNameLL.setOnClickListener(onClickListener);
-		mGroupNumRL.setOnClickListener(onClickListener);
+		mGroupNumLL.setOnClickListener(onClickListener);
 		mGroupChatRecordLL.setOnClickListener(onClickListener);
-		mGroupChatDelRL.setOnClickListener(onClickListener);
-		mReturnBtn.setOnClickListener(onClickListener);
+		mGroupChatDelLL.setOnClickListener(onClickListener);
+	    mReturnBtn.setOnClickListener(onClickListener);
 		mDelGroupBtn.setOnClickListener(onClickListener);
 	}
 	
@@ -83,11 +81,11 @@ public class ChatDetailView extends LinearLayout{
 	public void setLongClickListener(OnItemLongClickListener listener){
 		mGridView.setOnItemLongClickListener(listener);
 	}
-	
+
 	public void setChatDetailInfo(String[] detailInfo){
 //		mGroupName.setText(detailInfo[0]);
 	}
-	
+
 	public void setAdapter(GroupMemberGridAdapter adapter){
 		mGridView.setAdapter(adapter);
 	}
@@ -105,8 +103,8 @@ public class ChatDetailView extends LinearLayout{
 	}
 
 	public void setSingleView() {
-		mGroupNameRL.setVisibility(View.GONE);
-		mGroupNumRL.setVisibility(View.GONE);
+		mGroupNameLL.setVisibility(View.GONE);
+		mGroupNumLL.setVisibility(View.GONE);
 		mDividingLine.setVisibility(View.GONE);
 		mMyNameLL.setVisibility(View.GONE);
 		mDelGroupBtn.setVisibility(View.GONE);
@@ -123,6 +121,12 @@ public class ChatDetailView extends LinearLayout{
     }
 
 	public void setTitle(int size) {
-		mTitle.setText(mContext.getString(R.string.chat_detail_title) + "(" + size + ")");
+		String title = mContext.getString(R.string.chat_detail_title)
+				+ mContext.getString(R.string.combine_title);
+		mTitle.setText(String.format(title, size));
 	}
+
+    public GroupGridView getGridView() {
+        return mGridView;
+    }
 }

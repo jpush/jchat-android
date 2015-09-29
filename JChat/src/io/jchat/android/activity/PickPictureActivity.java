@@ -29,6 +29,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.adapter.PickPictureAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.SortPictureList;
 
 public class PickPictureActivity extends BaseActivity {
@@ -47,6 +48,7 @@ public class PickPictureActivity extends BaseActivity {
     private ProgressDialog mDialog;
     private long mGroupID;
     private int[] mMsgIDs;
+    private static final int SEND_PICTURE = 200;
     private final MyHandler myHandler = new MyHandler(this);
 
     @Override
@@ -58,14 +60,14 @@ public class PickPictureActivity extends BaseActivity {
         mGridView = (GridView) findViewById(R.id.child_grid);
 
         mIntent = this.getIntent();
-        mIsGroup = mIntent.getBooleanExtra("isGroup", false);
+        mIsGroup = mIntent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
         if (mIsGroup){
-            mGroupID = mIntent.getLongExtra("groupID", 0);
+            mGroupID = mIntent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
             Log.i("PickPictureActivity", "groupID : " + mGroupID);
             mConv = JMessageClient.getGroupConversation(mGroupID);
         }
         else {
-            mTargetID = mIntent.getStringExtra("targetID");
+            mTargetID = mIntent.getStringExtra(JPushDemoApplication.TARGET_ID);
             Log.i("PickPictureActivity", "mTargetID" + mTargetID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
         }
@@ -88,14 +90,14 @@ public class PickPictureActivity extends BaseActivity {
             Intent intent = new Intent();
             intent.putExtra("fromChatActivity", false);
             if(mIsGroup){
-                intent.putExtra("groupID", mGroupID);
-            }else intent.putExtra("targetID", mTargetID);
+                intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
+            }else intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
             intent.putStringArrayListExtra("pathList", (ArrayList<String>) mList);
-            intent.putExtra("position", position);
-            intent.putExtra("isGroup", mIsGroup);
+            intent.putExtra(JPushDemoApplication.POSITION, position);
+            intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
             intent.putExtra("pathArray", mAdapter.getSelectedArray());
             intent.setClass(PickPictureActivity.this, BrowserViewPagerActivity.class);
-            startActivityForResult(intent, JPushDemoApplication.REQUESTCODE_SELECT_PICTURE);
+            startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_BROWSER_PICTURE);
         }
     };
 
@@ -108,7 +110,7 @@ public class PickPictureActivity extends BaseActivity {
                     //存放选中图片的路径
                     mPickedList = new ArrayList<String>();
                     //存放选中的图片的position
-                    List<Integer> positionList = new ArrayList<Integer>();
+                    List<Integer> positionList;
                     positionList = mAdapter.getSelectItems();
                     //拿到选中图片的路径
                     for (int i = 0; i < positionList.size(); i++){
@@ -126,14 +128,8 @@ public class PickPictureActivity extends BaseActivity {
                         Thread thread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                final List<String> pathList = new ArrayList<String>();
-                                getThumbnailPictures(pathList);
-                                android.os.Message msg = myHandler.obtainMessage();
-                                msg.what = 0;
-                                Bundle bundle = new Bundle();
-                                bundle.putStringArrayList("pathList", (ArrayList<String>) pathList);
-                                msg.setData(bundle);
-                                msg.sendToTarget();
+                                getThumbnailPictures();
+                                myHandler.sendEmptyMessageDelayed(SEND_PICTURE, 1000);
                             }
                         });
                         thread.start();
@@ -150,38 +146,54 @@ public class PickPictureActivity extends BaseActivity {
     /**
      * 获得选中图片的缩略图路径
      *
-     * @param pathList
      */
-    private void getThumbnailPictures(List<String> pathList) {
-        String tempPath;
+    private void getThumbnailPictures() {
         Bitmap bitmap;
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         mMsgIDs = new int[mPickedList.size()];
         for (int i = 0; i < mPickedList.size(); i++) {
+            final int index = i;
             //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
-            if(BitmapLoader.verifyPictureSize(mPickedList.get(i)))
-                pathList.add(mPickedList.get(i));
-            else {
+            if (BitmapLoader.verifyPictureSize(mPickedList.get(i))){
+                File file = new File(mPickedList.get(i));
+                ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, ImageContent imageContent) {
+                        if (status == 0){
+                            Message msg = mConv.createSendMessage(imageContent);
+                            mMsgIDs[index] = msg.getId();
+                        }else {
+                            Log.d("PickPictureActivity", "create image content failed! status:" + status);
+                            HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
+                        }
+                    }
+                });
+            } else {
                 bitmap = BitmapLoader.getBitmapFromFile(mPickedList.get(i), 720, 1280);
-                tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-                pathList.add(tempPath);
+                final String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
+                File file = new File(tempPath);
+                ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, ImageContent imageContent) {
+                        if (status == 0) {
+                            imageContent.setStringExtra("localPath", mPickedList.get(index));
+                            imageContent.setStringExtra("tempPath", tempPath);
+                            Message msg = mConv.createSendMessage(imageContent);
+                            mMsgIDs[index] = msg.getId();
+                        } else {
+                            Log.d("PickPictureActivity", "create image content failed! status:" + status);
+                            HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
+                        }
+                    }
+                });
             }
-
-            Log.i("PickPictureActivity", "pathList.get(i) " + pathList.get(i));
-            File file = new File(pathList.get(i));
-            try {
-                    ImageContent content = new ImageContent(file);
-                    Message msg = mConv.createSendMessage(content);
-                    mMsgIDs[i] = msg.getId();
-                } catch (FileNotFoundException e) {
-                }
         }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == JPushDemoApplication.RESULTCODE_SELECT_PICTURE) {
+        if (resultCode == JPushDemoApplication.RESULT_CODE_SELECT_PICTURE) {
             if (data != null) {
                 int[] selectedArray = data.getIntArrayExtra("pathArray");
                 int sum = 0;
@@ -194,6 +206,9 @@ public class PickPictureActivity extends BaseActivity {
                 mAdapter.refresh(selectedArray);
             }
 
+        }else if (resultCode == JPushDemoApplication.RESULT_CODE_BROWSER_PICTURE){
+            setResult(JPushDemoApplication.RESULT_CODE_SELECT_ALBUM, data);
+            finish();
         }
     }
 
@@ -210,16 +225,12 @@ public class PickPictureActivity extends BaseActivity {
             PickPictureActivity activity = mActivity.get();
             if(activity != null){
                 switch (msg.what) {
-                    case 0:
+                    case SEND_PICTURE:
                         Intent intent = new Intent();
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        intent.putExtra("sendPicture", true);
-                        intent.putExtra("targetID", activity.mTargetID);
-                        intent.putExtra("groupID", activity.mGroupID);
-                        intent.putExtra("isGroup", activity.mIsGroup);
-                        intent.putExtra("msgIDs", activity.mMsgIDs);
-                        intent.setClass(activity, ChatActivity.class);
-                        activity.startActivity(intent);
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetID);
+                        intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupID);
+                        intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIDs);
+                        activity.setResult(JPushDemoApplication.RESULT_CODE_SELECT_ALBUM, intent);
                         if(activity.mDialog != null)
                             activity.mDialog.dismiss();
                         activity.finish();

@@ -1,16 +1,16 @@
 package io.jchat.android.controller;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
+import android.view.WindowManager;
+
 import io.jchat.android.R;
 
 import io.jchat.android.activity.MeFragment;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.MeView;
 
@@ -18,10 +18,15 @@ public class MeController implements OnClickListener {
 
     private MeView mMeView;
     private MeFragment mContext;
+    private Dialog mDialog;
+    private int mWidth;
 
     public MeController(MeView meView, MeFragment context) {
         this.mMeView = meView;
         this.mContext = context;
+        DisplayMetrics dm = new DisplayMetrics();
+        mContext.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mWidth = dm.widthPixels;
     }
 
     @Override
@@ -32,7 +37,24 @@ public class MeController implements OnClickListener {
                 mContext.startBrowserAvatar();
                 break;
             case R.id.take_photo_iv:
-                mContext.showSetAvatarDialog();
+                View.OnClickListener listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        switch (v.getId()) {
+                            case R.id.take_photo_btn:
+                                mDialog.cancel();
+                                mContext.takePhoto();
+                                break;
+                            case R.id.pick_picture_btn:
+                                mDialog.cancel();
+                                mContext.selectImageFromLocal();
+                                break;
+                        }
+                    }
+                };
+                mDialog = DialogCreator.createSetAvatarDialog(mContext.getActivity(), listener);
+                mDialog.show();
+                mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 break;
             case R.id.user_info_rl:
                 mContext.StartMeInfoActivity();
@@ -42,35 +64,28 @@ public class MeController implements OnClickListener {
                 break;
 //			//退出登录 清除Notification，清除缓存
             case R.id.logout_rl:
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext.getActivity());
-                View view = LayoutInflater.from(mContext.getActivity()).inflate(R.layout.dialog_resend_msg, null);
-                builder.setView(view);
-                TextView title = (TextView) view.findViewById(R.id.title);
-                title.setText(mContext.getString(R.string.logout_confirm));
-                final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
-                final Button commit = (Button) view.findViewById(R.id.resend_btn);
-                commit.setText(mContext.getString(R.string.confirm));
-                final Dialog dialog = builder.create();
-                dialog.show();
-                View.OnClickListener listener = new View.OnClickListener() {
+                listener = new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         switch (view.getId()) {
                             case R.id.cancel_btn:
-                                dialog.cancel();
+                                mDialog.cancel();
                                 break;
-                            case R.id.resend_btn:
+                            case R.id.commit_btn:
                                 mContext.Logout();
                                 mContext.cancelNotification();
                                 NativeImageLoader.getInstance().releaseCache();
                                 mContext.getActivity().finish();
-                                dialog.cancel();
+                                mDialog.cancel();
                                 break;
                         }
                     }
                 };
-                cancel.setOnClickListener(listener);
-                commit.setOnClickListener(listener);
+                mDialog = DialogCreator.createLogoutDialog(mContext.getActivity(), listener);
+                mDialog.show();
+                break;
+            case R.id.about_rl:
+                mContext.startAboutActivity();
                 break;
 
 //		case R.id.birthday:

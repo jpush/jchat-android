@@ -22,9 +22,7 @@
             android:text="Title"
             android:textColor="#FFFFFF"
             android:layout_centerInParent="true"
-            android:ems="8"
             android:singleLine="true"
-            android:marqueeRepeatLimit="marquee_forever"
             android:textSize="20sp"/>
         
         <ImageButton

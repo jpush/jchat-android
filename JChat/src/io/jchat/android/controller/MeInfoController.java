@@ -28,7 +28,7 @@ public class MeInfoController implements OnClickListener {
                 mContext.finish();
                 break;
             case R.id.nick_name_rl:
-                mContext.StartModifyNickNameActivity();
+                mContext.startModifyNickNameActivity();
                 break;
             case R.id.sex_rl:
                 UserInfo userInfo = JMessageClient.getMyInfo();
@@ -36,10 +36,10 @@ public class MeInfoController implements OnClickListener {
                 mContext.showSexDialog(gender);
                 break;
             case R.id.location_rl:
-                mContext.StartSelectAreaActivity();
+                mContext.startSelectAreaActivity();
                 break;
             case R.id.sign_rl:
-                mContext.StartModifySignatureActivity();
+                mContext.startModifySignatureActivity();
                 break;
         }
     }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <io.jchat.android.view.ChatView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:listViewAttr="http://schemas.android.com/apk/res-auto"
     android:id="@+id/chat_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,25 +11,76 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <include layout="@layout/menu_title_bar" />
+            <RelativeLayout
+                android:id="@+id/menu_title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/title_bar_height"
+                android:background="@color/jpush_blue">
 
+                <ImageButton
+                    android:id="@+id/return_btn"
+                    android:layout_width="@dimen/title_bar_height"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentLeft="true"
+                    android:src="@drawable/back_btn"
+                    android:background="@drawable/back_btn_bg"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true">
+
+                    <TextView
+                        android:id="@+id/title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxWidth="190dp"
+                        android:textColor="#FFFFFF"
+                        android:singleLine="true"
+                        android:textSize="20sp"/>
+
+                    <TextView
+                        android:id="@+id/group_num_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/title"
+                        android:textColor="#FFFFFF"
+                        android:singleLine="true"
+                        android:textSize="20sp"/>
+
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/right_btn"
+                    android:layout_width="@dimen/title_bar_height"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/chat_detail"
+                    android:background="@drawable/back_btn_bg" />
+
+            </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/chat_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/send_msg_layout"
-            android:layout_marginTop="@dimen/title_bar_height"
+            android:layout_below="@+id/menu_title_bar"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true">
 
-            <ListView
+            <io.jchat.android.view.DropDownListView
                 android:id="@+id/chat_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#F0F1F3"
                 android:listSelector="@android:color/transparent"
-                android:transcriptMode="normal"></ListView>
+                android:transcriptMode="normal"
+                android:divider="@null"
+                listViewAttr:isDropDownStyle="true"
+                listViewAttr:isOnBottomStyle="false"
+                listViewAttr:isAutoLoadOnBottom="false">
+            </io.jchat.android.view.DropDownListView>
         </LinearLayout>
 
 
@@ -53,10 +105,11 @@
                     android:id="@+id/switch_voice_ib"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="2dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:background="@drawable/voice"
-                    android:gravity="center" />
+                    android:background="@drawable/voice"/>
 
 
                 <RelativeLayout
@@ -91,7 +144,8 @@
                     <io.jchat.android.controller.RecordVoiceBtnController
                         android:id="@+id/voice_btn"
                         android:layout_width="match_parent"
-                        android:layout_height="35dp"
+                        android:layout_height="34dp"
+                        android:layout_marginRight="5dp"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentTop="true"
                         android:background="@drawable/voice_bg"
@@ -107,6 +161,8 @@
                 <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="2dp"
                     android:layout_marginLeft="5dp">
 
                     <Button
@@ -125,6 +181,7 @@
                         android:id="@+id/add_file_btn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
                         android:background="@drawable/more_menu"
                         android:focusable="true" />
                 </FrameLayout>
