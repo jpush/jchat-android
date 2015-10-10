@@ -39,6 +39,7 @@
     <string name="actionbar_contact">通讯录</string>
     <string name="actionbar_me">我</string>
     <string name="search_friend_hit">邮箱/用户名/ID</string>
+    <string name="search">搜索...</string>
     <string name="take_monent">稍等片刻</string>
     <string name="add_friend">添加朋友</string>
     <string name="fetch_user_info_failed">用户信息获取失败</string>
@@ -120,6 +121,9 @@
     <string name="sdcard_not_exist_toast">暂无外部存储</string>
     <string name="camera_not_prepared">摄像头尚未准备好</string>
     <string name="sdcard_not_prepare_toast">sdcard尚未准备好</string>
+
+    <string name="select_friend_title">选择朋友</string>
+    <string name="selected_num">(%s)</string>
 
     <!--设置相关-->
     <string name="birthday">出生日期</string>

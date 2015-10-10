@@ -261,8 +261,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     mContext.startActivity(intent);
                     // 点击添加成员按钮
                 } else if (position == mCurrentNum) {
-                    addMemberToGroup();
-                    // mContext.showContacts();
+//                    addMemberToGroup();
+                     mContext.showContacts();
 
                     // 是群主, 成员个数大于1并点击删除按钮
                 } else if (position == mCurrentNum + 1 && mIsCreator && mCurrentNum > 1) {

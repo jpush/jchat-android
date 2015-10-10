@@ -264,7 +264,7 @@ public class ChatDetailActivity extends BaseActivity {
     public void showContacts() {
         Intent intent = new Intent();
         intent.putExtra(TAG, 1);
-        intent.setClass(this, ContactsFragment.class);
+        intent.setClass(this, SelectFriendActivity.class);
         startActivityForResult(intent, ADD_FRIEND_REQUEST_CODE);
     }
 

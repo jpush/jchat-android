@@ -11,7 +11,6 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -80,7 +79,6 @@ public class ChatActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent data) {
             if (data != null) {
-                mTargetID = data.getStringExtra(JPushDemoApplication.TARGET_ID);
                 //插入了耳机
                 if (data.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
                     mChatController.getAdapter().setAudioPlayByEarPhone(data.getIntExtra("state", 0));
@@ -91,7 +89,7 @@ public class ChatActivity extends BaseActivity {
     }
 
     /*
-    重写BaseActivity的handleMsg()方法，实现刷新消息
+    重写BaseActivity的handleMsg()方法
      */
     @Override
     public void handleMsg(android.os.Message msg) {
@@ -135,37 +133,20 @@ public class ChatActivity extends BaseActivity {
 
     }
 
-
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.getAction() == KeyEvent.ACTION_UP) {
-            switch (event.getKeyCode()) {
-                case KeyEvent.KEYCODE_BACK:
-                    Log.i(TAG, "BACK pressed");
-                    if (RecordVoiceBtnController.mIsPressed) {
-                        mChatView.dismissRecordDialog();
-                        mChatView.releaseRecorder();
-                        RecordVoiceBtnController.mIsPressed = false;
-                    }
-                    if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE) {
-                        mChatView.dismissMoreMenu();
-                        return false;
-                    }else {
-                        mChatController.resetUnreadMsg();
-                    }
-
-                    break;
-                case KeyEvent.KEYCODE_MENU:
-                    // 处理自己的逻辑
-                    break;
-                case KeyEvent.KEYCODE_ESCAPE:
-                    Log.i(TAG, "KeyCode: escape");
-                    break;
-                default:
-                    break;
-            }
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed!");
+        if (RecordVoiceBtnController.mIsPressed) {
+            mChatView.dismissRecordDialog();
+            mChatView.releaseRecorder();
+            RecordVoiceBtnController.mIsPressed = false;
         }
-        return super.dispatchKeyEvent(event);
+        if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE) {
+            mChatView.dismissMoreMenu();
+        }else {
+            mChatController.resetUnreadMsg();
+        }
+        super.onBackPressed();
     }
 
     /**

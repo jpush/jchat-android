@@ -218,6 +218,9 @@
 
         <activity android:name="io.jchat.android.activity.AboutActivity"
             android:theme="@style/notitle"/>
+        <activity android:name="io.jchat.android.activity.SelectFriendActivity"
+            android:theme="@style/notitle"
+            android:windowSoftInputMode="adjustPan"/>
 
     </application>
 
