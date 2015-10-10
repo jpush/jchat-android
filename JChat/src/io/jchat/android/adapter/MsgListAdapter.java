@@ -964,7 +964,8 @@ public class MsgListAdapter extends BaseAdapter {
             msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
                 @Override
                 public void onProgressUpdate(double v) {
-                    holder.progressTv.setText((int) (v * 100) + "%");
+                    String progressStr = (int) (v * 100) + "%";
+                    holder.progressTv.setText(progressStr);
                 }
             });
         }
@@ -1071,7 +1072,8 @@ public class MsgListAdapter extends BaseAdapter {
                     mActivity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            viewHolder.progressTv.setText((int) (progress * 100) + "%");
+                            String progressStr = (int) (progress * 100) + "%";
+                            viewHolder.progressTv.setText(progressStr);
                         }
                     });
                 }
@@ -1096,7 +1098,8 @@ public class MsgListAdapter extends BaseAdapter {
         final VoiceContent content = (VoiceContent) msg.getContent();
         final MessageDirect msgDirect = msg.getDirect();
         int length = content.getDuration();
-        holder.voiceLength.setText(length + "\"");
+        String voiceLength = length + mContext.getString(R.string.symbol_second);
+        holder.voiceLength.setText(voiceLength);
         //控制语音长度显示，长度增幅随语音长度逐渐缩小
         int width = (int) (-0.04 * length * length + 4.526 * length + 75.214);
         holder.txtContent.setWidth((int) (width * mDensity));

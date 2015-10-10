@@ -88,6 +88,7 @@
     <string name="friend_opt_detail">详细资料</string>
     <string name="detail_info">个人资料</string>
     <string name="voice_length">10"</string>
+    <string name="symbol_second">\"</string>
     <string name="time_too_short_toast">时间太短！</string>
     <string name="file_fetch_failed">文件获取失败</string>
     <string name="record_voice_permission_denied">请在应用的权限管理中将使用录音选项设置为允许，
