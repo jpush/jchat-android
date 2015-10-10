@@ -48,6 +48,15 @@
     <color name="me_no_picture_color">#e1e1e1</color>
     <color name="reset_password_title_color">#4e4e4e</color>
     <color name="translucent_background">#60000000</color>
+    <color name="header_normal">#ffe74c3c</color>
+    <color name="header_pressed">#ffc0392b</color>
+    <color name="menu_section_header">#FFDDDDDD</color>
+    <color name="letter_hint_start_color">#19892f</color>
+    <color name="leter_hint_end_color">#0ae936</color>
+    <color name="section_color">#f8f8f8</color>
+    <color name="section_text_color">#858585</color>
+    <color name="sidebar_text_color">#0a6afd</color>
+    <color name="select_friend_item_split_color">#dddddd</color>
     <!-- 黑色 -->
     <color name="black">#000000</color>
     <color name="gray">#808080</color>

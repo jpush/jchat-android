@@ -53,16 +53,14 @@
             android:textSize="24sp"
             android:text="敬请期待！"/>
 
-        <io.jchat.android.view.QuickAlphabeticBar
+        <io.jchat.android.view.SideBar
             android:id="@+id/fast_scroller"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_gravity="top|right|center"
-            android:layout_marginTop="10dip"
             android:background="@null"
             android:scaleType="centerInside"
-            android:src="@drawable/dic_background"
             android:visibility="gone"/>
 
         <TextView
