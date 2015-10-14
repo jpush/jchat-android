@@ -29,7 +29,9 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
@@ -77,6 +79,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private boolean mDownloading = false;
     private Long mGroupID;
     private int[] mMsgIDs;
+    private int mIndex = 0;
+    private Queue<String> mPathQueue = new LinkedList<String>();
     private final MyHandler myHandler = new MyHandler(this);
     private final static int DOWNLOAD_ORIGIN_IMAGE_SUCCEED = 1;
     private final static int DOWNLOAD_PROGRESS = 2;
@@ -485,22 +489,14 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     mProgressDialog.setCanceledOnTouchOutside(false);
                     mProgressDialog.show();
                     mPosition = mViewPager.getCurrentItem();
-//                    pathList.add(mPathList.get(mPosition));
 
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mOriginPictureCb.isChecked()) {
-                                Log.i(TAG, "发送原图");
-                                getOriginPictures(mPosition);
-                            } else {
-                                Log.i(TAG, "发送缩略图");
-                                getThumbnailPictures(mPosition);
-                            }
-                            myHandler.sendEmptyMessageDelayed(SEND_PICTURE, 1000);
-                        }
-                    });
-                    thread.start();
+                    if (mOriginPictureCb.isChecked()) {
+                        Log.i(TAG, "发送原图");
+                        getOriginPictures(mPosition);
+                    } else {
+                        Log.i(TAG, "发送缩略图");
+                        getThumbnailPictures(mPosition);
+                    }
                     break;
                 //点击显示原图按钮，下载原图
                 case R.id.load_image_btn:
@@ -556,49 +552,15 @@ public class BrowserViewPagerActivity extends BaseActivity {
      * @param position 选中的图片位置
      */
     private void getOriginPictures(int position) {
-        Bitmap bitmap;
         if (mSelectMap.size() < 1)
             mSelectMap.put(position, true);
         mMsgIDs = new int[mSelectMap.size()];
         for (int i = 0; i < mSelectMap.size(); i++) {
-            final int index = i;
-            //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
-            if (BitmapLoader.verifyPictureSize(mPathList.get(mSelectMap.keyAt(i)))){
-                File file = new File(mPathList.get(mSelectMap.keyAt(i)));
-                ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, ImageContent imageContent) {
-                        if (status == 0) {
-                            imageContent.setBooleanExtra("isOriginalPicture", true);
-                            Message msg = mConv.createSendMessage(imageContent);
-                            mMsgIDs[index] = msg.getId();
-                        } else {
-                            Log.d("PickPictureActivity", "create image content failed! status:" + status);
-                            HandleResponseCode.onHandle(mContext, status, false);
-                        }
-                    }
-                });
-            } else {
-                bitmap = BitmapLoader.getBitmapFromFile(mPathList.get(mSelectMap.keyAt(i)), 720, 1280);
-                final String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-                File file = new File(tempPath);
-                ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, ImageContent imageContent) {
-                        if (status == 0) {
-                            imageContent.setStringExtra("tempPath", tempPath);
-                            imageContent.setStringExtra("localPath", mPathList.get(mSelectMap.keyAt(index)));
-                            imageContent.setBooleanExtra("originalPicture", true);
-                            Message msg = mConv.createSendMessage(imageContent);
-                            mMsgIDs[index] = msg.getId();
-                        } else {
-                            Log.d("PickPictureActivity", "create image content failed! status:" + status);
-                            HandleResponseCode.onHandle(mContext, status, false);
-                        }
-                    }
-                });
-            }
+            mPathQueue.offer(mPathList.get(mSelectMap.keyAt(i)));
         }
+
+        String path = mPathQueue.element();
+        createNextImgContent(path, true);
     }
 
     /**
@@ -607,46 +569,72 @@ public class BrowserViewPagerActivity extends BaseActivity {
      * @param position 选中的图片位置
      */
     private void getThumbnailPictures(int position) {
-        Bitmap bitmap;
         if (mSelectMap.size() < 1)
             mSelectMap.put(position, true);
         mMsgIDs = new int[mSelectMap.size()];
         for (int i = 0; i < mSelectMap.size(); i++) {
-            final int index = i;
-            //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
-            if (BitmapLoader.verifyPictureSize(mPathList.get(mSelectMap.keyAt(i)))){
-                File file = new File(mPathList.get(mSelectMap.keyAt(i)));
-                ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, ImageContent imageContent) {
-                        if (status == 0) {
-                            Message msg = mConv.createSendMessage(imageContent);
-                            mMsgIDs[index] = msg.getId();
-                        } else {
-                            Log.d("PickPictureActivity", "create image content failed! status:" + status);
-                            HandleResponseCode.onHandle(mContext, status, false);
+            mPathQueue.offer(mPathList.get(mSelectMap.keyAt(i)));
+        }
+
+        String path = mPathQueue.element();
+        createNextImgContent(path, false);
+    }
+
+    private void createNextImgContent(final String path, final boolean isOriginal) {
+        Bitmap bitmap;
+        //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
+        if (BitmapLoader.verifyPictureSize(path)) {
+            File file = new File(path);
+            ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                @Override
+                public void gotResult(int status, String desc, ImageContent imageContent) {
+                    if (status == 0) {
+                        if (isOriginal){
+                            imageContent.setBooleanExtra("originalPicture", true);
                         }
-                    }
-                });
-            } else {
-                bitmap = BitmapLoader.getBitmapFromFile(mPathList.get(mSelectMap.keyAt(i)), 720, 1280);
-                final String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-                File file = new File(tempPath);
-                ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, ImageContent imageContent) {
-                        if (status == 0) {
-                            imageContent.setStringExtra("tempPath", tempPath);
-                            imageContent.setStringExtra("localPath", mPathList.get(mSelectMap.keyAt(index)));
-                            Message msg = mConv.createSendMessage(imageContent);
-                            mMsgIDs[index] = msg.getId();
+                        Message msg = mConv.createSendMessage(imageContent);
+                        mMsgIDs[mIndex] = msg.getId();
+                        mIndex++;
+                        mPathQueue.poll();
+                        if (!mPathQueue.isEmpty()) {
+                            createNextImgContent(mPathQueue.element(), isOriginal);
                         } else {
-                            Log.d("PickPictureActivity", "create image content failed! status:" + status);
-                            HandleResponseCode.onHandle(mContext, status, false);
+                            myHandler.sendEmptyMessage(SEND_PICTURE);
                         }
+                    } else {
+                        Log.d("BVPActivity", "create image content failed! status:" + status);
+                        HandleResponseCode.onHandle(mContext, status, false);
                     }
-                });
-            }
+                }
+            });
+        } else {
+            bitmap = BitmapLoader.getBitmapFromFile(path, 720, 1280);
+            final String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
+            File file = new File(tempPath);
+            ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                @Override
+                public void gotResult(int status, String desc, ImageContent imageContent) {
+                    if (status == 0) {
+                        imageContent.setStringExtra("localPath", path);
+                        imageContent.setStringExtra("tempPath", tempPath);
+                        if (isOriginal){
+                            imageContent.setBooleanExtra("originalPicture", true);
+                        }
+                        Message msg = mConv.createSendMessage(imageContent);
+                        mMsgIDs[mIndex] = msg.getId();
+                        mIndex++;
+                        mPathQueue.poll();
+                        if (!mPathQueue.isEmpty()) {
+                            createNextImgContent(mPathQueue.element(), isOriginal);
+                        } else {
+                            myHandler.sendEmptyMessage(SEND_PICTURE);
+                        }
+                    } else {
+                        Log.d("BVPActivity", "create image content failed! status:" + status);
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                }
+            });
         }
     }
 

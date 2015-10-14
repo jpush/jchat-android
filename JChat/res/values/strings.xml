@@ -247,7 +247,7 @@
     <string name="server_801004">密码错误</string>
     <string name="server_803001">发送消息失败，状态存储异常</string>
     <string name="server_803002">发送消息失败，系统网络异常</string>
-    <string name="server_803003">发送失败，目标用户未注册或从未登录过</string>
+    <string name="server_803003">发送失败，目标用户未注册或不存在</string>
     <string name="server_803004">发送失败，此群已被删除</string>
     <string name="server_803005">您已被请出此群，不能发送消息</string>
     <string name="server_803008">消息已发出，但被对方拒收了。</string>
