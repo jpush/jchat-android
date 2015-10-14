@@ -40,6 +40,7 @@ import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
+import cn.jpush.im.android.api.enums.MessageStatus;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -54,7 +55,9 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
@@ -131,6 +134,8 @@ public class MsgListAdapter extends BaseAdapter {
     private int mOffset = JPushDemoApplication.PAGE_MESSAGE_COUNT;
     private boolean mHasLastPage = false;
     private Dialog mDialog;
+    private Queue<Message> mMsgQueue = new LinkedList<Message>();
+    private int mSendMsgID;
 
     public MsgListAdapter(Context context, String targetID) {
         initData(context);
@@ -155,6 +160,7 @@ public class MsgListAdapter extends BaseAdapter {
                         });
                     }
                 });
+        checkSendingImgMsg();
     }
 
     private void reverse(List<Message> list) {
@@ -170,6 +176,7 @@ public class MsgListAdapter extends BaseAdapter {
         reverse(mMsgList);
         mStart = mOffset;
         this.mGroupInfo = groupInfo;
+        checkSendingImgMsg();
     }
 
     private void initData(Context context) {
@@ -204,6 +211,7 @@ public class MsgListAdapter extends BaseAdapter {
                     mMsgList.add(0, msg);
                 }
                 if (msgList.size() > 0) {
+                    checkSendingImgMsg();
                     mOffset = msgList.size();
                     mHasLastPage = true;
                 } else {
@@ -236,16 +244,29 @@ public class MsgListAdapter extends BaseAdapter {
         mp.reset();
     }
 
+    private void checkSendingImgMsg(){
+        for (Message msg : mMsgList){
+            if (msg.getStatus().equals(MessageStatus.created)
+                    && msg.getContentType().equals(ContentType.image)){
+                mMsgQueue.offer(msg);
+            }
+        }
+    }
+
     //发送图片
     public void setSendImg(String targetID, int[] msgIDs) {
         Message msg;
         mConv = JMessageClient.getSingleConversation(targetID);
         for (int msgID : msgIDs) {
             msg = mConv.getMessage(msgID);
-            JMessageClient.sendMessage(msg);
+//            JMessageClient.sendMessage(msg);
             mMsgList.add(msg);
             incrementStartPosition();
+            mMsgQueue.offer(msg);
         }
+
+        Message message = mMsgQueue.element();
+        sendNextImgMsg(message);
         notifyDataSetChanged();
     }
 
@@ -254,11 +275,30 @@ public class MsgListAdapter extends BaseAdapter {
         mConv = JMessageClient.getGroupConversation(groupID);
         for (int msgID : msgIDs) {
             msg = mConv.getMessage(msgID);
-            JMessageClient.sendMessage(msg);
+//            JMessageClient.sendMessage(msg);
             mMsgList.add(msg);
             incrementStartPosition();
+            mMsgQueue.offer(msg);
         }
+
+        Message message = mMsgQueue.element();
+        sendNextImgMsg(message);
         notifyDataSetChanged();
+
+    }
+
+    private void sendNextImgMsg(Message msg){
+        JMessageClient.sendMessage(msg);
+        msg.setOnSendCompleteCallback(new BasicCallback() {
+            @Override
+            public void gotResult(int i, String s) {
+                mMsgQueue.poll();
+                if (!mMsgQueue.isEmpty()) {
+                    sendNextImgMsg(mMsgQueue.element());
+                }
+                notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -894,6 +934,22 @@ public class MsgListAdapter extends BaseAdapter {
                 case send_going:
                     sendingImage(holder, sendingAnim, msg);
                     break;
+                default:
+                    holder.picture.setAlpha(0.75f);
+                    holder.sendingIv.setVisibility(View.VISIBLE);
+                    holder.sendingIv.startAnimation(sendingAnim);
+                    holder.progressTv.setVisibility(View.VISIBLE);
+                    holder.progressTv.setText("0%");
+                    holder.resend.setVisibility(View.GONE);
+                    if (!mMsgQueue.isEmpty()){
+                        Message message = mMsgQueue.element();
+                        if (message.getId() == msg.getId()){
+                            Log.d(TAG, "Start sending message");
+                            JMessageClient.sendMessage(message);
+                            mSendMsgID = message.getId();
+                            sendingImage(holder, sendingAnim, message);
+                        }
+                    }
             }
             // 点击重发按钮，重发图片
             holder.resend.setOnClickListener(new OnClickListener() {
@@ -953,7 +1009,7 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    private void sendingImage(final ViewHolder holder, final Animation sendingAnim, Message msg) {
+    private void sendingImage(final ViewHolder holder, final Animation sendingAnim, final Message msg) {
         holder.picture.setAlpha(0.75f);
         holder.sendingIv.setVisibility(View.VISIBLE);
         holder.sendingIv.startAnimation(sendingAnim);
@@ -965,8 +1021,10 @@ public class MsgListAdapter extends BaseAdapter {
                 @Override
                 public void onProgressUpdate(double v) {
                     String progressStr = (int) (v * 100) + "%";
+                    Log.d(TAG, "msg.getId: " + msg.getId() + " progress: " + progressStr);
                     holder.progressTv.setText(progressStr);
-                }
+
+            }
             });
         }
         if (!msg.isSendCompleteCallbackExists()) {
@@ -974,12 +1032,19 @@ public class MsgListAdapter extends BaseAdapter {
                 @Override
                 public void gotResult(final int status, String desc) {
                     Log.d(TAG, "Got result status: " + status);
+                    if (!mMsgQueue.isEmpty() && mMsgQueue.element().getId() == mSendMsgID) {
+                        mMsgQueue.poll();
+                        if (!mMsgQueue.isEmpty()) {
+                            Message nextMsg = mMsgQueue.element();
+                            JMessageClient.sendMessage(nextMsg);
+                            mSendMsgID = nextMsg.getId();
+                        }
+                    }
                     if (status == 0) {
                         holder.picture.setAlpha(1f);
                         holder.progressTv.setVisibility(View.GONE);
                         holder.sendingIv.clearAnimation();
                         holder.sendingIv.setVisibility(View.GONE);
-                        notifyDataSetChanged();
                     } else if (status == 803008) {
                         CustomContent customContent = new CustomContent();
                         customContent.setBooleanValue("blackList", true);
@@ -993,6 +1058,9 @@ public class MsgListAdapter extends BaseAdapter {
                         holder.progressTv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
                     }
+
+                    Log.d(TAG, "msg.getId " + msg.getId() + " msg.getStatus " + msg.getStatus());
+                    notifyDataSetChanged();
                 }
             });
         }

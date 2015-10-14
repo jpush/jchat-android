@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,18 +13,20 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
-import cn.jpush.im.android.api.model.Message;
-import cn.jpush.im.android.api.content.ImageContent;
-import io.jchat.android.R;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.JMessageClient;
+import java.util.Queue;
 
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.ImageContent;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.Message;
+import io.jchat.android.R;
 import io.jchat.android.adapter.PickPictureAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
@@ -50,6 +51,8 @@ public class PickPictureActivity extends BaseActivity {
     private int[] mMsgIDs;
     private static final int SEND_PICTURE = 200;
     private final MyHandler myHandler = new MyHandler(this);
+    private int mIndex = 0;
+    private Queue<String> mPathQueue = new LinkedList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +64,11 @@ public class PickPictureActivity extends BaseActivity {
 
         mIntent = this.getIntent();
         mIsGroup = mIntent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
-        if (mIsGroup){
+        if (mIsGroup) {
             mGroupID = mIntent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
             Log.i("PickPictureActivity", "groupID : " + mGroupID);
             mConv = JMessageClient.getGroupConversation(mGroupID);
-        }
-        else {
+        } else {
             mTargetID = mIntent.getStringExtra(JPushDemoApplication.TARGET_ID);
             Log.i("PickPictureActivity", "mTargetID" + mTargetID);
             mConv = JMessageClient.getSingleConversation(mTargetID);
@@ -89,9 +91,9 @@ public class PickPictureActivity extends BaseActivity {
                                 long id) {
             Intent intent = new Intent();
             intent.putExtra("fromChatActivity", false);
-            if(mIsGroup){
+            if (mIsGroup) {
                 intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
-            }else intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
+            } else intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
             intent.putStringArrayListExtra("pathList", (ArrayList<String>) mList);
             intent.putExtra(JPushDemoApplication.POSITION, position);
             intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
@@ -113,11 +115,11 @@ public class PickPictureActivity extends BaseActivity {
                     List<Integer> positionList;
                     positionList = mAdapter.getSelectItems();
                     //拿到选中图片的路径
-                    for (int i = 0; i < positionList.size(); i++){
+                    for (int i = 0; i < positionList.size(); i++) {
                         mPickedList.add(mList.get(positionList.get(i)));
                         Log.i("PickPictureActivity", "Picture Path: " + mList.get(positionList.get(i)));
                     }
-                    if(mPickedList.size() < 1)
+                    if (mPickedList.size() < 1)
                         return;
                     else {
                         mDialog = new ProgressDialog(PickPictureActivity.this);
@@ -125,14 +127,7 @@ public class PickPictureActivity extends BaseActivity {
                         mDialog.setMessage(PickPictureActivity.this.getString(R.string.sending_hint));
                         mDialog.show();
 
-                        Thread thread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                getThumbnailPictures();
-                                myHandler.sendEmptyMessageDelayed(SEND_PICTURE, 1000);
-                            }
-                        });
-                        thread.start();
+                        getThumbnailPictures();
                     }
                     break;
                 case R.id.pick_picture_detail_return_btn:
@@ -145,49 +140,66 @@ public class PickPictureActivity extends BaseActivity {
 
     /**
      * 获得选中图片的缩略图路径
-     *
      */
     private void getThumbnailPictures() {
-        Bitmap bitmap;
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
         mMsgIDs = new int[mPickedList.size()];
         for (int i = 0; i < mPickedList.size(); i++) {
-            final int index = i;
-            //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
-            if (BitmapLoader.verifyPictureSize(mPickedList.get(i))){
-                File file = new File(mPickedList.get(i));
-                ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, ImageContent imageContent) {
-                        if (status == 0){
-                            Message msg = mConv.createSendMessage(imageContent);
-                            mMsgIDs[index] = msg.getId();
-                        }else {
-                            Log.d("PickPictureActivity", "create image content failed! status:" + status);
-                            HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
-                        }
-                    }
-                });
-            } else {
-                bitmap = BitmapLoader.getBitmapFromFile(mPickedList.get(i), 720, 1280);
-                final String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-                File file = new File(tempPath);
-                ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, ImageContent imageContent) {
-                        if (status == 0) {
-                            imageContent.setStringExtra("localPath", mPickedList.get(index));
-                            imageContent.setStringExtra("tempPath", tempPath);
-                            Message msg = mConv.createSendMessage(imageContent);
-                            mMsgIDs[index] = msg.getId();
+            mPathQueue.offer(mPickedList.get(i));
+        }
+
+        String path = mPathQueue.element();
+        createNextImgContent(path);
+    }
+
+    private void createNextImgContent(final String path) {
+        Bitmap bitmap;
+        //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
+        if (BitmapLoader.verifyPictureSize(path)) {
+            File file = new File(path);
+            ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                @Override
+                public void gotResult(int status, String desc, ImageContent imageContent) {
+                    if (status == 0) {
+                        Message msg = mConv.createSendMessage(imageContent);
+                        mMsgIDs[mIndex] = msg.getId();
+                        mIndex++;
+                        mPathQueue.poll();
+                        if (!mPathQueue.isEmpty()) {
+                            createNextImgContent(mPathQueue.element());
                         } else {
-                            Log.d("PickPictureActivity", "create image content failed! status:" + status);
-                            HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
+                            myHandler.sendEmptyMessage(SEND_PICTURE);
                         }
+                    } else {
+                        Log.d("PickPictureActivity", "create image content failed! status:" + status);
+                        HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
                     }
-                });
-            }
+                }
+            });
+        } else {
+            bitmap = BitmapLoader.getBitmapFromFile(path, 720, 1280);
+            final String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
+            File file = new File(tempPath);
+            ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+                @Override
+                public void gotResult(int status, String desc, ImageContent imageContent) {
+                    if (status == 0) {
+                        imageContent.setStringExtra("localPath", path);
+                        imageContent.setStringExtra("tempPath", tempPath);
+                        Message msg = mConv.createSendMessage(imageContent);
+                        mMsgIDs[mIndex] = msg.getId();
+                        mIndex++;
+                        mPathQueue.poll();
+                        if (!mPathQueue.isEmpty()) {
+                            createNextImgContent(mPathQueue.element());
+                        } else {
+                            myHandler.sendEmptyMessage(SEND_PICTURE);
+                        }
+                    } else {
+                        Log.d("PickPictureActivity", "create image content failed! status:" + status);
+                        HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
+                    }
+                }
+            });
         }
     }
 
@@ -197,25 +209,25 @@ public class PickPictureActivity extends BaseActivity {
             if (data != null) {
                 int[] selectedArray = data.getIntArrayExtra("pathArray");
                 int sum = 0;
-                for(int i=0; i < selectedArray.length; i++){
-                    if(selectedArray[i] > 0)
+                for (int i = 0; i < selectedArray.length; i++) {
+                    if (selectedArray[i] > 0)
                         ++sum;
                 }
-                if(sum > 0)
+                if (sum > 0)
                     mSendPictureBtn.setText(PickPictureActivity.this.getString(R.string.send) + "(" + sum + "/" + "9)");
                 mAdapter.refresh(selectedArray);
             }
 
-        }else if (resultCode == JPushDemoApplication.RESULT_CODE_BROWSER_PICTURE){
+        } else if (resultCode == JPushDemoApplication.RESULT_CODE_BROWSER_PICTURE) {
             setResult(JPushDemoApplication.RESULT_CODE_SELECT_ALBUM, data);
             finish();
         }
     }
 
-    private static class MyHandler extends Handler{
+    private static class MyHandler extends Handler {
         private final WeakReference<PickPictureActivity> mActivity;
 
-        public MyHandler(PickPictureActivity activity){
+        public MyHandler(PickPictureActivity activity) {
             mActivity = new WeakReference<PickPictureActivity>(activity);
         }
 
@@ -223,7 +235,7 @@ public class PickPictureActivity extends BaseActivity {
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
             PickPictureActivity activity = mActivity.get();
-            if(activity != null){
+            if (activity != null) {
                 switch (msg.what) {
                     case SEND_PICTURE:
                         Intent intent = new Intent();
@@ -231,7 +243,7 @@ public class PickPictureActivity extends BaseActivity {
                         intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupID);
                         intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIDs);
                         activity.setResult(JPushDemoApplication.RESULT_CODE_SELECT_ALBUM, intent);
-                        if(activity.mDialog != null)
+                        if (activity.mDialog != null)
                             activity.mDialog.dismiss();
                         activity.finish();
                         break;
