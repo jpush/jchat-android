@@ -14,17 +14,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import cn.jpush.im.android.api.callback.CreateGroupCallback;
-import io.jchat.android.R;
-import cn.jpush.im.android.api.model.Conversation;
+import java.io.File;
+
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.callback.CreateGroupCallback;
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.UserInfo;
+import io.jchat.android.R;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.application.JPushDemoApplication;
-import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MenuItemView;
 
 /**
@@ -36,6 +39,7 @@ public class MenuItemController implements View.OnClickListener {
     private ConversationListFragment mContext;
     private ConversationListController mController;
     private Dialog mLoadingDialog;
+    private Dialog mAddFriendDialog;
 
     public MenuItemController(MenuItemView view, ConversationListFragment context,
                               ConversationListController controller) {
@@ -83,8 +87,8 @@ public class MenuItemController implements View.OnClickListener {
                 final View view = LayoutInflater.from(mContext.getActivity())
                         .inflate(R.layout.dialog_add_friend_to_conv_list, null);
                 builder.setView(view);
-                final Dialog dialog = builder.create();
-                dialog.show();
+                mAddFriendDialog = builder.create();
+                mAddFriendDialog.show();
                 final EditText userNameEt = (EditText) view.findViewById(R.id.user_name_et);
                 final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
                 final Button commit = (Button) view.findViewById(R.id.commit_btn);
@@ -93,10 +97,10 @@ public class MenuItemController implements View.OnClickListener {
                     public void onClick(View view) {
                         switch (view.getId()) {
                             case R.id.cancel_btn:
-                                dialog.cancel();
+                                mAddFriendDialog.cancel();
                                 break;
                             case R.id.commit_btn:
-                                final String targetID = userNameEt.getText().toString().trim();
+                                String targetID = userNameEt.getText().toString().trim();
                                 Log.i("MenuItemController", "targetID " + targetID);
                                 if (TextUtils.isEmpty(targetID)) {
                                     Toast.makeText(mContext.getActivity(),
@@ -120,28 +124,7 @@ public class MenuItemController implements View.OnClickListener {
                                             mContext.getString(R.string.adding_hint));
                                     mLoadingDialog.show();
                                     dismissSoftInput();
-                                    JMessageClient.getUserInfo(targetID, new GetUserInfoCallback() {
-                                        @Override
-                                        public void gotResult(final int status, String desc,
-                                                              final UserInfo userInfo) {
-                                            if (mLoadingDialog != null)
-                                                mLoadingDialog.dismiss();
-                                            if (status == 0) {
-                                                Conversation conv = Conversation
-                                                        .createSingleConversation(targetID);
-                                                if (userInfo.getAvatar() != null) {
-                                                    mController.loadAvatarAndRefresh(targetID,
-                                                            userInfo.getAvatarFile().getAbsolutePath());
-                                                    mController.getAdapter().setToTop(conv);
-                                                } else mController.refreshConvList(conv);
-                                                dialog.cancel();
-                                            } else {
-                                                HandleResponseCode.onHandle(mContext.getActivity(),
-                                                        status, true);
-                                            }
-                                        }
-                                    });
-
+                                    getUserInfo(targetID);
                                 }
                                 break;
                         }
@@ -151,6 +134,42 @@ public class MenuItemController implements View.OnClickListener {
                 commit.setOnClickListener(listener);
                 break;
         }
+    }
+
+    private void getUserInfo(final String targetID){
+        JMessageClient.getUserInfo(targetID, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(final int status, String desc, final UserInfo userInfo) {
+                if (status == 0) {
+                    Conversation conv = Conversation.createSingleConversation(targetID);
+                    if (userInfo.getAvatar() != null) {
+                        File file = userInfo.getSmallAvatarFile();
+                        if (file != null && file.isFile()){
+                            mController.loadAvatarAndRefresh(targetID,
+                                    userInfo.getSmallAvatarFile().getAbsolutePath());
+                            mLoadingDialog.dismiss();
+                        }else {
+                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+                                @Override
+                                public void gotResult(int status, String desc, File file) {
+                                    mLoadingDialog.dismiss();
+                                    if (status == 0){
+                                        mController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
+                                    }else {
+                                        HandleResponseCode.onHandle(mContext.getActivity(), status, false);
+                                    }
+                                }
+                            });
+                        }
+                        mController.getAdapter().setToTop(conv);
+                    } else mController.refreshConvList(conv);
+                    mAddFriendDialog.cancel();
+                } else {
+                    mLoadingDialog.dismiss();
+                    HandleResponseCode.onHandle(mContext.getActivity(), status, true);
+                }
+            }
+        });
     }
 
     public void dismissSoftInput() {

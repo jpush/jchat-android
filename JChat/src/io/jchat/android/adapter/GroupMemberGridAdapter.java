@@ -12,19 +12,16 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
-import cn.jpush.im.android.api.callback.GetUserInfoCallback;
-import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.model.GroupInfo;
-import cn.jpush.im.android.api.model.UserInfo;
-import io.jchat.android.R;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
-
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.UserInfo;
+import io.jchat.android.R;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.CircleImageView;
@@ -79,7 +76,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
             bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
             if (bitmap == null){
                 if (userInfo.getAvatar() != null){
-                    file = userInfo.getAvatarFile();
+                    file = userInfo.getSmallAvatarFile();
                     if (file != null && file.isFile()){
                         bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize,
                                 mDefaultSize);
@@ -87,7 +84,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                                 bitmap);
                         notifyDataSetChanged();
                     }else {
-                        userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                        userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
                             @Override
                             public void gotResult(int status, String desc, File file) {
                                 if (status == 0 && file != null && file.isFile()){
@@ -231,7 +228,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                     viewTag.icon.setImageBitmap(bitmap);
                 } else {
                     if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-                        File file = userInfo.getAvatarFile();
+                        File file = userInfo.getSmallAvatarFile();
                         if (file != null && file.isFile()) {
                             Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
                                     mDefaultSize, mDefaultSize);
@@ -241,7 +238,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                         } else {
                             viewTag.icon.setImageResource(R.drawable.head_icon);
                             final String userName = userInfo.getUserName();
-                            userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
                                 @Override
                                 public void gotResult(int status, String desc, File file) {
                                     if (status == 0) {

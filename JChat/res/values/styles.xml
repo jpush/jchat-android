@@ -56,7 +56,7 @@
         <item name="android:layout_height">55dp</item>
         <item name="android:padding">5dp</item>
         <item name="android:background">@drawable/list_item_bg</item>
-        <item name="android:orientation">horizontal </item>
+        <item name="android:orientation">horizontal</item>
     </style>
 
     <style name="ChatDetailItemHit">
@@ -159,6 +159,15 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_centerVertical">true</item>
+    </style>
+
+    <style name="SettingItemTextStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
     <style name="SettingItemSwitch">

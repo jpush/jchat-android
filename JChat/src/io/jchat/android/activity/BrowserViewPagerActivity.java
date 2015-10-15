@@ -247,7 +247,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
             showSelectedNum();
             mLoadBtn.setVisibility(View.GONE);
             mViewPager.setCurrentItem(mPosition);
-            mNumberTv.setText(mPosition + 1 + "/" + mPathList.size());
+            String numberText = mPosition + 1 + "/" + mPathList.size();
+            mNumberTv.setText(numberText);
             int currentItem = mViewPager.getCurrentItem();
             checkPictureSelected(currentItem);
             checkOriginPictureSelected();
@@ -262,8 +263,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
         //保留小数点后两位
         ddf1.setMaximumFractionDigits(2);
         double size = ic.getFileSize() / 1048576.0;
-        String fileSize = "(" + ddf1.format(size) + "M" + ")";
-        mLoadBtn.setText(mContext.getString(R.string.load_origin_image) + fileSize);
+        String loadText = mContext.getString(R.string.load_origin_image) + "(" + ddf1.format(size) + "M" + ")";
+        mLoadBtn.setText(loadText);
     }
 
     /**
@@ -317,14 +318,16 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 pathList.add(mPathList.get(mSelectMap.keyAt(i)));
             }
             String totalSize = BitmapLoader.getPictureSize(pathList);
-            mTotalSizeTv.setText(mContext.getString(R.string.origin_picture) + "(" + totalSize + ")");
+            String totalText = mContext.getString(R.string.origin_picture) + "(" + totalSize + ")";
+            mTotalSizeTv.setText(totalText);
         } else mTotalSizeTv.setText(mContext.getString(R.string.origin_picture));
     }
 
     //显示选中了多少张图片
     private void showSelectedNum() {
         if (mSelectMap.size() > 0) {
-            mSendBtn.setText(mContext.getString(R.string.send) + "(" + mSelectMap.size() + "/" + "9)");
+            String sendText = mContext.getString(R.string.send) + "(" + mSelectMap.size() + "/" + "9)";
+            mSendBtn.setText(sendText);
         } else mSendBtn.setText(mContext.getString(R.string.send));
     }
 
@@ -358,7 +361,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     getImgMsg();
                 }
             } else {
-                mNumberTv.setText(i + 1 + "/" + mPathList.size());
+                String numText = i + 1 + "/" + mPathList.size();
+                mNumberTv.setText(numText);
             }
         }
 
@@ -441,30 +445,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 } else mPathList.add(ic.getLocalThumbnailPath());
             }
         }
-//        List<Message> msgList = mConv.getAllMessage();
-//        Message msg;
-//        ImageContent ic;
-//        for (int i = 0; i < msgList.size(); i++) {
-//            msg = msgList.get(i);
-//            if (msg.getContentType().equals(ContentType.image)) {
-//                ic = (ImageContent) msg.getContent();
-//                if (msg.getDirect().equals(MessageDirect.send)){
-//                    if (TextUtils.isEmpty(ic.getStringExtra("localPath"))){
-//                        if (!TextUtils.isEmpty(ic.getLocalPath())){
-//                            mPathList.add(ic.getLocalPath());
-//                        }else {
-//                            mPathList.add(ic.getLocalThumbnailPath());
-//                        }
-//                    }else {
-//                        mPathList.add(ic.getStringExtra("localPath"));
-//                    }
-//                }else if (ic.getLocalPath() != null) {
-//                    mPathList.add(ic.getLocalPath());
-//                } else mPathList.add(ic.getLocalThumbnailPath());
-//                mMsgIDList.add(msg.getId());
-//            }
-//        }
-//        Log.d(TAG, "Image Message List: " + mPathList.toString());
     }
 
     private OnClickListener listener = new OnClickListener() {
@@ -555,10 +535,12 @@ public class BrowserViewPagerActivity extends BaseActivity {
         if (mSelectMap.size() < 1)
             mSelectMap.put(position, true);
         mMsgIDs = new int[mSelectMap.size()];
+        //根据选择的图片路径生成队列
         for (int i = 0; i < mSelectMap.size(); i++) {
             mPathQueue.offer(mPathList.get(mSelectMap.keyAt(i)));
         }
 
+        //从队列中取出第一个元素，生成ImageContent
         String path = mPathQueue.element();
         createNextImgContent(path, true);
     }
@@ -580,6 +562,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
         createNextImgContent(path, false);
     }
 
+    /**
+     * 根据图片路径创建ImageContent
+     * @param path 图片路径
+     * @param isOriginal 是否发送原图
+     */
     private void createNextImgContent(final String path, final boolean isOriginal) {
         Bitmap bitmap;
         //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
@@ -594,10 +581,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         }
                         Message msg = mConv.createSendMessage(imageContent);
                         mMsgIDs[mIndex] = msg.getId();
+                        //自增索引，出列
                         mIndex++;
                         mPathQueue.poll();
+                        //如果队列不为空， 继续创建下一个ImageContent
                         if (!mPathQueue.isEmpty()) {
                             createNextImgContent(mPathQueue.element(), isOriginal);
+                        //否则，队列中所有元素创建完毕，通知Handler
                         } else {
                             myHandler.sendEmptyMessage(SEND_PICTURE);
                         }

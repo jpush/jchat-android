@@ -452,10 +452,9 @@ public class MsgListAdapter extends BaseAdapter {
         final ViewHolder holder;
         if (convertView == null) {
             holder = new ViewHolder();
-            ContentType contentType = msg.getContentType();
             convertView = createViewByType(msg, position);
-            if (contentType.equals(ContentType.text)) {
-                try {
+            switch (msg.getContentType()){
+                case text:
                     holder.headIcon = (CircleImageView) convertView
                             .findViewById(R.id.avatar_iv);
                     holder.displayName = (TextView) convertView
@@ -468,10 +467,8 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.fail_resend_ib);
                     holder.groupChange = (TextView) convertView
                             .findViewById(R.id.group_content);
-                } catch (Exception e) {
-                }
-            } else if (contentType.equals(ContentType.image)) {
-                try {
+                    break;
+                case image:
                     holder.headIcon = (CircleImageView) convertView
                             .findViewById(R.id.avatar_iv);
                     holder.displayName = (TextView) convertView
@@ -484,10 +481,8 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById((R.id.progress_tv));
                     holder.resend = (ImageButton) convertView
                             .findViewById(R.id.fail_resend_ib);
-                } catch (Exception e) {
-                }
-            } else if (contentType.equals(ContentType.voice)) {
-                try {
+                    break;
+                case voice:
                     holder.headIcon = (CircleImageView) convertView
                             .findViewById(R.id.avatar_iv);
                     holder.displayName = (TextView) convertView
@@ -504,16 +499,8 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.read_status_iv);
                     holder.resend = (ImageButton) convertView
                             .findViewById(R.id.fail_resend_ib);
-                } catch (Exception e) {
-                }
-            } else if (contentType.equals(ContentType.eventNotification)) {
-                try {
-                    holder.groupChange = (TextView) convertView
-                            .findViewById(R.id.group_content);
-                } catch (Exception e) {
-                }
-            } else if (contentType.equals(ContentType.location)) {
-                try {
+                    break;
+                case location:
                     holder.headIcon = (CircleImageView) convertView
                             .findViewById(R.id.avatar_iv);
                     holder.displayName = (TextView) convertView
@@ -524,14 +511,14 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(R.id.sending_iv);
                     holder.resend = (ImageButton) convertView
                             .findViewById(R.id.fail_resend_ib);
-                } catch (Exception e) {
-                }
-            } else {
-                try {
+                    break;
+                case eventNotification:
                     holder.groupChange = (TextView) convertView
                             .findViewById(R.id.group_content);
-                } catch (Exception e) {
-                }
+                    break;
+                default:
+                    holder.groupChange = (TextView) convertView
+                            .findViewById(R.id.group_content);
             }
             convertView.setTag(holder);
         } else {
@@ -608,7 +595,7 @@ public class MsgListAdapter extends BaseAdapter {
                     if (TextUtils.isEmpty(userInfo.getAvatar())) {
                         holder.headIcon.setImageResource(R.drawable.head_icon);
                     } else {
-                        File file = userInfo.getAvatarFile();
+                        File file = userInfo.getSmallAvatarFile();
                         if (file != null && file.isFile()) {
                             bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
                                     (int) (50 * mDensity), (int) (50 * mDensity));
@@ -617,7 +604,7 @@ public class MsgListAdapter extends BaseAdapter {
                             holder.headIcon.setImageBitmap(bitmap);
                             //本地不存在头像，从服务器拿
                         } else {
-                            userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
                                 @Override
                                 public void gotResult(int status, String desc, File file) {
                                     if (status == 0) {
@@ -1059,10 +1046,14 @@ public class MsgListAdapter extends BaseAdapter {
                         holder.resend.setVisibility(View.VISIBLE);
                     }
 
+                    Message message = mConv.getMessage(msg.getId());
+                    mMsgList.set(mMsgList.indexOf(msg), message);
                     Log.d(TAG, "msg.getId " + msg.getId() + " msg.getStatus " + msg.getStatus());
+                    Log.d(TAG, "message.getId " + message.getId() + " message.getStatus " + message.getStatus());
                     notifyDataSetChanged();
                 }
             });
+
         }
     }
 

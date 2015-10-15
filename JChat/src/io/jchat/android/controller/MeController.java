@@ -84,10 +84,6 @@ public class MeController implements OnClickListener {
                 mDialog = DialogCreator.createLogoutDialog(mContext.getActivity(), listener);
                 mDialog.show();
                 break;
-            case R.id.about_rl:
-                mContext.startAboutActivity();
-                break;
-
 //		case R.id.birthday:
 //			Calendar calendar = Calendar.getInstance();
 //			String dateStr = mBirthday.getText().toString().trim();

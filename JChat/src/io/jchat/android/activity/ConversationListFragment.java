@@ -2,7 +2,6 @@ package io.jchat.android.activity;
 
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -17,11 +16,10 @@ import android.widget.PopupWindow;
 
 import java.io.File;
 
-import cn.jpush.im.android.api.event.MessageEvent;
-import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
-import cn.jpush.im.android.api.event.ConversationRefreshEvent;
+import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -121,7 +119,7 @@ public class ConversationListFragment extends BaseFragment {
                 mConvListController.refreshConvList(conv);
             }
         } else {
-            UserInfo userInfo = (UserInfo) msg.getTargetInfo();
+            final UserInfo userInfo = (UserInfo) msg.getTargetInfo();
             final String targetID = userInfo.getUserName();
             final Conversation conv = JMessageClient.getSingleConversation(targetID);
             if (conv != null && mConvListController != null) {
@@ -131,13 +129,13 @@ public class ConversationListFragment extends BaseFragment {
                         //如果缓存了头像，直接刷新会话列表
                         if (NativeImageLoader.getInstance().getBitmapFromMemCache(targetID) != null) {
                             Log.i("Test", "conversation ");
-                            //没有头像，从Conversation拿
+                            //没有头像，从UserInfo拿
                         } else {
-                            File file = conv.getAvatarFile();
+                            File file = userInfo.getSmallAvatarFile();
                             //拿到后缓存并刷新
                             if (file != null && file.exists()) {
                                 mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
-                                //conversation中没有头像，从服务器上拿
+                                //UserInfo中没有头像，从服务器上拿
                             } else {
                                 NativeImageLoader.getInstance().setAvatarCache(targetID,
                                         (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {

@@ -1,11 +1,5 @@
 package io.jchat.android.view;
 
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.UserInfo;
-
-import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.NativeImageLoader;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
@@ -14,12 +8,13 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import io.jchat.android.R;
-
 import java.io.File;
+
+import cn.jpush.im.android.api.model.UserInfo;
+import io.jchat.android.R;
+import io.jchat.android.tools.BitmapLoader;
 
 public class FriendInfoView extends LinearLayout{
 
@@ -56,7 +51,7 @@ public class FriendInfoView extends LinearLayout{
 
     public void initInfo(UserInfo userInfo, double density){
         if (userInfo != null){
-            File file = userInfo.getAvatarFile();
+            File file = userInfo.getSmallAvatarFile();
             if(file != null){
                 Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
                         (int)(100 * density), (int)(100 * density));

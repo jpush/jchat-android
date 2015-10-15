@@ -43,12 +43,13 @@ public class ConversationListAdapter extends BaseAdapter {
         mDensityDPI = dm.densityDpi;
         for (Conversation conv : mDatas) {
             if (conv.getType().equals(ConversationType.single)) {
-                File file = conv.getAvatarFile();
+                UserInfo userInfo = (UserInfo) conv.getTargetInfo();
+                File file = userInfo.getSmallAvatarFile();
                 if (file != null) {
                     Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
                             (int) (50 * density), (int) (50 * density));
                     NativeImageLoader.getInstance()
-                            .updateBitmapFromCache(((UserInfo) conv.getTargetInfo()).getUserName(), bitmap);
+                            .updateBitmapFromCache(userInfo.getUserName(), bitmap);
                 }
             }
         }

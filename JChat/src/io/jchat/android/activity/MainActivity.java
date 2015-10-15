@@ -196,11 +196,11 @@ public class MainActivity extends FragmentActivity{
                 }
             }
         });
-        thread.run();
+        thread.start();
     }
 
     private Bitmap decodeUriAsBitmap(Uri uri){
-        Bitmap bitmap = null;
+        Bitmap bitmap;
         try {
             bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
         } catch (FileNotFoundException e) {

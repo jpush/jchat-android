@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 
 import cn.jpush.im.android.api.JMessageClient;
@@ -34,9 +33,7 @@ public class MeView extends LinearLayout {
     private TextView mNickNameTv;
     private RelativeLayout mSettingRl;
     private RelativeLayout mLogoutRl;
-    private RelativeLayout mAboutRl;
     private Context mContext;
-    private boolean mLoadAvatarSuccess = false;
     private int mWidth;
     private int mHeight;
     private final MyHandler myHandler = new MyHandler(this);
@@ -58,7 +55,6 @@ public class MeView extends LinearLayout {
         mUserNameTv = (TextView) findViewById(R.id.user_name_tv);
         mSettingRl = (RelativeLayout) findViewById(R.id.setting_rl);
         mLogoutRl = (RelativeLayout) findViewById(R.id.logout_rl);
-        mAboutRl = (RelativeLayout) findViewById(R.id.about_rl);
         DisplayMetrics dm = new DisplayMetrics();
         ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
         double density = dm.density;
@@ -66,31 +62,12 @@ public class MeView extends LinearLayout {
         mHeight = (int) (190 * density);
         if (userInfo != null) {
             mUserNameTv.setText(userInfo.getUserName());
-            //MediaID不为空
-            if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-                File file = userInfo.getAvatarFile();
-                if (file != null && file.isFile()) {
-                    Log.i("MeView", "file.getAbsolutePath() " + file.getAbsolutePath());
-                    showPhoto(file.getAbsolutePath());
-                    loadAvatarSuccess(true);
-                } else {
-                    loadAvatarSuccess(false);
-                }
-                //没有设置过头像，将标志位置为True
-            } else {
-                loadAvatarSuccess(true);
-            }
-            if (!TextUtils.isEmpty(userInfo.getNickname()))
+            if (!TextUtils.isEmpty(userInfo.getNickname())){
                 mNickNameTv.setText(userInfo.getNickname());
+            }else {
+                mNickNameTv.setText(userInfo.getUserName());
+            }
         }
-    }
-
-    private void loadAvatarSuccess(boolean value) {
-        mLoadAvatarSuccess = value;
-    }
-
-    public boolean getAvatarFlag() {
-        return mLoadAvatarSuccess;
     }
 
     public void setListeners(OnClickListener onClickListener) {
@@ -98,7 +75,6 @@ public class MeView extends LinearLayout {
         mUserInfoRl.setOnClickListener(onClickListener);
         mSettingRl.setOnClickListener(onClickListener);
         mLogoutRl.setOnClickListener(onClickListener);
-        mAboutRl.setOnClickListener(onClickListener);
         mAvatarIv.setOnClickListener(onClickListener);
     }
 
@@ -124,6 +100,7 @@ public class MeView extends LinearLayout {
             }
         });
         thread.start();
+        mTakePhotoBtn.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mTakePhotoBtn.setImageBitmap(bitmap);
     }
 
