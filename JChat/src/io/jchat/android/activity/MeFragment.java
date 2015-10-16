@@ -37,6 +37,7 @@ public class MeFragment extends BaseFragment {
     private MeController mMeController;
     private Context mContext;
     private String mPath;
+    private boolean mIsShowAvatar = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,25 +67,29 @@ public class MeFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-        UserInfo myInfo = JMessageClient.getMyInfo();
-        File file = myInfo.getSmallAvatarFile();
-        //MyInfo存在小头像，直接显示
-        if (file != null && file.isFile()) {
-            mMeView.showPhoto(file.getAbsolutePath());
-        //否则下载
-        } else {
-            myInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                @Override
-                public void gotResult(int status, String desc, File file) {
-                    if (status == 0) {
-                        mMeView.showPhoto(file.getAbsolutePath());
-                    } else {
-                        HandleResponseCode.onHandle(mContext, status, false);
+        if (!mIsShowAvatar){
+            UserInfo myInfo = JMessageClient.getMyInfo();
+            File file = myInfo.getSmallAvatarFile();
+            //MyInfo存在小头像，直接显示
+            if (file != null && file.isFile()) {
+                mMeView.showPhoto(file.getAbsolutePath());
+                mIsShowAvatar = true;
+                //否则下载
+            } else {
+                myInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, File file) {
+                        if (status == 0) {
+                            mMeView.showPhoto(file.getAbsolutePath());
+                            mIsShowAvatar = true;
+                        } else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
                     }
-                }
-            });
+                });
+            }
+            mMeView.showNickName(myInfo.getNickname());
         }
-        mMeView.showNickName(myInfo.getNickname());
         super.onResume();
     }
 

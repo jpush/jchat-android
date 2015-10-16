@@ -46,8 +46,8 @@ public class ConversationListFragment extends BaseFragment {
     private View mMenuView;
     private MenuItemView mMenuItemView;
     private MenuItemController mMenuController;
-    private double mDensity;
     private Activity mContext;
+    private int mAvatarSize;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,7 +58,8 @@ public class ConversationListFragment extends BaseFragment {
         EventBus.getDefault().register(this);
         DisplayMetrics dm = new DisplayMetrics();
         this.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDensity = dm.density;
+        double density = dm.density;
+        mAvatarSize = (int) (50 * density);
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mRootView = layoutInflater.inflate(R.layout.fragment_conv_list,
                 (ViewGroup) getActivity().findViewById(R.id.main_view),
@@ -138,15 +139,13 @@ public class ConversationListFragment extends BaseFragment {
                                 //UserInfo中没有头像，从服务器上拿
                             } else {
                                 NativeImageLoader.getInstance().setAvatarCache(targetID,
-                                        (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
+                                        mAvatarSize, new NativeImageLoader.CacheAvatarCallBack() {
                                             @Override
                                             public void onCacheAvatarCallBack(final int status) {
                                                 if (status == 0) {
-                                                    mConvListController.getAdapter()
-                                                            .notifyDataSetChanged();
+                                                    mConvListController.getAdapter().notifyDataSetChanged();
                                                 } else {
-                                                    HandleResponseCode.onHandle(mContext, status,
-                                                            false);
+                                                    HandleResponseCode.onHandle(mContext, status, false);
                                                 }
                                             }
                                         });
@@ -161,25 +160,27 @@ public class ConversationListFragment extends BaseFragment {
 
     /**
      * 收到创建单聊的消息
+     *
      * @param event 可以从event中得到targetID
      */
-    public void onEventMainThread(Event.StringEvent event){
+    public void onEventMainThread(Event.StringEvent event) {
         Log.d(TAG, "StringEvent execute");
         String targetID = event.getTargetID();
         Conversation conv = JMessageClient.getSingleConversation(targetID);
-        if (conv != null){
+        if (conv != null) {
             mConvListController.getAdapter().addNewConversation(conv);
         }
     }
 
     /**
      * 收到创建群聊的消息
+     *
      * @param event 从event中得到groupID
      */
-    public void onEventMainThread(Event.LongEvent event){
+    public void onEventMainThread(Event.LongEvent event) {
         long groupID = event.getGroupID();
         Conversation conv = JMessageClient.getGroupConversation(groupID);
-        if (conv != null){
+        if (conv != null) {
             mConvListController.getAdapter().addNewConversation(conv);
         }
     }
@@ -223,7 +224,7 @@ public class ConversationListFragment extends BaseFragment {
     }
 
     public void sortConvList() {
-        if (mConvListController != null){
+        if (mConvListController != null) {
             mConvListController.getAdapter().sortConvList();
         }
     }

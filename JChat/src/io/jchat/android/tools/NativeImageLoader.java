@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 
@@ -71,7 +72,25 @@ public class NativeImageLoader {
                             mMemoryCache.put(userID, bitmap);
                         }
                     }else {
-                        getUserInfo(userID, callBack, length);
+                        myInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, File file) {
+                                if (status == 0){
+                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                                            length, length);
+                                    if (null != bitmap) {
+                                        mMemoryCache.put(userID, bitmap);
+                                        android.os.Message msg = myHandler.obtainMessage();
+                                        msg.what = CACHE_AVATAR;
+                                        msg.obj = callBack;
+                                        Bundle bundle = new Bundle();
+                                        bundle.putInt("status", 0);
+                                        msg.setData(bundle);
+                                        msg.sendToTarget();
+                                    }
+                                }
+                            }
+                        });
                     }
                 }
             } else if (mMemoryCache.get(userID) == null) {
@@ -88,16 +107,31 @@ public class NativeImageLoader {
                     if (!TextUtils.isEmpty(userInfo.getAvatar())){
                         File file = userInfo.getSmallAvatarFile();
                         if (file != null) {
-                            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), length, length);
-                            addBitmapToMemoryCache(userID, bitmap);
+                            putUserAvatar(userID, file.getAbsolutePath(), length);
+                            android.os.Message msg = myHandler.obtainMessage();
+                            msg.what = CACHE_AVATAR;
+                            msg.obj = callBack;
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("status", 0);
+                            msg.setData(bundle);
+                            msg.sendToTarget();
+                        }else {
+                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+                                @Override
+                                public void gotResult(int status, String desc, File file) {
+                                    if (status == 0) {
+                                        putUserAvatar(userID, file.getAbsolutePath(), length);
+                                        android.os.Message msg = myHandler.obtainMessage();
+                                        msg.what = CACHE_AVATAR;
+                                        msg.obj = callBack;
+                                        Bundle bundle = new Bundle();
+                                        bundle.putInt("status", 0);
+                                        msg.setData(bundle);
+                                        msg.sendToTarget();
+                                    }
+                                }
+                            });
                         }
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = CACHE_AVATAR;
-                        msg.obj = callBack;
-                        Bundle bundle = new Bundle();
-                        bundle.putInt("status", 0);
-                        msg.setData(bundle);
-                        msg.sendToTarget();
                     }
                 }
             }

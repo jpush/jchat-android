@@ -71,7 +71,7 @@ public class FriendInfoActivity extends BaseActivity {
         if (!TextUtils.isEmpty(mUserInfo.getAvatar())){
             JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
                 @Override
-                public void gotResult(int status, String desc, UserInfo userInfo) {
+                public void gotResult(int status, String desc, final UserInfo userInfo) {
                     if (status == 0) {
                         File file = userInfo.getSmallAvatarFile();
                         if (file != null && file.isFile()) {
@@ -79,6 +79,10 @@ public class FriendInfoActivity extends BaseActivity {
                                     (int) (50 * mDensity), (int) (50 * mDensity));
                             //更新头像缓存
                             NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
+                            android.os.Message msg = myHandler.obtainMessage();
+                            msg.what = GET_INFO_SUCCEED;
+                            msg.obj = userInfo;
+                            msg.sendToTarget();
                         }else {
                             userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
                                 @Override
@@ -88,14 +92,14 @@ public class FriendInfoActivity extends BaseActivity {
                                                 (int) (50 * mDensity), (int) (50 * mDensity));
                                         //更新头像缓存
                                         NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
+                                        android.os.Message msg = myHandler.obtainMessage();
+                                        msg.what = GET_INFO_SUCCEED;
+                                        msg.obj = userInfo;
+                                        msg.sendToTarget();
                                     }
                                 }
                             });
                         }
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = GET_INFO_SUCCEED;
-                        msg.obj = userInfo;
-                        msg.sendToTarget();
                     } else {
                         android.os.Message msg = myHandler.obtainMessage();
                         msg.what = GET_INFO_FAILED;

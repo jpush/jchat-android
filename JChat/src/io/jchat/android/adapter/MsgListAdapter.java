@@ -126,6 +126,7 @@ public class MsgListAdapter extends BaseAdapter {
     private int mWidth;
     private int nextPlayPosition = 0;
     private double mDensity;
+    private int mAvatarSize;
     private boolean mIsEarPhoneOn;
     private GroupInfo mGroupInfo;
     //当前第0项消息的位置
@@ -147,8 +148,8 @@ public class MsgListAdapter extends BaseAdapter {
         List<String> userIDList = new ArrayList<String>();
         userIDList.add(targetID);
         userIDList.add(JMessageClient.getMyInfo().getUserName());
-        NativeImageLoader.getInstance().setAvatarCache(userIDList,
-                (int) (50 * mDensity), new NativeImageLoader.CacheAvatarCallBack() {
+        NativeImageLoader.getInstance().setAvatarCache(userIDList, mAvatarSize,
+                new NativeImageLoader.CacheAvatarCallBack() {
                     @Override
                     public void onCacheAvatarCallBack(int status) {
                         mActivity.runOnUiThread(new Runnable() {
@@ -185,6 +186,7 @@ public class MsgListAdapter extends BaseAdapter {
         DisplayMetrics dm = new DisplayMetrics();
         mActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
+        mAvatarSize = (int) (50 * mDensity);
         mWidth = dm.widthPixels;
         mInflater = LayoutInflater.from(mContext);
         AudioManager audioManager = (AudioManager) mContext
@@ -598,7 +600,7 @@ public class MsgListAdapter extends BaseAdapter {
                         File file = userInfo.getSmallAvatarFile();
                         if (file != null && file.isFile()) {
                             bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                    (int) (50 * mDensity), (int) (50 * mDensity));
+                                    mAvatarSize, mAvatarSize);
                             NativeImageLoader.getInstance()
                                     .updateBitmapFromCache(userInfo.getUserName(), bitmap);
                             holder.headIcon.setImageBitmap(bitmap);
@@ -609,7 +611,7 @@ public class MsgListAdapter extends BaseAdapter {
                                 public void gotResult(int status, String desc, File file) {
                                     if (status == 0) {
                                         Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                                (int) (50 * mDensity), (int) (50 * mDensity));
+                                                mAvatarSize, mAvatarSize);
                                         NativeImageLoader.getInstance()
                                                 .updateBitmapFromCache(userInfo.getUserName(), bitmap);
                                         holder.headIcon.setImageBitmap(bitmap);
