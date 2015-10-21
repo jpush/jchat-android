@@ -1,22 +1,21 @@
 package io.jchat.android.view;
 
 
-
-import io.jchat.android.adapter.GroupMemberGridAdapter;
-
-import android.view.View;
-import android.widget.AdapterView.OnItemClickListener;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
+import android.view.View;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import io.jchat.android.R;
+import io.jchat.android.adapter.GroupMemberGridAdapter;
 
 public class ChatDetailView extends LinearLayout{
 	
@@ -35,6 +34,7 @@ public class ChatDetailView extends LinearLayout{
 	private GroupGridView mGridView;
     private Context mContext;
 	private View mDividingLine;
+	private ScrollView mScrollView;
 
 	public ChatDetailView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -42,7 +42,7 @@ public class ChatDetailView extends LinearLayout{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void initModule(){
+	public void initModule(int height){
 		mGroupNameLL = (LinearLayout) findViewById(R.id.group_name_ll);
 		mMyNameLL = (LinearLayout) findViewById(R.id.group_my_name_ll);
 		mGroupNumLL = (LinearLayout) findViewById(R.id.group_num_ll);
@@ -57,6 +57,7 @@ public class ChatDetailView extends LinearLayout{
 		mDividingLine = findViewById(R.id.group_num_dividing_line);
 		mMyName = (TextView) findViewById(R.id.chat_detail_my_name);
 		mGridView = (GroupGridView) findViewById(R.id.chat_detail_group_gv);
+		mScrollView = (ScrollView) findViewById(R.id.chat_detail_sv);
 
 		mTitle.setText(mContext.getString(R.string.chat_detail_title));
 		mMenuBtn.setVisibility(View.GONE);
@@ -98,10 +99,6 @@ public class ChatDetailView extends LinearLayout{
 		mMyName.setText(str);
 	}
 	
-	public void setGroupNum(int num){
-		mGroupNum.setText(num + "");
-	}
-
 	public void setSingleView() {
 		mGroupNameLL.setVisibility(View.GONE);
 		mGroupNumLL.setVisibility(View.GONE);

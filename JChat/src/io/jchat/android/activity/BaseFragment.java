@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 
@@ -28,11 +29,19 @@ public class BaseFragment extends Fragment {
     private Dialog dialog;
 
     private UserInfo myInfo;
+    protected float mDensity;
+    protected int mWidth;
+    protected int mAvatarSize;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         JMessageClient.registerEventReceiver(this);
+        DisplayMetrics dm = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mDensity = dm.density;
+        mWidth = dm.widthPixels;
+        mAvatarSize = (int) (50 * mDensity);
     }
 
     @Override

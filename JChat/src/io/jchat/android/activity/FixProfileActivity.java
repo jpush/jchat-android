@@ -14,7 +14,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,11 +22,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
@@ -48,9 +49,7 @@ public class FixProfileActivity extends BaseActivity {
     private ImageView mAvatarIv;
     private String mPath;
     private ProgressDialog mDialog;
-    private double mDensity;
     private Context mContext;
-    private int mWidth;
     // 裁剪后图片的宽(X)和高(Y), 480 X 480的正方形。
     private static int OUTPUT_X = 480;
     private static int OUTPUT_Y = 480;
@@ -70,10 +69,6 @@ public class FixProfileActivity extends BaseActivity {
         mFinishBtn = (Button) findViewById(R.id.finish_btn);
         mAvatarIv.setOnClickListener(listener);
         mFinishBtn.setOnClickListener(listener);
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDensity = dm.density;
-        mWidth = dm.widthPixels;
         JMessageClient.getUserInfo(JMessageClient.getMyInfo().getUserName(), null);
         SharePreferenceManager.setCachedFixProfileFlag(true);
         mNickNameEt.requestFocus();

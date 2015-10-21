@@ -25,6 +25,7 @@ public class JPushDemoApplication extends Application {
     public static final int REFRESH_GROUP_NUM = 3001;
     public static final int ON_GROUP_EVENT = 3004;
     public static final int PAGE_MESSAGE_COUNT = 18;
+
     private static final String JCHAT_CONFIGS = "JChat_configs";
 
     public static final String TARGET_ID = "targetID";

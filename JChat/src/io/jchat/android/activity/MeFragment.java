@@ -49,7 +49,7 @@ public class MeFragment extends BaseFragment {
                 (ViewGroup) getActivity().findViewById(R.id.main_view),
                 false);
         mMeView = (MeView) mRootView.findViewById(R.id.me_view);
-        mMeView.initModule();
+        mMeView.initModule(mDensity, mWidth);
         mMeController = new MeController(mMeView, this);
         mMeView.setListeners(mMeController);
     }

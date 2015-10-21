@@ -1,14 +1,12 @@
 package io.jchat.android.view;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,7 +41,7 @@ public class MeView extends LinearLayout {
         this.mContext = context;
     }
 
-    public void initModule() {
+    public void initModule(float density, int width) {
         UserInfo userInfo = JMessageClient.getMyInfo();
         mTitleBarTitle = (TextView) findViewById(R.id.title_bar_title);
         mTitleBarTitle.setText(mContext.getString(R.string.actionbar_me));
@@ -55,10 +53,7 @@ public class MeView extends LinearLayout {
         mUserNameTv = (TextView) findViewById(R.id.user_name_tv);
         mSettingRl = (RelativeLayout) findViewById(R.id.setting_rl);
         mLogoutRl = (RelativeLayout) findViewById(R.id.logout_rl);
-        DisplayMetrics dm = new DisplayMetrics();
-        ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
-        double density = dm.density;
-        mWidth = dm.widthPixels;
+        mWidth = width;
         mHeight = (int) (190 * density);
         if (userInfo != null) {
             mUserNameTv.setText(userInfo.getUserName());

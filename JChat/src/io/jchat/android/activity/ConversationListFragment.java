@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,7 +46,6 @@ public class ConversationListFragment extends BaseFragment {
     private MenuItemView mMenuItemView;
     private MenuItemController mMenuController;
     private Activity mContext;
-    private int mAvatarSize;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,10 +54,6 @@ public class ConversationListFragment extends BaseFragment {
         mContext = this.getActivity();
         JMessageClient.registerEventReceiver(this);
         EventBus.getDefault().register(this);
-        DisplayMetrics dm = new DisplayMetrics();
-        this.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-        double density = dm.density;
-        mAvatarSize = (int) (50 * density);
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mRootView = layoutInflater.inflate(R.layout.fragment_conv_list,
                 (ViewGroup) getActivity().findViewById(R.id.main_view),
@@ -67,7 +61,7 @@ public class ConversationListFragment extends BaseFragment {
         mConvListView = new ConversationListView(mRootView, this.getActivity());
         mConvListView.initModule();
         mMenuView = getActivity().getLayoutInflater().inflate(R.layout.drop_down_menu, null);
-        mConvListController = new ConversationListController(mConvListView, this, dm);
+        mConvListController = new ConversationListController(mConvListView, this, mDensity, mWidth);
         mConvListView.setListener(mConvListController);
         mConvListView.setItemListeners(mConvListController);
         mConvListView.setLongClickListener(mConvListController);

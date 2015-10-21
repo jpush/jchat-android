@@ -25,6 +25,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
@@ -148,9 +150,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 photoView.setTag(position);
                 String path = mPathList.get(position);
                 Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
-                if (bitmap != null)
+                if (bitmap != null){
                     photoView.setImageBitmap(bitmap);
-                else photoView.setImageResource(R.drawable.friends_sends_pictures_no);
+                } else {
+                    photoView.setImageResource(R.drawable.friends_sends_pictures_no);
+                }
                 container.addView(photoView, LayoutParams.MATCH_PARENT,
                         LayoutParams.MATCH_PARENT);
                 return photoView;
@@ -198,7 +202,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 photoView = new PhotoView(mFromChatActivity, this);
                 mLoadBtn.setVisibility(View.GONE);
                 try {
-                    photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(0), mWidth, mHeight));
+//                    photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(0), mWidth, mHeight));
+                    Picasso.with(mContext).load(new File(mPathList.get(0))).into(photoView);
                 } catch (Exception e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
                 }
@@ -217,13 +222,16 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     if (ic.getLocalPath() == null && mMsgIDList.indexOf(mMsg.getId()) == 0) {
                         downloadImage();
                     }
+                    String path = mPathList.get(mMsgIDList.indexOf(mMsg.getId()));
                     //如果发送方上传了原图
-                    if(ic.getBooleanExtra("originalPicture")){
+                    if(ic.getBooleanExtra("originalPicture") != null && ic.getBooleanExtra("originalPicture")){
                         mLoadBtn.setVisibility(View.GONE);
                         setLoadBtnText(ic);
+                        photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(path, mWidth, mHeight));
+                    }else {
+                        Picasso.with(mContext).load(new File(path)).into(photoView);
                     }
-                    photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(mMsgIDList
-                            .indexOf(mMsg.getId())), mWidth, mHeight));
+
                     mViewPager.setCurrentItem(currentItem);
                 } catch (NullPointerException e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
@@ -372,6 +380,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
     };
 
+    /**
+     * 滑动到第一张时，加载上一页消息中的图片
+     */
     private void getImgMsg() {
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -430,19 +441,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
             msg = mConv.getMessage(msgID);
             if (msg.getContentType().equals(ContentType.image)) {
                 ic = (ImageContent) msg.getContent();
-                if (msg.getDirect().equals(MessageDirect.send)){
-                    if (TextUtils.isEmpty(ic.getStringExtra("localPath"))){
-                        if (!TextUtils.isEmpty(ic.getLocalPath())){
-                            mPathList.add(ic.getLocalPath());
-                        }else {
-                            mPathList.add(ic.getLocalThumbnailPath());
-                        }
-                    }else {
-                        mPathList.add(ic.getStringExtra("localPath"));
-                    }
-                }else if (ic.getLocalPath() != null) {
+                if (!TextUtils.isEmpty(ic.getLocalPath())){
                     mPathList.add(ic.getLocalPath());
-                } else mPathList.add(ic.getLocalThumbnailPath());
+                }else {
+                    mPathList.add(ic.getLocalThumbnailPath());
+                }
             }
         }
     }
@@ -569,8 +572,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
      */
     private void createNextImgContent(final String path, final boolean isOriginal) {
         Bitmap bitmap;
-        //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
-        if (BitmapLoader.verifyPictureSize(path)) {
+        //若isOriginal为true或者图片大小小于720 * 1280则直接发送原图，否则压缩
+        if (isOriginal || BitmapLoader.verifyPictureSize(path)) {
             File file = new File(path);
             ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
                 @Override
@@ -599,28 +602,20 @@ public class BrowserViewPagerActivity extends BaseActivity {
             });
         } else {
             bitmap = BitmapLoader.getBitmapFromFile(path, 720, 1280);
-            final String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-            File file = new File(tempPath);
-            ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
+            ImageContent.createImageContentAsync(bitmap, new ImageContent.CreateImageContentCallback() {
                 @Override
                 public void gotResult(int status, String desc, ImageContent imageContent) {
-                    if (status == 0) {
-                        imageContent.setStringExtra("localPath", path);
-                        imageContent.setStringExtra("tempPath", tempPath);
-                        if (isOriginal){
-                            imageContent.setBooleanExtra("originalPicture", true);
-                        }
+                    if (status == 0){
                         Message msg = mConv.createSendMessage(imageContent);
                         mMsgIDs[mIndex] = msg.getId();
                         mIndex++;
                         mPathQueue.poll();
                         if (!mPathQueue.isEmpty()) {
-                            createNextImgContent(mPathQueue.element(), isOriginal);
+                            createNextImgContent(mPathQueue.element(), false);
                         } else {
                             myHandler.sendEmptyMessage(SEND_PICTURE);
                         }
-                    } else {
-                        Log.d("BVPActivity", "create image content failed! status:" + status);
+                    }else {
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }

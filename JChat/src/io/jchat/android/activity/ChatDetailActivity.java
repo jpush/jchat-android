@@ -12,7 +12,6 @@ import android.os.Message;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,19 +25,19 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.List;
 
+import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
-import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.ChatDetailController;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ChatDetailView;
-import cn.jpush.im.api.BasicCallback;
 
 /*
  * 在对话界面中点击聊天信息按钮进来的聊天信息界面
@@ -55,7 +54,6 @@ public class ChatDetailActivity extends BaseActivity {
     private static final int ADD_FRIEND_REQUEST_CODE = 3;
     private Context mContext;
     private ProgressDialog mDialog;
-    private double mDensity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,14 +63,11 @@ public class ChatDetailActivity extends BaseActivity {
         setContentView(R.layout.activity_chat_detail);
         mContext = this;
         mChatDetailView = (ChatDetailView) findViewById(R.id.chat_detail_view);
-        mChatDetailView.initModule();
-        mChatDetailController = new ChatDetailController(mChatDetailView, this);
+        mChatDetailView.initModule(mHeight);
+        mChatDetailController = new ChatDetailController(mChatDetailView, this, mAvatarSize);
         mChatDetailView.setListeners(mChatDetailController);
         mChatDetailView.setItemListener(mChatDetailController);
         mChatDetailView.setLongClickListener(mChatDetailController);
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDensity = dm.density;
     }
 
     //设置群聊名称
@@ -293,47 +288,53 @@ public class ChatDetailActivity extends BaseActivity {
     /**
      * 接收群成员变化事件
      *
-     * @param event
+     * @param event 消息事件
      */
     public void onEvent(MessageEvent event) {
         final cn.jpush.im.android.api.model.Message msg = event.getMessage();
         if (msg.getContentType() == ContentType.eventNotification) {
-            //添加群成员事件特殊处理
             EventNotificationContent.EventNotificationType msgType = ((EventNotificationContent) msg
                     .getContent()).getEventNotificationType();
-            if (msgType.equals(EventNotificationContent.EventNotificationType.group_member_added)) {
-                List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
-                for (final String userName : userNames) {
-                    Conversation conv = JMessageClient.getSingleConversation(userName);
-                    if (NativeImageLoader.getInstance().getBitmapFromMemCache(userName) == null) {
-                        //从Conversation拿
-                        if (conv != null) {
-                            final File file = conv.getAvatarFile();
-                            if (file != null) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //缓存头像
-                                        NativeImageLoader.getInstance().putUserAvatar(userName, file
-                                                .getAbsolutePath(), (int) (50 * mDensity));
-                                    }
-                                });
-                            }
-                            //用getUserInfo()接口拿，拿到后刷新并缓存头像
-                        } else {
-                            NativeImageLoader.getInstance().setAvatarCache(userName, (int) (50 * mDensity),
-                                    new NativeImageLoader.CacheAvatarCallBack() {
+            switch (msgType){
+                //添加群成员事件特殊处理
+                case group_member_added:
+                    List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
+                    for (final String userName : userNames) {
+                        Conversation conv = JMessageClient.getSingleConversation(userName);
+                        if (NativeImageLoader.getInstance().getBitmapFromMemCache(userName) == null) {
+                            //从Conversation拿
+                            if (conv != null) {
+                                final File file = conv.getAvatarFile();
+                                if (file != null) {
+                                    runOnUiThread(new Runnable() {
                                         @Override
-                                        public void onCacheAvatarCallBack(int status) {
-                                            if (status == 0) {
-                                                Log.d(TAG, "add group member, get UserInfo success");
-                                                mChatDetailController.getAdapter().notifyDataSetChanged();
-                                            }
+                                        public void run() {
+                                            //缓存头像
+                                            NativeImageLoader.getInstance().putUserAvatar(userName, file
+                                                    .getAbsolutePath(), mAvatarSize);
                                         }
                                     });
+                                }
+                                //用getUserInfo()接口拿，拿到后刷新并缓存头像
+                            } else {
+                                NativeImageLoader.getInstance().setAvatarCache(userName, mAvatarSize,
+                                        new NativeImageLoader.CacheAvatarCallBack() {
+                                            @Override
+                                            public void onCacheAvatarCallBack(int status) {
+                                                if (status == 0) {
+                                                    Log.d(TAG, "add group member, get UserInfo success");
+                                                    mChatDetailController.getAdapter().notifyDataSetChanged();
+                                                }
+                                            }
+                                        });
+                            }
                         }
                     }
-                }
+                    break;
+                case group_member_removed:
+                    break;
+                case group_member_exit:
+                    break;
             }
             //无论是否添加群成员，刷新界面
             android.os.Message handleMsg = mHandler.obtainMessage();
