@@ -58,7 +58,7 @@ public class FixProfileActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(null != savedInstanceState){
+        if (null != savedInstanceState) {
             String nickName = savedInstanceState.getString("savedNickName");
             mNickNameEt.setText(nickName);
         }
@@ -176,7 +176,6 @@ public class FixProfileActivity extends BaseActivity {
             startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO);
         } else {
             Toast.makeText(this, this.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
-            return;
         }
     }
 
@@ -202,7 +201,6 @@ public class FixProfileActivity extends BaseActivity {
         }
         if (requestCode == JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
             if (mPath != null) {
-//                calculateAvatar(mPath);
                 mUri = Uri.fromFile(new File(mPath));
                 cropRawPhoto(mUri);
             }
@@ -210,29 +208,33 @@ public class FixProfileActivity extends BaseActivity {
             if (data != null) {
                 Uri selectedImg = data.getData();
                 if (selectedImg != null) {
-                    Cursor cursor = getContentResolver().query(
-                            selectedImg, null, null, null, null);
-                    cursor.moveToFirst();
-                    int columnIndex = cursor.getColumnIndex("_data");
-                    String path = cursor.getString(columnIndex);
-                    if (path != null) {
-                        File file = new File(path);
-                        if (!file.isFile()) {
-                            Toast.makeText(this, this.getString(R.string.picture_not_found),
-                                    Toast.LENGTH_SHORT).show();
-                            cursor.close();
-                        }else {
-                            copyAndCrop(file);
-                            cursor.close();
+                    Cursor cursor = getContentResolver().query(selectedImg, null, null, null, null);
+                    try {
+                        cursor.moveToFirst();
+                        int columnIndex = cursor.getColumnIndex("_data");
+                        String path = cursor.getString(columnIndex);
+                        if (path != null) {
+                            File file = new File(path);
+                            if (!file.isFile()) {
+                                Toast.makeText(this, this.getString(R.string.picture_not_found),
+                                        Toast.LENGTH_SHORT).show();
+                                cursor.close();
+                            } else {
+                                copyAndCrop(file);
+                                cursor.close();
+                            }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-//                    calculateAvatar(path);
                 }
+
             }
-        }else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE){
+        } else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE) {
+            //裁剪后得到返回的bitmap
             Bitmap bitmap = decodeUriAsBitmap(mUri);
             String path = BitmapLoader.saveBitmapToLocal(bitmap);
-            calculateAvatar(path);
+            uploadUserAvatar(path);
         }
     }
 
@@ -260,6 +262,7 @@ public class FixProfileActivity extends BaseActivity {
 
     /**
      * 复制后裁剪文件
+     *
      * @param file 要复制的文件
      */
     private void copyAndCrop(final File file) {
@@ -280,8 +283,8 @@ public class FixProfileActivity extends BaseActivity {
                     FileOutputStream fos = new FileOutputStream(tempFile);
                     byte[] bt = new byte[1024];
                     int c;
-                    while((c = fis.read(bt)) > 0){
-                        fos.write(bt,0,c);
+                    while ((c = fis.read(bt)) > 0) {
+                        fos.write(bt, 0, c);
                     }
                     //关闭输入、输出流
                     fis.close();
@@ -299,7 +302,7 @@ public class FixProfileActivity extends BaseActivity {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
-                }finally {
+                } finally {
                     FixProfileActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -312,7 +315,7 @@ public class FixProfileActivity extends BaseActivity {
         thread.run();
     }
 
-    private Bitmap decodeUriAsBitmap(Uri uri){
+    private Bitmap decodeUriAsBitmap(Uri uri) {
         Bitmap bitmap = null;
         try {
             bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
@@ -323,24 +326,16 @@ public class FixProfileActivity extends BaseActivity {
         return bitmap;
     }
 
-    private void calculateAvatar(final String originPath) {
+    /**
+     * 上传头像
+     * @param path 要上传的文件路径
+     */
+    private void uploadUserAvatar(final String path) {
         mDialog = new ProgressDialog(this);
         mDialog.setCancelable(false);
         mDialog.setMessage(this.getString(R.string.updating_avatar_hint));
         mDialog.show();
-        //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
-        if (BitmapLoader.verifyPictureSize(originPath))
-            updateAvatar(originPath, originPath);
-        else {
-            Bitmap bitmap = BitmapLoader.getBitmapFromFile(originPath, 720, 1280);
-            Log.i("FixProfileActivity", "uploading width height: " + bitmap.getWidth() + " " + bitmap.getHeight());
-            String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-            updateAvatar(tempPath, originPath);
-        }
-    }
-
-    private void updateAvatar(final String path, final String originPath) {
-        JMessageClient.updateUserAvatar(new File(path), new BasicCallback(false) {
+        JMessageClient.updateUserAvatar(new File(path), new BasicCallback() {
             @Override
             public void gotResult(int status, final String desc) {
                 if (mDialog.isShowing()) {
@@ -348,36 +343,31 @@ public class FixProfileActivity extends BaseActivity {
                 }
                 if (status == 0) {
                     Log.i("FixProfileActivity", "Update avatar succeed path " + path);
-                    loadUserAvatar(originPath);
-                    FixProfileActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(FixProfileActivity.this, FixProfileActivity.this.getString(R.string.avatar_modify_succeed_toast), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    loadUserAvatar(path);
+                    Toast.makeText(FixProfileActivity.this,
+                            FixProfileActivity.this.getString(R.string.avatar_modify_succeed_toast),
+                            Toast.LENGTH_SHORT).show();
                 } else {
-                    FixProfileActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(FixProfileActivity.this, desc, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    Toast.makeText(FixProfileActivity.this, desc, Toast.LENGTH_SHORT).show();
+                }
+                //删除裁剪后的文件
+                File file = new File(path);
+                if (file.isFile()) {
+                    if (file.delete()) {
+                        Log.d("FixProfileActivity", "delete temp file : " + path);
+                    }
                 }
             }
         });
     }
 
     private void loadUserAvatar(String path) {
-        final Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, (int) (100 * mDensity), (int) (100 * mDensity));
-        Log.i("FixProfileActivity", "bitmap.getWidth() bitmap.getHeight() " + bitmap.getWidth() + bitmap.getHeight());
+        final Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, (int) (100 * mDensity),
+                (int) (100 * mDensity));
+        Log.i("FixProfileActivity", "bitmap.getWidth() bitmap.getHeight() " + bitmap.getWidth()
+                + bitmap.getHeight());
         Log.i("FixProfileActivity", "file path " + path);
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mAvatarIv.setBackgroundResource(0);
-                mAvatarIv.setImageBitmap(bitmap);
-            }
-        });
+        mAvatarIv.setImageBitmap(bitmap);
     }
 
     @Override

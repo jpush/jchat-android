@@ -2,18 +2,15 @@ package io.jchat.android.adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
-
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -21,7 +18,6 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.tools.TimeFormat;
@@ -31,25 +27,19 @@ public class ConversationListAdapter extends BaseAdapter {
 
     List<Conversation> mDatas;
     private Activity mContext;
-    private int mDensityDPI;
+    private int mDensityDpi;
 
-    public ConversationListAdapter(Activity context,
-                                   List<Conversation> data) {
+    public ConversationListAdapter(Activity context, List<Conversation> data, double density, int densityDpi) {
         this.mContext = context;
         this.mDatas = data;
-        DisplayMetrics dm = new DisplayMetrics();
-        mContext.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        double density = dm.density;
-        mDensityDPI = dm.densityDpi;
+        this.mDensityDpi = densityDpi;
         for (Conversation conv : mDatas) {
             if (conv.getType().equals(ConversationType.single)) {
                 UserInfo userInfo = (UserInfo) conv.getTargetInfo();
                 File file = userInfo.getSmallAvatarFile();
                 if (file != null) {
-                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                            (int) (50 * density), (int) (50 * density));
-                    NativeImageLoader.getInstance()
-                            .updateBitmapFromCache(userInfo.getUserName(), bitmap);
+                    NativeImageLoader.getInstance().putUserAvatar(userInfo.getUserName(),
+                            file.getAbsolutePath(), (int) (50 * density));
                 }
             }
         }
@@ -128,9 +118,9 @@ public class ConversationListAdapter extends BaseAdapter {
                     .findViewById(R.id.msg_item_head_icon);
             viewHolder.convName = (TextView) convertView
                     .findViewById(R.id.conv_item_name);
-            if (mDensityDPI <= 160){
+            if (mDensityDpi <= 160){
                 viewHolder.convName.setEms(6);
-            }else if (mDensityDPI <= 240){
+            }else if (mDensityDpi <= 240){
                 viewHolder.convName.setEms(8);
             }else viewHolder.convName.setEms(10);
             viewHolder.content = (TextView) convertView
@@ -177,7 +167,6 @@ public class ConversationListAdapter extends BaseAdapter {
             viewHolder.datetime.setText(timeFormat.getTime());
             viewHolder.content.setText("");
         }
-//		viewHolder.headIcon.setImageResource(R.drawable.head_icon);
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
             viewHolder.convName.setText(convItem.getTitle());

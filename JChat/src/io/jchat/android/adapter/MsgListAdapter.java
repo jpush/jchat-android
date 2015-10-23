@@ -613,6 +613,21 @@ public class MsgListAdapter extends BaseAdapter {
                             holder.headIcon.setImageBitmap(bitmap);
                             //本地不存在头像，启动任务拿头像
                         } else {
+//                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+//                                @Override
+//                                public void gotResult(int status, String desc, File file) {
+//                                    if (status == 0){
+//                                        NativeImageLoader.getInstance().putUserAvatar(userInfo.getUserName(),
+//                                                file.getAbsolutePath(), mAvatarSize);
+//                                        Bitmap bmp = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+//                                                mAvatarSize, mAvatarSize);
+//                                        holder.headIcon.setImageBitmap(bmp);
+//                                    }else {
+//                                        holder.headIcon.setImageResource(R.drawable.head_icon);
+//                                        HandleResponseCode.onHandle(mContext, status, false);
+//                                    }
+//                                }
+//                            });
                             Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(),
                                     R.drawable.head_icon);
                             loadMemberAvatar(userInfo, bmp, holder.headIcon);
@@ -898,7 +913,7 @@ public class MsgListAdapter extends BaseAdapter {
 
             switch (msg.getStatus()) {
                 case receive_fail:
-                    holder.picture.setBackgroundResource(R.drawable.fetch_failed);
+                    holder.picture.setImageResource(R.drawable.fetch_failed);
                     break;
                 default:
             }
@@ -1607,7 +1622,7 @@ public class MsgListAdapter extends BaseAdapter {
         if (bitmapWorkerTask != null) {
             final String userNameData = bitmapWorkerTask.userInfo.getUserName();
             // If bitmapData is not yet set or it differs from the new data
-            if (!userNameData.equals(userName)) {
+            if (userNameData != null && !userNameData.equals(userName)) {
                 // Cancel previous task
                 bitmapWorkerTask.cancel(true);
                 Log.d(TAG, "cancel potential work, UserName: " + userNameData);

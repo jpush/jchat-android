@@ -19,8 +19,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import io.jchat.android.R;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -30,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
+import io.jchat.android.R;
 import io.jchat.android.adapter.AlbumListAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.entity.ImageBean;
@@ -212,7 +210,8 @@ public class PickPictureTotalActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == Activity.RESULT_CANCELED) {
 			return;
-		}else if (resultCode == JPushDemoApplication.RESULT_CODE_SELECT_ALBUM){
+		}
+		if (resultCode == JPushDemoApplication.RESULT_CODE_SELECT_ALBUM){
 			setResult(JPushDemoApplication.RESULT_CODE_SELECT_PICTURE, data);
 			finish();
 		}

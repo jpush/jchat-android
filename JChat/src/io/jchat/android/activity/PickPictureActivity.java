@@ -202,29 +202,6 @@ public class PickPictureActivity extends BaseActivity {
                     }
                 }
             });
-//            final String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-//            File file = new File(tempPath);
-//            ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
-//                @Override
-//                public void gotResult(int status, String desc, ImageContent imageContent) {
-//                    if (status == 0) {
-//                        imageContent.setStringExtra("localPath", path);
-//                        imageContent.setStringExtra("tempPath", tempPath);
-//                        Message msg = mConv.createSendMessage(imageContent);
-//                        mMsgIDs[mIndex] = msg.getId();
-//                        mIndex++;
-//                        mPathQueue.poll();
-//                        if (!mPathQueue.isEmpty()) {
-//                            createNextImgContent(mPathQueue.element());
-//                        } else {
-//                            myHandler.sendEmptyMessage(SEND_PICTURE);
-//                        }
-//                    } else {
-//                        Log.d("PickPictureActivity", "create image content failed! status:" + status);
-//                        HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
-//                    }
-//                }
-//            });
         }
     }
 

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
@@ -108,7 +109,7 @@ public class MainActivity extends FragmentActivity{
                 //拍照后直接进行裁剪
                 mMainController.cropRawPhoto(mUri);
             }
-//                mMainController.calculateAvatar(path);
+//                mMainController.uploadUserAvatar(path);
         } else if (requestCode == JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
             if (data != null) {
                 Uri selectedImg = data.getData();
@@ -135,13 +136,14 @@ public class MainActivity extends FragmentActivity{
                             cursor.close();
                         }
                     }
-//                    mMainController.calculateAvatar(path);
+//                    mMainController.uploadUserAvatar(path);
                 }
             }
         }else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE){
             Bitmap bitmap = decodeUriAsBitmap(mUri);
             String path = BitmapLoader.saveBitmapToLocal(bitmap);
-            mMainController.calculateAvatar(path);
+            Log.d("MainActivity", "After compress Path: " + path);
+            mMainController.uploadUserAvatar(path);
         }
     }
 
