@@ -21,13 +21,8 @@
              >
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="20dip"
-                android:layout_centerVertical="true"
-                android:text="新消息提醒"
-                android:textSize="16sp"
-                android:textColor="@color/black"/>
+                style="@style/SettingItemTextStyle"
+                android:text="@string/new_msg_remind_hit"/>
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -42,24 +37,18 @@
         <RelativeLayout
             android:id="@+id/change_password_rl"
             style="@style/SettingItemStyle"
-            android:clickable="true"
-            >
+            android:clickable="true">
 
             <TextView
                 android:id="@+id/change_password_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="20dip"
-                android:layout_centerVertical="true"
-                android:text="密码修改"
-                android:textSize="16sp"
-                android:textColor="@color/black"/>
+                style="@style/SettingItemTextStyle"
+                android:text="@string/change_password"/>
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
                 android:layout_marginRight="10dp"
                 android:background="@drawable/arrow"/>
         </RelativeLayout>
@@ -78,19 +67,13 @@
              >
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="20dip"
-                android:layout_centerVertical="true"
-                android:text="勿扰模式"
-                android:textSize="16sp"
-                android:textColor="@color/black"/>
+                style="@style/SettingItemTextStyle"
+                android:text="@string/dnd_sub_hit" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
                 android:layout_marginRight="10dp"
                 android:background="@drawable/arrow"/>
         </RelativeLayout>
@@ -99,6 +82,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/me_split_line_color" />
+
+        <RelativeLayout
+            android:id="@+id/about_rl"
+            style="@style/SettingItemStyle">
+
+
+            <TextView
+                style="@style/SettingItemTextStyle"
+                android:paddingLeft="20dp"
+                android:text="@string/about"
+                />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/arrow" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/me_split_line_color" />
         
     </LinearLayout>
 

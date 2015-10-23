@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 
@@ -27,6 +28,11 @@ public class BaseActivity extends Activity {
     private static final String TAG = "BaseActivity";
 
     protected BaseHandler mHandler;
+    protected float mDensity;
+    protected int mDensityDpi;
+    protected int mAvatarSize;
+    protected int mWidth;
+    protected int mHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +40,13 @@ public class BaseActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         mHandler = new BaseHandler();
         JMessageClient.registerEventReceiver(this);
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mDensity = dm.density;
+        mDensityDpi = dm.densityDpi;
+        mWidth = dm.widthPixels;
+        mHeight = dm.heightPixels;
+        mAvatarSize = (int) (50 * mDensity);
     }
 
     private Dialog dialog;

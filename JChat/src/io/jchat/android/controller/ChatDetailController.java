@@ -3,11 +3,9 @@ package io.jchat.android.controller;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,14 +17,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -40,13 +37,12 @@ import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.adapter.GroupMemberGridAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.entity.Event;
-import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ChatDetailView;
 
-public class ChatDetailController implements OnClickListener, OnItemClickListener, OnItemLongClickListener {
+public class ChatDetailController implements OnClickListener, OnItemClickListener, OnItemLongClickListener{
 
     private static final String TAG = "ChatDetailController";
 
@@ -69,19 +65,17 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private boolean mIsShowDelete = false;
     private static final int ADD_TO_GRIDVIEW = 2048;
     private static final int DELETE_FROM_GRIDVIEW = 2049;
-    private double mDensity;
+    private int mAvatarSize;
     private String mGroupName;
     private final MyHandler myHandler = new MyHandler(this);
     private Dialog mDialog;
     private boolean mDeleteMsg;
 
-    public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context) {
+    public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context, int size) {
         this.mChatDetailView = chatDetailView;
         this.mContext = context;
+        this.mAvatarSize = size;
         initData();
-        DisplayMetrics dm = new DisplayMetrics();
-        context.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDensity = dm.density;
     }
 
     /*
@@ -121,7 +115,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             // 是单聊
         } else {
             mCurrentNum = 1;
-            mGridAdapter = new GroupMemberGridAdapter(mContext, mTargetID);
+            mGridAdapter = new GroupMemberGridAdapter(mContext, mTargetID, mAvatarSize);
             mChatDetailView.setAdapter(mGridAdapter);
             // 设置单聊界面
             mChatDetailView.setSingleView();
@@ -132,7 +126,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private void initAdapter() {
         mCurrentNum = mMemberInfoList.size();
         // 初始化头像
-        mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberInfoList, mIsCreator);
+        mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberInfoList, mIsCreator, mAvatarSize);
         mChatDetailView.setAdapter(mGridAdapter);
         mChatDetailView.getGridView().setFocusable(false);
     }
@@ -336,37 +330,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
                                     mContext.getString(R.string.searching_user));
                             mLoadingDialog.show();
-                            JMessageClient.getUserInfo(targetID, new GetUserInfoCallback() {
-                                @Override
-                                public void gotResult(final int status, String desc, UserInfo userInfo) {
-                                    if (status == 0) {
-                                        //缓存头像
-                                        File file = userInfo.getAvatarFile();
-                                        if (file != null) {
-                                            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                                    (int) (50 * mDensity), (int) (50 * mDensity));
-                                            if (bitmap != null)
-                                                NativeImageLoader.getInstance()
-                                                        .updateBitmapFromCache(targetID, bitmap);
-                                        }
-                                        dialog.cancel();
-                                        // add friend to group
-                                        // 要增加到群的成员ID集合
-                                        ArrayList<String> userIDs = new ArrayList<String>();
-                                        userIDs.add(targetID);
-                                        android.os.Message msg = myHandler.obtainMessage();
-                                        msg.what = ADD_TO_GRIDVIEW;
-                                        msg.obj = userInfo;
-                                        msg.sendToTarget();
-                                    } else {
-                                        if (mLoadingDialog != null) {
-                                            mLoadingDialog.dismiss();
-                                        }
-                                        HandleResponseCode.onHandle(mContext, status, true);
-                                    }
-                                }
-                            });
-
+                            getUserInfo(targetID, dialog);
                         } else {
                             dialog.cancel();
                             Toast.makeText(mContext, mContext.getString(R.string.user_already_exist_toast),
@@ -378,6 +342,55 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         };
         cancel.setOnClickListener(listener);
         commit.setOnClickListener(listener);
+    }
+
+    private void getUserInfo(final String targetID, final Dialog dialog){
+        JMessageClient.getUserInfo(targetID, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(final int status, String desc, final UserInfo userInfo) {
+                if (status == 0) {
+                    //缓存头像
+                    if (!TextUtils.isEmpty(userInfo.getAvatar())){
+                        File file = userInfo.getSmallAvatarFile();
+                        if (file != null) {
+                            NativeImageLoader.getInstance().putUserAvatar(targetID,
+                                    file.getAbsolutePath(), mAvatarSize);
+                            // add friend to group
+                            android.os.Message msg = myHandler.obtainMessage();
+                            msg.what = ADD_TO_GRIDVIEW;
+                            msg.obj = userInfo;
+                            msg.sendToTarget();
+                            //下载小头像
+                        }else {
+                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+                                @Override
+                                public void gotResult(int status, String desc, File file) {
+                                    if (status == 0){
+                                        if (file != null){
+                                            NativeImageLoader.getInstance().putUserAvatar(targetID,
+                                                    file.getAbsolutePath(), mAvatarSize);
+                                        }
+                                    }else {
+                                        HandleResponseCode.onHandle(mContext, status, false);
+                                    }
+                                    // add friend to group
+                                    android.os.Message msg = myHandler.obtainMessage();
+                                    msg.what = ADD_TO_GRIDVIEW;
+                                    msg.obj = userInfo;
+                                    msg.sendToTarget();
+                                }
+                            });
+                        }
+                    }
+                    dialog.cancel();
+                } else {
+                    if (mLoadingDialog != null) {
+                        mLoadingDialog.dismiss();
+                    }
+                    HandleResponseCode.onHandle(mContext, status, true);
+                }
+            }
+        });
     }
 
     /**

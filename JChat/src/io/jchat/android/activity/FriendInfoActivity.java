@@ -1,16 +1,18 @@
 package io.jchat.android.activity;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.DisplayMetrics;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -21,6 +23,7 @@ import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.FriendInfoController;
 import io.jchat.android.entity.Event;
 import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.FriendInfoView;
@@ -32,7 +35,6 @@ public class FriendInfoActivity extends BaseActivity {
     private String mTargetID;
     private long mGroupID;
     private UserInfo mUserInfo;
-    private double mDensity;
     private final MyHandler myHandler = new MyHandler(this);
     private String mNickname;
     private final static int GET_INFO_SUCCEED = 1;
@@ -55,30 +57,43 @@ public class FriendInfoActivity extends BaseActivity {
         } else {
             mUserInfo = (UserInfo) conv.getTargetInfo();
         }
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDensity = dm.density;
-        mFriendInfoView.initModule();
+        mFriendInfoView.initModule(mTargetID);
         //先从Conversation里获得UserInfo展示出来
         mFriendInfoView.initInfo(mUserInfo, mDensity);
         mFriendInfoController = new FriendInfoController(mFriendInfoView, this);
         mFriendInfoView.setListeners(mFriendInfoController);
-        //再到服务器上拿一次，更新UserInfo
+        //更新一次UserInfo
         JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
             @Override
-            public void gotResult(int status, String desc, UserInfo userInfo) {
+            public void gotResult(int status, String desc, final UserInfo userInfo) {
                 if (status == 0) {
-                    File file = userInfo.getAvatarFile();
+                    File file = userInfo.getSmallAvatarFile();
                     if (file != null && file.isFile()) {
                         Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                (int) (50 * mDensity), (int) (50 * mDensity));
+                                mAvatarSize, mAvatarSize);
                         //更新头像缓存
                         NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
+                        android.os.Message msg = myHandler.obtainMessage();
+                        msg.what = GET_INFO_SUCCEED;
+                        msg.obj = userInfo;
+                        msg.sendToTarget();
+                    } else {
+                        userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, File file) {
+                                if (status == 0) {
+                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                                            mAvatarSize, mAvatarSize);
+                                    //更新头像缓存
+                                    NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
+                                    android.os.Message msg = myHandler.obtainMessage();
+                                    msg.what = GET_INFO_SUCCEED;
+                                    msg.obj = userInfo;
+                                    msg.sendToTarget();
+                                }
+                            }
+                        });
                     }
-                    android.os.Message msg = myHandler.obtainMessage();
-                    msg.what = GET_INFO_SUCCEED;
-                    msg.obj = userInfo;
-                    msg.sendToTarget();
                 } else {
                     android.os.Message msg = myHandler.obtainMessage();
                     msg.what = GET_INFO_FAILED;
@@ -89,6 +104,7 @@ public class FriendInfoActivity extends BaseActivity {
                 }
             }
         });
+
     }
 
     /**
@@ -96,13 +112,13 @@ public class FriendInfoActivity extends BaseActivity {
      * finish掉此界面
      */
     public void startChatActivity() {
-        if (mGroupID != 0){
+        if (mGroupID != 0) {
             Intent intent = new Intent();
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
             intent.setClass(this, ChatActivity.class);
             startActivity(intent);
-        }else {
+        } else {
             Intent intent = new Intent();
             intent.putExtra("returnChatActivity", true);
             setResult(JPushDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
@@ -149,7 +165,7 @@ public class FriendInfoActivity extends BaseActivity {
 
     //点击头像预览大图，若此时UserInfo还是空，则再取一次
     public void startBrowserAvatar() {
-        if (mUserInfo != null) {
+        if (mUserInfo != null && !TextUtils.isEmpty(mUserInfo.getAvatar())) {
             File file = mUserInfo.getAvatarFile();
             if (file != null && file.exists()) {
                 Intent intent = new Intent();
@@ -157,32 +173,25 @@ public class FriendInfoActivity extends BaseActivity {
                 intent.putExtra("avatarPath", mUserInfo.getAvatarFile().getAbsolutePath());
                 intent.setClass(this, BrowserViewPagerActivity.class);
                 startActivity(intent);
-            }
-        } else {
-            JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
-                @Override
-                public void gotResult(int status, String desc, UserInfo userInfo) {
-                    if (status == 0) {
-                        File file = userInfo.getAvatarFile();
-                        if (file != null && file.isFile()) {
-                            Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int) (50 * mDensity), (int) (50 * mDensity));
-                            //更新头像缓存
-                            NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
+            } else {
+                final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.loading));
+                dialog.show();
+                mUserInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, File file) {
+                        dialog.dismiss();
+                        if (status == 0) {
+                            Intent intent = new Intent();
+                            intent.putExtra("browserAvatar", true);
+                            intent.putExtra("avatarPath", file.getAbsolutePath());
+                            intent.setClass(FriendInfoActivity.this, BrowserViewPagerActivity.class);
+                            startActivity(intent);
+                        } else {
+                            HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
                         }
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = GET_INFO_SUCCEED;
-                        msg.obj = userInfo;
-                        msg.sendToTarget();
-                    } else {
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = GET_INFO_FAILED;
-                        Bundle bundle = new Bundle();
-                        bundle.putInt("status", status);
-                        msg.setData(bundle);
-                        msg.sendToTarget();
                     }
-                }
-            });
+                });
+            }
         }
     }
 

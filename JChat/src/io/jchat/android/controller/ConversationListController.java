@@ -2,22 +2,23 @@ package io.jchat.android.controller;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import cn.jpush.im.android.api.model.GroupInfo;
-import cn.jpush.im.android.api.model.UserInfo;
-import io.jchat.android.R;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import cn.jpush.im.android.api.model.Conversation;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.UserInfo;
+import io.jchat.android.R;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.adapter.ConversationListAdapter;
@@ -38,12 +39,12 @@ public class ConversationListController implements OnClickListener,
     private int mWidth;
     private Dialog mDialog;
 
-    public ConversationListController(ConversationListView listView,
-                                      ConversationListFragment context, DisplayMetrics dm) {
+    public ConversationListController(ConversationListView listView, ConversationListFragment context,
+                                      float density, int width) {
         this.mConvListView = listView;
         this.mContext = context;
-        mDensity = dm.density;
-        mWidth = dm.widthPixels;
+        this.mDensity = density;
+        this.mWidth = width;
         initConvListAdapter();
     }
 
