@@ -2,24 +2,19 @@ package io.jchat.android.tools;
 
 import java.util.Comparator;
 
-import io.jchat.android.entity.TestSortModel;
+import io.jchat.android.entity.UserLetterBean;
 
-/**
- * 
- * @author xiaanming
- *
- */
-public class PinyinComparator implements Comparator<TestSortModel> {
+public class PinyinComparator implements Comparator<UserLetterBean> {
 
-	public int compare(TestSortModel o1, TestSortModel o2) {
-		if (o1.getSortLetters().equals("@")
-				|| o2.getSortLetters().equals("#")) {
+	public int compare(UserLetterBean o1, UserLetterBean o2) {
+		if (o1.getLetter().equals("@")
+				|| o2.getLetter().equals("#")) {
 			return -1;
-		} else if (o1.getSortLetters().equals("#")
-				|| o2.getSortLetters().equals("@")) {
+		} else if (o1.getLetter().equals("#")
+				|| o2.getLetter().equals("@")) {
 			return 1;
 		} else {
-			return o1.getSortLetters().compareTo(o2.getSortLetters());
+			return o1.getLetter().compareTo(o2.getLetter());
 		}
 	}
 

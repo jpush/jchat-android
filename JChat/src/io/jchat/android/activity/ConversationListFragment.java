@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.PopupWindow;
 import java.io.File;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
@@ -28,7 +30,6 @@ import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
 import io.jchat.android.entity.Event;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ConversationListView;
 import io.jchat.android.view.MenuItemView;
 
@@ -61,8 +62,7 @@ public class ConversationListFragment extends BaseFragment {
         mConvListView = new ConversationListView(mRootView, this.getActivity());
         mConvListView.initModule();
         mMenuView = getActivity().getLayoutInflater().inflate(R.layout.drop_down_menu, null);
-        mConvListController = new ConversationListController(mConvListView, this, mDensity,
-                mDensityDpi, mWidth);
+        mConvListController = new ConversationListController(mConvListView, this, mDensityDpi, mWidth);
         mConvListView.setListener(mConvListController);
         mConvListView.setItemListeners(mConvListController);
         mConvListView.setLongClickListener(mConvListController);
@@ -123,28 +123,20 @@ public class ConversationListFragment extends BaseFragment {
                 mContext.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        //如果缓存了头像，直接刷新会话列表
-                        if (NativeImageLoader.getInstance().getBitmapFromMemCache(targetID) != null) {
-                            Log.i("Test", "conversation ");
-                            //没有头像，从UserInfo拿
-                        } else {
-                            File file = userInfo.getSmallAvatarFile();
-                            //拿到后缓存并刷新
-                            if (file != null && file.exists()) {
-                                mConvListController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
-                                //UserInfo中没有头像，从服务器上拿
-                            } else {
-                                NativeImageLoader.getInstance().setAvatarCache(targetID,
-                                        mAvatarSize, new NativeImageLoader.CacheAvatarCallBack() {
-                                            @Override
-                                            public void onCacheAvatarCallBack(final int status) {
-                                                if (status == 0) {
-                                                    mConvListController.getAdapter().notifyDataSetChanged();
-                                                } else {
-                                                    HandleResponseCode.onHandle(mContext, status, false);
-                                                }
-                                            }
-                                        });
+                        //如果设置了头像
+                        if (!TextUtils.isEmpty(userInfo.getAvatar())){
+                            //如果本地不存在头像
+                            if (userInfo.getSmallAvatarFile() == null){
+                                userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+                                    @Override
+                                    public void gotResult(int status, String desc, File file) {
+                                        if (status == 0){
+                                            mConvListController.getAdapter().notifyDataSetChanged();
+                                        }else {
+                                            HandleResponseCode.onHandle(mContext, status, false);
+                                        }
+                                    }
+                                });
                             }
                         }
                     }

@@ -2,7 +2,6 @@ package io.jchat.android.activity;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,10 +21,8 @@ import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.FriendInfoController;
 import io.jchat.android.entity.Event;
-import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.FriendInfoView;
 
 public class FriendInfoActivity extends BaseActivity {
@@ -56,7 +53,7 @@ public class FriendInfoActivity extends BaseActivity {
         } else {
             mUserInfo = (UserInfo) conv.getTargetInfo();
         }
-        mFriendInfoView.initModule(mTargetID);
+        mFriendInfoView.initModule();
         //先从Conversation里获得UserInfo展示出来
         mFriendInfoView.initInfo(mUserInfo, mDensity);
         mFriendInfoController = new FriendInfoController(mFriendInfoView, this);
@@ -72,10 +69,6 @@ public class FriendInfoActivity extends BaseActivity {
                 if (status == 0) {
                     File file = userInfo.getSmallAvatarFile();
                     if (file != null && file.isFile()) {
-                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                mAvatarSize, mAvatarSize);
-                        //更新头像缓存
-                        NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
                         android.os.Message msg = myHandler.obtainMessage();
                         msg.what = GET_INFO_SUCCEED;
                         msg.obj = userInfo;
@@ -85,10 +78,6 @@ public class FriendInfoActivity extends BaseActivity {
                             @Override
                             public void gotResult(int status, String desc, File file) {
                                 if (status == 0) {
-                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                            mAvatarSize, mAvatarSize);
-                                    //更新头像缓存
-                                    NativeImageLoader.getInstance().updateBitmapFromCache(mTargetID, bitmap);
                                     android.os.Message msg = myHandler.obtainMessage();
                                     msg.what = GET_INFO_SUCCEED;
                                     msg.obj = userInfo;

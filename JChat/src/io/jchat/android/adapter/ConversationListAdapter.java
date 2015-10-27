@@ -8,9 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import java.io.File;
+
 import java.util.Collections;
 import java.util.List;
+
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -18,7 +19,6 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.tools.TimeFormat;
 import io.jchat.android.view.CircleImageView;
@@ -29,20 +29,10 @@ public class ConversationListAdapter extends BaseAdapter {
     private Activity mContext;
     private int mDensityDpi;
 
-    public ConversationListAdapter(Activity context, List<Conversation> data, double density, int densityDpi) {
+    public ConversationListAdapter(Activity context, List<Conversation> data, int densityDpi) {
         this.mContext = context;
         this.mDatas = data;
         this.mDensityDpi = densityDpi;
-        for (Conversation conv : mDatas) {
-            if (conv.getType().equals(ConversationType.single)) {
-                UserInfo userInfo = (UserInfo) conv.getTargetInfo();
-                File file = userInfo.getSmallAvatarFile();
-                if (file != null) {
-                    NativeImageLoader.getInstance().putUserAvatar(userInfo.getUserName(),
-                            file.getAbsolutePath(), (int) (50 * density));
-                }
-            }
-        }
     }
 
     /**
@@ -170,8 +160,8 @@ public class ConversationListAdapter extends BaseAdapter {
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
             viewHolder.convName.setText(convItem.getTitle());
-            Bitmap bitmap = NativeImageLoader.getInstance()
-                    .getBitmapFromMemCache(((UserInfo)convItem.getTargetInfo()).getUserName());
+            UserInfo userInfo = (UserInfo) convItem.getTargetInfo();
+            Bitmap bitmap = userInfo.getSmallAvatarBitmap();
             if (bitmap != null)
                 viewHolder.headIcon.setImageBitmap(bitmap);
             else viewHolder.headIcon.setImageResource(R.drawable.head_icon);

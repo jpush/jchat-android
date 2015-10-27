@@ -15,26 +15,23 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.callback.DownloadAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.CircleImageView;
 
 public class GroupMemberGridAdapter extends BaseAdapter {
+
+    private static final String TAG = "GroupMemberGridAdapter";
 
     private LayoutInflater mInflater;
     //群成员列表
@@ -63,7 +60,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         this.mAvatarSize = size;
         mIsShowDelete = false;
         initBlankItem();
-        initMembersAvatar();
     }
 
     //单聊
@@ -72,28 +68,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         mInflater = LayoutInflater.from(context);
         this.mTargetID = targetID;
         this.mAvatarSize = size;
-    }
-
-
-    //初始化群成员头像
-    private void initMembersAvatar() {
-        File file;
-        Bitmap bitmap;
-        for(final UserInfo userInfo : mMemberList){
-            bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
-            if (bitmap == null){
-                if (userInfo.getAvatar() != null){
-                    file = userInfo.getSmallAvatarFile();
-                    if (file != null && file.isFile()){
-                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mAvatarSize,
-                                mAvatarSize);
-                        NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(),
-                                bitmap);
-                        notifyDataSetChanged();
-                    }
-                }
-            }
-        }
     }
 
     public void initBlankItem() {
@@ -161,7 +135,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 UserInfo userInfo = mMemberList.get(position);
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
+                bitmap = userInfo.getSmallAvatarBitmap();
                 if (bitmap != null)
                     viewTag.icon.setImageBitmap(bitmap);
                 //加载头像
@@ -222,36 +196,22 @@ public class GroupMemberGridAdapter extends BaseAdapter {
             if (position == 0) {
                 Conversation conv = JMessageClient.getSingleConversation(mTargetID);
                 UserInfo userInfo = (UserInfo)conv.getTargetInfo();
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mTargetID);
+                bitmap = userInfo.getSmallAvatarBitmap();
                 if (bitmap != null) {
                     viewTag.icon.setImageBitmap(bitmap);
                 } else {
-                    if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-                        File file = userInfo.getSmallAvatarFile();
-                        if (file != null && file.isFile()) {
-                            Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                    mAvatarSize, mAvatarSize);
-                            NativeImageLoader.getInstance()
-                                    .updateBitmapFromCache(userInfo.getUserName(), bitmap1);
-                            viewTag.icon.setImageBitmap(bitmap1);
-                        } else {
-                            viewTag.icon.setImageResource(R.drawable.head_icon);
-                            final String userName = userInfo.getUserName();
-                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                                @Override
-                                public void gotResult(int status, String desc, File file) {
-                                    if (status == 0) {
-                                        Bitmap bitmap = BitmapLoader
-                                                .getBitmapFromFile(file.getAbsolutePath(),
-                                                        mAvatarSize, mAvatarSize);
-                                        NativeImageLoader.getInstance()
-                                                .updateBitmapFromCache(userName, bitmap);
-                                        notifyDataSetChanged();
-                                    }
-                                }
-                            });
+                    viewTag.icon.setImageResource(R.drawable.head_icon);
+                    userInfo.getSmallAvatarBitmapAsync(new DownloadAvatarBitmapCallback() {
+                        @Override
+                        public void gotResult(int status, String desc, Bitmap bitmap) {
+                            if (status == 0) {
+                                Log.d(TAG, "Get small avatar success");
+                                viewTag.icon.setImageBitmap(bitmap);
+                            }else {
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
                         }
-                    }
+                    });
                 }
                 if (TextUtils.isEmpty(userInfo.getNickname())){
                     viewTag.name.setText(userInfo.getUserName());
@@ -285,8 +245,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private void loadMemberAvatar(int position, Bitmap bitmap, ImageView imageView){
         if (cancelPotentialWork(position, imageView)) {
             final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-            final AsyncDrawable asyncDrawable =
-                    new AsyncDrawable(mContext.getResources(), bitmap, task);
+            final AsyncDrawable asyncDrawable = new AsyncDrawable(mContext.getResources(), bitmap, task);
             imageView.setImageDrawable(asyncDrawable);
             task.execute(position);
         }
@@ -330,14 +289,11 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 e.printStackTrace();
             }
             if (!TextUtils.isEmpty(userInfo.getAvatar())){
-                userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+                userInfo.getSmallAvatarBitmapAsync(new DownloadAvatarBitmapCallback() {
                     @Override
-                    public void gotResult(int status, String desc, File file) {
+                    public void gotResult(int status, String desc, Bitmap bmp) {
                         if (status == 0){
-                            NativeImageLoader.getInstance().putUserAvatar(userInfo.getUserName(),
-                                    file.getAbsolutePath(), mAvatarSize);
-                            bitmap[0] =  BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                    mAvatarSize, mAvatarSize);
+                            bitmap[0] = bmp;
                             signal.countDown();
                         }else {
                             HandleResponseCode.onHandle(mContext, status, false);
@@ -366,7 +322,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
                 if (this == bitmapWorkerTask && imageView != null){
                     imageView.setImageBitmap(bitmap);
-                    Log.d("GroupMemberGirdAdapter", "Post execute position: " + data);
+                    Log.d(TAG, "Post execute position: " + data);
                 }
             }else {
                 imageView.setImageResource(R.drawable.head_icon);
@@ -384,7 +340,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
             if (bitmapData == 0 || bitmapData != data) {
                 // Cancel previous task
                 bitmapWorkerTask.cancel(true);
-                Log.d("GroupMemberGridAdapter", "cancel potential work, Position: " + bitmapData);
+                Log.d(TAG, "cancel potential work, Position: " + bitmapData);
             } else {
                 // The same work is already in progress
                 return false;

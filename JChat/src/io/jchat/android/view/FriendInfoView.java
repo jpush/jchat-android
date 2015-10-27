@@ -10,12 +10,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.io.File;
-
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.NativeImageLoader;
 
 public class FriendInfoView extends LinearLayout {
 
@@ -37,7 +33,7 @@ public class FriendInfoView extends LinearLayout {
         // TODO Auto-generated constructor stub
     }
 
-    public void initModule(String userName) {
+    public void initModule() {
         mNickNameTv = (TextView) findViewById(R.id.nick_name_tv);
         mNoteName = (TextView) findViewById(R.id.note_name_tv);
         mNameRl = (LinearLayout) findViewById(R.id.name_rl);
@@ -48,20 +44,15 @@ public class FriendInfoView extends LinearLayout {
         mGenderTv = (TextView) findViewById(R.id.gender_tv);
         mAreaTv = (TextView) findViewById(R.id.region_tv);
         mSignatureTv = (TextView) findViewById(R.id.signature_tv);
-        Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userName);
-        if (bitmap != null) {
-            mAvatarIv.setImageBitmap(bitmap);
-        } else {
-            mAvatarIv.setImageResource(R.drawable.head_icon);
-        }
     }
 
     public void initInfo(UserInfo userInfo, double density) {
         if (userInfo != null) {
-            File file = userInfo.getSmallAvatarFile();
-            if (file != null) {
-                Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                        (int) (100 * density), (int) (100 * density));
+//            File file = userInfo.getSmallAvatarFile();
+            Bitmap bitmap = userInfo.getSmallAvatarBitmap();
+            if (bitmap != null) {
+//                Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+//                        (int) (100 * density), (int) (100 * density));
                 mAvatarIv.setImageBitmap(bitmap);
             } else {
                 mAvatarIv.setImageResource(R.drawable.head_icon);

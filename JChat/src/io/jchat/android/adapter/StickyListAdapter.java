@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.jchat.android.R;
-import io.jchat.android.entity.TestSortModel;
+import io.jchat.android.entity.UserLetterBean;
 import io.jchat.android.view.CircleImageView;
 
 /**
@@ -32,13 +32,13 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
     private Context mContext;
     private boolean mIsSelectMode;
     private LayoutInflater mInflater;
-    private List<TestSortModel> mData;
+    private List<UserLetterBean> mData;
     private int[] mSectionIndices;
     private Character[] mSectionLetters;
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
     private TextView mSelectedNum;
 
-    public StickyListAdapter(Context context, List<TestSortModel> list, boolean isSelectMode){
+    public StickyListAdapter(Context context, List<UserLetterBean> list, boolean isSelectMode){
         this.mContext = context;
         this.mData = list;
         this.mIsSelectMode = isSelectMode;
@@ -51,11 +51,11 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
 
     private int[] getSectionIndices() {
         ArrayList<Integer> sectionIndices = new ArrayList<Integer>();
-        char lastFirstChar = mData.get(0).getSortLetters().charAt(0);
+        char lastFirstChar = mData.get(0).getLetter().charAt(0);
         sectionIndices.add(0);
         for (int i = 1; i < mData.size(); i++) {
-            if (mData.get(i).getSortLetters().charAt(0) != lastFirstChar) {
-                lastFirstChar = mData.get(i).getSortLetters().charAt(0);
+            if (mData.get(i).getLetter().charAt(0) != lastFirstChar) {
+                lastFirstChar = mData.get(i).getLetter().charAt(0);
                 sectionIndices.add(i);
             }
         }
@@ -69,12 +69,12 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
     private Character[] getSectionLetters() {
         Character[] letters = new Character[mSectionIndices.length];
         for (int i = 0; i < mSectionIndices.length; i++) {
-            letters[i] = mData.get(mSectionIndices[i]).getSortLetters().charAt(0);
+            letters[i] = mData.get(mSectionIndices[i]).getLetter().charAt(0);
         }
         return letters;
     }
 
-    public void updateListView(List<TestSortModel> list){
+    public void updateListView(List<UserLetterBean> list){
         this.mData = list;
         notifyDataSetChanged();
     }
@@ -82,7 +82,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
         HeaderViewHolder holder;
-        TestSortModel model = mData.get(position);
+        UserLetterBean model = mData.get(position);
         if (convertView == null) {
             holder = new HeaderViewHolder();
             convertView = mInflater.inflate(R.layout.header, parent, false);
@@ -97,7 +97,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
 
         //根据position获取分类的首字母的Char ascii值
         int section = getSectionForPosition(position);
-        holder.text.setText(model.getSortLetters());
+        holder.text.setText(model.getLetter());
 //        //如果当前位置等于该分类首字母的Char的位置 ，则认为是第一次出现
 //        if (position == getPositionForSection(section)){
 //            holder.text.setText(model.getSortLetters());
@@ -112,7 +112,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
 
     @Override
     public long getHeaderId(int position) {
-        return mData.get(position).getSortLetters().charAt(0);
+        return mData.get(position).getLetter().charAt(0);
     }
 
     @Override
@@ -185,7 +185,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         });
 
         holder.checkBox.setChecked(mSelectMap.get(position));
-        holder.displayName.setText(mData.get(position).getName());
+        holder.displayName.setText(mData.get(position).getNickname());
 
         return convertView;
     }

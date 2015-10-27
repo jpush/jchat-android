@@ -3,22 +3,11 @@ package io.jchat.android.tools;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.util.LruCache;
-import android.text.TextUtils;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
-import cn.jpush.im.android.api.callback.GetUserInfoCallback;
-import cn.jpush.im.android.api.model.UserInfo;
 
 /**
  * 本地图片加载器,采用的是异步解析本地图片，单例模式利用getInstance()获取NativeImageLoader实例
@@ -28,8 +17,6 @@ public class NativeImageLoader {
     private LruCache<String, Bitmap> mMemoryCache;
     private static NativeImageLoader mInstance = new NativeImageLoader();
     private ExecutorService mImageThreadPool = Executors.newFixedThreadPool(1);
-    private static final int CACHE_AVATAR = 100;
-    private final MyHandler myHandler = new MyHandler(this);
 
     private NativeImageLoader() {
         //获取应用程序的最大内存
@@ -45,107 +32,6 @@ public class NativeImageLoader {
                 return bitmap.getRowBytes() * bitmap.getHeight() / 1024;
             }
         };
-    }
-
-    /**
-     * 初始化用户头像缓存
-     *
-     * @param userIDList 用户ID List
-     * @param length     头像宽高
-     * @param callBack   缓存回调
-     */
-    public void setAvatarCache(final List<String> userIDList, final int length, final CacheAvatarCallBack callBack) {
-        if(null == userIDList){
-            return;
-        }
-
-        UserInfo myInfo = JMessageClient.getMyInfo();
-        for (final String userID : userIDList) {
-            //若为CurrentUser，直接获取本地的头像（CurrentUser本地头像为最新）
-            if (userID.equals(myInfo.getUserName())) {
-                //如果有设置头像
-                if(!TextUtils.isEmpty(myInfo.getAvatar())){
-                    File file = JMessageClient.getMyInfo().getSmallAvatarFile();
-                    if (file != null && file.isFile()){
-                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), length, length);
-                        if (null != bitmap) {
-                            mMemoryCache.put(userID, bitmap);
-                        }
-                    }else {
-                        myInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                            @Override
-                            public void gotResult(int status, String desc, File file) {
-                                if (status == 0){
-                                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                            length, length);
-                                    if (null != bitmap) {
-                                        mMemoryCache.put(userID, bitmap);
-                                        android.os.Message msg = myHandler.obtainMessage();
-                                        msg.what = CACHE_AVATAR;
-                                        msg.obj = callBack;
-                                        Bundle bundle = new Bundle();
-                                        bundle.putInt("status", 0);
-                                        msg.setData(bundle);
-                                        msg.sendToTarget();
-                                    }
-                                }
-                            }
-                        });
-                    }
-                }
-            } else if (mMemoryCache.get(userID) == null) {
-                getUserInfo(userID, callBack, length);
-            }
-        }
-    }
-
-    private void getUserInfo(final String userID, final CacheAvatarCallBack callBack, final int length){
-        JMessageClient.getUserInfo(userID, new GetUserInfoCallback() {
-            @Override
-            public void gotResult(int i, String s, UserInfo userInfo) {
-                if (i == 0) {
-                    if (!TextUtils.isEmpty(userInfo.getAvatar())){
-                        File file = userInfo.getSmallAvatarFile();
-                        if (file != null) {
-                            putUserAvatar(userID, file.getAbsolutePath(), length);
-                            android.os.Message msg = myHandler.obtainMessage();
-                            msg.what = CACHE_AVATAR;
-                            msg.obj = callBack;
-                            Bundle bundle = new Bundle();
-                            bundle.putInt("status", 0);
-                            msg.setData(bundle);
-                            msg.sendToTarget();
-                        }else {
-                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                                @Override
-                                public void gotResult(int status, String desc, File file) {
-                                    if (status == 0) {
-                                        putUserAvatar(userID, file.getAbsolutePath(), length);
-                                        android.os.Message msg = myHandler.obtainMessage();
-                                        msg.what = CACHE_AVATAR;
-                                        msg.obj = callBack;
-                                        Bundle bundle = new Bundle();
-                                        bundle.putInt("status", 0);
-                                        msg.setData(bundle);
-                                        msg.sendToTarget();
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    /**
-     * setAvatarCache的重载函数
-     * @param userName 用户名
-     * @param length 图片宽高
-     * @param callBack 回调
-     */
-    public void setAvatarCache(final String userName, final int length, final CacheAvatarCallBack callBack) {
-        getUserInfo(userName, callBack, length);
     }
 
     /**
@@ -370,28 +256,4 @@ public class NativeImageLoader {
         void onImageLoader(Bitmap bitmap, String path);
     }
 
-    public interface CacheAvatarCallBack {
-        void onCacheAvatarCallBack(int status);
-    }
-
-    private static class MyHandler extends Handler{
-        private final WeakReference<NativeImageLoader> mLoader;
-        public MyHandler(NativeImageLoader loader){
-            mLoader = new WeakReference<NativeImageLoader>(loader);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            NativeImageLoader loader = mLoader.get();
-            if(loader != null){
-                switch (msg.what){
-                    case CACHE_AVATAR:
-                        CacheAvatarCallBack callBack = (CacheAvatarCallBack) msg.obj;
-                        callBack.onCacheAvatarCallBack(msg.getData().getInt("status", -1));
-                        break;
-                }
-            }
-        }
-    }
 }

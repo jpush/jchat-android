@@ -1,3 +1,4 @@
 build/
 gen/
 .settings/
+*.keystore

@@ -345,7 +345,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 Log.d(TAG, "onPageSelected Image Message ID: " + mMsg.getId());
                 ImageContent ic = (ImageContent) mMsg.getContent();
                 //每次选择或滑动图片，如果不存在本地图片则下载，显示大图
-                if (ic.getLocalPath() == null) {
+                if (ic.getLocalPath() == null && i != mPosition) {
 //                    mLoadBtn.setVisibility(View.VISIBLE);
                     downloadImage();
                 } else if(ic.getBooleanExtra("hasDownloaded") != null && !ic.getBooleanExtra("hasDownloaded")){
@@ -404,6 +404,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     if (msgSize == mMsgIDList.size()){
                         getImgMsg();
                     }else {
+                        //加载完上一页图片后，设置当前图片仍为加载前的那一张图片
                         BrowserViewPagerActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -638,6 +639,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
     //每次在聊天界面点击图片或者滑动图片自动下载大图
     private void downloadImage() {
+        Log.d(TAG, "Downloading image!");
         ImageContent imgContent = (ImageContent) mMsg.getContent();
         if(imgContent.getLocalPath() == null){
             //如果不存在进度条Callback，重新注册

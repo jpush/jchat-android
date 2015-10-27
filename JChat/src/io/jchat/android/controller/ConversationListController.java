@@ -24,7 +24,6 @@ import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.adapter.ConversationListAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.view.ConversationListView;
 
@@ -35,16 +34,14 @@ public class ConversationListController implements OnClickListener,
     private ConversationListFragment mContext;
     private List<Conversation> mDatas = new ArrayList<Conversation>();
     private ConversationListAdapter mListAdapter;
-    private double mDensity;
     private int mDensityDpi;
     private int mWidth;
     private Dialog mDialog;
 
     public ConversationListController(ConversationListView listView, ConversationListFragment context,
-                                      float density, int densityDpi, int width) {
+                                      int densityDpi, int width) {
         this.mConvListView = listView;
         this.mContext = context;
-        this.mDensity = density;
         this.mDensityDpi = densityDpi;
         this.mWidth = width;
         initConvListAdapter();
@@ -59,7 +56,7 @@ public class ConversationListController implements OnClickListener,
             Collections.sort(mDatas, sortList);
         }
 
-        mListAdapter = new ConversationListAdapter(mContext.getActivity(), mDatas, mDensity, mDensityDpi);
+        mListAdapter = new ConversationListAdapter(mContext.getActivity(), mDatas, mDensityDpi);
         mConvListView.setConvListAdapter(mListAdapter);
     }
 
@@ -102,18 +99,6 @@ public class ConversationListController implements OnClickListener,
      */
     public void refreshConvList(final Conversation conv) {
         mListAdapter.setToTop(conv);
-    }
-
-    /**
-     * 加载头像并刷新
-     *
-     * @param targetID 用户名
-     * @param path     头像路径
-     */
-    public void loadAvatarAndRefresh(String targetID, String path) {
-        int size = (int) (50 * mDensity);
-        NativeImageLoader.getInstance().putUserAvatar(targetID, path, size);
-        mListAdapter.notifyDataSetChanged();
     }
 
     @Override
