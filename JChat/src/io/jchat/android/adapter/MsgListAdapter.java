@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,9 +38,12 @@ import android.view.animation.LinearInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cn.jpush.im.android.api.callback.DownloadAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.CustomContent;
@@ -151,22 +155,21 @@ public class MsgListAdapter extends BaseAdapter {
         this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
         reverse(mMsgList);
         mStart = mOffset;
-        List<String> userIDList = new ArrayList<String>();
-        userIDList.add(targetID);
-        userIDList.add(JMessageClient.getMyInfo().getUserName());
-        NativeImageLoader.getInstance().setAvatarCache(userIDList, mAvatarSize,
-                new NativeImageLoader.CacheAvatarCallBack() {
+        UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
+        if (!TextUtils.isEmpty(userInfo.getAvatar())){
+            if (userInfo.getSmallAvatarFile() == null){
+                userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
                     @Override
-                    public void onCacheAvatarCallBack(int status) {
-                        mActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Log.i(TAG, "init avatar succeed");
-                                notifyDataSetChanged();
-                            }
-                        });
+                    public void gotResult(int status, String desc, File file) {
+                        if (status == 0){
+                            notifyDataSetChanged();
+                        }else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
                     }
                 });
+            }
+        }
         checkSendingImgMsg();
     }
 
@@ -252,10 +255,10 @@ public class MsgListAdapter extends BaseAdapter {
         mp.reset();
     }
 
-    private void checkSendingImgMsg(){
-        for (Message msg : mMsgList){
+    private void checkSendingImgMsg() {
+        for (Message msg : mMsgList) {
             if (msg.getStatus().equals(MessageStatus.created)
-                    && msg.getContentType().equals(ContentType.image)){
+                    && msg.getContentType().equals(ContentType.image)) {
                 mMsgQueue.offer(msg);
             }
         }
@@ -295,7 +298,7 @@ public class MsgListAdapter extends BaseAdapter {
 
     }
 
-    private void sendNextImgMsg(Message msg){
+    private void sendNextImgMsg(Message msg) {
         JMessageClient.sendMessage(msg);
         msg.setOnSendCompleteCallback(new BasicCallback() {
             @Override
@@ -461,7 +464,7 @@ public class MsgListAdapter extends BaseAdapter {
         if (convertView == null) {
             holder = new ViewHolder();
             convertView = createViewByType(msg, position);
-            switch (msg.getContentType()){
+            switch (msg.getContentType()) {
                 case text:
                     holder.headIcon = (CircleImageView) convertView
                             .findViewById(R.id.avatar_iv);
@@ -596,7 +599,7 @@ public class MsgListAdapter extends BaseAdapter {
             //群聊
             if (mIsGroup) {
                 //从缓存中拿头像
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
+                bitmap = userInfo.getSmallAvatarBitmap();
                 if (bitmap != null)
                     holder.headIcon.setImageBitmap(bitmap);
                 else if (mGroupInfo != null) {
@@ -604,43 +607,19 @@ public class MsgListAdapter extends BaseAdapter {
                     if (TextUtils.isEmpty(userInfo.getAvatar())) {
                         holder.headIcon.setImageResource(R.drawable.head_icon);
                     } else {
-                        File file = userInfo.getSmallAvatarFile();
-                        if (file != null && file.isFile()) {
-                            bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                    mAvatarSize, mAvatarSize);
-                            NativeImageLoader.getInstance()
-                                    .updateBitmapFromCache(userInfo.getUserName(), bitmap);
-                            holder.headIcon.setImageBitmap(bitmap);
-                            //本地不存在头像，启动任务拿头像
-                        } else {
-//                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-//                                @Override
-//                                public void gotResult(int status, String desc, File file) {
-//                                    if (status == 0){
-//                                        NativeImageLoader.getInstance().putUserAvatar(userInfo.getUserName(),
-//                                                file.getAbsolutePath(), mAvatarSize);
-//                                        Bitmap bmp = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-//                                                mAvatarSize, mAvatarSize);
-//                                        holder.headIcon.setImageBitmap(bmp);
-//                                    }else {
-//                                        holder.headIcon.setImageResource(R.drawable.head_icon);
-//                                        HandleResponseCode.onHandle(mContext, status, false);
-//                                    }
-//                                }
-//                            });
-                            Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(),
-                                    R.drawable.head_icon);
-                            loadMemberAvatar(userInfo, bmp, holder.headIcon);
-                        }
+                        Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(),
+                                R.drawable.head_icon);
+                        loadMemberAvatar(userInfo.getUserName(), bmp, holder.headIcon);
                     }
                 }
                 //单聊
             } else {
-                bitmap = NativeImageLoader.getInstance()
-                        .getBitmapFromMemCache(msg.getFromUser().getUserName());
-                if (bitmap != null)
+                bitmap = userInfo.getSmallAvatarBitmap();
+                if (bitmap != null){
                     holder.headIcon.setImageBitmap(bitmap);
-                else holder.headIcon.setImageResource(R.drawable.head_icon);
+                } else {
+                    holder.headIcon.setImageResource(R.drawable.head_icon);
+                }
             }
 
 
@@ -744,7 +723,7 @@ public class MsgListAdapter extends BaseAdapter {
         String content = ((EventNotificationContent) msg.getContent()).getEventText();
         EventNotificationContent.EventNotificationType type = ((EventNotificationContent) msg
                 .getContent()).getEventNotificationType();
-        switch (type){
+        switch (type) {
             case group_member_added:
             case group_member_exit:
                 holder.groupChange.setText(content);
@@ -753,14 +732,14 @@ public class MsgListAdapter extends BaseAdapter {
             case group_member_removed:
                 List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
                 //被删除的人显示EventNotification
-                if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())){
+                if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())) {
                     holder.groupChange.setText(content);
                     holder.groupChange.setVisibility(View.VISIBLE);
-                //群主亦显示
-                }else if (myInfo.getUserName().equals(groupInfo.getGroupOwner())){
+                    //群主亦显示
+                } else if (myInfo.getUserName().equals(groupInfo.getGroupOwner())) {
                     holder.groupChange.setText(content);
                     holder.groupChange.setVisibility(View.VISIBLE);
-                }else {
+                } else {
                     holder.groupChange.setVisibility(View.GONE);
                 }
                 break;
@@ -768,11 +747,11 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     private void handleCustomMsg(Message msg, ViewHolder holder) {
-        CustomContent content = (CustomContent)msg.getContent();
+        CustomContent content = (CustomContent) msg.getContent();
         Boolean isBlackListHint = content.getBooleanValue("blackList");
-        if (isBlackListHint != null && isBlackListHint){
+        if (isBlackListHint != null && isBlackListHint) {
             holder.groupChange.setText(mContext.getString(R.string.server_803008));
-        }else {
+        } else {
             holder.groupChange.setVisibility(View.GONE);
         }
     }
@@ -814,9 +793,9 @@ public class MsgListAdapter extends BaseAdapter {
         } else {
             if (mIsGroup) {
                 holder.displayName.setVisibility(View.VISIBLE);
-                if (TextUtils.isEmpty(msg.getFromUser().getNickname())){
+                if (TextUtils.isEmpty(msg.getFromUser().getNickname())) {
                     holder.displayName.setText(msg.getFromUser().getUserName());
-                }else {
+                } else {
                     holder.displayName.setText(msg.getFromUser().getNickname());
                 }
             }
@@ -833,16 +812,11 @@ public class MsgListAdapter extends BaseAdapter {
             msg.setOnSendCompleteCallback(new BasicCallback() {
                 @Override
                 public void gotResult(final int status, final String desc) {
-                    mActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (status != 0){
-                                HandleResponseCode.onHandle(mContext, status, false);
-                            }
-                            notifyDataSetChanged();
-                        }
+                    if (status != 0) {
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                    notifyDataSetChanged();
 
-                    });
                 }
             });
         }
@@ -904,9 +878,9 @@ public class MsgListAdapter extends BaseAdapter {
             //群聊中显示昵称
             if (mIsGroup) {
                 holder.displayName.setVisibility(View.VISIBLE);
-                if (TextUtils.isEmpty(msg.getFromUser().getNickname())){
+                if (TextUtils.isEmpty(msg.getFromUser().getNickname())) {
                     holder.displayName.setText(msg.getFromUser().getUserName());
-                }else {
+                } else {
                     holder.displayName.setText(msg.getFromUser().getNickname());
                 }
             }
@@ -957,9 +931,9 @@ public class MsgListAdapter extends BaseAdapter {
                     holder.progressTv.setVisibility(View.VISIBLE);
                     holder.progressTv.setText("0%");
                     holder.resend.setVisibility(View.GONE);
-                    if (!mMsgQueue.isEmpty()){
+                    if (!mMsgQueue.isEmpty()) {
                         Message message = mMsgQueue.element();
-                        if (message.getId() == msg.getId()){
+                        if (message.getId() == msg.getId()) {
                             Log.d(TAG, "Start sending message");
                             JMessageClient.sendMessage(message);
                             mSendMsgID = message.getId();
@@ -1086,10 +1060,10 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    private ArrayList<Integer> getImgMsgIDList(){
+    private ArrayList<Integer> getImgMsgIDList() {
         ArrayList<Integer> imgMsgIDList = new ArrayList<Integer>();
-        for (Message msg : mMsgList){
-            if (msg.getContentType().equals(ContentType.image)){
+        for (Message msg : mMsgList) {
+            if (msg.getContentType().equals(ContentType.image)) {
                 imgMsgIDList.add(msg.getId());
             }
         }
@@ -1226,9 +1200,9 @@ public class MsgListAdapter extends BaseAdapter {
             case receive_success:
                 if (mIsGroup) {
                     holder.displayName.setVisibility(View.VISIBLE);
-                    if (TextUtils.isEmpty(msg.getFromUser().getNickname())){
+                    if (TextUtils.isEmpty(msg.getFromUser().getNickname())) {
                         holder.displayName.setText(msg.getFromUser().getUserName());
-                    }else {
+                    } else {
                         holder.displayName.setText(msg.getFromUser().getNickname());
                     }
                 }
@@ -1518,17 +1492,18 @@ public class MsgListAdapter extends BaseAdapter {
 
     /**
      * 启动任务加载头像
-     * @param userInfo 用户信息
-     * @param bitmap 默认头像
+     *
+     * @param userName  用户名
+     * @param bitmap    默认头像
      * @param imageView 要加载头像的ImageView对象
      */
-    private void loadMemberAvatar(UserInfo userInfo, Bitmap bitmap, ImageView imageView){
-        if (cancelPotentialWork(userInfo.getUserName(), imageView)) {
+    private void loadMemberAvatar(String userName, Bitmap bitmap, ImageView imageView) {
+        if (cancelPotentialWork(userName, imageView)) {
             final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
             final AsyncDrawable asyncDrawable =
                     new AsyncDrawable(mContext.getResources(), bitmap, task);
             imageView.setImageDrawable(asyncDrawable);
-            task.execute(userInfo);
+            task.execute(userName);
         }
     }
 
@@ -1545,40 +1520,37 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    class BitmapWorkerTask extends AsyncTask<UserInfo, Void, Bitmap> {
+    class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
 
         private final WeakReference<ImageView> imageViewReference;
-        private UserInfo userInfo;
+        private String userName;
 
-        public BitmapWorkerTask(ImageView imageView){
+        public BitmapWorkerTask(ImageView imageView) {
             imageViewReference = new WeakReference<ImageView>(imageView);
         }
 
 
         @Override
-        protected Bitmap doInBackground(UserInfo... params) {
+        protected Bitmap doInBackground(String... params) {
             final Bitmap[] bitmap = new Bitmap[1];
-            userInfo = params[0];
-
+            userName = params[0];
+            UserInfo userInfo = mGroupInfo.getGroupMemberInfo(userName);
             //使用一个信号量，当拿到头像后执行countDown
             final CountDownLatch signal = new CountDownLatch(1);
             //睡眠0.5s
             try {
                 Thread.sleep(500);
-            }catch (InterruptedException e){
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if (!TextUtils.isEmpty(userInfo.getAvatar())){
-                userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
+                userInfo.getSmallAvatarBitmapAsync(new DownloadAvatarBitmapCallback() {
                     @Override
-                    public void gotResult(int status, String desc, File file) {
-                        if (status == 0){
-                            NativeImageLoader.getInstance().putUserAvatar(userInfo.getUserName(),
-                                    file.getAbsolutePath(), mAvatarSize);
-                            bitmap[0] =  BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                    mAvatarSize, mAvatarSize);
+                    public void gotResult(int status, String desc, Bitmap bmp) {
+                        if (status == 0) {
+                            bitmap[0] = bmp;
                             signal.countDown();
-                        }else {
+                        } else {
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
@@ -1601,14 +1573,12 @@ public class MsgListAdapter extends BaseAdapter {
             }
 
             final ImageView imageView = imageViewReference.get();
-            if (bitmap != null){
+            if (bitmap != null) {
                 final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-                if (this == bitmapWorkerTask && imageView != null){
+                if (this == bitmapWorkerTask && imageView != null) {
                     imageView.setImageBitmap(bitmap);
-                    Log.d(TAG, "Post execute UserName: " + userInfo.getUserName());
+                    Log.d(TAG, "Post execute UserName: " + userName);
                 }
-            }else {
-                imageView.setImageResource(R.drawable.head_icon);
             }
             super.onPostExecute(bitmap);
         }
@@ -1620,7 +1590,7 @@ public class MsgListAdapter extends BaseAdapter {
         final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
 
         if (bitmapWorkerTask != null) {
-            final String userNameData = bitmapWorkerTask.userInfo.getUserName();
+            final String userNameData = bitmapWorkerTask.userName;
             // If bitmapData is not yet set or it differs from the new data
             if (userNameData != null && !userNameData.equals(userName)) {
                 // Cancel previous task

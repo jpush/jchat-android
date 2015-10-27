@@ -140,21 +140,19 @@ public class MenuItemController implements View.OnClickListener {
         JMessageClient.getUserInfo(targetID, new GetUserInfoCallback() {
             @Override
             public void gotResult(final int status, String desc, final UserInfo userInfo) {
+                mLoadingDialog.dismiss();
                 if (status == 0) {
                     Conversation conv = Conversation.createSingleConversation(targetID);
-                    if (userInfo.getAvatar() != null) {
+                    if (!TextUtils.isEmpty(userInfo.getAvatar())) {
                         File file = userInfo.getSmallAvatarFile();
                         if (file != null && file.isFile()){
-                            mController.loadAvatarAndRefresh(targetID,
-                                    userInfo.getSmallAvatarFile().getAbsolutePath());
-                            mLoadingDialog.dismiss();
+                            mController.getAdapter().notifyDataSetChanged();
                         }else {
                             userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
                                 @Override
                                 public void gotResult(int status, String desc, File file) {
-                                    mLoadingDialog.dismiss();
                                     if (status == 0){
-                                        mController.loadAvatarAndRefresh(targetID, file.getAbsolutePath());
+                                        mController.getAdapter().notifyDataSetChanged();
                                     }else {
                                         HandleResponseCode.onHandle(mContext.getActivity(), status, false);
                                     }
@@ -162,10 +160,11 @@ public class MenuItemController implements View.OnClickListener {
                             });
                         }
                         mController.getAdapter().setToTop(conv);
-                    } else mController.refreshConvList(conv);
+                    } else {
+                        mController.refreshConvList(conv);
+                    }
                     mAddFriendDialog.cancel();
                 } else {
-                    mLoadingDialog.dismiss();
                     HandleResponseCode.onHandle(mContext.getActivity(), status, true);
                 }
             }

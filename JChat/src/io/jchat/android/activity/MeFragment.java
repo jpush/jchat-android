@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,17 +77,19 @@ public class MeFragment extends BaseFragment {
                 mIsShowAvatar = true;
                 //否则下载
             } else {
-                myInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, File file) {
-                        if (status == 0) {
-                            mMeView.showPhoto(file.getAbsolutePath());
-                            mIsShowAvatar = true;
-                        } else {
-                            HandleResponseCode.onHandle(mContext, status, false);
+                if (!TextUtils.isEmpty(myInfo.getAvatar())){
+                    myInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+                        @Override
+                        public void gotResult(int status, String desc, File file) {
+                            if (status == 0) {
+                                mMeView.showPhoto(file.getAbsolutePath());
+                                mIsShowAvatar = true;
+                            } else {
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
             mMeView.showNickName(myInfo.getNickname());
         }
@@ -189,7 +192,8 @@ public class MeFragment extends BaseFragment {
 
     //预览头像
     public void startBrowserAvatar() {
-        File file = JMessageClient.getMyInfo().getAvatarFile();
+        UserInfo myInfo = JMessageClient.getMyInfo();
+        File file = myInfo.getAvatarFile();
         //如果MyInfo存在头像，直接预览
         if (file != null && file.isFile()) {
             Log.i("MeFragment", "file.getAbsolutePath() " + file.getAbsolutePath());
@@ -199,10 +203,9 @@ public class MeFragment extends BaseFragment {
             intent.setClass(this.getActivity(), BrowserViewPagerActivity.class);
             startActivity(intent);
         //否则下载头像
-        } else {
+        } else if (!TextUtils.isEmpty(myInfo.getAvatar())){
             final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
             dialog.show();
-            UserInfo myInfo = JMessageClient.getMyInfo();
             myInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
                 @Override
                 public void gotResult(int status, String desc, File file) {

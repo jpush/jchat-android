@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,17 +27,18 @@ import java.io.File;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.event.MessageEvent;
-import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.ChatDetailController;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ChatDetailView;
 
 /*
@@ -300,35 +302,30 @@ public class ChatDetailActivity extends BaseActivity {
                 case group_member_added:
                     List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
                     for (final String userName : userNames) {
-                        Conversation conv = JMessageClient.getSingleConversation(userName);
-                        if (NativeImageLoader.getInstance().getBitmapFromMemCache(userName) == null) {
-                            //从Conversation拿
-                            if (conv != null) {
-                                final File file = conv.getAvatarFile();
-                                if (file != null) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            //缓存头像
-                                            NativeImageLoader.getInstance().putUserAvatar(userName, file
-                                                    .getAbsolutePath(), mAvatarSize);
-                                        }
-                                    });
-                                }
-                                //用getUserInfo()接口拿，拿到后刷新并缓存头像
-                            } else {
-                                NativeImageLoader.getInstance().setAvatarCache(userName, mAvatarSize,
-                                        new NativeImageLoader.CacheAvatarCallBack() {
-                                            @Override
-                                            public void onCacheAvatarCallBack(int status) {
-                                                if (status == 0) {
-                                                    Log.d(TAG, "add group member, get UserInfo success");
-                                                    mChatDetailController.getAdapter().notifyDataSetChanged();
+                        JMessageClient.getUserInfo(userName, new GetUserInfoCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, UserInfo userInfo) {
+                                if (status == 0) {
+                                    if (!TextUtils.isEmpty(userInfo.getAvatar())) {
+                                        if (userInfo.getSmallAvatarFile() == null) {
+                                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
+                                                @Override
+                                                public void gotResult(int status, String desc, File file) {
+                                                    if (status == 0) {
+                                                        Log.d(TAG, "add group member, get avatar success");
+                                                        mChatDetailController.getAdapter().notifyDataSetChanged();
+                                                    } else {
+                                                        HandleResponseCode.onHandle(mContext, status, false);
+                                                    }
                                                 }
-                                            }
-                                        });
+                                            });
+                                        }
+                                    }
+                                } else {
+                                    HandleResponseCode.onHandle(mContext, status, false);
+                                }
                             }
-                        }
+                        });
                     }
                     break;
                 case group_member_removed:
