@@ -2,7 +2,6 @@ package io.jchat.android.controller;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -24,7 +23,6 @@ import io.jchat.android.activity.MainActivity;
 import io.jchat.android.activity.MeFragment;
 import io.jchat.android.adapter.ViewPagerAdapter;
 import io.jchat.android.application.JPushDemoApplication;
-import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MainView;
 
@@ -101,40 +99,27 @@ public class MainController implements OnClickListener, OnPageChangeListener {
         mContext.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CROP_PICTURE);
     }
 
-    public void calculateAvatar(final String originPath) {
+    public void uploadUserAvatar(final String path) {
         mDialog = new ProgressDialog(mContext);
         mDialog.setCancelable(false);
         mDialog.setMessage(mContext.getString(R.string.updating_avatar_hint));
         mDialog.show();
-        //验证图片大小，若小于720 * 1280则直接发送原图，否则压缩
-        if (BitmapLoader.verifyPictureSize(originPath))
-            updateAvatar(originPath);
-        else {
-            Bitmap bitmap = BitmapLoader.getBitmapFromFile(originPath, 720, 1280);
-            String tempPath = BitmapLoader.saveBitmapToLocal(bitmap);
-            updateAvatar(tempPath);
-        }
-    }
-
-    private void updateAvatar(final String path) {
         JMessageClient.updateUserAvatar(new File(path), new BasicCallback() {
             @Override
             public void gotResult(final int status, final String desc) {
                 mDialog.dismiss();
                 if (status == 0) {
-                    Log.i("MeFragment", "Update avatar succeed path " + path);
+                    Log.i("MainController", "Update avatar succeed path " + path);
                     loadUserAvatar(path);
-                    //如果是拍照，删除临时文件
-                    if (mMeActivity.getPhotoPath() != null){
-                        File file = new File(mMeActivity.getPhotoPath());
-                        if (file.isFile()){
-                            if (file.delete()){
-                                Log.d("MainController", "delete temp file");
-                            }
-                        }
-                    }
                 } else {
                     HandleResponseCode.onHandle(mContext, status, false);
+                }
+                //删除裁剪后的文件
+                File file = new File(path);
+                if (file.isFile()) {
+                    if (file.delete()) {
+                        Log.d("MainController", "delete temp file : " + path);
+                    }
                 }
             }
         });

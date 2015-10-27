@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -24,9 +23,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.squareup.picasso.Picasso;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
@@ -34,7 +31,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
@@ -72,8 +68,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private Message mMsg;
     private String mTargetID;
     private boolean mFromChatActivity = true;
-    private int mWidth;
-    private int mHeight;
     //当前消息数
     private int mStart;
     private int mOffset = 18;
@@ -87,7 +81,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private final static int DOWNLOAD_ORIGIN_IMAGE_SUCCEED = 1;
     private final static int DOWNLOAD_PROGRESS = 2;
     private final static int DOWNLOAD_COMPLETED = 3;
-    private final static int DOWNLOAD_ORIGIN_IMAGE_FAILED = 4;
     private final static int SEND_PICTURE = 5;
     private final static int DOWNLOAD_ORIGIN_PROGRESS = 6;
     private final static int DOWNLOAD_ORIGIN_COMPLETED = 7;
@@ -104,10 +97,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
         RelativeLayout titleBarRl, checkBoxRl;
 
         mContext = this;
-        DisplayMetrics dm = new DisplayMetrics();
-        this.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mWidth = dm.widthPixels;
-        mHeight = dm.heightPixels;
         Log.i(TAG, "width height :" + mWidth + mHeight);
         setContentView(R.layout.activity_image_browser);
         mViewPager = (ImgBrowserViewPager) findViewById(R.id.img_browser_viewpager);
@@ -516,12 +505,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         imgContent.setBooleanExtra("hasDownloaded", true);
                     }else{
                         imgContent.setBooleanExtra("hasDownloaded", false);
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = DOWNLOAD_ORIGIN_IMAGE_FAILED;
-                        Bundle bundle = new Bundle();
-                        bundle.putInt(JPushDemoApplication.STATUS, status);
-                        msg.setData(bundle);
-                        msg.sendToTarget();
+                        if (mProgressDialog != null){
+                            mProgressDialog.dismiss();
+                        }
+                        HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
             });
@@ -696,12 +683,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                     msg.setData(bundle);
                                     msg.sendToTarget();
                                 } else {
-                                    android.os.Message msg = myHandler.obtainMessage();
-                                    msg.what = DOWNLOAD_ORIGIN_IMAGE_FAILED;
-                                    Bundle bundle = new Bundle();
-                                    bundle.putInt(JPushDemoApplication.STATUS, status);
-                                    msg.setData(bundle);
-                                    msg.sendToTarget();
+                                    if (mProgressDialog != null){
+                                        mProgressDialog.dismiss();
+                                    }
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
@@ -735,12 +720,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     case DOWNLOAD_COMPLETED:
                         activity.mProgressDialog.dismiss();
                         break;
-                    case DOWNLOAD_ORIGIN_IMAGE_FAILED:
-                        if(activity.mProgressDialog != null){
-                            activity.mProgressDialog.dismiss();
-                        }
-                        HandleResponseCode.onHandle(activity, msg.getData().getInt(JPushDemoApplication.STATUS), false);
-                        break;
                     case SEND_PICTURE:
                         Intent intent = new Intent();
                         intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetID);
@@ -751,7 +730,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         break;
                     //显示下载原图进度
                     case DOWNLOAD_ORIGIN_PROGRESS:
-                        activity.mLoadBtn.setText(msg.getData().getInt("progress") + "%");
+                        String progress = msg.getData().getInt("progress") + "%";
+                        activity.mLoadBtn.setText(progress);
                         break;
                     case DOWNLOAD_ORIGIN_COMPLETED:
                         activity.mLoadBtn.setText(activity.getString(R.string.download_completed_toast));

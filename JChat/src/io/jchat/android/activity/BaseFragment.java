@@ -30,6 +30,7 @@ public class BaseFragment extends Fragment {
 
     private UserInfo myInfo;
     protected float mDensity;
+    protected int mDensityDpi;
     protected int mWidth;
     protected int mAvatarSize;
 
@@ -40,6 +41,7 @@ public class BaseFragment extends Fragment {
         DisplayMetrics dm = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
+        mDensityDpi = dm.densityDpi;
         mWidth = dm.widthPixels;
         mAvatarSize = (int) (50 * mDensity);
     }

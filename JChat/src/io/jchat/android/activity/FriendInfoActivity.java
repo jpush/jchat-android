@@ -38,7 +38,6 @@ public class FriendInfoActivity extends BaseActivity {
     private final MyHandler myHandler = new MyHandler(this);
     private String mNickname;
     private final static int GET_INFO_SUCCEED = 1;
-    private final static int GET_INFO_FAILED = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,9 +62,13 @@ public class FriendInfoActivity extends BaseActivity {
         mFriendInfoController = new FriendInfoController(mFriendInfoView, this);
         mFriendInfoView.setListeners(mFriendInfoController);
         //更新一次UserInfo
+        final Dialog dialog = DialogCreator.createLoadingDialog(FriendInfoActivity.this,
+                FriendInfoActivity.this.getString(R.string.loading));
+        dialog.show();
         JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
             @Override
             public void gotResult(int status, String desc, final UserInfo userInfo) {
+                dialog.dismiss();
                 if (status == 0) {
                     File file = userInfo.getSmallAvatarFile();
                     if (file != null && file.isFile()) {
@@ -95,12 +98,7 @@ public class FriendInfoActivity extends BaseActivity {
                         });
                     }
                 } else {
-                    android.os.Message msg = myHandler.obtainMessage();
-                    msg.what = GET_INFO_FAILED;
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("status", status);
-                    msg.setData(bundle);
-                    msg.sendToTarget();
+                    HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
                 }
             }
         });
@@ -149,9 +147,6 @@ public class FriendInfoActivity extends BaseActivity {
                         activity.mUserInfo = (UserInfo) msg.obj;
                         activity.mFriendInfoView.initInfo(activity.mUserInfo, activity.mDensity);
                         activity.mNickname = activity.mUserInfo.getNickname();
-                        break;
-                    case GET_INFO_FAILED:
-                        HandleResponseCode.onHandle(activity, msg.getData().getInt("status"), false);
                         break;
                 }
             }
