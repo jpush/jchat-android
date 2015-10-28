@@ -127,10 +127,10 @@ public class MeFragment extends BaseFragment {
         startActivity(intent);
     }
 
-    public void StartMeInfoActivity() {
+    public void startMeInfoActivity() {
         Intent intent = new Intent();
         intent.setClass(this.getActivity(), MeInfoActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_ME_INFO);
     }
 
     public void cancelNotification() {
@@ -224,4 +224,7 @@ public class MeFragment extends BaseFragment {
         }
     }
 
+    public void refreshNickname(String newName) {
+        mMeView.showNickName(newName);
+    }
 }

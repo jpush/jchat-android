@@ -76,15 +76,15 @@ public class ConversationListController implements OnClickListener,
         final Intent intent = new Intent();
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
-            long groupID = ((GroupInfo) mDatas.get(position).getTargetInfo()).getGroupID();
+            long groupId = ((GroupInfo) mDatas.get(position).getTargetInfo()).getGroupID();
             intent.putExtra(JPushDemoApplication.IS_GROUP, true);
-            intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
+            intent.putExtra(JPushDemoApplication.GROUP_ID, groupId);
             intent.setClass(mContext.getActivity(), ChatActivity.class);
             mContext.getActivity().startActivity(intent);
             return;
         } else {
-            String targetID = ((UserInfo) mDatas.get(position).getTargetInfo()).getUserName();
-            intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
+            String targetId = ((UserInfo) mDatas.get(position).getTargetInfo()).getUserName();
+            intent.putExtra(JPushDemoApplication.TARGET_ID, targetId);
             intent.putExtra(JPushDemoApplication.IS_GROUP, false);
         }
         intent.setClass(mContext.getActivity(), ChatActivity.class);

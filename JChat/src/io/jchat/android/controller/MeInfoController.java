@@ -25,7 +25,7 @@ public class MeInfoController implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.return_btn:
-                mContext.finish();
+                mContext.setResultAndFinish();
                 break;
             case R.id.nick_name_rl:
                 mContext.startModifyNickNameActivity();

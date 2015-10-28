@@ -1,11 +1,5 @@
 package io.jchat.android.activity;
 
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.UserInfo;
-import io.jchat.android.controller.MeInfoController;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.MeInfoView;
-import cn.jpush.im.api.BasicCallback;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -16,7 +10,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
+import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.controller.MeInfoController;
+import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.view.MeInfoView;
 
 public class MeInfoActivity extends BaseActivity {
 
@@ -25,6 +27,7 @@ public class MeInfoActivity extends BaseActivity {
     private final static int MODIFY_NICKNAME_REQUEST_CODE = 1;
     private final static int SELECT_AREA_REQUEST_CODE = 3;
     private final static int MODIFY_SIGNATURE_REQUEST_CODE = 4;
+    private String mModifiedName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,12 +153,26 @@ public class MeInfoActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (data != null) {
             if (requestCode == MODIFY_NICKNAME_REQUEST_CODE) {
-                mMeInfoView.setNickName(data.getStringExtra("nickName"));
-                Log.i("MeInfoActivity", "data.getStringExtra(nickName) " + data.getStringExtra("nickName"));
+                mModifiedName = data.getStringExtra("nickName");
+                mMeInfoView.setNickName(mModifiedName);
+                Log.i("MeInfoActivity", "data.getStringExtra(nickName) " + mModifiedName);
             } else if (requestCode == SELECT_AREA_REQUEST_CODE)
                 mMeInfoView.setRegion(data.getStringExtra("region"));
             else if (requestCode == MODIFY_SIGNATURE_REQUEST_CODE)
                 mMeInfoView.setSignature(data.getStringExtra("signature"));
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResultAndFinish();
+        super.onBackPressed();
+    }
+
+    public void setResultAndFinish(){
+        Intent intent = new Intent();
+        intent.putExtra("newName", mModifiedName);
+        setResult(JPushDemoApplication.RESULT_CODE_ME_INFO, intent);
+        finish();
     }
 }

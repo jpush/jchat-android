@@ -57,7 +57,7 @@ public class MeController implements OnClickListener {
                 mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 break;
             case R.id.user_info_rl:
-                mContext.StartMeInfoActivity();
+                mContext.startMeInfoActivity();
                 break;
             case R.id.setting_rl:
                 mContext.StartSettingActivity();
@@ -119,39 +119,5 @@ public class MeController implements OnClickListener {
 //			break;
         }
     }
-
-//    @Override
-//    public boolean onTouch(View view, MotionEvent e) {
-//        switch (e.getAction()){
-//            case MotionEvent.ACTION_DOWN:
-//                startY = e.getY();
-//                return false;
-//            case MotionEvent.ACTION_MOVE:
-//                 return mMeView.touchEvent(e);
-//            case MotionEvent.ACTION_UP:
-//                float endY = e.getY();
-//                if(endY - startY > 10)
-//                    return mMeView.touchEvent(e);
-//                else return onSingleTapConfirmed(view);
-//            default:
-//                return false;
-//        }
-//    }
-
-//    private boolean onSingleTapConfirmed(View v) {
-//        switch (v.getId()){
-//            case R.id.user_info_rl:
-//                mContext.StartMeInfoActivity();
-//                break;
-//            case R.id.setting_rl:
-//                mContext.StartSettingActivity();
-//                break;
-////			//退出登录 清除Notification，清除缓存
-//            case R.id.logout_rl:
-//
-//                break;
-//        }
-//        return false;
-//    }
 
 }

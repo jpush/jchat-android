@@ -144,6 +144,11 @@ public class MainActivity extends FragmentActivity{
             String path = BitmapLoader.saveBitmapToLocal(bitmap);
             Log.d("MainActivity", "After compress Path: " + path);
             mMainController.uploadUserAvatar(path);
+        }else if (resultCode == JPushDemoApplication.RESULT_CODE_ME_INFO){
+            String newName = data.getStringExtra("newName");
+            if (!TextUtils.isEmpty(newName)){
+                mMainController.refreshNickname(newName);
+            }
         }
     }
 

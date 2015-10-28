@@ -56,7 +56,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
     //存放所有图片的路径
     private List<String> mPathList = new ArrayList<String>();
     //存放图片消息的ID
-    private List<Integer> mMsgIDList = new ArrayList<Integer>();
+    private List<Integer> mMsgIdList = new ArrayList<Integer>();
     private TextView mNumberTv;
     private Button mSendBtn;
     private CheckBox mOriginPictureCb;
@@ -66,15 +66,15 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private int mPosition;
     private Conversation mConv;
     private Message mMsg;
-    private String mTargetID;
+    private String mTargetId;
     private boolean mFromChatActivity = true;
     //当前消息数
     private int mStart;
     private int mOffset = 18;
     private Context mContext;
     private boolean mDownloading = false;
-    private Long mGroupID;
-    private int[] mMsgIDs;
+    private Long mGroupId;
+    private int[] mMsgIds;
     private int mIndex = 0;
     private Queue<String> mPathQueue = new LinkedList<String>();
     private final MyHandler myHandler = new MyHandler(this);
@@ -111,12 +111,12 @@ public class BrowserViewPagerActivity extends BaseActivity {
         mLoadBtn = (Button) findViewById(R.id.load_image_btn);
 
         Intent intent = this.getIntent();
-        mGroupID = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
-        if (mGroupID != 0){
-            mConv = JMessageClient.getGroupConversation(mGroupID);
+        mGroupId = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+        if (mGroupId != 0){
+            mConv = JMessageClient.getGroupConversation(mGroupId);
         }else {
-            mTargetID = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
-            mConv = JMessageClient.getSingleConversation(mTargetID);
+            mTargetId = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
+            mConv = JMessageClient.getSingleConversation(mTargetId);
         }
         mStart = intent.getIntExtra("msgCount", 0);
         mPosition = intent.getIntExtra(JPushDemoApplication.POSITION, 0);
@@ -202,16 +202,16 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                     Toast.makeText(this, this.getString(R.string.local_picture_not_found_toast), Toast.LENGTH_SHORT).show();
                 }
-                mMsg = mConv.getMessage(intent.getIntExtra("msgID", 0));
+                mMsg = mConv.getMessage(intent.getIntExtra("msgId", 0));
                 photoView = new PhotoView(mFromChatActivity, this);
-                int currentItem = mMsgIDList.indexOf(mMsg.getId());
+                int currentItem = mMsgIdList.indexOf(mMsg.getId());
                 try {
                     ImageContent ic = (ImageContent) mMsg.getContent();
                     //如果点击的是第一张图片并且图片未下载过，则显示大图
-                    if (ic.getLocalPath() == null && mMsgIDList.indexOf(mMsg.getId()) == 0) {
+                    if (ic.getLocalPath() == null && mMsgIdList.indexOf(mMsg.getId()) == 0) {
                         downloadImage();
                     }
-                    String path = mPathList.get(mMsgIDList.indexOf(mMsg.getId()));
+                    String path = mPathList.get(mMsgIdList.indexOf(mMsg.getId()));
                     //如果发送方上传了原图
                     if(ic.getBooleanExtra("originalPicture") != null && ic.getBooleanExtra("originalPicture")){
                         mLoadBtn.setVisibility(View.GONE);
@@ -341,7 +341,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
         public void onPageSelected(final int i) {
             Log.d(TAG, "onPageSelected current position: " + i);
             if (mFromChatActivity) {
-                mMsg = mConv.getMessage(mMsgIDList.get(i));
+                mMsg = mConv.getMessage(mMsgIdList.get(i));
                 Log.d(TAG, "onPageSelected Image Message ID: " + mMsg.getId());
                 ImageContent ic = (ImageContent) mMsg.getContent();
                 //每次选择或滑动图片，如果不存在本地图片则下载，显示大图
@@ -377,13 +377,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
             @Override
             public void run() {
                 ImageContent ic;
-                final int msgSize = mMsgIDList.size();
+                final int msgSize = mMsgIdList.size();
                 List<Message> msgList = mConv.getMessagesFromNewest(mStart, mOffset);
                 mOffset = msgList.size();
                 if (mOffset > 0){
                     for (Message msg : msgList){
                         if (msg.getContentType().equals(ContentType.image)){
-                            mMsgIDList.add(0, msg.getId());
+                            mMsgIdList.add(0, msg.getId());
                             ic = (ImageContent) msg.getContent();
                             if (msg.getDirect().equals(MessageDirect.send)){
                                 if (TextUtils.isEmpty(ic.getStringExtra("localPath"))){
@@ -401,14 +401,14 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         }
                     }
                     mStart += mOffset;
-                    if (msgSize == mMsgIDList.size()){
+                    if (msgSize == mMsgIdList.size()){
                         getImgMsg();
                     }else {
                         //加载完上一页图片后，设置当前图片仍为加载前的那一张图片
                         BrowserViewPagerActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                mPosition = mMsgIDList.size() - msgSize;
+                                mPosition = mMsgIdList.size() - msgSize;
                                 mViewPager.setCurrentItem(mPosition);
                                 mViewPager.getAdapter().notifyDataSetChanged();
                             }
@@ -424,10 +424,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
      * 初始化会话中的所有图片路径
      */
     private void initImgPathList() {
-        mMsgIDList = this.getIntent().getIntegerArrayListExtra(JPushDemoApplication.MsgIDs);
+        mMsgIdList = this.getIntent().getIntegerArrayListExtra(JPushDemoApplication.MsgIDs);
         Message msg;
         ImageContent ic;
-        for (int msgID : mMsgIDList){
+        for (int msgID : mMsgIdList){
             msg = mConv.getMessage(msgID);
             if (msg.getContentType().equals(ContentType.image)) {
                 ic = (ImageContent) msg.getContent();
@@ -525,7 +525,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private void getOriginPictures(int position) {
         if (mSelectMap.size() < 1)
             mSelectMap.put(position, true);
-        mMsgIDs = new int[mSelectMap.size()];
+        mMsgIds = new int[mSelectMap.size()];
         //根据选择的图片路径生成队列
         for (int i = 0; i < mSelectMap.size(); i++) {
             mPathQueue.offer(mPathList.get(mSelectMap.keyAt(i)));
@@ -544,7 +544,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private void getThumbnailPictures(int position) {
         if (mSelectMap.size() < 1)
             mSelectMap.put(position, true);
-        mMsgIDs = new int[mSelectMap.size()];
+        mMsgIds = new int[mSelectMap.size()];
         for (int i = 0; i < mSelectMap.size(); i++) {
             mPathQueue.offer(mPathList.get(mSelectMap.keyAt(i)));
         }
@@ -571,7 +571,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                             imageContent.setBooleanExtra("originalPicture", true);
                         }
                         Message msg = mConv.createSendMessage(imageContent);
-                        mMsgIDs[mIndex] = msg.getId();
+                        mMsgIds[mIndex] = msg.getId();
                         //自增索引，出列
                         mIndex++;
                         mPathQueue.poll();
@@ -595,7 +595,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 public void gotResult(int status, String desc, ImageContent imageContent) {
                     if (status == 0){
                         Message msg = mConv.createSendMessage(imageContent);
-                        mMsgIDs[mIndex] = msg.getId();
+                        mMsgIds[mIndex] = msg.getId();
                         mIndex++;
                         mPathQueue.poll();
                         if (!mPathQueue.isEmpty()) {
@@ -724,9 +724,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         break;
                     case SEND_PICTURE:
                         Intent intent = new Intent();
-                        intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetID);
-                        intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupID);
-                        intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIDs);
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetId);
+                        intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupId);
+                        intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIds);
                         activity.setResult(JPushDemoApplication.RESULT_CODE_BROWSER_PICTURE, intent);
                         activity.finish();
                         break;

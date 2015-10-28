@@ -42,11 +42,11 @@ public class PickPictureActivity extends BaseActivity {
     private ImageButton mReturnBtn;
     private boolean mIsGroup;
     private PickPictureAdapter mAdapter;
-    private String mTargetID;
+    private String mTargetId;
     private Conversation mConv;
     private ProgressDialog mDialog;
-    private long mGroupID;
-    private int[] mMsgIDs;
+    private long mGroupId;
+    private int[] mMsgIds;
     private static final int SEND_PICTURE = 200;
     private final MyHandler myHandler = new MyHandler(this);
     private int mIndex = 0;
@@ -63,13 +63,13 @@ public class PickPictureActivity extends BaseActivity {
         Intent intent = this.getIntent();
         mIsGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
         if (mIsGroup) {
-            mGroupID = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
-            Log.i("PickPictureActivity", "groupID : " + mGroupID);
-            mConv = JMessageClient.getGroupConversation(mGroupID);
+            mGroupId = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+            Log.i("PickPictureActivity", "groupId : " + mGroupId);
+            mConv = JMessageClient.getGroupConversation(mGroupId);
         } else {
-            mTargetID = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
-            Log.i("PickPictureActivity", "mTargetID" + mTargetID);
-            mConv = JMessageClient.getSingleConversation(mTargetID);
+            mTargetId = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
+            Log.i("PickPictureActivity", "mTargetId" + mTargetId);
+            mConv = JMessageClient.getSingleConversation(mTargetId);
         }
         mList = intent.getStringArrayListExtra("data");
         if (mList.size() > 1) {
@@ -90,8 +90,8 @@ public class PickPictureActivity extends BaseActivity {
             Intent intent = new Intent();
             intent.putExtra("fromChatActivity", false);
             if (mIsGroup) {
-                intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
-            } else intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
+                intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupId);
+            } else intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetId);
             intent.putStringArrayListExtra("pathList", (ArrayList<String>) mList);
             intent.putExtra(JPushDemoApplication.POSITION, position);
             intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
@@ -140,7 +140,7 @@ public class PickPictureActivity extends BaseActivity {
      * 获得选中图片的缩略图路径
      */
     private void getThumbnailPictures() {
-        mMsgIDs = new int[mPickedList.size()];
+        mMsgIds = new int[mPickedList.size()];
         //根据选择的图片路径生成队列
         for (int i = 0; i < mPickedList.size(); i++) {
             mPathQueue.offer(mPickedList.get(i));
@@ -165,7 +165,7 @@ public class PickPictureActivity extends BaseActivity {
                 public void gotResult(int status, String desc, ImageContent imageContent) {
                     if (status == 0) {
                         Message msg = mConv.createSendMessage(imageContent);
-                        mMsgIDs[mIndex] = msg.getId();
+                        mMsgIds[mIndex] = msg.getId();
                         //自增索引，出列
                         mIndex++;
                         mPathQueue.poll();
@@ -189,7 +189,7 @@ public class PickPictureActivity extends BaseActivity {
                 public void gotResult(int status, String desc, ImageContent imageContent) {
                     if (status == 0){
                         Message msg = mConv.createSendMessage(imageContent);
-                        mMsgIDs[mIndex] = msg.getId();
+                        mMsgIds[mIndex] = msg.getId();
                         mIndex++;
                         mPathQueue.poll();
                         if (!mPathQueue.isEmpty()) {
@@ -245,9 +245,9 @@ public class PickPictureActivity extends BaseActivity {
                 switch (msg.what) {
                     case SEND_PICTURE:
                         Intent intent = new Intent();
-                        intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetID);
-                        intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupID);
-                        intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIDs);
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetId);
+                        intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupId);
+                        intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIds);
                         activity.setResult(JPushDemoApplication.RESULT_CODE_SELECT_ALBUM, intent);
                         if (activity.mDialog != null)
                             activity.mDialog.dismiss();
