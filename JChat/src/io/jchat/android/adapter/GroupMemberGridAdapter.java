@@ -44,30 +44,27 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private int[] mRestArray = new int[]{2, 1, 0, 3};
     //用群成员项数余4得到，作为下标查找mRestArray，得到空白项
     private int mRestNum;
-    private int mAvatarSize;
     private boolean mIsGroup;
-    private String mTargetID;
+    private String mTargetId;
     private Context mContext;
 
     //群聊
-    public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator, int size) {
+    public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator) {
         this.mContext = context;
         mInflater = LayoutInflater.from(context);
         mIsGroup = true;
         this.mMemberList = memberList;
         mCurrentNum = mMemberList.size();
         this.mIsCreator = isCreator;
-        this.mAvatarSize = size;
         mIsShowDelete = false;
         initBlankItem();
     }
 
     //单聊
-    public GroupMemberGridAdapter(Context context, String targetID, int size) {
+    public GroupMemberGridAdapter(Context context, String targetId) {
         this.mContext = context;
         mInflater = LayoutInflater.from(context);
-        this.mTargetID = targetID;
-        this.mAvatarSize = size;
+        this.mTargetId = targetId;
     }
 
     public void initBlankItem() {
@@ -75,8 +72,8 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         mRestNum = mRestArray[mCurrentNum % 4];
     }
 
-    public void refreshMemberList(long groupID){
-        Conversation conv = JMessageClient.getGroupConversation(groupID);
+    public void refreshMemberList(long groupId){
+        Conversation conv = JMessageClient.getGroupConversation(groupId);
         GroupInfo groupInfo = (GroupInfo)conv.getTargetInfo();
         mMemberList = groupInfo.getGroupMembers();
         mCurrentNum = mMemberList.size();
@@ -194,7 +191,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
             }
         } else {
             if (position == 0) {
-                Conversation conv = JMessageClient.getSingleConversation(mTargetID);
+                Conversation conv = JMessageClient.getSingleConversation(mTargetId);
                 UserInfo userInfo = (UserInfo)conv.getTargetInfo();
                 bitmap = userInfo.getSmallAvatarBitmap();
                 if (bitmap != null) {

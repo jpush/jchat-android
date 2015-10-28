@@ -42,7 +42,6 @@ public class ChatActivity extends BaseActivity {
     private ChatView mChatView;
     private ChatController mChatController;
     private MyReceiver mReceiver;
-    private String mTargetID;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -109,18 +108,18 @@ public class ChatActivity extends BaseActivity {
      * @param data intent
      */
     private void handleImgRefresh(Intent data) {
-        mTargetID = data.getStringExtra(JPushDemoApplication.TARGET_ID);
-        long groupID = data.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
-        Log.i(TAG, "Refresh Image groupID: " + groupID);
+        String targetId = data.getStringExtra(JPushDemoApplication.TARGET_ID);
+        long groupId = data.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+        Log.i(TAG, "Refresh Image groupId: " + groupId);
         //判断是否在当前会话中发图片
-        if (mTargetID != null) {
-            if (mTargetID.equals(mChatController.getTargetID())) {
-                mChatController.getAdapter().setSendImg(mTargetID, data.getIntArrayExtra(JPushDemoApplication.MsgIDs));
+        if (targetId != null) {
+            if (targetId.equals(mChatController.getTargetID())) {
+                mChatController.getAdapter().setSendImg(targetId, data.getIntArrayExtra(JPushDemoApplication.MsgIDs));
                 mChatView.setToBottom();
             }
-        } else if (groupID != 0) {
-            if (groupID == mChatController.getGroupID()) {
-                mChatController.getAdapter().setSendImg(groupID, data.getIntArrayExtra(JPushDemoApplication.MsgIDs));
+        } else if (groupId != 0) {
+            if (groupId == mChatController.getGroupId()) {
+                mChatController.getAdapter().setSendImg(groupId, data.getIntArrayExtra(JPushDemoApplication.MsgIDs));
                 mChatView.setToBottom();
             }
         }
@@ -313,7 +312,7 @@ public class ChatActivity extends BaseActivity {
             UserInfo myInfo = JMessageClient.getMyInfo();
             EventNotificationContent.EventNotificationType type = ((EventNotificationContent) msg
                     .getContent()).getEventNotificationType();
-            if (groupID == mChatController.getGroupID()) {
+            if (groupID == mChatController.getGroupId()) {
                 switch (type) {
                     case group_member_added:
                         //添加群成员事件
@@ -347,7 +346,6 @@ public class ChatActivity extends BaseActivity {
                                         mChatView.setChatTitle(groupInfo.getGroupName());
                                     }
                                     mChatView.dismissGroupNum();
-                                    mChatController.getAdapter().addMsgToList(msg);
                                 }
                             });
                         } else {
@@ -374,7 +372,7 @@ public class ChatActivity extends BaseActivity {
                     }
                 }else {
                     long groupID = ((GroupInfo)msg.getTargetInfo()).getGroupID();
-                    if (mChatController.isGroup() && groupID == mChatController.getGroupID()) {
+                    if (mChatController.isGroup() && groupID == mChatController.getGroupId()) {
                         mChatController.getAdapter().addMsgToList(msg);
                     }
                 }
@@ -383,7 +381,7 @@ public class ChatActivity extends BaseActivity {
     }
 
     private void refreshGroupNum() {
-        Conversation conv = JMessageClient.getGroupConversation(mChatController.getGroupID());
+        Conversation conv = JMessageClient.getGroupConversation(mChatController.getGroupId());
         GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
         if (!TextUtils.isEmpty(groupInfo.getGroupName())) {
             android.os.Message handleMessage = mHandler.obtainMessage();

@@ -151,4 +151,8 @@ public class MainController implements OnClickListener, OnPageChangeListener {
     public void sortConvList() {
         mConvListFragment.sortConvList();
     }
+
+    public void refreshNickname(String newName) {
+        mMeActivity.refreshNickname(newName);
+    }
 }

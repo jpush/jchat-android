@@ -55,13 +55,13 @@ public class CreateGroupController implements OnClickListener {
 
                             @Override
                             public void gotResult(final int status, String msg,
-                                                  final long groupID) {
+                                                  final long groupId) {
                                 mContext.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         mDialog.dismiss();
                                         if (status == 0) {
-                                            mContext.StartChatActivity(groupID, mGroupName);
+                                            mContext.StartChatActivity(groupId, mGroupName);
                                         } else {
                                             HandleResponseCode.onHandle(mContext, status, false);
                                             Log.i("CreateGroupController", "status : " + status);

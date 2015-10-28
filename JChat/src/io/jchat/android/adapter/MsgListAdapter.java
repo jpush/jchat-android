@@ -25,7 +25,6 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -38,14 +37,11 @@ import android.view.animation.LinearInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import cn.jpush.im.android.api.callback.DownloadAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
-import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.enums.MessageStatus;
@@ -84,14 +80,11 @@ import io.jchat.android.activity.BrowserViewPagerActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.application.JPushDemoApplication;
-import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.TimeFormat;
 import io.jchat.android.view.CircleImageView;
 import cn.jpush.im.api.BasicCallback;
-import io.jchat.android.view.LoginDialog;
 
 @SuppressLint("NewApi")
 public class MsgListAdapter extends BaseAdapter {
@@ -99,14 +92,14 @@ public class MsgListAdapter extends BaseAdapter {
     private static final String TAG = "MsgListAdapter";
 
     private Context mContext;
-    private String mTargetID;
+    private String mTargetId;
     private Conversation mConv;
     private List<Message> mMsgList = new ArrayList<Message>();//所有消息列表
     private List<Integer> mIndexList = new ArrayList<Integer>();//语音索引
     private LayoutInflater mInflater;
     private boolean mSetData = false;
     private boolean mIsGroup = false;
-    private long mGroupID;
+    private long mGroupId;
     private int mPosition = -1;// 和mSetData一起组成判断播放哪条录音的依据
     private static final int UPDATE_IMAGEVIEW = 1999;
     // 9种Item的类型
@@ -142,16 +135,16 @@ public class MsgListAdapter extends BaseAdapter {
     private int mOffset = JPushDemoApplication.PAGE_MESSAGE_COUNT;
     private boolean mHasLastPage = false;
     private Dialog mDialog;
+    //发送图片消息的队列
     private Queue<Message> mMsgQueue = new LinkedList<Message>();
-    private int mSendMsgID;
+    private int mSendMsgId;
     private float mDensity;
-    private int mAvatarSize;
     private int mWidth;
 
-    public MsgListAdapter(Context context, String targetID) {
+    public MsgListAdapter(Context context, String targetId) {
         initData(context);
-        this.mTargetID = targetID;
-        this.mConv = JMessageClient.getSingleConversation(mTargetID);
+        this.mTargetId = targetId;
+        this.mConv = JMessageClient.getSingleConversation(mTargetId);
         this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
         reverse(mMsgList);
         mStart = mOffset;
@@ -177,11 +170,11 @@ public class MsgListAdapter extends BaseAdapter {
         Collections.reverse(list);
     }
 
-    public MsgListAdapter(Context context, long groupID, GroupInfo groupInfo) {
+    public MsgListAdapter(Context context, long groupId, GroupInfo groupInfo) {
         initData(context);
-        this.mGroupID = groupID;
+        this.mGroupId = groupId;
         this.mIsGroup = true;
-        this.mConv = JMessageClient.getGroupConversation(groupID);
+        this.mConv = JMessageClient.getGroupConversation(groupId);
         this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
         reverse(mMsgList);
         mStart = mOffset;
@@ -195,7 +188,6 @@ public class MsgListAdapter extends BaseAdapter {
         DisplayMetrics dm = new DisplayMetrics();
         mActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
         mDensity = dm.density;
-        mAvatarSize = (int) (50 * mDensity);
         mWidth = dm.widthPixels;
         mInflater = LayoutInflater.from(mContext);
         AudioManager audioManager = (AudioManager) mContext
@@ -255,6 +247,9 @@ public class MsgListAdapter extends BaseAdapter {
         mp.reset();
     }
 
+    /**
+     * 检查图片是否处于创建状态，如果是，则加入发送队列
+     */
     private void checkSendingImgMsg() {
         for (Message msg : mMsgList) {
             if (msg.getStatus().equals(MessageStatus.created)
@@ -264,12 +259,12 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    //发送图片
-    public void setSendImg(String targetID, int[] msgIDs) {
+    //发送图片 将图片加入发送队列
+    public void setSendImg(String targetId, int[] msgIds) {
         Message msg;
-        mConv = JMessageClient.getSingleConversation(targetID);
-        for (int msgID : msgIDs) {
-            msg = mConv.getMessage(msgID);
+        mConv = JMessageClient.getSingleConversation(targetId);
+        for (int msgId : msgIds) {
+            msg = mConv.getMessage(msgId);
 //            JMessageClient.sendMessage(msg);
             mMsgList.add(msg);
             incrementStartPosition();
@@ -281,11 +276,11 @@ public class MsgListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void setSendImg(long groupID, int[] msgIDs) {
+    public void setSendImg(long groupId, int[] msgIds) {
         Message msg;
-        mConv = JMessageClient.getGroupConversation(groupID);
-        for (int msgID : msgIDs) {
-            msg = mConv.getMessage(msgID);
+        mConv = JMessageClient.getGroupConversation(groupId);
+        for (int msgId : msgIds) {
+            msg = mConv.getMessage(msgId);
 //            JMessageClient.sendMessage(msg);
             mMsgList.add(msg);
             incrementStartPosition();
@@ -298,12 +293,18 @@ public class MsgListAdapter extends BaseAdapter {
 
     }
 
+    /**
+     * 从发送队列中出列，并发送图片
+     * @param msg 图片消息
+     */
     private void sendNextImgMsg(Message msg) {
         JMessageClient.sendMessage(msg);
         msg.setOnSendCompleteCallback(new BasicCallback() {
             @Override
             public void gotResult(int i, String s) {
+                //出列
                 mMsgQueue.poll();
+                //如果队列不为空，则继续发送下一张
                 if (!mMsgQueue.isEmpty()) {
                     sendNextImgMsg(mMsgQueue.element());
                 }
@@ -536,25 +537,6 @@ public class MsgListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        switch (msg.getContentType()) {
-            case text:
-                handleTextMsg(msg, holder);
-                break;
-            case image:
-                handleImgMsg(msg, holder, position);
-                break;
-            case voice:
-                handleVoiceMsg(msg, holder, position);
-                break;
-            case location:
-                handleLocationMsg(msg, holder, position);
-                break;
-            case eventNotification:
-                handleGroupChangeMsg(msg, holder);
-                break;
-            default:
-                handleCustomMsg(msg, holder);
-        }
         //显示时间
         TextView msgTime = (TextView) convertView
                 .findViewById(R.id.send_time_txt);
@@ -593,6 +575,26 @@ public class MsgListAdapter extends BaseAdapter {
                 }
             }
         }
+
+        switch (msg.getContentType()) {
+            case text:
+                handleTextMsg(msg, holder);
+                break;
+            case image:
+                handleImgMsg(msg, holder, position);
+                break;
+            case voice:
+                handleVoiceMsg(msg, holder, position);
+                break;
+            case location:
+                handleLocationMsg(msg, holder, position);
+                break;
+            case eventNotification:
+                handleGroupChangeMsg(msg, holder, msgTime);
+                break;
+            default:
+                handleCustomMsg(msg, holder);
+        }
         //显示头像
         if (holder.headIcon != null) {
             Bitmap bitmap;
@@ -630,14 +632,14 @@ public class MsgListAdapter extends BaseAdapter {
                 public void onClick(View arg0) {
                     Intent intent = new Intent();
                     if (msg.getDirect().equals(MessageDirect.send)) {
-                        intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
-                        Log.i(TAG, "msg.getFromName() " + mTargetID);
+                        intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetId);
+                        Log.i(TAG, "msg.getFromName() " + mTargetId);
                         intent.setClass(mContext, MeInfoActivity.class);
                         mContext.startActivity(intent);
                     } else {
                         String targetID = userInfo.getUserName();
                         intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
-                        intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
+                        intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupId);
                         intent.setClass(mContext, FriendInfoActivity.class);
                         ((Activity) mContext).startActivityForResult(intent,
                                 JPushDemoApplication.REQUEST_CODE_FRIEND_INFO);
@@ -717,7 +719,7 @@ public class MsgListAdapter extends BaseAdapter {
         return convertView;
     }
 
-    private void handleGroupChangeMsg(Message msg, ViewHolder holder) {
+    private void handleGroupChangeMsg(Message msg, ViewHolder holder, TextView msgTime) {
         UserInfo myInfo = JMessageClient.getMyInfo();
         GroupInfo groupInfo = (GroupInfo) msg.getTargetInfo();
         String content = ((EventNotificationContent) msg.getContent()).getEventText();
@@ -741,6 +743,7 @@ public class MsgListAdapter extends BaseAdapter {
                     holder.groupChange.setVisibility(View.VISIBLE);
                 } else {
                     holder.groupChange.setVisibility(View.GONE);
+                    msgTime.setVisibility(View.GONE);
                 }
                 break;
         }
@@ -931,12 +934,13 @@ public class MsgListAdapter extends BaseAdapter {
                     holder.progressTv.setVisibility(View.VISIBLE);
                     holder.progressTv.setText("0%");
                     holder.resend.setVisibility(View.GONE);
+                    //从别的界面返回聊天界面，继续发送
                     if (!mMsgQueue.isEmpty()) {
                         Message message = mMsgQueue.element();
                         if (message.getId() == msg.getId()) {
                             Log.d(TAG, "Start sending message");
                             JMessageClient.sendMessage(message);
-                            mSendMsgID = message.getId();
+                            mSendMsgId = message.getId();
                             sendingImage(holder, sendingAnim, message);
                         }
                     }
@@ -955,9 +959,9 @@ public class MsgListAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View arg0) {
                     Intent intent = new Intent();
-                    intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
-                    intent.putExtra("msgID", msg.getId());
-                    intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupID);
+                    intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetId);
+                    intent.putExtra("msgId", msg.getId());
+                    intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupId);
                     intent.putExtra("msgCount", mMsgList.size());
                     intent.putIntegerArrayListExtra(JPushDemoApplication.MsgIDs, getImgMsgIDList());
                     intent.putExtra("fromChatActivity", true);
@@ -1022,12 +1026,12 @@ public class MsgListAdapter extends BaseAdapter {
                 @Override
                 public void gotResult(final int status, String desc) {
                     Log.d(TAG, "Got result status: " + status);
-                    if (!mMsgQueue.isEmpty() && mMsgQueue.element().getId() == mSendMsgID) {
+                    if (!mMsgQueue.isEmpty() && mMsgQueue.element().getId() == mSendMsgId) {
                         mMsgQueue.poll();
                         if (!mMsgQueue.isEmpty()) {
                             Message nextMsg = mMsgQueue.element();
                             JMessageClient.sendMessage(nextMsg);
-                            mSendMsgID = nextMsg.getId();
+                            mSendMsgId = nextMsg.getId();
                         }
                     }
                     if (status == 0) {
