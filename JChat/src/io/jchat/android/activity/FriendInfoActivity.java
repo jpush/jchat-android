@@ -6,10 +6,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
@@ -67,13 +65,12 @@ public class FriendInfoActivity extends BaseActivity {
             public void gotResult(int status, String desc, final UserInfo userInfo) {
                 dialog.dismiss();
                 if (status == 0) {
-                    File file = userInfo.getSmallAvatarFile();
-                    if (file != null && file.isFile()) {
+                    if (TextUtils.isEmpty(userInfo.getAvatar())){
                         android.os.Message msg = myHandler.obtainMessage();
                         msg.what = GET_INFO_SUCCEED;
                         msg.obj = userInfo;
                         msg.sendToTarget();
-                    } else {
+                    }else {
                         userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
                             @Override
                             public void gotResult(int status, String desc, File file) {
@@ -82,6 +79,8 @@ public class FriendInfoActivity extends BaseActivity {
                                     msg.what = GET_INFO_SUCCEED;
                                     msg.obj = userInfo;
                                     msg.sendToTarget();
+                                }else {
+                                    HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
                                 }
                             }
                         });

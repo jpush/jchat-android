@@ -198,17 +198,19 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                     viewTag.icon.setImageBitmap(bitmap);
                 } else {
                     viewTag.icon.setImageResource(R.drawable.head_icon);
-                    userInfo.getSmallAvatarBitmapAsync(new DownloadAvatarBitmapCallback() {
-                        @Override
-                        public void gotResult(int status, String desc, Bitmap bitmap) {
-                            if (status == 0) {
-                                Log.d(TAG, "Get small avatar success");
-                                viewTag.icon.setImageBitmap(bitmap);
-                            }else {
-                                HandleResponseCode.onHandle(mContext, status, false);
+                    if (!TextUtils.isEmpty(userInfo.getAvatar())){
+                        userInfo.getSmallAvatarBitmapAsync(new DownloadAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, Bitmap bitmap) {
+                                if (status == 0) {
+                                    Log.d(TAG, "Get small avatar success");
+                                    viewTag.icon.setImageBitmap(bitmap);
+                                }else {
+                                    HandleResponseCode.onHandle(mContext, status, false);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
                 if (TextUtils.isEmpty(userInfo.getNickname())){
                     viewTag.name.setText(userInfo.getUserName());

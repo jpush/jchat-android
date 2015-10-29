@@ -13,13 +13,14 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.model.Conversation;
@@ -29,7 +30,6 @@ import io.jchat.android.adapter.PickPictureAdapter;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.SortPictureList;
 
 public class PickPictureActivity extends BaseActivity {
 
@@ -72,10 +72,6 @@ public class PickPictureActivity extends BaseActivity {
             mConv = JMessageClient.getSingleConversation(mTargetId);
         }
         mList = intent.getStringArrayListExtra("data");
-        if (mList.size() > 1) {
-            SortPictureList sortList = new SortPictureList();
-            Collections.sort(mList, sortList);
-        }
         mAdapter = new PickPictureAdapter(this, mList, mGridView);
         mGridView.setAdapter(mAdapter);
         mGridView.setOnItemClickListener(onItemListener);

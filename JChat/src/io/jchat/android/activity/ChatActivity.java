@@ -150,10 +150,10 @@ public class ChatActivity extends BaseActivity {
     protected void onDestroy() {
         // TODO Auto-generated method stub
         JMessageClient.unRegisterEventReceiver(this);
-        super.onDestroy();
         unregisterReceiver(mReceiver);
         mChatController.releaseMediaPlayer();
         mChatView.releaseRecorder();
+        super.onDestroy();
     }
 
     @Override
