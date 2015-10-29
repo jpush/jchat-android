@@ -23,6 +23,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -177,8 +178,8 @@ public class PickPictureTotalActivity extends BaseActivity {
 	 * 组装分组界面GridView的数据源，因为我们扫描手机的时候将图片信息放在HashMap中
 	 * 所以需要遍历HashMap将数据组装成List
 	 * 
-	 * @param mGruopMap
-	 * @return
+	 * @param mGruopMap 相册HashMap
+	 * @return List<ImageBean>
 	 */
 	private List<ImageBean> subGroupOfImage(HashMap<String, List<String>> mGruopMap){
 		if(mGruopMap.size() == 0){
@@ -200,6 +201,10 @@ public class PickPictureTotalActivity extends BaseActivity {
 			
 			list.add(mImageBean);
 		}
+
+        //对相册进行排序，最近修改的相册放在最前面
+        SortImageBeanComparator sortComparator = new SortImageBeanComparator(list);
+        Collections.sort(list, sortComparator);
 		
 		return list;
 		
@@ -216,4 +221,27 @@ public class PickPictureTotalActivity extends BaseActivity {
 			finish();
 		}
 	}
+
+    static class SortImageBeanComparator implements Comparator<ImageBean>{
+
+        List<ImageBean> list;
+
+        public SortImageBeanComparator(List<ImageBean> list){
+            this.list = list;
+        }
+
+        //根据相册的第一张图片进行排序，最近修改的放在前面
+        public int compare(ImageBean arg0, ImageBean arg1){
+            String path1 = arg0.getTopImagePath();
+            String path2 = arg1.getTopImagePath();
+            File f1 = new File(path1);
+            File f2 = new File(path2);
+            if (f1.lastModified() < f2.lastModified()){
+                return 1;
+            }else {
+                return -1;
+            }
+        }
+    }
+
 }

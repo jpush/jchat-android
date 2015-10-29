@@ -657,17 +657,6 @@ public class MsgListAdapter extends BaseAdapter {
 
                     @Override
                     public void onClick(View v) {
-                        switch (msg.getContentType()) {
-                            case image:
-                                break;
-                            case voice:
-                                break;
-                            case video:
-                                break;
-                            case location:
-                                break;
-                            default:
-                        }
                         switch (v.getId()) {
                             case R.id.copy_msg_btn:
                                 if (msg.getContentType().equals(ContentType.text)) {
@@ -727,9 +716,12 @@ public class MsgListAdapter extends BaseAdapter {
                 .getContent()).getEventNotificationType();
         switch (type) {
             case group_member_added:
-            case group_member_exit:
                 holder.groupChange.setText(content);
                 holder.groupChange.setVisibility(View.VISIBLE);
+                break;
+            case group_member_exit:
+                holder.groupChange.setVisibility(View.GONE);
+                msgTime.setVisibility(View.GONE);
                 break;
             case group_member_removed:
                 List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
