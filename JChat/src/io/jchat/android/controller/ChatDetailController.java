@@ -17,10 +17,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
@@ -39,7 +41,6 @@ import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.entity.Event;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ChatDetailView;
 
 public class ChatDetailController implements OnClickListener, OnItemClickListener, OnItemLongClickListener{
@@ -348,45 +349,32 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         JMessageClient.getUserInfo(targetId, new GetUserInfoCallback() {
             @Override
             public void gotResult(final int status, String desc, final UserInfo userInfo) {
+                if (mLoadingDialog != null) {
+                    mLoadingDialog.dismiss();
+                }
                 if (status == 0) {
+                    android.os.Message msg = myHandler.obtainMessage();
+                    msg.what = ADD_TO_GRIDVIEW;
+                    msg.obj = userInfo;
+                    msg.sendToTarget();
                     //缓存头像
                     if (!TextUtils.isEmpty(userInfo.getAvatar())){
                         File file = userInfo.getSmallAvatarFile();
-                        if (file != null) {
-                            NativeImageLoader.getInstance().putUserAvatar(targetId,
-                                    file.getAbsolutePath(), mAvatarSize);
-                            // add friend to group
-                            android.os.Message msg = myHandler.obtainMessage();
-                            msg.what = ADD_TO_GRIDVIEW;
-                            msg.obj = userInfo;
-                            msg.sendToTarget();
-                            //下载小头像
-                        }else {
+                        if (file == null) {
                             userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
                                 @Override
                                 public void gotResult(int status, String desc, File file) {
                                     if (status == 0){
-                                        if (file != null){
-                                            NativeImageLoader.getInstance().putUserAvatar(targetId,
-                                                    file.getAbsolutePath(), mAvatarSize);
-                                        }
+                                        mGridAdapter.notifyDataSetChanged();
                                     }else {
                                         HandleResponseCode.onHandle(mContext, status, false);
                                     }
-                                    // add friend to group
-                                    android.os.Message msg = myHandler.obtainMessage();
-                                    msg.what = ADD_TO_GRIDVIEW;
-                                    msg.obj = userInfo;
-                                    msg.sendToTarget();
                                 }
                             });
                         }
                     }
                     dialog.cancel();
                 } else {
-                    if (mLoadingDialog != null) {
-                        mLoadingDialog.dismiss();
-                    }
                     HandleResponseCode.onHandle(mContext, status, true);
                 }
             }
@@ -508,10 +496,12 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             controller.addAMember(userInfo);
                             //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
                         else {
-                            if (userInfo.getUserName().equals(JMessageClient.getMyInfo()
-                                    .getUserName()) || userInfo.getUserName().equals(controller.mTargetId))
+                            if (userInfo.getUserName().equals(JMessageClient.getMyInfo().getUserName())
+                                    || userInfo.getUserName().equals(controller.mTargetId)){
                                 return;
-                            else controller.addMemberAndCreateGroup(userInfo.getUserName());
+                            } else {
+                                controller.addMemberAndCreateGroup(userInfo.getUserName());
+                            }
                         }
                         break;
                     // 删除成员
