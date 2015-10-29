@@ -139,7 +139,7 @@
     <string name="login_out">退出登录</string>
     <string name="about">关于</string>
     <string name="demo_version_name">demo版本号:%s</string>
-    <string name="about_version">\nsdk版本号:1.1.5</string>
+    <string name="sdk_version">\nsdk版本号:</string>
     <string name="about_date">\n10月30日</string>
     <string name="add_to_friend">加为好友</string>
     <string name="setting_username_hit">昵称</string>
