@@ -9,9 +9,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
+import io.jchat.android.tools.HandleResponseCode;
 
 public class FriendInfoView extends LinearLayout {
 
@@ -46,17 +47,18 @@ public class FriendInfoView extends LinearLayout {
         mSignatureTv = (TextView) findViewById(R.id.signature_tv);
     }
 
-    public void initInfo(UserInfo userInfo, double density) {
+    public void initInfo(UserInfo userInfo) {
         if (userInfo != null) {
-//            File file = userInfo.getSmallAvatarFile();
-            Bitmap bitmap = userInfo.getSmallAvatarBitmap();
-            if (bitmap != null) {
-//                Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-//                        (int) (100 * density), (int) (100 * density));
-                mAvatarIv.setImageBitmap(bitmap);
-            } else {
-                mAvatarIv.setImageResource(R.drawable.head_icon);
-            }
+            userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                @Override
+                public void gotResult(int status, String desc, Bitmap bitmap) {
+                    if (status == 0) {
+                        mAvatarIv.setImageBitmap(bitmap);
+                    }else {
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                }
+            });
             if (TextUtils.isEmpty(userInfo.getNickname())) {
                 mNickNameTv.setText(userInfo.getUserName());
             } else {

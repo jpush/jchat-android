@@ -5,26 +5,26 @@ import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import java.io.File;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MeController;
+import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MeView;
@@ -70,27 +70,17 @@ public class MeFragment extends BaseFragment {
     public void onResume() {
         if (!mIsShowAvatar){
             UserInfo myInfo = JMessageClient.getMyInfo();
-            File file = myInfo.getSmallAvatarFile();
-            //MyInfo存在小头像，直接显示
-            if (file != null && file.isFile()) {
-                mMeView.showPhoto(file.getAbsolutePath());
-                mIsShowAvatar = true;
-                //否则下载
-            } else {
-                if (!TextUtils.isEmpty(myInfo.getAvatar())){
-                    myInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                        @Override
-                        public void gotResult(int status, String desc, File file) {
-                            if (status == 0) {
-                                mMeView.showPhoto(file.getAbsolutePath());
-                                mIsShowAvatar = true;
-                            } else {
-                                HandleResponseCode.onHandle(mContext, status, false);
-                            }
-                        }
-                    });
+            myInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                @Override
+                public void gotResult(int status, String desc, Bitmap bitmap) {
+                    if (status == 0) {
+                        mMeView.showPhoto(bitmap);
+                        mIsShowAvatar = true;
+                    }else {
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
                 }
-            }
+            });
             mMeView.showNickName(myInfo.getNickname());
         }
         super.onResume();
@@ -104,15 +94,29 @@ public class MeFragment extends BaseFragment {
     //退出登录
     public void Logout() {
         // TODO Auto-generated method stub
-        Intent intent = new Intent();
+        final Intent intent = new Intent();
         UserInfo info = JMessageClient.getMyInfo();
         if (null != info) {
             intent.putExtra("userName", info.getUserName());
-            File avatar = info.getSmallAvatarFile();
-            if (null != avatar && avatar.exists()) {
-                intent.putExtra("userAvatar", avatar.getAbsolutePath());
-            }
             Log.i("MeFragment", "userName " + info.getUserName());
+            File file = info.getAvatarFile();
+            if (file != null && file.isFile()) {
+                intent.putExtra("avatarFilePath", file.getAbsolutePath());
+            }else {
+                final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
+                dialog.show();
+                info.getAvatarFileAsync(new DownloadAvatarCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, File file) {
+                        dialog.dismiss();
+                        if (status == 0) {
+                            intent.putExtra("avatarFilePath", file.getAbsolutePath());
+                        }else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
+                    }
+                });
+            }
             JMessageClient.logout();
             intent.setClass(this.getActivity(), ReloginActivity.class);
             startActivity(intent);
@@ -192,36 +196,25 @@ public class MeFragment extends BaseFragment {
 
     //预览头像
     public void startBrowserAvatar() {
-        UserInfo myInfo = JMessageClient.getMyInfo();
-        File file = myInfo.getAvatarFile();
-        //如果MyInfo存在头像，直接预览
-        if (file != null && file.isFile()) {
-            Log.i("MeFragment", "file.getAbsolutePath() " + file.getAbsolutePath());
-            Intent intent = new Intent();
-            intent.putExtra("browserAvatar", true);
-            intent.putExtra("avatarPath", file.getAbsolutePath());
-            intent.setClass(this.getActivity(), BrowserViewPagerActivity.class);
-            startActivity(intent);
-        //否则下载头像
-        } else if (!TextUtils.isEmpty(myInfo.getAvatar())){
-            final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
-            dialog.show();
-            myInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
-                @Override
-                public void gotResult(int status, String desc, File file) {
-                    dialog.dismiss();
-                    if (status == 0) {
-                        Intent intent = new Intent();
-                        intent.putExtra("browserAvatar", true);
-                        intent.putExtra("avatarPath", file.getAbsolutePath());
-                        intent.setClass(mContext, BrowserViewPagerActivity.class);
-                        startActivity(intent);
-                    } else {
-                        HandleResponseCode.onHandle(mContext, status, false);
-                    }
+        final UserInfo myInfo = JMessageClient.getMyInfo();
+        final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
+        dialog.show();
+        myInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+            @Override
+            public void gotResult(int status, String desc, Bitmap bitmap) {
+                if (status == 0) {
+                    String path = BitmapLoader.saveBitmapToLocal(bitmap);
+                    Intent intent = new Intent();
+                    intent.putExtra("browserAvatar", true);
+                    intent.putExtra("avatarPath", path);
+                    intent.setClass(mContext, BrowserViewPagerActivity.class);
+                    startActivity(intent);
+                }else {
+                    HandleResponseCode.onHandle(mContext, status, false);
                 }
-            });
-        }
+                dialog.dismiss();
+            }
+        });
     }
 
     public void refreshNickname(String newName) {

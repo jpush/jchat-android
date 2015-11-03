@@ -1,12 +1,7 @@
 package io.jchat.android.adapter;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,13 +10,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.DownloadAvatarBitmapCallback;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -115,7 +107,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final ItemViewTag viewTag;
-        Bitmap bitmap;
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.group_grid_view_item, null);
             viewTag = new ItemViewTag((CircleImageView) convertView.findViewById(R.id.grid_avatar),
@@ -132,14 +123,17 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 UserInfo userInfo = mMemberList.get(position);
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
-                bitmap = userInfo.getSmallAvatarBitmap();
-                if (bitmap != null)
-                    viewTag.icon.setImageBitmap(bitmap);
-                //加载头像
-                else {
-                    Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(),
-                            R.drawable.head_icon);
-                    loadMemberAvatar(position, bmp, viewTag.icon);
+                if (!TextUtils.isEmpty(userInfo.getAvatar())){
+                    userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                        @Override
+                        public void gotResult(int status, String desc, Bitmap bitmap) {
+                            if (status == 0) {
+                                viewTag.icon.setImageBitmap(bitmap);
+                            }else {
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
+                        }
+                    });
                 }
 
                 if (TextUtils.isEmpty(userInfo.getNickname())) {
@@ -192,25 +186,19 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         } else {
             if (position == 0) {
                 Conversation conv = JMessageClient.getSingleConversation(mTargetId);
-                UserInfo userInfo = (UserInfo)conv.getTargetInfo();
-                bitmap = userInfo.getSmallAvatarBitmap();
-                if (bitmap != null) {
-                    viewTag.icon.setImageBitmap(bitmap);
-                } else {
-                    viewTag.icon.setImageResource(R.drawable.head_icon);
-                    if (!TextUtils.isEmpty(userInfo.getAvatar())){
-                        userInfo.getSmallAvatarBitmapAsync(new DownloadAvatarBitmapCallback() {
-                            @Override
-                            public void gotResult(int status, String desc, Bitmap bitmap) {
-                                if (status == 0) {
-                                    Log.d(TAG, "Get small avatar success");
-                                    viewTag.icon.setImageBitmap(bitmap);
-                                }else {
-                                    HandleResponseCode.onHandle(mContext, status, false);
-                                }
+                UserInfo userInfo = (UserInfo) conv.getTargetInfo();
+                if (!TextUtils.isEmpty(userInfo.getAvatar())) {
+                    userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                        @Override
+                        public void gotResult(int status, String desc, Bitmap bitmap) {
+                            if (status == 0) {
+                                Log.d(TAG, "Get small avatar success");
+                                viewTag.icon.setImageBitmap(bitmap);
+                            } else {
+                                HandleResponseCode.onHandle(mContext, status, false);
                             }
-                        });
-                    }
+                        }
+                    });
                 }
                 if (TextUtils.isEmpty(userInfo.getNickname())){
                     viewTag.name.setText(userInfo.getUserName());
@@ -233,131 +221,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     public void setCreator(boolean isCreator) {
         mIsCreator = isCreator;
         notifyDataSetChanged();
-    }
-
-    /**
-     * 启动任务加载头像
-     * @param position position
-     * @param bitmap 默认头像
-     * @param imageView 要加载头像的ImageView对象
-     */
-    private void loadMemberAvatar(int position, Bitmap bitmap, ImageView imageView){
-        if (cancelPotentialWork(position, imageView)) {
-            final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-            final AsyncDrawable asyncDrawable = new AsyncDrawable(mContext.getResources(), bitmap, task);
-            imageView.setImageDrawable(asyncDrawable);
-            task.execute(position);
-        }
-    }
-
-    static class AsyncDrawable extends BitmapDrawable {
-        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
-            super(res, bitmap);
-            bitmapWorkerTaskReference = new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
-        }
-
-        public BitmapWorkerTask getBitmapWorkerTask() {
-            return bitmapWorkerTaskReference.get();
-        }
-    }
-
-    class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap>{
-
-        private final WeakReference<ImageView> imageViewReference;
-        private int data;
-
-        public BitmapWorkerTask(ImageView imageView){
-            imageViewReference = new WeakReference<ImageView>(imageView);
-        }
-
-
-        @Override
-        protected Bitmap doInBackground(Integer... params) {
-            final Bitmap[] bitmap = new Bitmap[1];
-            data = params[0];
-
-            final UserInfo userInfo = mMemberList.get(data);
-            //使用一个信号量，当拿到头像后执行countDown
-            final CountDownLatch signal = new CountDownLatch(1);
-            //睡眠0.5s
-            try {
-                Thread.sleep(500);
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
-            if (!TextUtils.isEmpty(userInfo.getAvatar())){
-                userInfo.getSmallAvatarBitmapAsync(new DownloadAvatarBitmapCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, Bitmap bmp) {
-                        if (status == 0){
-                            bitmap[0] = bmp;
-                            signal.countDown();
-                        }else {
-                            HandleResponseCode.onHandle(mContext, status, false);
-                        }
-                    }
-                });
-            }
-
-            //设置30s超时
-            try {
-                signal.await(30, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return bitmap[0];
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (isCancelled()) {
-                bitmap = null;
-            }
-
-            final ImageView imageView = imageViewReference.get();
-            if (bitmap != null){
-                final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-                if (this == bitmapWorkerTask && imageView != null){
-                    imageView.setImageBitmap(bitmap);
-                    Log.d(TAG, "Post execute position: " + data);
-                }
-            }else {
-                imageView.setImageResource(R.drawable.head_icon);
-            }
-            super.onPostExecute(bitmap);
-        }
-    }
-
-    public static boolean cancelPotentialWork(int data, ImageView imageView) {
-        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-
-        if (bitmapWorkerTask != null) {
-            final int bitmapData = bitmapWorkerTask.data;
-            // If bitmapData is not yet set or it differs from the new data
-            if (bitmapData == 0 || bitmapData != data) {
-                // Cancel previous task
-                bitmapWorkerTask.cancel(true);
-                Log.d(TAG, "cancel potential work, Position: " + bitmapData);
-            } else {
-                // The same work is already in progress
-                return false;
-            }
-        }
-        // No task associated with the ImageView, or an existing task was cancelled
-        return true;
-    }
-
-    private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-        if (imageView != null) {
-            final Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof AsyncDrawable) {
-                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-                return asyncDrawable.getBitmapWorkerTask();
-            }
-        }
-        return null;
     }
 
     class ItemViewTag {

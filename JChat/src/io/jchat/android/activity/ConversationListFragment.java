@@ -13,11 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
-
-import java.io.File;
-
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
@@ -126,18 +123,16 @@ public class ConversationListFragment extends BaseFragment {
                         //如果设置了头像
                         if (!TextUtils.isEmpty(userInfo.getAvatar())){
                             //如果本地不存在头像
-                            if (userInfo.getSmallAvatarFile() == null){
-                                userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                                    @Override
-                                    public void gotResult(int status, String desc, File file) {
-                                        if (status == 0){
-                                            mConvListController.getAdapter().notifyDataSetChanged();
-                                        }else {
-                                            HandleResponseCode.onHandle(mContext, status, false);
-                                        }
+                            userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                                @Override
+                                public void gotResult(int status, String desc, Bitmap bitmap) {
+                                    if (status == 0) {
+                                        mConvListController.getAdapter().notifyDataSetChanged();
+                                    } else {
+                                        HandleResponseCode.onHandle(mContext, status, false);
                                     }
-                                });
-                            }
+                                }
+                            });
                         }
                     }
                 });

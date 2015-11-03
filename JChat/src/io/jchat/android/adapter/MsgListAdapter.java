@@ -7,17 +7,13 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,18 +35,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import cn.jpush.im.android.api.callback.DownloadAvatarBitmapCallback;
-import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.enums.MessageStatus;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-
 import com.squareup.picasso.Picasso;
-
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -62,9 +54,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.Message;
@@ -75,7 +64,6 @@ import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.MessageDirect;
-
 import io.jchat.android.activity.BrowserViewPagerActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
@@ -150,18 +138,16 @@ public class MsgListAdapter extends BaseAdapter {
         mStart = mOffset;
         UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
         if (!TextUtils.isEmpty(userInfo.getAvatar())){
-            if (userInfo.getSmallAvatarFile() == null){
-                userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, File file) {
-                        if (status == 0){
-                            notifyDataSetChanged();
-                        }else {
-                            HandleResponseCode.onHandle(mContext, status, false);
-                        }
+            userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                @Override
+                public void gotResult(int status, String desc, Bitmap bitmap) {
+                    if (status == 0) {
+                        notifyDataSetChanged();
+                    }else {
+                        HandleResponseCode.onHandle(mContext, status, false);
                     }
-                });
-            }
+                }
+            });
         }
         checkSendingImgMsg();
     }
@@ -597,33 +583,18 @@ public class MsgListAdapter extends BaseAdapter {
         }
         //显示头像
         if (holder.headIcon != null) {
-            Bitmap bitmap;
-            //群聊
-            if (mIsGroup) {
-                //从缓存中拿头像
-                bitmap = userInfo.getSmallAvatarBitmap();
-                if (bitmap != null)
-                    holder.headIcon.setImageBitmap(bitmap);
-                else if (mGroupInfo != null) {
-                    //如果mediaID为空，表明用户没有设置过头像，用默认头像
-                    if (TextUtils.isEmpty(userInfo.getAvatar())) {
-                        holder.headIcon.setImageResource(R.drawable.head_icon);
-                    } else {
-                        Bitmap bmp = BitmapFactory.decodeResource(mContext.getResources(),
-                                R.drawable.head_icon);
-                        loadMemberAvatar(userInfo.getUserName(), bmp, holder.headIcon);
+          if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())){
+                userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, Bitmap bitmap) {
+                        if (status == 0) {
+                            holder.headIcon.setImageBitmap(bitmap);
+                        }else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
                     }
-                }
-                //单聊
-            } else {
-                bitmap = userInfo.getSmallAvatarBitmap();
-                if (bitmap != null){
-                    holder.headIcon.setImageBitmap(bitmap);
-                } else {
-                    holder.headIcon.setImageResource(R.drawable.head_icon);
-                }
+                });
             }
-
 
             // 点击头像跳转到个人信息界面
             holder.headIcon.setOnClickListener(new OnClickListener() {
@@ -1484,132 +1455,6 @@ public class MsgListAdapter extends BaseAdapter {
     public void stopMediaPlayer() {
         if (mp.isPlaying())
             mp.stop();
-    }
-
-    /**
-     * 启动任务加载头像
-     *
-     * @param userName  用户名
-     * @param bitmap    默认头像
-     * @param imageView 要加载头像的ImageView对象
-     */
-    private void loadMemberAvatar(String userName, Bitmap bitmap, ImageView imageView) {
-        if (cancelPotentialWork(userName, imageView)) {
-            final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-            final AsyncDrawable asyncDrawable =
-                    new AsyncDrawable(mContext.getResources(), bitmap, task);
-            imageView.setImageDrawable(asyncDrawable);
-            task.execute(userName);
-        }
-    }
-
-    static class AsyncDrawable extends BitmapDrawable {
-        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
-            super(res, bitmap);
-            bitmapWorkerTaskReference = new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
-        }
-
-        public BitmapWorkerTask getBitmapWorkerTask() {
-            return bitmapWorkerTaskReference.get();
-        }
-    }
-
-    class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
-
-        private final WeakReference<ImageView> imageViewReference;
-        private String userName;
-
-        public BitmapWorkerTask(ImageView imageView) {
-            imageViewReference = new WeakReference<ImageView>(imageView);
-        }
-
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            final Bitmap[] bitmap = new Bitmap[1];
-            userName = params[0];
-            UserInfo userInfo = mGroupInfo.getGroupMemberInfo(userName);
-            //使用一个信号量，当拿到头像后执行countDown
-            final CountDownLatch signal = new CountDownLatch(1);
-            //睡眠0.5s
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
-                userInfo.getSmallAvatarBitmapAsync(new DownloadAvatarBitmapCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, Bitmap bmp) {
-                        if (status == 0) {
-                            bitmap[0] = bmp;
-                            signal.countDown();
-                        } else {
-                            HandleResponseCode.onHandle(mContext, status, false);
-                        }
-                    }
-                });
-            }
-
-            //设置30s超时
-            try {
-                signal.await(30, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return bitmap[0];
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (isCancelled()) {
-                bitmap = null;
-            }
-
-            final ImageView imageView = imageViewReference.get();
-            if (bitmap != null) {
-                final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-                if (this == bitmapWorkerTask && imageView != null) {
-                    imageView.setImageBitmap(bitmap);
-                    Log.d(TAG, "Post execute UserName: " + userName);
-                }
-            }
-            super.onPostExecute(bitmap);
-        }
-    }
-
-    //如果存在使用userName拿头像的任务，则返回false取消创建任务，否则取消前一个任务，
-    //创建本次任务
-    public static boolean cancelPotentialWork(String userName, ImageView imageView) {
-        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-
-        if (bitmapWorkerTask != null) {
-            final String userNameData = bitmapWorkerTask.userName;
-            // If bitmapData is not yet set or it differs from the new data
-            if (userNameData != null && !userNameData.equals(userName)) {
-                // Cancel previous task
-                bitmapWorkerTask.cancel(true);
-                Log.d(TAG, "cancel potential work, UserName: " + userNameData);
-            } else {
-                // The same work is already in progress
-                return false;
-            }
-        }
-        // No task associated with the ImageView, or an existing task was cancelled
-        return true;
-    }
-
-    private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-        if (imageView != null) {
-            final Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof AsyncDrawable) {
-                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-                return asyncDrawable.getBitmapWorkerTask();
-            }
-        }
-        return null;
     }
 
     public static class ViewHolder {

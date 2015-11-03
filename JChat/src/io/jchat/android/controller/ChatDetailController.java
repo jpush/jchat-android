@@ -3,6 +3,7 @@ package io.jchat.android.controller;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -17,15 +18,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
-import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -43,7 +41,8 @@ import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ChatDetailView;
 
-public class ChatDetailController implements OnClickListener, OnItemClickListener, OnItemLongClickListener{
+public class ChatDetailController implements OnClickListener, OnItemClickListener,
+        OnItemLongClickListener{
 
     private static final String TAG = "ChatDetailController";
 
@@ -66,16 +65,14 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private boolean mIsShowDelete = false;
     private static final int ADD_TO_GRIDVIEW = 2048;
     private static final int DELETE_FROM_GRIDVIEW = 2049;
-    private int mAvatarSize;
     private String mGroupName;
     private final MyHandler myHandler = new MyHandler(this);
     private Dialog mDialog;
     private boolean mDeleteMsg;
 
-    public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context, int size) {
+    public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context) {
         this.mChatDetailView = chatDetailView;
         this.mContext = context;
-        this.mAvatarSize = size;
         initData();
     }
 
@@ -129,6 +126,10 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         // 初始化头像
         mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberInfoList, mIsCreator);
         mChatDetailView.setAdapter(mGridAdapter);
+        View itemView = mGridAdapter.getView(0, null, mChatDetailView.getGridView());
+        itemView.measure(0, 0);
+        int height = itemView.getMeasuredHeight();
+        Log.d(TAG, "GridView item height: " + height);
         mChatDetailView.getGridView().setFocusable(false);
     }
 
@@ -359,19 +360,16 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     msg.sendToTarget();
                     //缓存头像
                     if (!TextUtils.isEmpty(userInfo.getAvatar())){
-                        File file = userInfo.getSmallAvatarFile();
-                        if (file == null) {
-                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                                @Override
-                                public void gotResult(int status, String desc, File file) {
-                                    if (status == 0){
-                                        mGridAdapter.notifyDataSetChanged();
-                                    }else {
-                                        HandleResponseCode.onHandle(mContext, status, false);
-                                    }
+                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, Bitmap bitmap) {
+                                if (status == 0) {
+                                    mGridAdapter.notifyDataSetChanged();
+                                }else {
+                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                     dialog.cancel();
                 } else {

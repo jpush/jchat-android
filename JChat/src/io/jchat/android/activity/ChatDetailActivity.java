@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
@@ -22,12 +23,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.File;
 import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.enums.ContentType;
@@ -65,8 +63,8 @@ public class ChatDetailActivity extends BaseActivity {
         setContentView(R.layout.activity_chat_detail);
         mContext = this;
         mChatDetailView = (ChatDetailView) findViewById(R.id.chat_detail_view);
-        mChatDetailView.initModule(mHeight);
-        mChatDetailController = new ChatDetailController(mChatDetailView, this, mAvatarSize);
+        mChatDetailView.initModule();
+        mChatDetailController = new ChatDetailController(mChatDetailView, this);
         mChatDetailView.setListeners(mChatDetailController);
         mChatDetailView.setItemListener(mChatDetailController);
         mChatDetailView.setLongClickListener(mChatDetailController);
@@ -307,19 +305,17 @@ public class ChatDetailActivity extends BaseActivity {
                             public void gotResult(int status, String desc, UserInfo userInfo) {
                                 if (status == 0) {
                                     if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-                                        if (userInfo.getSmallAvatarFile() == null) {
-                                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                                                @Override
-                                                public void gotResult(int status, String desc, File file) {
-                                                    if (status == 0) {
-                                                        Log.d(TAG, "add group member, get avatar success");
-                                                        mChatDetailController.getAdapter().notifyDataSetChanged();
-                                                    } else {
-                                                        HandleResponseCode.onHandle(mContext, status, false);
-                                                    }
+                                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                                            @Override
+                                            public void gotResult(int status, String desc, Bitmap bitmap) {
+                                                if (status == 0) {
+                                                    Log.d(TAG, "add group member, get avatar success");
+                                                    mChatDetailController.getAdapter().notifyDataSetChanged();
+                                                } else {
+                                                    HandleResponseCode.onHandle(mContext, status, false);
                                                 }
-                                            });
-                                        }
+                                            }
+                                        });
                                     }
                                 } else {
                                     HandleResponseCode.onHandle(mContext, status, false);

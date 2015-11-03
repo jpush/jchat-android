@@ -26,6 +26,9 @@ public class HandleResponseCode {
             case 1000:
                 content.setText(context.getString(R.string.record_voice_permission_denied));
                 break;
+            case 1001:
+                content.setText(context.getString(R.string.local_picture_not_found_toast));
+                break;
             case 800002:
                 content.setText(context.getString(R.string.server_800002));
                 break;

@@ -110,13 +110,15 @@ public class BrowserViewPagerActivity extends BaseActivity {
         mPictureSelectedCb = (CheckBox) findViewById(R.id.picture_selected_cb);
         mLoadBtn = (Button) findViewById(R.id.load_image_btn);
 
-        Intent intent = this.getIntent();
+        final Intent intent = this.getIntent();
         mGroupId = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
         if (mGroupId != 0){
             mConv = JMessageClient.getGroupConversation(mGroupId);
         }else {
             mTargetId = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
-            mConv = JMessageClient.getSingleConversation(mTargetId);
+            if (mTargetId != null){
+                mConv = JMessageClient.getSingleConversation(mTargetId);
+            }
         }
         mStart = intent.getIntExtra("msgCount", 0);
         mPosition = intent.getIntExtra(JPushDemoApplication.POSITION, 0);
@@ -188,13 +190,15 @@ public class BrowserViewPagerActivity extends BaseActivity {
             //预览头像
             if (browserAvatar) {
                 mPathList.add(intent.getStringExtra("avatarPath"));
-                photoView = new PhotoView(mFromChatActivity, this);
+                photoView = new PhotoView(mFromChatActivity, mContext);
                 mLoadBtn.setVisibility(View.GONE);
                 try {
-//                    photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(mPathList.get(0), mWidth, mHeight));
                     Picasso.with(mContext).load(new File(mPathList.get(0))).into(photoView);
                 } catch (Exception e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
+                    if (mPathList.get(0) == null){
+                        HandleResponseCode.onHandle(mContext, 1001, false);
+                    }
                 }
             //预览聊天界面中的图片
             } else {
@@ -685,7 +689,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                                     msg.setData(bundle);
                                     msg.sendToTarget();
                                 } else {
-                                    if (mProgressDialog != null){
+                                    if (mProgressDialog != null) {
                                         mProgressDialog.dismiss();
                                     }
                                     HandleResponseCode.onHandle(mContext, status, false);

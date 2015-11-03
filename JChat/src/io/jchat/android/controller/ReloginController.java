@@ -7,9 +7,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-
 import io.jchat.android.R;
-
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.activity.ReloginActivity;
 import io.jchat.android.tools.HandleResponseCode;
@@ -29,6 +27,8 @@ public class ReloginController implements ReloginView.Listener, OnClickListener 
         this.mContext = context;
         this.mUserName = userName;
     }
+
+
 
     @Override
     public void onClick(View v) {
