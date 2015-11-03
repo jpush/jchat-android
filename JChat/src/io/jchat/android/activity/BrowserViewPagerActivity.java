@@ -36,7 +36,6 @@ import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.enums.ContentType;
-import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import io.jchat.android.R;
@@ -163,8 +162,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
             }
 
             @Override
-            public void destroyItem(ViewGroup container, int position,
-                                    Object object) {
+            public void destroyItem(ViewGroup container, int position, Object object) {
                 container.removeView((View) object);
             }
 
@@ -319,7 +317,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 pathList.add(mPathList.get(mSelectMap.keyAt(i)));
             }
             String totalSize = BitmapLoader.getPictureSize(pathList);
-            String totalText = mContext.getString(R.string.origin_picture) + "(" + totalSize + ")";
+            String totalText = mContext.getString(R.string.origin_picture)
+                    + String.format(mContext.getString(R.string.combine_title), totalSize);
             mTotalSizeTv.setText(totalText);
         } else mTotalSizeTv.setText(mContext.getString(R.string.origin_picture));
     }
@@ -389,19 +388,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         if (msg.getContentType().equals(ContentType.image)){
                             mMsgIdList.add(0, msg.getId());
                             ic = (ImageContent) msg.getContent();
-                            if (msg.getDirect().equals(MessageDirect.send)){
-                                if (TextUtils.isEmpty(ic.getStringExtra("localPath"))){
-                                    if (!TextUtils.isEmpty(ic.getLocalPath())){
-                                        mPathList.add(0, ic.getLocalPath());
-                                    }else {
-                                        mPathList.add(0, ic.getLocalThumbnailPath());
-                                    }
-                                }else {
-                                    mPathList.add(0, ic.getStringExtra("localPath"));
-                                }
-                            }else if (ic.getLocalPath() != null) {
+                            if (!TextUtils.isEmpty(ic.getLocalPath())) {
                                 mPathList.add(0, ic.getLocalPath());
-                            } else mPathList.add(0, ic.getLocalThumbnailPath());
+                            }else {
+                                mPathList.add(0, ic.getLocalThumbnailPath());
+                            }
                         }
                     }
                     mStart += mOffset;
@@ -587,7 +578,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
                             myHandler.sendEmptyMessage(SEND_PICTURE);
                         }
                     } else {
-                        Log.d("BVPActivity", "create image content failed! status:" + status);
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }

@@ -36,6 +36,7 @@ public class FriendInfoActivity extends BaseActivity {
     private final MyHandler myHandler = new MyHandler(this);
     private String mNickname;
     private final static int GET_INFO_SUCCEED = 1;
+    private final static int GET_AVATAR_SUCCEED = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,10 +79,7 @@ public class FriendInfoActivity extends BaseActivity {
                             @Override
                             public void gotResult(int status, String desc, Bitmap bitmap) {
                                 if (status == 0) {
-                                    android.os.Message msg = myHandler.obtainMessage();
-                                    msg.what = GET_INFO_SUCCEED;
-                                    msg.obj = userInfo;
-                                    msg.sendToTarget();
+                                    mFriendInfoView.setFriendAvatar(bitmap);
                                 } else {
                                     HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
                                 }

@@ -13,20 +13,14 @@ import android.widget.LinearLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import io.jchat.android.R;
 import io.jchat.android.entity.UserLetterBean;
 import io.jchat.android.view.CircleImageView;
 
-/**
- * Created by jpush on 2015/10/9.
- */
 public class StickyListAdapter extends BaseAdapter implements StickyListHeadersAdapter, SectionIndexer{
 
     private Context mContext;
@@ -98,13 +92,13 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         //根据position获取分类的首字母的Char ascii值
         int section = getSectionForPosition(position);
         holder.text.setText(model.getLetter());
-//        //如果当前位置等于该分类首字母的Char的位置 ，则认为是第一次出现
-//        if (position == getPositionForSection(section)){
-//            holder.text.setText(model.getSortLetters());
-//        }
+        //如果当前位置等于该分类首字母的Char的位置 ，则认为是第一次出现
+        if (position == getPositionForSection(section)){
+            holder.text.setText(model.getLetter());
+        }
 
-        // set header text as first char in name
-//        CharSequence headerChar = mCountries[position].subSequence(0, 1);
+//         set header text as first char in name
+//        CharSequence headerChar = model.getNickname().subSequence(0, 1);
 //        holder.text.setText(headerChar);
 
         return convertView;
