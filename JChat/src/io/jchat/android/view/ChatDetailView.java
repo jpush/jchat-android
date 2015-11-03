@@ -11,9 +11,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-
 import io.jchat.android.R;
 import io.jchat.android.adapter.GroupMemberGridAdapter;
 
@@ -34,7 +32,6 @@ public class ChatDetailView extends LinearLayout{
 	private GroupGridView mGridView;
     private Context mContext;
 	private View mDividingLine;
-	private ScrollView mScrollView;
 
 	public ChatDetailView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -42,7 +39,7 @@ public class ChatDetailView extends LinearLayout{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void initModule(int height){
+	public void initModule(){
 		mGroupNameLL = (LinearLayout) findViewById(R.id.group_name_ll);
 		mMyNameLL = (LinearLayout) findViewById(R.id.group_my_name_ll);
 		mGroupNumLL = (LinearLayout) findViewById(R.id.group_num_ll);
@@ -57,7 +54,6 @@ public class ChatDetailView extends LinearLayout{
 		mDividingLine = findViewById(R.id.group_num_dividing_line);
 		mMyName = (TextView) findViewById(R.id.chat_detail_my_name);
 		mGridView = (GroupGridView) findViewById(R.id.chat_detail_group_gv);
-		mScrollView = (ScrollView) findViewById(R.id.chat_detail_sv);
 
 		mTitle.setText(mContext.getString(R.string.chat_detail_title));
 		mMenuBtn.setVisibility(View.GONE);
@@ -83,10 +79,6 @@ public class ChatDetailView extends LinearLayout{
 		mGridView.setOnItemLongClickListener(listener);
 	}
 
-	public void setChatDetailInfo(String[] detailInfo){
-//		mGroupName.setText(detailInfo[0]);
-	}
-
 	public void setAdapter(GroupMemberGridAdapter adapter){
 		mGridView.setAdapter(adapter);
 	}
@@ -109,12 +101,6 @@ public class ChatDetailView extends LinearLayout{
 
     public void updateGroupName(String newName) {
         mGroupName.setText(newName);
-    }
-
-    public void refreshGroupName(String groupName) {
-        if(groupName != null){
-            mGroupName.setText(groupName);
-        }
     }
 
 	public void setTitle(int size) {

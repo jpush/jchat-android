@@ -422,11 +422,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
         mChatAdapter.releaseMediaPlayer();
     }
 
-    public void refreshGroupInfo(GroupInfo groupInfo) {
-        mGroupInfo = groupInfo;
-        mChatAdapter.refreshGroupInfo(groupInfo);
-    }
-
     public void resetUnreadMsg() {
         if (mConv != null){
             mConv.resetUnreadCount();

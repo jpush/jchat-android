@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,12 +14,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import java.io.File;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
-import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -144,21 +142,16 @@ public class MenuItemController implements View.OnClickListener {
                 if (status == 0) {
                     Conversation conv = Conversation.createSingleConversation(targetId);
                     if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-                        File file = userInfo.getSmallAvatarFile();
-                        if (file != null && file.isFile()){
-                            mController.getAdapter().notifyDataSetChanged();
-                        }else {
-                            userInfo.getSmallAvatarAsync(new DownloadAvatarCallback() {
-                                @Override
-                                public void gotResult(int status, String desc, File file) {
-                                    if (status == 0){
-                                        mController.getAdapter().notifyDataSetChanged();
-                                    }else {
-                                        HandleResponseCode.onHandle(mContext.getActivity(), status, false);
-                                    }
+                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, Bitmap bitmap) {
+                                if (status == 0) {
+                                    mController.getAdapter().notifyDataSetChanged();
+                                } else {
+                                    HandleResponseCode.onHandle(mContext.getActivity(), status, false);
                                 }
-                            });
-                        }
+                            }
+                        });
                         mController.getAdapter().setToTop(conv);
                     } else {
                         mController.refreshConvList(conv);

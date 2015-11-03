@@ -33,9 +33,9 @@ public class MainController implements OnClickListener, OnPageChangeListener {
     private MainView mMainView;
     private MainActivity mContext;
     private ProgressDialog mDialog;
-    // 裁剪后图片的宽(X)和高(Y), 480 X 480的正方形。
-    private static int OUTPUT_X = 480;
-    private static int OUTPUT_Y = 480;
+    // 裁剪后图片的宽(X)和高(Y), 720 X 720的正方形。
+    private static int OUTPUT_X = 720;
+    private static int OUTPUT_Y = 720;
 
     public MainController(MainView mMainView, MainActivity context) {
         this.mMainView = mMainView;

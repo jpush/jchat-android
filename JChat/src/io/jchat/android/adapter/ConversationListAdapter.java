@@ -2,16 +2,16 @@ package io.jchat.android.adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
 import java.util.Collections;
 import java.util.List;
-
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -19,6 +19,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
+import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.tools.TimeFormat;
 import io.jchat.android.view.CircleImageView;
@@ -161,10 +162,18 @@ public class ConversationListAdapter extends BaseAdapter {
         if (convItem.getType().equals(ConversationType.single)) {
             viewHolder.convName.setText(convItem.getTitle());
             UserInfo userInfo = (UserInfo) convItem.getTargetInfo();
-            Bitmap bitmap = userInfo.getSmallAvatarBitmap();
-            if (bitmap != null)
-                viewHolder.headIcon.setImageBitmap(bitmap);
-            else viewHolder.headIcon.setImageResource(R.drawable.head_icon);
+            if (!TextUtils.isEmpty(userInfo.getAvatar())){
+                userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, Bitmap bitmap) {
+                        if (status == 0) {
+                            viewHolder.headIcon.setImageBitmap(bitmap);
+                        }else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
+                    }
+                });
+            }
         }
         // 群聊
         else {

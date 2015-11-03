@@ -80,6 +80,23 @@ public class MeView extends LinearLayout {
     }
 
 
+    public void showPhoto(final Bitmap bitmap) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (bitmap != null){
+                    Bitmap bmp = BitmapLoader.doBlur(bitmap, false);
+                    android.os.Message msg = myHandler.obtainMessage();
+                    msg.obj = bmp;
+                    msg.sendToTarget();
+                }
+            }
+        });
+        thread.start();
+        mTakePhotoBtn.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        mTakePhotoBtn.setImageBitmap(bitmap);
+    }
+
     public void showPhoto(final String path) {
         Log.i("MeView", "updated path:  " + path);
         final Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
