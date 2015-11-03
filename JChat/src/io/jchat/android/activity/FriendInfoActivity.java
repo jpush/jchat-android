@@ -4,12 +4,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.text.TextUtils;
-
-import java.lang.ref.WeakReference;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
@@ -33,10 +27,7 @@ public class FriendInfoActivity extends BaseActivity {
     private String mTargetID;
     private long mGroupID;
     private UserInfo mUserInfo;
-    private final MyHandler myHandler = new MyHandler(this);
     private String mNickname;
-    private final static int GET_INFO_SUCCEED = 1;
-    private final static int GET_AVATAR_SUCCEED = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,23 +60,8 @@ public class FriendInfoActivity extends BaseActivity {
             public void gotResult(int status, String desc, final UserInfo userInfo) {
                 dialog.dismiss();
                 if (status == 0) {
-                    if (TextUtils.isEmpty(userInfo.getAvatar())){
-                        android.os.Message msg = myHandler.obtainMessage();
-                        msg.what = GET_INFO_SUCCEED;
-                        msg.obj = userInfo;
-                        msg.sendToTarget();
-                    }else {
-                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                            @Override
-                            public void gotResult(int status, String desc, Bitmap bitmap) {
-                                if (status == 0) {
-                                    mFriendInfoView.setFriendAvatar(bitmap);
-                                } else {
-                                    HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
-                                }
-                            }
-                        });
-                    }
+                    mNickname = userInfo.getNickname();
+                    mFriendInfoView.initInfo(userInfo);
                 } else {
                     HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
                 }
@@ -108,6 +84,7 @@ public class FriendInfoActivity extends BaseActivity {
         } else {
             Intent intent = new Intent();
             intent.putExtra("returnChatActivity", true);
+            intent.putExtra(JPushDemoApplication.NICKNAME, mNickname);
             setResult(JPushDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
         }
         Conversation conv = JMessageClient.getSingleConversation(mTargetID);
@@ -117,29 +94,6 @@ public class FriendInfoActivity extends BaseActivity {
             EventBus.getDefault().post(new Event.StringEvent(mTargetID));
         }
         finish();
-    }
-
-    private static class MyHandler extends Handler {
-        private final WeakReference<FriendInfoActivity> mActivity;
-
-        public MyHandler(FriendInfoActivity activity) {
-            mActivity = new WeakReference<FriendInfoActivity>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            FriendInfoActivity activity = mActivity.get();
-            if (activity != null) {
-                switch (msg.what) {
-                    case GET_INFO_SUCCEED:
-                        activity.mUserInfo = (UserInfo) msg.obj;
-                        activity.mFriendInfoView.initInfo(activity.mUserInfo);
-                        activity.mNickname = activity.mUserInfo.getNickname();
-                        break;
-                }
-            }
-        }
     }
 
     public String getNickname() {
