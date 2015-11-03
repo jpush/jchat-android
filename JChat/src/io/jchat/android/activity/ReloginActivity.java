@@ -3,11 +3,7 @@ package io.jchat.android.activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-
-
 import io.jchat.android.R;
-
 import io.jchat.android.controller.ReloginController;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.SharePreferenceManager;
@@ -32,28 +28,19 @@ public class ReloginActivity extends BaseActivity {
     }
 
     private void fillContent() {
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        float mDensity = dm.density;
         String userName = getIntent().getStringExtra("userName");
-        String userAvatarPath = getIntent().getStringExtra("userAvatar");
-        if (null != userAvatarPath) {
-            Bitmap bm = NativeImageLoader.getInstance().loadNativeImage(userAvatarPath, (int) (80 * mDensity), new NativeImageLoader.NativeImageCallBack() {
-
-                @Override
-                public void onImageLoader(Bitmap bitmap, String path) {
-                    if (bitmap != null) {
-                        mReloginView.setmUserAvatarIv(bitmap);
-                    }
+        String userAvatarPath = getIntent().getStringExtra("avatarFilePath");
+        NativeImageLoader.getInstance().loadNativeImage(userAvatarPath, (int) (80 * mDensity),
+                new NativeImageLoader.NativeImageCallBack() {
+            @Override
+            public void onImageLoader(Bitmap bitmap, String path) {
+                if (bitmap != null) {
+                    mReloginView.showAvatar(bitmap);
                 }
-            });
-            if (null != bm) {
-                mReloginView.setmUserAvatarIv(bm);
             }
-        }
+        });
         mReloginView.setUserName(userName);
         mReloginController = new ReloginController(mReloginView, this, userName);
-
         SharePreferenceManager.setCachedUsername(userName);
         SharePreferenceManager.setCachedAvatarPath(userAvatarPath);
     }

@@ -196,6 +196,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     Picasso.with(mContext).load(new File(mPathList.get(0))).into(photoView);
                 } catch (Exception e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
+                    if (mPathList.get(0) == null){
+                        HandleResponseCode.onHandle(mContext, 1001, false);
+                    }
                 }
             //预览聊天界面中的图片
             } else {

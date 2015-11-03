@@ -16,10 +16,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import java.io.File;
-
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -95,11 +94,29 @@ public class MeFragment extends BaseFragment {
     //退出登录
     public void Logout() {
         // TODO Auto-generated method stub
-        Intent intent = new Intent();
+        final Intent intent = new Intent();
         UserInfo info = JMessageClient.getMyInfo();
         if (null != info) {
             intent.putExtra("userName", info.getUserName());
             Log.i("MeFragment", "userName " + info.getUserName());
+            File file = info.getAvatarFile();
+            if (file != null && file.isFile()) {
+                intent.putExtra("avatarFilePath", file.getAbsolutePath());
+            }else {
+                final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
+                dialog.show();
+                info.getAvatarFileAsync(new DownloadAvatarCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, File file) {
+                        dialog.dismiss();
+                        if (status == 0) {
+                            intent.putExtra("avatarFilePath", file.getAbsolutePath());
+                        }else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
+                    }
+                });
+            }
             JMessageClient.logout();
             intent.setClass(this.getActivity(), ReloginActivity.class);
             startActivity(intent);

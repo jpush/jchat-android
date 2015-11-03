@@ -68,7 +68,7 @@ public class MainActivity extends FragmentActivity{
             Intent intent = new Intent();
             if (null != SharePreferenceManager.getCachedUsername()) {
                 intent.putExtra("userName", SharePreferenceManager.getCachedUsername());
-                intent.putExtra("userAvatar", SharePreferenceManager.getCachedAvatarPath());
+                intent.putExtra("avatarFilePath", SharePreferenceManager.getCachedAvatarPath());
                 intent.setClass(this, ReloginActivity.class);
             } else {
                 intent.setClass(this, LoginActivity.class);
