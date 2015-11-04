@@ -48,7 +48,7 @@ public class FriendInfoView extends LinearLayout {
     }
 
     public void initInfo(UserInfo userInfo) {
-        if (userInfo != null) {
+        if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
             userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
                 @Override
                 public void gotResult(int status, String desc, Bitmap bitmap) {

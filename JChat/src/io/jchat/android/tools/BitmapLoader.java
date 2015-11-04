@@ -63,7 +63,7 @@ public class BitmapLoader {
             imgFile = new File(desDir.getAbsoluteFile() + "/" + "croppedAvatar" + ".jpg");
             imgFile.createNewFile();
             fileOutput = new FileOutputStream(imgFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fileOutput);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutput);
             fileOutput.flush();
             filePath = imgFile.getAbsolutePath();
         } catch (FileNotFoundException e) {
