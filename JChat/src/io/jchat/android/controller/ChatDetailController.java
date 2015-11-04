@@ -126,10 +126,6 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         // 初始化头像
         mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberInfoList, mIsCreator);
         mChatDetailView.setAdapter(mGridAdapter);
-        View itemView = mGridAdapter.getView(0, null, mChatDetailView.getGridView());
-        itemView.measure(0, 0);
-        int height = itemView.getMeasuredHeight();
-        Log.d(TAG, "GridView item height: " + height);
         mChatDetailView.getGridView().setFocusable(false);
     }
 
