@@ -17,12 +17,10 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Locale;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.content.CustomContent;
@@ -68,7 +66,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
         this.mImm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         // 得到消息列表
         initData();
-
     }
 
     private void initData() {
@@ -388,12 +385,11 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
 
     private void takePhoto() {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            String dir = "sdcard/JPushDemo/pictures/";
-            File destDir = new File(dir);
+            File destDir = new File(JPushDemoApplication.PICTURE_DIR);
             if (!destDir.exists()) {
                 destDir.mkdirs();
             }
-            File file = new File(dir, new DateFormat().format("yyyy_MMdd_hhmmss",
+            File file = new File(JPushDemoApplication.PICTURE_DIR, new DateFormat().format("yyyy_MMdd_hhmmss",
                     Calendar.getInstance(Locale.CHINA)) + ".jpg");
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));

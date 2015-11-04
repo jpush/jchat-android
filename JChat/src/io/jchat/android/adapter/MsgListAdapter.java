@@ -15,9 +15,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -48,7 +46,6 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -89,7 +86,6 @@ public class MsgListAdapter extends BaseAdapter {
     private boolean mIsGroup = false;
     private long mGroupId;
     private int mPosition = -1;// 和mSetData一起组成判断播放哪条录音的依据
-    private static final int UPDATE_IMAGEVIEW = 1999;
     // 9种Item的类型
     // 文本
     private final int TYPE_RECEIVE_TXT = 0;
@@ -112,7 +108,6 @@ public class MsgListAdapter extends BaseAdapter {
     private FileInputStream mFIS;
     private FileDescriptor mFD;
     private Activity mActivity;
-    private final MyHandler myHandler = new MyHandler(this);
     private boolean autoPlay = false;
     private int nextPlayPosition = 0;
     private boolean mIsEarPhoneOn;
@@ -406,41 +401,10 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    public void refreshGroupInfo(GroupInfo groupInfo) {
-        mGroupInfo = groupInfo;
-        notifyDataSetChanged();
-    }
-
     public void clearMsgList() {
         mMsgList.clear();
         mStart = 0;
         notifyDataSetChanged();
-    }
-
-    private static class MyHandler extends Handler {
-        private final WeakReference<MsgListAdapter> mAdapter;
-
-        public MyHandler(MsgListAdapter adapter) {
-            mAdapter = new WeakReference<MsgListAdapter>(adapter);
-        }
-
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            super.handleMessage(msg);
-            MsgListAdapter adapter = mAdapter.get();
-            if (adapter != null) {
-                switch (msg.what) {
-                    case UPDATE_IMAGEVIEW:
-                        Bundle bundle = msg.getData();
-                        ViewHolder holder = (ViewHolder) msg.obj;
-                        String path = bundle.getString("path");
-                        Picasso.with(adapter.mContext).load(new File(path)).into(holder.picture);
-                        adapter.notifyDataSetChanged();
-                        Log.i(TAG, "Refresh Received picture");
-                        break;
-                }
-            }
-        }
     }
 
     @Override
@@ -590,11 +554,14 @@ public class MsgListAdapter extends BaseAdapter {
                         if (status == 0) {
                             holder.headIcon.setImageBitmap(bitmap);
                         }else {
+                            holder.headIcon.setImageResource(R.drawable.head_icon);
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });
-            }
+            }else {
+              holder.headIcon.setImageResource(R.drawable.head_icon);
+          }
 
             // 点击头像跳转到个人信息界面
             holder.headIcon.setOnClickListener(new OnClickListener() {
@@ -635,8 +602,7 @@ public class MsgListAdapter extends BaseAdapter {
                                     if (Build.VERSION.SDK_INT > 11) {
                                         ClipboardManager clipboard = (ClipboardManager) mContext
                                                 .getSystemService(mContext.CLIPBOARD_SERVICE);
-                                        ClipData clip = ClipData.newPlainText(
-                                                "Simple text", content);
+                                        ClipData clip = ClipData.newPlainText("Simple text", content);
                                         clipboard.setPrimaryClip(clip);
                                     } else {
                                         ClipboardManager clipboard = (ClipboardManager) mContext
@@ -821,25 +787,17 @@ public class MsgListAdapter extends BaseAdapter {
         if (msg.getDirect().equals(MessageDirect.receive)) {
             if (path == null) {
                 //从服务器上拿缩略图
-                imgContent.downloadThumbnailImage(msg,
-                        new DownloadCompletionCallback() {
-                            @Override
-                            public void onComplete(int status, String desc, File file) {
-                                if (status == 0) {
-                                    android.os.Message handleMsg = myHandler.obtainMessage();
-                                    handleMsg.what = UPDATE_IMAGEVIEW;
-                                    handleMsg.obj = holder;
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("path", file.getAbsolutePath());
-                                    handleMsg.setData(bundle);
-                                    handleMsg.sendToTarget();
-                                }
-                            }
-                        });
+                imgContent.downloadThumbnailImage(msg, new DownloadCompletionCallback() {
+                    @Override
+                    public void onComplete(int status, String desc, File file) {
+                        if (status == 0) {
+                            Picasso.with(mContext).load(file).into(holder.picture);
+                        }
+                    }
+                });
             } else {
                 setPictureScale(path, holder.picture);
-                Picasso.with(mContext).load(new File(path))
-                        .into(holder.picture);
+                Picasso.with(mContext).load(new File(path)).into(holder.picture);
             }
             //群聊中显示昵称
             if (mIsGroup) {

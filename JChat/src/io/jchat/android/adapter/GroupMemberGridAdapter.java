@@ -130,10 +130,13 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                             if (status == 0) {
                                 viewTag.icon.setImageBitmap(bitmap);
                             }else {
+                                viewTag.icon.setImageResource(R.drawable.head_icon);
                                 HandleResponseCode.onHandle(mContext, status, false);
                             }
                         }
                     });
+                }else {
+                    viewTag.icon.setImageResource(R.drawable.head_icon);
                 }
 
                 if (TextUtils.isEmpty(userInfo.getNickname())) {
