@@ -61,10 +61,10 @@ public class BitmapLoader {
             if (!desDir.exists()) {
                 desDir.mkdirs();
             }
-            imgFile = new File(desDir.getAbsoluteFile() + "/" + "croppedAvatar" + ".jpg");
+            imgFile = new File(desDir.getAbsoluteFile() + "/" + "croppedAvatar" + ".png");
             imgFile.createNewFile();
             fileOutput = new FileOutputStream(imgFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutput);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutput);
             fileOutput.flush();
             filePath = imgFile.getAbsolutePath();
         } catch (FileNotFoundException e) {

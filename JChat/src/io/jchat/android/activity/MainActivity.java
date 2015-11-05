@@ -8,16 +8,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
@@ -112,13 +116,14 @@ public class MainActivity extends FragmentActivity{
             if (data != null) {
                 Uri selectedImg = data.getData();
                 if (selectedImg != null) {
+                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
                     Cursor cursor = this.getContentResolver().query(
-                            selectedImg, null, null, null, null);
+                            selectedImg, filePathColumn, null, null, null);
                     if (null == cursor || !cursor.moveToFirst()) {
                         Toast.makeText(this, this.getString(R.string.picture_not_found), Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    int columnIndex = cursor.getColumnIndex("_data");
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String path = cursor.getString(columnIndex);
                     if (path != null) {
                         File file = new File(path);
@@ -140,6 +145,12 @@ public class MainActivity extends FragmentActivity{
         }else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE){
             Bitmap bitmap = decodeUriAsBitmap(mUri);
             String path = BitmapLoader.saveBitmapToLocal(bitmap, this);
+            File file = new File(mUri.getPath());
+            if (file.isFile()) {
+                if (file.delete()) {
+                    Log.d("MainActivity", "delete temp file success!");
+                }
+            }
             Log.d("MainActivity", "After compress Path: " + path);
             mMainController.uploadUserAvatar(path);
         }else if (resultCode == JPushDemoApplication.RESULT_CODE_ME_INFO){
@@ -155,55 +166,59 @@ public class MainActivity extends FragmentActivity{
      * @param file 要复制的文件
      */
     private void copyAndCrop(final File file) {
-        final Dialog dialog = DialogCreator.createLoadingDialog(MainActivity.this,
-                MainActivity.this.getString(R.string.loading));
-        dialog.show();
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    FileInputStream fis = new FileInputStream(file);
-                    File rootDir = MainActivity.this.getFilesDir();
-                    String fileDir = rootDir.getAbsolutePath() + "/pictures";
-                    File destDir = new File(fileDir);
-                    if (!destDir.exists()) {
-                        destDir.mkdirs();
-                    }
-                    final File tempFile = new File(fileDir,
-                            JMessageClient.getMyInfo().getUserName() + ".jpg");
-                    FileOutputStream fos = new FileOutputStream(tempFile);
-                    byte[] bt = new byte[1024];
-                    int c;
-                    while((c = fis.read(bt)) > 0){
-                        fos.write(bt,0,c);
-                    }
-                    //关闭输入、输出流
-                    fis.close();
-                    fos.close();
+        boolean sdCardExist = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+        if (sdCardExist) {
+            final Dialog dialog = DialogCreator.createLoadingDialog(MainActivity.this,
+                    MainActivity.this.getString(R.string.loading));
+            dialog.show();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        FileInputStream fis = new FileInputStream(file);
+                        File destDir = new File(JPushDemoApplication.PICTURE_DIR);
+                        if (!destDir.exists()) {
+                            destDir.mkdirs();
+                        }
+                        final File tempFile = new File(JPushDemoApplication.PICTURE_DIR,
+                                JMessageClient.getMyInfo().getUserName() + ".png");
+                        FileOutputStream fos = new FileOutputStream(tempFile);
+                        byte[] bt = new byte[1024];
+                        int c;
+                        while((c = fis.read(bt)) > 0){
+                            fos.write(bt,0,c);
+                        }
+                        //关闭输入、输出流
+                        fis.close();
+                        fos.close();
 
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.dismiss();
-                            mUri = Uri.fromFile(tempFile);
-                            mMainController.cropRawPhoto(mUri);
-                        }
-                    });
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }finally {
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.dismiss();
-                        }
-                    });
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.dismiss();
+                                mUri = Uri.fromFile(tempFile);
+                                mMainController.cropRawPhoto(mUri);
+                            }
+                        });
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }finally {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.dismiss();
+                            }
+                        });
+                    }
                 }
-            }
-        });
-        thread.start();
+            });
+            thread.start();
+        }else {
+            Log.d("MainActivity", "No sdcard!");
+            Toast.makeText(this, this.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private Bitmap decodeUriAsBitmap(Uri uri){

@@ -169,7 +169,7 @@ public class FixProfileActivity extends BaseActivity {
                 destDir.mkdirs();
             }
             File file = new File(JPushDemoApplication.PICTURE_DIR,
-                    JMessageClient.getMyInfo().getUserName() + ".jpg");
+                    JMessageClient.getMyInfo().getUserName() + ".png");
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             mPath = file.getAbsolutePath();
@@ -281,7 +281,7 @@ public class FixProfileActivity extends BaseActivity {
                         destDir.mkdirs();
                     }
                     final File tempFile = new File(fileDir,
-                            JMessageClient.getMyInfo().getUserName() + ".jpg");
+                            JMessageClient.getMyInfo().getUserName() + ".png");
                     FileOutputStream fos = new FileOutputStream(tempFile);
                     byte[] bt = new byte[1024];
                     int c;

@@ -48,17 +48,19 @@ public class FriendInfoView extends LinearLayout {
     }
 
     public void initInfo(UserInfo userInfo) {
-        if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
-            userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                @Override
-                public void gotResult(int status, String desc, Bitmap bitmap) {
-                    if (status == 0) {
-                        mAvatarIv.setImageBitmap(bitmap);
-                    }else {
-                        HandleResponseCode.onHandle(mContext, status, false);
+        if (userInfo != null) {
+            if (!TextUtils.isEmpty(userInfo.getAvatar())) {
+                userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, Bitmap bitmap) {
+                        if (status == 0) {
+                            mAvatarIv.setImageBitmap(bitmap);
+                        }else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
                     }
-                }
-            });
+                });
+            }
             if (TextUtils.isEmpty(userInfo.getNickname())) {
                 mNickNameTv.setText(userInfo.getUserName());
             } else {

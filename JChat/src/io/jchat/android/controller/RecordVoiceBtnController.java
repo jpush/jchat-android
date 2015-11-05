@@ -8,7 +8,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -22,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -237,7 +237,14 @@ public class RecordVoiceBtnController extends Button {
             myRecAudioFile.delete();
         } else {
             if (myRecAudioFile != null && myRecAudioFile.exists()) {
-                MediaPlayer mp = MediaPlayer.create(mContext, Uri.parse(myRecAudioFile.getAbsolutePath()));
+                MediaPlayer mp = new MediaPlayer();
+                try {
+                    FileInputStream fis = new FileInputStream(myRecAudioFile);
+                    mp.setDataSource(fis.getFD());
+                    mp.prepare();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 //某些手机会限制录音，如果用户拒接使用录音，则需判断mp是否存在
                 if (mp != null) {
                     int duration = mp.getDuration() / 1000;//即为时长 是s
