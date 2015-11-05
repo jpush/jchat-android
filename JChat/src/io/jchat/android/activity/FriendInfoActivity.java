@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.TextUtils;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
@@ -60,6 +61,7 @@ public class FriendInfoActivity extends BaseActivity {
             public void gotResult(int status, String desc, final UserInfo userInfo) {
                 dialog.dismiss();
                 if (status == 0) {
+                    mUserInfo = userInfo;
                     mNickname = userInfo.getNickname();
                     mFriendInfoView.initInfo(userInfo);
                 } else {
@@ -103,24 +105,26 @@ public class FriendInfoActivity extends BaseActivity {
 
     //点击头像预览大图，若此时UserInfo还是空，则再取一次
     public void startBrowserAvatar() {
-        final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.loading));
-        dialog.show();
-        mUserInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
-            @Override
-            public void gotResult(int status, String desc, Bitmap bitmap) {
-                if (status == 0) {
-                    String path = BitmapLoader.saveBitmapToLocal(bitmap);
-                    Intent intent = new Intent();
-                    intent.putExtra("browserAvatar", true);
-                    intent.putExtra("avatarPath", path);
-                    intent.setClass(FriendInfoActivity.this, BrowserViewPagerActivity.class);
-                    startActivity(intent);
-                }else {
-                    HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
+        if (mUserInfo != null && !TextUtils.isEmpty(mUserInfo.getAvatar())) {
+            final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.loading));
+            dialog.show();
+            mUserInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+                @Override
+                public void gotResult(int status, String desc, Bitmap bitmap) {
+                    if (status == 0) {
+                        String path = BitmapLoader.saveBitmapToLocal(bitmap, FriendInfoActivity.this);
+                        Intent intent = new Intent();
+                        intent.putExtra("browserAvatar", true);
+                        intent.putExtra("avatarPath", path);
+                        intent.setClass(FriendInfoActivity.this, BrowserViewPagerActivity.class);
+                        startActivity(intent);
+                    }else {
+                        HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
+                    }
+                    dialog.dismiss();
                 }
-                dialog.dismiss();
-            }
-        });
+            });
+        }
     }
 
     @Override

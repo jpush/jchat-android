@@ -1,5 +1,6 @@
 package io.jchat.android.tools;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
@@ -9,8 +10,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
-
-import io.jchat.android.application.JPushDemoApplication;
 
 /**
  * Created by Ken on 2015/2/9.
@@ -48,7 +47,7 @@ public class BitmapLoader {
      * @param bitmap
      * @return
      */
-    public static String saveBitmapToLocal(Bitmap bitmap) {
+    public static String saveBitmapToLocal(Bitmap bitmap, Context context) {
         if (null == bitmap) {
             return null;
         }
@@ -56,7 +55,9 @@ public class BitmapLoader {
         FileOutputStream fileOutput = null;
         File imgFile;
         try {
-            File desDir = new File(JPushDemoApplication.PICTURE_DIR);
+            File rootDir = context.getFilesDir();
+            String fileDir = rootDir.getAbsolutePath() + "/pictures";
+            File desDir = new File(fileDir);
             if (!desDir.exists()) {
                 desDir.mkdirs();
             }

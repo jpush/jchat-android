@@ -139,7 +139,7 @@ public class MainActivity extends FragmentActivity{
             }
         }else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE){
             Bitmap bitmap = decodeUriAsBitmap(mUri);
-            String path = BitmapLoader.saveBitmapToLocal(bitmap);
+            String path = BitmapLoader.saveBitmapToLocal(bitmap, this);
             Log.d("MainActivity", "After compress Path: " + path);
             mMainController.uploadUserAvatar(path);
         }else if (resultCode == JPushDemoApplication.RESULT_CODE_ME_INFO){
@@ -163,11 +163,13 @@ public class MainActivity extends FragmentActivity{
             public void run() {
                 try {
                     FileInputStream fis = new FileInputStream(file);
-                    File destDir = new File(JPushDemoApplication.PICTURE_DIR);
+                    File rootDir = MainActivity.this.getFilesDir();
+                    String fileDir = rootDir.getAbsolutePath() + "/pictures";
+                    File destDir = new File(fileDir);
                     if (!destDir.exists()) {
                         destDir.mkdirs();
                     }
-                    final File tempFile = new File(JPushDemoApplication.PICTURE_DIR,
+                    final File tempFile = new File(fileDir,
                             JMessageClient.getMyInfo().getUserName() + ".jpg");
                     FileOutputStream fos = new FileOutputStream(tempFile);
                     byte[] bt = new byte[1024];
