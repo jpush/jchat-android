@@ -46,7 +46,7 @@ public class ReloginActivity extends BaseActivity {
     }
 
 
-    public void StartRelogin() {
+    public void startRelogin() {
         // TODO Auto-generated method stub
         Intent intent = new Intent();
         intent.setClass(this, MainActivity.class);
@@ -55,7 +55,7 @@ public class ReloginActivity extends BaseActivity {
     }
 
 
-    public void StartSwitchUser() {
+    public void startSwitchUser() {
         // TODO Auto-generated method stub
         Intent intent = new Intent();
         intent.putExtra("fromSwitch", true);
@@ -64,7 +64,7 @@ public class ReloginActivity extends BaseActivity {
     }
 
 
-    public void StartRegisterActivity() {
+    public void startRegisterActivity() {
         Intent intent = new Intent();
         intent.setClass(this, RegisterActivity.class);
         startActivity(intent);

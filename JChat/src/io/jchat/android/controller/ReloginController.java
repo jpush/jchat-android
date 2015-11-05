@@ -47,35 +47,28 @@ public class ReloginController implements ReloginView.Listener, OnClickListener 
                     mReloginView.passwordError(mContext);
                     break;
                 }
-                DialogCreator ld = new DialogCreator();
-                mLoadingDialog = ld.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
+                mLoadingDialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
                 mLoadingDialog.show();
-                Log.i("ReloginController", "mUserName: " + mUserName);
                 JMessageClient.login(mUserName, password, new BasicCallback() {
 
                     @Override
                     public void gotResult(final int status, final String desc) {
-                        mContext.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mLoadingDialog.dismiss();
-                                if (status == 0) {
-                                    mContext.StartRelogin();
-                                } else {
-                                    HandleResponseCode.onHandle(mContext, status, false);
-                                }
-                            }
-                        });
+                        mLoadingDialog.dismiss();
+                        if (status == 0) {
+                            mContext.startRelogin();
+                        } else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
                     }
                 });
 
                 break;
 
             case R.id.relogin_switch_user_btn:
-                mContext.StartSwitchUser();
+                mContext.startSwitchUser();
                 break;
             case R.id.register_btn:
-                mContext.StartRegisterActivity();
+                mContext.startRegisterActivity();
                 break;
         }
 

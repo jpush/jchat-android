@@ -45,31 +45,22 @@ public class CreateGroupController implements OnClickListener {
                     mCreateGroupView.groupNameError(mContext);
                     return;
                 }
-                DialogCreator dialogCreator = new DialogCreator();
-                mDialog = dialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
+                mDialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.creating_hint));
                 final String desc = "";
                 mDialog.show();
-                JMessageClient.createGroup(
-                        mGroupName, desc,
-                        new CreateGroupCallback(false) {
+                JMessageClient.createGroup(mGroupName, desc, new CreateGroupCallback() {
 
-                            @Override
-                            public void gotResult(final int status, String msg,
-                                                  final long groupId) {
-                                mContext.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mDialog.dismiss();
-                                        if (status == 0) {
-                                            mContext.StartChatActivity(groupId, mGroupName);
-                                        } else {
-                                            HandleResponseCode.onHandle(mContext, status, false);
-                                            Log.i("CreateGroupController", "status : " + status);
-                                        }
-                                    }
-                                });
-                            }
-                        });
+                    @Override
+                    public void gotResult(final int status, String msg, final long groupId) {
+                        mDialog.dismiss();
+                        if (status == 0) {
+                            mContext.startChatActivity(groupId, mGroupName);
+                        } else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                            Log.i("CreateGroupController", "status : " + status);
+                        }
+                    }
+                });
                 break;
 
         }
