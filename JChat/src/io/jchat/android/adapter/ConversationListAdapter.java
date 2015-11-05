@@ -169,10 +169,13 @@ public class ConversationListAdapter extends BaseAdapter {
                         if (status == 0) {
                             viewHolder.headIcon.setImageBitmap(bitmap);
                         }else {
+                            viewHolder.headIcon.setImageResource(R.drawable.head_icon);
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });
+            }else {
+                viewHolder.headIcon.setImageResource(R.drawable.head_icon);
             }
         }
         // 群聊

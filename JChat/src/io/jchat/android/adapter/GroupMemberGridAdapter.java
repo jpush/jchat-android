@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import cn.jpush.im.android.api.JMessageClient;
@@ -18,6 +19,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
+import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.CircleImageView;
 
@@ -39,15 +41,18 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private boolean mIsGroup;
     private String mTargetId;
     private Context mContext;
+    private int mAvatarSize;
 
     //群聊
-    public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator) {
+    public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator,
+                                  int size) {
         this.mContext = context;
         mInflater = LayoutInflater.from(context);
         mIsGroup = true;
         this.mMemberList = memberList;
         mCurrentNum = mMemberList.size();
         this.mIsCreator = isCreator;
+        this.mAvatarSize = size;
         mIsShowDelete = false;
         initBlankItem();
     }
@@ -124,17 +129,24 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
                 if (!TextUtils.isEmpty(userInfo.getAvatar())){
-                    userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                        @Override
-                        public void gotResult(int status, String desc, Bitmap bitmap) {
-                            if (status == 0) {
-                                viewTag.icon.setImageBitmap(bitmap);
-                            }else {
-                                viewTag.icon.setImageResource(R.drawable.head_icon);
-                                HandleResponseCode.onHandle(mContext, status, false);
+                    File file = userInfo.getAvatarFile();
+                    if (file != null && file.isFile()) {
+                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                                mAvatarSize, mAvatarSize);
+                        viewTag.icon.setImageBitmap(bitmap);
+                    }else {
+                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, Bitmap bitmap) {
+                                if (status == 0) {
+                                    viewTag.icon.setImageBitmap(bitmap);
+                                }else {
+                                    viewTag.icon.setImageResource(R.drawable.head_icon);
+                                    HandleResponseCode.onHandle(mContext, status, false);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }else {
                     viewTag.icon.setImageResource(R.drawable.head_icon);
                 }

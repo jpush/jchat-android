@@ -6,13 +6,11 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,9 +21,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.List;
+
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.enums.ContentType;
@@ -64,7 +63,7 @@ public class ChatDetailActivity extends BaseActivity {
         mContext = this;
         mChatDetailView = (ChatDetailView) findViewById(R.id.chat_detail_view);
         mChatDetailView.initModule();
-        mChatDetailController = new ChatDetailController(mChatDetailView, this);
+        mChatDetailController = new ChatDetailController(mChatDetailView, this, mAvatarSize);
         mChatDetailView.setListeners(mChatDetailController);
         mChatDetailView.setItemListener(mChatDetailController);
         mChatDetailView.setLongClickListener(mChatDetailController);
@@ -304,19 +303,7 @@ public class ChatDetailActivity extends BaseActivity {
                             @Override
                             public void gotResult(int status, String desc, UserInfo userInfo) {
                                 if (status == 0) {
-                                    if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-                                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                                            @Override
-                                            public void gotResult(int status, String desc, Bitmap bitmap) {
-                                                if (status == 0) {
-                                                    Log.d(TAG, "add group member, get avatar success");
-                                                    mChatDetailController.getAdapter().notifyDataSetChanged();
-                                                } else {
-                                                    HandleResponseCode.onHandle(mContext, status, false);
-                                                }
-                                            }
-                                        });
-                                    }
+                                    mChatDetailController.getAdapter().notifyDataSetChanged();
                                 } else {
                                     HandleResponseCode.onHandle(mContext, status, false);
                                 }
