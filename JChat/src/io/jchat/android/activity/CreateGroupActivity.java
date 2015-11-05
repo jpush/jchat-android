@@ -30,12 +30,12 @@ public class CreateGroupActivity extends BaseActivity{
 	}
 
 
-	public void StartChatActivity(long groupID, String groupName) {
+	public void startChatActivity(long groupId, String groupName) {
 		Intent intent = new Intent();
 		intent.putExtra(JPushDemoApplication.IS_GROUP, true);
 		//设置跳转标志
 		intent.putExtra("fromGroup", true);
-		intent.putExtra(JPushDemoApplication.GROUP_ID, groupID);
+		intent.putExtra(JPushDemoApplication.GROUP_ID, groupId);
 		intent.putExtra(JPushDemoApplication.GROUP_NAME, groupName);
 		intent.setClass(this, ChatActivity.class);
 		startActivity(intent);
