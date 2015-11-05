@@ -111,15 +111,15 @@ public class MeFragment extends BaseFragment {
                         dialog.dismiss();
                         if (status == 0) {
                             intent.putExtra("avatarFilePath", file.getAbsolutePath());
+                            JMessageClient.logout();
+                            intent.setClass(mContext, ReloginActivity.class);
+                            startActivity(intent);
                         }else {
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });
             }
-            JMessageClient.logout();
-            intent.setClass(this.getActivity(), ReloginActivity.class);
-            startActivity(intent);
         } else {
             Log.d(TAG, "user info is null!");
         }
