@@ -2,6 +2,7 @@ package io.jchat.android.controller;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -9,11 +10,9 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
@@ -95,6 +94,7 @@ public class MainController implements OnClickListener, OnPageChangeListener {
         intent.putExtra("outputX", OUTPUT_X);
         intent.putExtra("outputY", OUTPUT_Y);
         intent.putExtra("return-data", false);
+        intent.putExtra("outputFormat", Bitmap.CompressFormat.PNG.toString());
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         mContext.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CROP_PICTURE);
     }

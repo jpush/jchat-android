@@ -139,7 +139,7 @@ public class MeFragment extends BaseFragment {
             if (!destDir.exists()) {
                 destDir.mkdirs();
             }
-            File file = new File(dir, JMessageClient.getMyInfo().getUserName() + ".jpg");
+            File file = new File(dir, JMessageClient.getMyInfo().getUserName() + ".png");
             mPath = file.getAbsolutePath();
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
