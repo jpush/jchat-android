@@ -38,7 +38,6 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.adapter.MsgListAdapter;
-import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.HandleResponseCode;
 
 public class RecordVoiceBtnController extends Button {
@@ -201,12 +200,14 @@ public class RecordVoiceBtnController extends Button {
 
     private void initDialogAndStartRecord() {
         //存放录音文件目录
-        File destDir = new File(JPushDemoApplication.VOICE_DIR);
+        File rootDir = mContext.getFilesDir();
+        String fileDir = rootDir.getAbsolutePath() + "/voice";
+        File destDir = new File(fileDir);
         if (!destDir.exists()) {
             destDir.mkdirs();
         }
         //录音文件的命名格式
-        myRecAudioFile = new File(JPushDemoApplication.VOICE_DIR,
+        myRecAudioFile = new File(fileDir,
                 new DateFormat().format("yyyyMMdd_hhmmss", Calendar.getInstance(Locale.CHINA)) + ".amr");
         if (myRecAudioFile == null) {
             cancelTimer();

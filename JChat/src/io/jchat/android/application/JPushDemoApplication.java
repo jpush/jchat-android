@@ -41,7 +41,6 @@ public class JPushDemoApplication extends Application {
     public static final String MsgIDs = "msgIDs";
 
     public static final String PICTURE_DIR = "sdcard/JPushDemo/pictures/";
-    public static final String VOICE_DIR = "sdcard/JPushDemo/voice/";
 
 
     @Override

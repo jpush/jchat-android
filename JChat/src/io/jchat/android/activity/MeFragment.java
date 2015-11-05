@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import java.io.File;
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -70,17 +70,19 @@ public class MeFragment extends BaseFragment {
     public void onResume() {
         if (!mIsShowAvatar){
             UserInfo myInfo = JMessageClient.getMyInfo();
-            myInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                @Override
-                public void gotResult(int status, String desc, Bitmap bitmap) {
-                    if (status == 0) {
-                        mMeView.showPhoto(bitmap);
-                        mIsShowAvatar = true;
-                    }else {
-                        HandleResponseCode.onHandle(mContext, status, false);
+            if (!TextUtils.isEmpty(myInfo.getAvatar())) {
+                myInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, Bitmap bitmap) {
+                        if (status == 0) {
+                            mMeView.showPhoto(bitmap);
+                            mIsShowAvatar = true;
+                        }else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
                     }
-                }
-            });
+                });
+            }
             mMeView.showNickName(myInfo.getNickname());
         }
         super.onResume();
@@ -102,24 +104,10 @@ public class MeFragment extends BaseFragment {
             File file = info.getAvatarFile();
             if (file != null && file.isFile()) {
                 intent.putExtra("avatarFilePath", file.getAbsolutePath());
-            }else {
-                final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
-                dialog.show();
-                info.getAvatarFileAsync(new DownloadAvatarCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, File file) {
-                        dialog.dismiss();
-                        if (status == 0) {
-                            intent.putExtra("avatarFilePath", file.getAbsolutePath());
-                            JMessageClient.logout();
-                            intent.setClass(mContext, ReloginActivity.class);
-                            startActivity(intent);
-                        }else {
-                            HandleResponseCode.onHandle(mContext, status, false);
-                        }
-                    }
-                });
             }
+            JMessageClient.logout();
+            intent.setClass(mContext, ReloginActivity.class);
+            startActivity(intent);
         } else {
             Log.d(TAG, "user info is null!");
         }
@@ -197,24 +185,26 @@ public class MeFragment extends BaseFragment {
     //预览头像
     public void startBrowserAvatar() {
         final UserInfo myInfo = JMessageClient.getMyInfo();
-        final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
-        dialog.show();
-        myInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
-            @Override
-            public void gotResult(int status, String desc, Bitmap bitmap) {
-                if (status == 0) {
-                    String path = BitmapLoader.saveBitmapToLocal(bitmap);
-                    Intent intent = new Intent();
-                    intent.putExtra("browserAvatar", true);
-                    intent.putExtra("avatarPath", path);
-                    intent.setClass(mContext, BrowserViewPagerActivity.class);
-                    startActivity(intent);
-                }else {
-                    HandleResponseCode.onHandle(mContext, status, false);
+        if (!TextUtils.isEmpty(myInfo.getAvatar())) {
+            final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
+            dialog.show();
+            myInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+                @Override
+                public void gotResult(int status, String desc, Bitmap bitmap) {
+                    if (status == 0) {
+                        String path = BitmapLoader.saveBitmapToLocal(bitmap, mContext);
+                        Intent intent = new Intent();
+                        intent.putExtra("browserAvatar", true);
+                        intent.putExtra("avatarPath", path);
+                        intent.setClass(mContext, BrowserViewPagerActivity.class);
+                        startActivity(intent);
+                    }else {
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                    dialog.dismiss();
                 }
-                dialog.dismiss();
-            }
-        });
+            });
+        }
     }
 
     public void refreshNickname(String newName) {
