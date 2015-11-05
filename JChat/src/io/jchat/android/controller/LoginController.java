@@ -46,7 +46,6 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
                         manager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 }
 
-                Log.d("Tag", "[login]login event execute!");
                 final String userId = mLoginView.getUserId();
                 final String password = mLoginView.getPassword();
 
@@ -59,28 +58,22 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
                 }
                 final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
                 dialog.show();
-                JMessageClient.login(userId, password,
-                        new BasicCallback() {
-                            @Override
-                            public void gotResult(final int status, final String desc) {
-                                mContext.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        dialog.dismiss();
-                                        if (status == 0) {
-                                            mContext.StartMainActivity();
-                                        } else {
-                                            Log.i("LoginController", "status = " + status);
-                                            HandleResponseCode.onHandle(mContext, status, false);
-                                        }
-                                    }
-                                });
-                            }
-                        });
+                JMessageClient.login(userId, password, new BasicCallback() {
+                    @Override
+                    public void gotResult(final int status, final String desc) {
+                        dialog.dismiss();
+                        if (status == 0) {
+                            mContext.startMainActivity();
+                        } else {
+                            Log.i("LoginController", "status = " + status);
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
+                    }
+                });
                 break;
 
             case R.id.register_btn:
-                mContext.StartRegisterActivity();
+                mContext.startRegisterActivity();
         }
     }
 

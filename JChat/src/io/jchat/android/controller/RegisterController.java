@@ -51,35 +51,25 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
 
                     @Override
                     public void gotResult(final int status, final String desc) {
-                        mContext.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                dialog.dismiss();
-                                if (status == 0) {
-                                    LoginDialog loginDialog = new LoginDialog();
-                                    mLoginDialog = loginDialog.createLoadingDialog(mContext);
-                                    mLoginDialog.show();
-                                    JMessageClient.login(userId, password, new BasicCallback() {
-                                        @Override
-                                        public void gotResult(final int status, String desc) {
-                                            if(status == 0){
-                                                mContext.onRegistSuccess();
-                                            }else {
-                                                mContext.runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        mLoginDialog.dismiss();
-                                                        HandleResponseCode.onHandle(mContext, status, false);
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    HandleResponseCode.onHandle(mContext, status, false);
+                        dialog.dismiss();
+                        if (status == 0) {
+                            LoginDialog loginDialog = new LoginDialog();
+                            mLoginDialog = loginDialog.createLoadingDialog(mContext);
+                            mLoginDialog.show();
+                            JMessageClient.login(userId, password, new BasicCallback() {
+                                @Override
+                                public void gotResult(final int status, String desc) {
+                                    if (status == 0) {
+                                        mContext.onRegistSuccess();
+                                    } else {
+                                        mLoginDialog.dismiss();
+                                        HandleResponseCode.onHandle(mContext, status, false);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        } else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
                     }
                 });
                 break;
