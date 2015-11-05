@@ -3,7 +3,6 @@ package io.jchat.android.controller;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -23,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
-import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -69,10 +67,12 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private final MyHandler myHandler = new MyHandler(this);
     private Dialog mDialog;
     private boolean mDeleteMsg;
+    private int mAvatarSize;
 
-    public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context) {
+    public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context, int size) {
         this.mChatDetailView = chatDetailView;
         this.mContext = context;
+        this.mAvatarSize = size;
         initData();
     }
 
@@ -124,7 +124,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private void initAdapter() {
         mCurrentNum = mMemberInfoList.size();
         // 初始化头像
-        mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberInfoList, mIsCreator);
+        mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberInfoList, mIsCreator, mAvatarSize);
         mChatDetailView.setAdapter(mGridAdapter);
         mChatDetailView.getGridView().setFocusable(false);
     }
@@ -354,19 +354,6 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     msg.what = ADD_TO_GRIDVIEW;
                     msg.obj = userInfo;
                     msg.sendToTarget();
-                    //缓存头像
-                    if (!TextUtils.isEmpty(userInfo.getAvatar())){
-                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                            @Override
-                            public void gotResult(int status, String desc, Bitmap bitmap) {
-                                if (status == 0) {
-                                    mGridAdapter.notifyDataSetChanged();
-                                }else {
-                                    HandleResponseCode.onHandle(mContext, status, false);
-                                }
-                            }
-                        });
-                    }
                     dialog.cancel();
                 } else {
                     HandleResponseCode.onHandle(mContext, status, true);
