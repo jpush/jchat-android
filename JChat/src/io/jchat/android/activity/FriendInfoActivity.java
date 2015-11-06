@@ -103,7 +103,7 @@ public class FriendInfoActivity extends BaseActivity {
     }
 
 
-    //点击头像预览大图，若此时UserInfo还是空，则再取一次
+    //点击头像预览大图
     public void startBrowserAvatar() {
         if (mUserInfo != null && !TextUtils.isEmpty(mUserInfo.getAvatar())) {
             final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.loading));
@@ -127,6 +127,8 @@ public class FriendInfoActivity extends BaseActivity {
         }
     }
 
+
+    //将获得的最新的昵称返回到聊天界面
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
