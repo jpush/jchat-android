@@ -185,8 +185,7 @@ public class FixProfileActivity extends BaseActivity {
             intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
         } else {
-            intent = new Intent(
-                    Intent.ACTION_PICK,
+            intent = new Intent(Intent.ACTION_PICK,
                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         }
         startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE);
@@ -208,10 +207,16 @@ public class FixProfileActivity extends BaseActivity {
             if (data != null) {
                 Uri selectedImg = data.getData();
                 if (selectedImg != null) {
-                    Cursor cursor = getContentResolver().query(selectedImg, null, null, null, null);
+                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                    Cursor cursor = this.getContentResolver()
+                            .query(selectedImg, filePathColumn, null, null, null);
                     try {
-                        cursor.moveToFirst();
-                        int columnIndex = cursor.getColumnIndex("_data");
+                        if (null == cursor || !cursor.moveToFirst()) {
+                            Toast.makeText(this, this.getString(R.string.picture_not_found),
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                         String path = cursor.getString(columnIndex);
                         if (path != null) {
                             File file = new File(path);
@@ -220,6 +225,7 @@ public class FixProfileActivity extends BaseActivity {
                                         Toast.LENGTH_SHORT).show();
                                 cursor.close();
                             } else {
+                                //如果是选择本地图片进行头像设置，复制到临时文件，并进行裁剪
                                 copyAndCrop(file);
                                 cursor.close();
                             }
@@ -266,59 +272,61 @@ public class FixProfileActivity extends BaseActivity {
      * @param file 要复制的文件
      */
     private void copyAndCrop(final File file) {
-        final Dialog dialog = DialogCreator.createLoadingDialog(this,
-                this.getString(R.string.loading));
-        dialog.show();
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    FileInputStream fis = new FileInputStream(file);
-                    File rootDir = mContext.getFilesDir();
-                    String fileDir = rootDir.getAbsolutePath() + "/pictures";
-                    File destDir = new File(fileDir);
-                    if (!destDir.exists()) {
-                        destDir.mkdirs();
-                    }
-                    final File tempFile = new File(fileDir,
-                            JMessageClient.getMyInfo().getUserName() + ".png");
-                    FileOutputStream fos = new FileOutputStream(tempFile);
-                    byte[] bt = new byte[1024];
-                    int c;
-                    while ((c = fis.read(bt)) > 0) {
-                        fos.write(bt, 0, c);
-                    }
-                    //关闭输入、输出流
-                    fis.close();
-                    fos.close();
+        boolean sdCardExist = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+        if (sdCardExist) {
+            final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.loading));
+            dialog.show();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        FileInputStream fis = new FileInputStream(file);
+                        File destDir = new File(JPushDemoApplication.PICTURE_DIR);
+                        if (!destDir.exists()) {
+                            destDir.mkdirs();
+                        }
+                        final File tempFile = new File(JPushDemoApplication.PICTURE_DIR,
+                                JMessageClient.getMyInfo().getUserName() + ".png");
+                        FileOutputStream fos = new FileOutputStream(tempFile);
+                        byte[] bt = new byte[1024];
+                        int c;
+                        while ((c = fis.read(bt)) > 0) {
+                            fos.write(bt, 0, c);
+                        }
+                        //关闭输入、输出流
+                        fis.close();
+                        fos.close();
 
-                    FixProfileActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.dismiss();
-                            mUri = Uri.fromFile(tempFile);
-                            cropRawPhoto(mUri);
-                        }
-                    });
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    FixProfileActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.dismiss();
-                        }
-                    });
+                        FixProfileActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.dismiss();
+                                mUri = Uri.fromFile(tempFile);
+                                cropRawPhoto(mUri);
+                            }
+                        });
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        FixProfileActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.dismiss();
+                            }
+                        });
+                    }
                 }
-            }
-        });
-        thread.run();
+            });
+            thread.start();
+        }else {
+            Toast.makeText(this, this.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private Bitmap decodeUriAsBitmap(Uri uri) {
-        Bitmap bitmap = null;
+        Bitmap bitmap;
         try {
             bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
         } catch (FileNotFoundException e) {

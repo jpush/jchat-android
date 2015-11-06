@@ -117,10 +117,11 @@ public class MainActivity extends FragmentActivity{
                 Uri selectedImg = data.getData();
                 if (selectedImg != null) {
                     String[] filePathColumn = { MediaStore.Images.Media.DATA };
-                    Cursor cursor = this.getContentResolver().query(
-                            selectedImg, filePathColumn, null, null, null);
+                    Cursor cursor = this.getContentResolver()
+                            .query(selectedImg, filePathColumn, null, null, null);
                     if (null == cursor || !cursor.moveToFirst()) {
-                        Toast.makeText(this, this.getString(R.string.picture_not_found), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, this.getString(R.string.picture_not_found),
+                                Toast.LENGTH_SHORT).show();
                         return;
                     }
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
@@ -134,8 +135,6 @@ public class MainActivity extends FragmentActivity{
                         }else {
                             //如果是选择本地图片进行头像设置，复制到临时文件，并进行裁剪
                             copyAndCrop(file);
-//                            mUri = Uri.fromFile(file);
-//                            mMainController.cropRawPhoto(mUri);
                             cursor.close();
                         }
                     }
@@ -216,7 +215,6 @@ public class MainActivity extends FragmentActivity{
             });
             thread.start();
         }else {
-            Log.d("MainActivity", "No sdcard!");
             Toast.makeText(this, this.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
         }
     }
