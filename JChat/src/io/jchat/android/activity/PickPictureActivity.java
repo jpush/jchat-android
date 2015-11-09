@@ -118,6 +118,7 @@ public class PickPictureActivity extends BaseActivity {
                     else {
                         mDialog = new ProgressDialog(PickPictureActivity.this);
                         mDialog.setCanceledOnTouchOutside(false);
+                        mDialog.setCancelable(false);
                         mDialog.setMessage(PickPictureActivity.this.getString(R.string.sending_hint));
                         mDialog.show();
 
