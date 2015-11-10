@@ -15,13 +15,11 @@ import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
@@ -119,7 +117,18 @@ public class MainActivity extends FragmentActivity{
                     String[] filePathColumn = { MediaStore.Images.Media.DATA };
                     Cursor cursor = this.getContentResolver()
                             .query(selectedImg, filePathColumn, null, null, null);
-                    if (null == cursor || !cursor.moveToFirst()) {
+                    if (null == cursor) {
+                        String path = selectedImg.getPath();
+                        File file = new File(path);
+                        if (file.isFile()) {
+                            copyAndCrop(file);
+                            return;
+                        }else {
+                            Toast.makeText(this, this.getString(R.string.picture_not_found),
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }else if (!cursor.moveToFirst()) {
                         Toast.makeText(this, this.getString(R.string.picture_not_found),
                                 Toast.LENGTH_SHORT).show();
                         return;

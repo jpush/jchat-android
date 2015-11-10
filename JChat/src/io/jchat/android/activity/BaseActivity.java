@@ -62,7 +62,7 @@ public class BaseActivity extends Activity {
                 intent.putExtra("userName", myInfo.getUserName());
                 File avatar = myInfo.getAvatarFile();
                 if (null != avatar && avatar.exists()) {
-                    intent.putExtra("userAvatar", avatar.getAbsolutePath());
+                    intent.putExtra("avatarFilePath", avatar.getAbsolutePath());
                 }
                 Log.i(TAG, "userName " + myInfo.getUserName());
                 JMessageClient.logout();

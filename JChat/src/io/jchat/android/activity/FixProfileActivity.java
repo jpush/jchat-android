@@ -22,13 +22,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
@@ -36,6 +34,7 @@ import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.CircleImageView;
 
@@ -43,6 +42,8 @@ import io.jchat.android.view.CircleImageView;
  * Created by Ken on 2015/1/26.
  */
 public class FixProfileActivity extends BaseActivity {
+
+    private static final String TAG = "FixProfileActivity";
 
     private Button mFinishBtn;
     private EditText mNickNameEt;
@@ -211,7 +212,18 @@ public class FixProfileActivity extends BaseActivity {
                     Cursor cursor = this.getContentResolver()
                             .query(selectedImg, filePathColumn, null, null, null);
                     try {
-                        if (null == cursor || !cursor.moveToFirst()) {
+                        if (null == cursor) {
+                            String path = selectedImg.getPath();
+                            File file = new File(path);
+                            if (file.isFile()) {
+                                copyAndCrop(file);
+                                return;
+                            }else {
+                                Toast.makeText(this, this.getString(R.string.picture_not_found),
+                                        Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        }else if (!cursor.moveToFirst()) {
                             Toast.makeText(this, this.getString(R.string.picture_not_found),
                                     Toast.LENGTH_SHORT).show();
                             return;
@@ -239,6 +251,12 @@ public class FixProfileActivity extends BaseActivity {
         } else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE) {
             //裁剪后得到返回的bitmap
             Bitmap bitmap = decodeUriAsBitmap(mUri);
+            File file = new File(mUri.getPath());
+            if (file.isFile()) {
+                if (file.delete()) {
+                    Log.d(TAG, "delete temp file success!");
+                }
+            }
             String path = BitmapLoader.saveBitmapToLocal(bitmap, this);
             uploadUserAvatar(path);
         }
@@ -352,19 +370,19 @@ public class FixProfileActivity extends BaseActivity {
                     mDialog.dismiss();
                 }
                 if (status == 0) {
-                    Log.i("FixProfileActivity", "Update avatar succeed path " + path);
+                    Log.i(TAG, "Update avatar succeed path " + path);
                     loadUserAvatar(path);
                     Toast.makeText(FixProfileActivity.this,
                             FixProfileActivity.this.getString(R.string.avatar_modify_succeed_toast),
                             Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(FixProfileActivity.this, desc, Toast.LENGTH_SHORT).show();
+                    HandleResponseCode.onHandle(mContext, status, false);
                 }
                 //删除裁剪后的文件
                 File file = new File(path);
                 if (file.isFile()) {
                     if (file.delete()) {
-                        Log.d("FixProfileActivity", "delete temp file : " + path);
+                        Log.d(TAG, "delete temp file : " + path);
                     }
                 }
             }
@@ -374,9 +392,9 @@ public class FixProfileActivity extends BaseActivity {
     private void loadUserAvatar(String path) {
         final Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, (int) (100 * mDensity),
                 (int) (100 * mDensity));
-        Log.i("FixProfileActivity", "bitmap.getWidth() bitmap.getHeight() " + bitmap.getWidth()
+        Log.i(TAG, "bitmap.getWidth() bitmap.getHeight() " + bitmap.getWidth()
                 + bitmap.getHeight());
-        Log.i("FixProfileActivity", "file path " + path);
+        Log.i(TAG, "file path " + path);
         mAvatarIv.setImageBitmap(bitmap);
     }
 
