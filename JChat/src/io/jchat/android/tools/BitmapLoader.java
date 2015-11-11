@@ -47,7 +47,7 @@ public class BitmapLoader {
      * @param bitmap
      * @return
      */
-    public static String saveBitmapToLocal(Bitmap bitmap, Context context) {
+    public static String saveBitmapToLocal(Bitmap bitmap, Context context, String userName) {
         if (null == bitmap) {
             return null;
         }
@@ -61,7 +61,7 @@ public class BitmapLoader {
             if (!desDir.exists()) {
                 desDir.mkdirs();
             }
-            imgFile = new File(desDir.getAbsoluteFile() + "/" + "croppedAvatar" + ".png");
+            imgFile = new File(desDir.getAbsoluteFile() + "/" + userName + ".png");
             imgFile.createNewFile();
             fileOutput = new FileOutputStream(imgFile);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutput);

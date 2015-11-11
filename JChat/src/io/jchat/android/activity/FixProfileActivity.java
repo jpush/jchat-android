@@ -257,7 +257,8 @@ public class FixProfileActivity extends BaseActivity {
                     Log.d(TAG, "delete temp file success!");
                 }
             }
-            String path = BitmapLoader.saveBitmapToLocal(bitmap, this);
+            UserInfo myInfo = JMessageClient.getMyInfo();
+            String path = BitmapLoader.saveBitmapToLocal(bitmap, this, myInfo.getUserName());
             uploadUserAvatar(path);
         }
     }
@@ -377,13 +378,6 @@ public class FixProfileActivity extends BaseActivity {
                             Toast.LENGTH_SHORT).show();
                 } else {
                     HandleResponseCode.onHandle(mContext, status, false);
-                }
-                //删除裁剪后的文件
-                File file = new File(path);
-                if (file.isFile()) {
-                    if (file.delete()) {
-                        Log.d(TAG, "delete temp file : " + path);
-                    }
                 }
             }
         });

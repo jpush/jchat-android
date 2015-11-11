@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
+import java.io.File;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
@@ -25,8 +26,8 @@ public class FriendInfoActivity extends BaseActivity {
 
     private FriendInfoView mFriendInfoView;
     private FriendInfoController mFriendInfoController;
-    private String mTargetID;
-    private long mGroupID;
+    private String mTargetId;
+    private long mGroupId;
     private UserInfo mUserInfo;
     private String mNickname;
 
@@ -36,14 +37,14 @@ public class FriendInfoActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_info);
         mFriendInfoView = (FriendInfoView) findViewById(R.id.friend_info_view);
-        mTargetID = getIntent().getStringExtra(JPushDemoApplication.TARGET_ID);
-        mGroupID = getIntent().getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+        mTargetId = getIntent().getStringExtra(JPushDemoApplication.TARGET_ID);
+        mGroupId = getIntent().getLongExtra(JPushDemoApplication.GROUP_ID, 0);
         Conversation conv;
-        conv = JMessageClient.getSingleConversation(mTargetID);
+        conv = JMessageClient.getSingleConversation(mTargetId);
         if (conv == null) {
-            conv = JMessageClient.getGroupConversation(mGroupID);
+            conv = JMessageClient.getGroupConversation(mGroupId);
             GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
-            mUserInfo = groupInfo.getGroupMemberInfo(mTargetID);
+            mUserInfo = groupInfo.getGroupMemberInfo(mTargetId);
         } else {
             mUserInfo = (UserInfo) conv.getTargetInfo();
         }
@@ -56,7 +57,7 @@ public class FriendInfoActivity extends BaseActivity {
         final Dialog dialog = DialogCreator.createLoadingDialog(FriendInfoActivity.this,
                 FriendInfoActivity.this.getString(R.string.loading));
         dialog.show();
-        JMessageClient.getUserInfo(mTargetID, new GetUserInfoCallback() {
+        JMessageClient.getUserInfo(mTargetId, new GetUserInfoCallback() {
             @Override
             public void gotResult(int status, String desc, final UserInfo userInfo) {
                 dialog.dismiss();
@@ -77,10 +78,10 @@ public class FriendInfoActivity extends BaseActivity {
      * finish掉此界面
      */
     public void startChatActivity() {
-        if (mGroupID != 0) {
+        if (mGroupId != 0) {
             Intent intent = new Intent();
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetID);
+            intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetId);
             intent.setClass(this, ChatActivity.class);
             startActivity(intent);
         } else {
@@ -89,11 +90,11 @@ public class FriendInfoActivity extends BaseActivity {
             intent.putExtra(JPushDemoApplication.NICKNAME, mNickname);
             setResult(JPushDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
         }
-        Conversation conv = JMessageClient.getSingleConversation(mTargetID);
+        Conversation conv = JMessageClient.getSingleConversation(mTargetId);
         //如果会话为空，使用EventBus通知会话列表添加新会话
         if (conv == null) {
-            conv = Conversation.createSingleConversation(mTargetID);
-            EventBus.getDefault().post(new Event.StringEvent(mTargetID));
+            conv = Conversation.createSingleConversation(mTargetId);
+            EventBus.getDefault().post(new Event.StringEvent(mTargetId));
         }
         finish();
     }
@@ -106,24 +107,36 @@ public class FriendInfoActivity extends BaseActivity {
     //点击头像预览大图
     public void startBrowserAvatar() {
         if (mUserInfo != null && !TextUtils.isEmpty(mUserInfo.getAvatar())) {
-            final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.loading));
-            dialog.show();
-            mUserInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
-                @Override
-                public void gotResult(int status, String desc, Bitmap bitmap) {
-                    if (status == 0) {
-                        String path = BitmapLoader.saveBitmapToLocal(bitmap, FriendInfoActivity.this);
-                        Intent intent = new Intent();
-                        intent.putExtra("browserAvatar", true);
-                        intent.putExtra("avatarPath", path);
-                        intent.setClass(FriendInfoActivity.this, BrowserViewPagerActivity.class);
-                        startActivity(intent);
-                    }else {
-                        HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
+            String path = getFilesDir().getAbsolutePath() + "/pictures/" + mUserInfo.getUserName()
+                    + ".png";
+            File file = new File(path);
+            if (file.exists()) {
+                Intent intent = new Intent();
+                intent.putExtra("browserAvatar", true);
+                intent.putExtra("avatarPath", path);
+                intent.setClass(this, BrowserViewPagerActivity.class);
+                startActivity(intent);
+            }else {
+                final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.loading));
+                dialog.show();
+                mUserInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, Bitmap bitmap) {
+                        if (status == 0) {
+                            String path = BitmapLoader.saveBitmapToLocal(bitmap, FriendInfoActivity.this,
+                                    mUserInfo.getUserName());
+                            Intent intent = new Intent();
+                            intent.putExtra("browserAvatar", true);
+                            intent.putExtra("avatarPath", path);
+                            intent.setClass(FriendInfoActivity.this, BrowserViewPagerActivity.class);
+                            startActivity(intent);
+                        }else {
+                            HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
+                        }
+                        dialog.dismiss();
                     }
-                    dialog.dismiss();
-                }
-            });
+                });
+            }
         }
     }
 

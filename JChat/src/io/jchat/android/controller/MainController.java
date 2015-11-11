@@ -114,13 +114,6 @@ public class MainController implements OnClickListener, OnPageChangeListener {
                 } else {
                     HandleResponseCode.onHandle(mContext, status, false);
                 }
-                //删除裁剪后的文件
-                File file = new File(path);
-                if (file.isFile()) {
-                    if (file.delete()) {
-                        Log.d("MainController", "delete temp file : " + path);
-                    }
-                }
             }
         });
     }

@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.MainController;
@@ -152,7 +153,8 @@ public class MainActivity extends FragmentActivity{
             }
         }else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE){
             Bitmap bitmap = decodeUriAsBitmap(mUri);
-            String path = BitmapLoader.saveBitmapToLocal(bitmap, this);
+            UserInfo myInfo = JMessageClient.getMyInfo();
+            String path = BitmapLoader.saveBitmapToLocal(bitmap, this, myInfo.getUserName());
             File file = new File(mUri.getPath());
             if (file.isFile()) {
                 if (file.delete()) {
