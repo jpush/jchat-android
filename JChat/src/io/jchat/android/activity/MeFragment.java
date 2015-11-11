@@ -185,6 +185,7 @@ public class MeFragment extends BaseFragment {
     //预览头像
     public void startBrowserAvatar() {
         final UserInfo myInfo = JMessageClient.getMyInfo();
+        //如果本地保存了图片，直接加载，否则下载
         String path = mContext.getFilesDir().getAbsolutePath() + "/pictures/" + myInfo.getUserName()
                 + ".png";
         File file = new File(path);

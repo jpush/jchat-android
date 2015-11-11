@@ -1159,7 +1159,6 @@ public class MsgListAdapter extends BaseAdapter {
             case receive_fail:
                 holder.voice.setImageResource(R.drawable.receive_3);
                 // 接收失败，从服务器上下载
-                mConv.deleteMessage(msg.getId());
                 content.downloadVoiceFile(msg,
                         new DownloadCompletionCallback() {
                             @Override

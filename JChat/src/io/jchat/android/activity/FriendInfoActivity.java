@@ -107,6 +107,7 @@ public class FriendInfoActivity extends BaseActivity {
     //点击头像预览大图
     public void startBrowserAvatar() {
         if (mUserInfo != null && !TextUtils.isEmpty(mUserInfo.getAvatar())) {
+            //如果本地保存了图片，直接加载，否则下载
             String path = getFilesDir().getAbsolutePath() + "/pictures/" + mUserInfo.getUserName()
                     + ".png";
             File file = new File(path);
