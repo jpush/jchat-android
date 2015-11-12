@@ -12,9 +12,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.ImageContent;
@@ -113,7 +111,7 @@ public class ChatActivity extends BaseActivity {
         Log.i(TAG, "Refresh Image groupId: " + groupId);
         //判断是否在当前会话中发图片
         if (targetId != null) {
-            if (targetId.equals(mChatController.getTargetID())) {
+            if (targetId.equals(mChatController.getTargetId())) {
                 mChatController.getAdapter().setSendImg(targetId, data.getIntArrayExtra(JPushDemoApplication.MsgIDs));
                 mChatView.setToBottom();
             }
@@ -288,8 +286,7 @@ public class ChatActivity extends BaseActivity {
     }
 
     public void startPickPictureTotalActivity(Intent intent) {
-        if (!Environment.getExternalStorageState().equals(
-                Environment.MEDIA_MOUNTED)) {
+        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             Toast.makeText(this, this.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
         } else {
             intent.setClass(this, PickPictureTotalActivity.class);
@@ -367,7 +364,7 @@ public class ChatActivity extends BaseActivity {
                 if (msg.getTargetType().equals(ConversationType.single)) {
                     String targetID = ((UserInfo) msg.getTargetInfo()).getUserName();
                     //判断消息是否在当前会话中
-                    if (!mChatController.isGroup() && targetID.equals(mChatController.getTargetID())) {
+                    if (!mChatController.isGroup() && targetID.equals(mChatController.getTargetId())) {
                         Message lastMsg = mChatController.getConversation().getLatestMessage();
                         if (lastMsg == null || msg.getId() != lastMsg.getId()) {
                             mChatController.getAdapter().addMsgToList(msg);

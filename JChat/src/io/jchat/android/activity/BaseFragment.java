@@ -9,9 +9,7 @@ import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-
 import java.io.File;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.event.UserDeletedEvent;
 import cn.jpush.im.android.api.event.UserLogoutEvent;
@@ -49,7 +47,7 @@ public class BaseFragment extends Fragment {
     @Override
     public void onDestroy() {
         JMessageClient.unRegisterEventReceiver(this);
-        if (dialog != null){
+        if (dialog != null) {
             dialog.dismiss();
         }
         super.onDestroy();

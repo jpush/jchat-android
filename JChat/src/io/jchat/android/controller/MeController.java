@@ -1,14 +1,11 @@
 package io.jchat.android.controller;
 
 import android.app.Dialog;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-
 import io.jchat.android.R;
-
 import io.jchat.android.activity.MeFragment;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.NativeImageLoader;
@@ -21,12 +18,10 @@ public class MeController implements OnClickListener {
     private Dialog mDialog;
     private int mWidth;
 
-    public MeController(MeView meView, MeFragment context) {
+    public MeController(MeView meView, MeFragment context, int width) {
         this.mMeView = meView;
         this.mContext = context;
-        DisplayMetrics dm = new DisplayMetrics();
-        mContext.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mWidth = dm.widthPixels;
+        this.mWidth = width;
     }
 
     @Override

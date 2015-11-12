@@ -2,7 +2,6 @@ package io.jchat.android.controller;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -36,10 +35,14 @@ public class ReloginController implements ReloginView.Listener, OnClickListener 
         switch (v.getId()) {
             case R.id.relogin_btn:
                 //隐藏软键盘
-                InputMethodManager manager = ((InputMethodManager) mContext.getSystemService(Activity.INPUT_METHOD_SERVICE));
-                if (mContext.getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
-                    if (mContext.getCurrentFocus() != null)
-                        manager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                InputMethodManager manager = ((InputMethodManager) mContext
+                        .getSystemService(Activity.INPUT_METHOD_SERVICE));
+                if (mContext.getWindow().getAttributes().softInputMode
+                        != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
+                    if (mContext.getCurrentFocus() != null) {
+                        manager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(),
+                                InputMethodManager.HIDE_NOT_ALWAYS);
+                    }
                 }
                 final String password = mReloginView.getPassword();
 
@@ -77,7 +80,7 @@ public class ReloginController implements ReloginView.Listener, OnClickListener 
     @Override
     public void onSoftKeyboardShown(int w, int h, int oldw, int oldh) {
         int softKeyboardHeight = oldh - h;
-        if(softKeyboardHeight > 300){
+        if (softKeyboardHeight > 300) {
             mReloginView.setRegisterBtnVisible(View.INVISIBLE);
             mReloginView.setToBottom();
         }else {

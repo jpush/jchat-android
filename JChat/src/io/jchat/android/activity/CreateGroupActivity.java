@@ -2,9 +2,7 @@ package io.jchat.android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-
 import io.jchat.android.R;
-
 import io.jchat.android.application.JPushDemoApplication;
 import io.jchat.android.controller.CreateGroupController;
 import io.jchat.android.view.CreateGroupView;

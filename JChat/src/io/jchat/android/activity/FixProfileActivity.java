@@ -1,7 +1,6 @@
 package io.jchat.android.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -15,7 +14,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -50,6 +48,7 @@ public class FixProfileActivity extends BaseActivity {
     private ImageView mAvatarIv;
     private String mPath;
     private ProgressDialog mDialog;
+    private Dialog mSetAvatarDialog;
     private Context mContext;
     // 裁剪后图片的宽(X)和高(Y), 720 X 720的正方形。
     private static int OUTPUT_X = 720;
@@ -97,24 +96,19 @@ public class FixProfileActivity extends BaseActivity {
                         dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                         UserInfo myUserInfo = JMessageClient.getMyInfo();
                         myUserInfo.setNickname(nickName);
-                        JMessageClient.updateMyInfo(UserInfo.Field.nickname, myUserInfo, new BasicCallback(false) {
+                        JMessageClient.updateMyInfo(UserInfo.Field.nickname, myUserInfo, new BasicCallback() {
                             @Override
                             public void gotResult(final int status, String desc) {
-                                FixProfileActivity.this.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //更新跳转标志
-                                        SharePreferenceManager.setCachedFixProfileFlag(false);
-                                        if (dialog.isShowing()) {
-                                            dialog.dismiss();
-                                        }
-                                        if (status != 0) {
-                                            Toast.makeText(mContext, mContext.getString(R.string.nickname_save_failed),
-                                                    Toast.LENGTH_SHORT).show();
-                                        }
-                                        startMainActivity();
-                                    }
-                                });
+                                //更新跳转标志
+                                SharePreferenceManager.setCachedFixProfileFlag(false);
+                                if (dialog.isShowing()) {
+                                    dialog.dismiss();
+                                }
+                                if (status != 0) {
+                                    Toast.makeText(mContext, mContext.getString(R.string.nickname_save_failed),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                                startMainActivity();
                             }
                         });
                     } else {
@@ -128,32 +122,24 @@ public class FixProfileActivity extends BaseActivity {
     };
 
     public void showSetAvatarDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final LayoutInflater inflater = LayoutInflater.from(this);
-        View view = inflater.inflate(R.layout.dialog_set_avatar, null);
-        builder.setView(view);
-        final Dialog dialog = builder.create();
-        dialog.show();
-        dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-        Button takePhotoBtn = (Button) view.findViewById(R.id.take_photo_btn);
-        Button pickPictureBtn = (Button) view.findViewById(R.id.pick_picture_btn);
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.take_photo_btn:
-                        dialog.cancel();
+                        mSetAvatarDialog.cancel();
                         takePhoto();
                         break;
                     case R.id.pick_picture_btn:
-                        dialog.cancel();
+                        mSetAvatarDialog.cancel();
                         selectImageFromLocal();
                         break;
                 }
             }
         };
-        takePhotoBtn.setOnClickListener(listener);
-        pickPictureBtn.setOnClickListener(listener);
+        mSetAvatarDialog = DialogCreator.createSetAvatarDialog(this, listener);
+        mSetAvatarDialog.show();
+        mSetAvatarDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
     }
 
     private void startMainActivity() {
@@ -386,9 +372,6 @@ public class FixProfileActivity extends BaseActivity {
     private void loadUserAvatar(String path) {
         final Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, (int) (100 * mDensity),
                 (int) (100 * mDensity));
-        Log.i(TAG, "bitmap.getWidth() bitmap.getHeight() " + bitmap.getWidth()
-                + bitmap.getHeight());
-        Log.i(TAG, "file path " + path);
         mAvatarIv.setImageBitmap(bitmap);
     }
 

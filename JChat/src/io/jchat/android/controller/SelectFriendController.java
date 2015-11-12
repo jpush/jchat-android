@@ -6,11 +6,9 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.activity.SelectFriendActivity;
@@ -107,17 +105,17 @@ public class SelectFriendController implements View.OnClickListener,
      * 根据输入框中的值来过滤数据并更新ListView
      * @param filterStr
      */
-    private void filterData(String filterStr){
+    private void filterData(String filterStr) {
         List<UserLetterBean> filterDateList = new ArrayList<UserLetterBean>();
 
-        if(TextUtils.isEmpty(filterStr)){
+        if (TextUtils.isEmpty(filterStr)) {
             filterDateList = mSortBean;
-        }else{
+        }else {
             filterDateList.clear();
-            for(UserLetterBean sortBean : mSortBean){
+            for(UserLetterBean sortBean : mSortBean) {
                 String name = sortBean.getNickname();
-                if(name.contains(filterStr) || name.startsWith(filterStr)
-                        || sortBean.getLetter().equals(filterStr.substring(0, 1).toUpperCase())){
+                if (name.contains(filterStr) || name.startsWith(filterStr)
+                        || sortBean.getLetter().equals(filterStr.substring(0, 1).toUpperCase())) {
                     filterDateList.add(sortBean);
                 }
             }
@@ -131,7 +129,7 @@ public class SelectFriendController implements View.OnClickListener,
     public List<UserInfo> getSelectedData(){
         List<UserInfo> list = new ArrayList<UserInfo>();
         SparseBooleanArray array = mAdapter.getSelectedMap();
-        for (int i = 0; i < array.size(); i++){
+        for (int i = 0; i < array.size(); i++) {
             list.add(mData.get(array.keyAt(i)));
         }
         return list;

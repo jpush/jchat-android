@@ -10,7 +10,7 @@ import android.widget.TextView;
 /**
  * @author Eric Frohnhoefer
  */
-public class UnderlineTextView  extends TextView {
+public class UnderlineTextView extends TextView {
     private final Paint mPaint = new Paint();
     private int mUnderlineHeight = 0;
 

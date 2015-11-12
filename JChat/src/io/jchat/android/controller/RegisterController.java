@@ -87,7 +87,7 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
     @Override
     public void onSoftKeyboardShown(int w, int h, int oldw, int oldh) {
         int softKeyboardHeight = oldh - h;
-        if(softKeyboardHeight > 300){
+        if (softKeyboardHeight > 300) {
             boolean writable = SharePreferenceManager.getCachedWritableFlag();
             if (writable) {
                 SharePreferenceManager.setCachedKeyboardHeight(softKeyboardHeight);

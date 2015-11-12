@@ -8,11 +8,9 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
@@ -102,13 +100,12 @@ public class ConversationListController implements OnClickListener,
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> viewAdapter, View view,
-                                   final int position, long id) {
+    public boolean onItemLongClick(AdapterView<?> viewAdapter, View view, final int position, long id) {
         final Conversation conv = mDatas.get(position);
         OnClickListener listener = new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (conv.getType().equals(ConversationType.group)){
+                if (conv.getType().equals(ConversationType.group)) {
                     JMessageClient.deleteGroupConversation(((GroupInfo) conv.getTargetInfo())
                             .getGroupID());
                 }

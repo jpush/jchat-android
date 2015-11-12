@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
 import io.jchat.android.activity.ResetPasswordActivity;

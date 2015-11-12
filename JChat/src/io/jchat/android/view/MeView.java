@@ -12,9 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import java.lang.ref.WeakReference;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -57,9 +55,9 @@ public class MeView extends LinearLayout {
         mHeight = (int) (190 * density);
         if (userInfo != null) {
             mUserNameTv.setText(userInfo.getUserName());
-            if (!TextUtils.isEmpty(userInfo.getNickname())){
+            if (!TextUtils.isEmpty(userInfo.getNickname())) {
                 mNickNameTv.setText(userInfo.getNickname());
-            }else {
+            } else {
                 mNickNameTv.setText(userInfo.getUserName());
             }
         }
@@ -84,7 +82,7 @@ public class MeView extends LinearLayout {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if (bitmap != null){
+                if (bitmap != null) {
                     Bitmap bmp = BitmapLoader.doBlur(bitmap, false);
                     android.os.Message msg = myHandler.obtainMessage();
                     msg.obj = bmp;
@@ -103,7 +101,7 @@ public class MeView extends LinearLayout {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if (bitmap != null){
+                if (bitmap != null) {
                     Bitmap bmp = BitmapLoader.doBlur(bitmap, false);
                     android.os.Message msg = myHandler.obtainMessage();
                     msg.obj = bmp;

@@ -3,10 +3,7 @@ package io.jchat.android.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
-
 import io.jchat.android.R;
-
 import io.jchat.android.controller.RegisterController;
 import io.jchat.android.view.RegisterView;
 

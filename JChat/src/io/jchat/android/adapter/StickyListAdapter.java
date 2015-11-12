@@ -68,7 +68,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         return letters;
     }
 
-    public void updateListView(List<UserLetterBean> list){
+    public void updateListView(List<UserLetterBean> list) {
         this.mData = list;
         notifyDataSetChanged();
     }
@@ -80,7 +80,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         if (convertView == null) {
             holder = new HeaderViewHolder();
             convertView = mInflater.inflate(R.layout.header, parent, false);
-            if (Build.VERSION.SDK_INT >= 11){
+            if (Build.VERSION.SDK_INT >= 11) {
                 convertView.setAlpha(0.85f);
             }
             holder.text = (TextView) convertView.findViewById(R.id.section_tv);
@@ -93,7 +93,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         int section = getSectionForPosition(position);
         holder.text.setText(model.getLetter());
         //如果当前位置等于该分类首字母的Char的位置 ，则认为是第一次出现
-        if (position == getPositionForSection(section)){
+        if (position == getPositionForSection(section)) {
             holder.text.setText(model.getLetter());
         }
 
@@ -152,29 +152,33 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
                     mSelectMap.put(position, true);
                     addAnimation(holder.checkBox);
                 }
-                if (mSelectMap.size() > 0){
+                if (mSelectMap.size() > 0) {
                     mSelectedNum.setVisibility(View.VISIBLE);
                     mSelectedNum.setText(String.format(mContext.getString(R.string.selected_num),
                             mSelectMap.size() + "/" + mData.size()));
-                }else mSelectedNum.setVisibility(View.GONE);
+                }else {
+                    mSelectedNum.setVisibility(View.GONE);
+                }
             }
         });
 
         holder.checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (holder.checkBox.isChecked()){
+                if (holder.checkBox.isChecked()) {
                     Toast.makeText(mContext, "Position " + position + " checked!", Toast.LENGTH_SHORT).show();
                     mSelectMap.put(position, true);
                     addAnimation(holder.checkBox);
                 }else {
                     mSelectMap.delete(position);
                 }
-                if (mSelectMap.size() > 0){
+                if (mSelectMap.size() > 0) {
                     mSelectedNum.setVisibility(View.VISIBLE);
                     mSelectedNum.setText(String.format(mContext.getString(R.string.selected_num),
                             mSelectMap.size() + "/" + mData.size()));
-                }else mSelectedNum.setVisibility(View.GONE);
+                }else {
+                    mSelectedNum.setVisibility(View.GONE);
+                }
             }
         });
 
@@ -203,9 +207,9 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         return mSectionIndices[sectionIndex];
     }
 
-    public int getSectionForLetter(String letter){
-        for (int i = 0; i < mSectionIndices.length; i++){
-            if (mSectionLetters[i] == letter.charAt(0)){
+    public int getSectionForLetter(String letter) {
+        for (int i = 0; i < mSectionIndices.length; i++) {
+            if (mSectionLetters[i] == letter.charAt(0)) {
                 return mSectionIndices[i];
             }
         }

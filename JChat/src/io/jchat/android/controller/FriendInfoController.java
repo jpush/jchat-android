@@ -4,7 +4,6 @@ package io.jchat.android.controller;
 import android.content.Intent;
 import android.view.View;
 import android.view.View.OnClickListener;
-
 import io.jchat.android.R;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.application.JPushDemoApplication;

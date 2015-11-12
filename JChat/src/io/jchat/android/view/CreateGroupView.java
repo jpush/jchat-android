@@ -8,10 +8,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import io.jchat.android.R;
 
-public class CreateGroupView extends LinearLayout{
+public class CreateGroupView extends LinearLayout {
 	
 	private ImageButton mReturnBtn;
 	private Button mCommitBtn;
@@ -22,18 +21,18 @@ public class CreateGroupView extends LinearLayout{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void initModule(){
+	public void initModule() {
 		mReturnBtn = (ImageButton) findViewById(R.id.creat_group_return_btn);
 		mCommitBtn = (Button) findViewById(R.id.commit_btn);
 		mGroupName = (EditText) findViewById(R.id.input_group_id);
 	}
 	
-	public void setListeners(OnClickListener onClickListener){
+	public void setListeners(OnClickListener onClickListener) {
 		mReturnBtn.setOnClickListener(onClickListener);
 		mCommitBtn.setOnClickListener(onClickListener);
 	}
 	
-	public String getGroupName(){
+	public String getGroupName() {
 		return mGroupName.getText().toString().trim();
 	}
 

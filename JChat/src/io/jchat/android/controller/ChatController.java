@@ -84,7 +84,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                         intent.getIntExtra("memberCount", 0));
                 mConv = JMessageClient.getGroupConversation(mGroupId);
             } else {
-                if (mTargetId != null){
+                if (mTargetId != null) {
                     mGroupId = Long.parseLong(mTargetId);
                 }
                 mConv = JMessageClient.getGroupConversation(mGroupId);
@@ -140,7 +140,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             mConv = JMessageClient.getSingleConversation(mTargetId);
             if (mConv != null) {
                 UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
-                if (TextUtils.isEmpty(userInfo.getNickname())){
+                if (TextUtils.isEmpty(userInfo.getNickname())) {
                     mChatView.setChatTitle(userInfo.getUserName());
                 }else {
                     mChatView.setChatTitle(userInfo.getNickname());
@@ -156,7 +156,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
         } else if (mConv == null && !mIsGroup) {
             mConv = Conversation.createSingleConversation(mTargetId);
             UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
-            if (TextUtils.isEmpty(userInfo.getNickname())){
+            if (TextUtils.isEmpty(userInfo.getNickname())) {
                 mChatView.setChatTitle(userInfo.getUserName());
             }else {
                 mChatView.setChatTitle(userInfo.getNickname());
@@ -244,7 +244,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                             customContent.setBooleanValue("blackList", true);
                             Message customMsg = mConv.createSendMessage(customContent);
                             mChatAdapter.addMsgToList(customMsg);
-                        }else if (status != 0){
+                        }else if (status != 0) {
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                         // 发送成功或失败都要刷新一次
@@ -310,12 +310,14 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     public boolean onTouch(View view, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                switch (view.getId()){
+                switch (view.getId()) {
                     case R.id.chat_input_et:
-                        if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE && !mShowSoftInput){
+                        if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE && !mShowSoftInput) {
                             showSoftInputAndDismissMenu();
                             return false;
-                        }else return false;
+                        }else {
+                            return false;
+                        }
                 }
                 if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE){
                     mChatView.dismissMoreMenu();
@@ -333,8 +335,8 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
         return false;
     }
 
-    private void dismissSoftInput(){
-        if (mShowSoftInput){
+    private void dismissSoftInput() {
+        if (mShowSoftInput) {
             if (mImm != null) {
                 mImm.hideSoftInputFromWindow(mChatView.getInputView().getWindowToken(), 0);
                 mShowSoftInput = false;
@@ -419,7 +421,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     }
 
     public void resetUnreadMsg() {
-        if (mConv != null){
+        if (mConv != null) {
             mConv.resetUnreadCount();
         }
     }
@@ -471,7 +473,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
         return mConv;
     }
 
-    public String getTargetID() {
+    public String getTargetId() {
         return mTargetId;
     }
 
@@ -486,12 +488,10 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     @Override
     public void onSizeChanged(int w, int h, int oldw, int oldh) {
         if (oldh - h > 300) {
-            Log.i("ChatController", "onSizeChanged, soft input is open");
             mShowSoftInput = true;
             mChatView.setMoreMenuHeight();
         } else {
             mShowSoftInput = false;
-            Log.i("ChatController", "onSizeChanged, soft input is close");
         }
     }
 

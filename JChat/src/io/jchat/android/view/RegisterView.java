@@ -1,17 +1,12 @@
 package io.jchat.android.view;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import io.jchat.android.R;
 import io.jchat.android.activity.RegisterActivity;
 

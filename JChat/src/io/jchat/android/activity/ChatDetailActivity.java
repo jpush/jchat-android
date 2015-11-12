@@ -21,9 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
@@ -97,7 +95,7 @@ public class ChatDetailActivity extends BaseActivity {
                     editStart = pwdEt.getSelectionStart();
                     editEnd = pwdEt.getSelectionEnd();
                     byte[] data = temp.toString().getBytes();
-                    if (data.length > 64){
+                    if (data.length > 64) {
                         s.delete(editStart - 1, editEnd);
                         int tempSelection = editStart;
                         pwdEt.setText(s);
@@ -129,23 +127,18 @@ public class ChatDetailActivity extends BaseActivity {
                                 mDialog = new ProgressDialog(mContext);
                                 mDialog.setMessage(mContext.getString(R.string.modifying_hint));
                                 mDialog.show();
-                                JMessageClient.updateGroupName(groupID, newName, new BasicCallback(false) {
+                                JMessageClient.updateGroupName(groupID, newName, new BasicCallback() {
                                     @Override
                                     public void gotResult(final int status, final String desc) {
-                                        ChatDetailActivity.this.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                mDialog.dismiss();
-                                                if (status == 0) {
-                                                    mChatDetailView.updateGroupName(newName);
-                                                    mChatDetailController.refreshGroupName(newName);
-                                                    Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
-                                                } else {
-                                                    Log.i(TAG, "desc :" + desc);
-                                                    HandleResponseCode.onHandle(mContext, status, false);
-                                                }
-                                            }
-                                        });
+                                        mDialog.dismiss();
+                                        if (status == 0) {
+                                            mChatDetailView.updateGroupName(newName);
+                                            mChatDetailController.refreshGroupName(newName);
+                                            Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Log.i(TAG, "desc :" + desc);
+                                            HandleResponseCode.onHandle(mContext, status, false);
+                                        }
                                     }
                                 });
                             }
@@ -201,9 +194,10 @@ public class ChatDetailActivity extends BaseActivity {
         InputMethodManager imm = ((InputMethodManager) mContext
                 .getSystemService(Activity.INPUT_METHOD_SERVICE));
         if (this.getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
-            if (this.getCurrentFocus() != null)
+            if (this.getCurrentFocus() != null) {
                 imm.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
+            }
         }
     }
 
@@ -240,7 +234,7 @@ public class ChatDetailActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mChatDetailController.getAdapter() != null){
+        if (mChatDetailController.getAdapter() != null) {
             mChatDetailController.getAdapter().notifyDataSetChanged();
         }
     }
@@ -294,7 +288,7 @@ public class ChatDetailActivity extends BaseActivity {
         if (msg.getContentType() == ContentType.eventNotification) {
             EventNotificationContent.EventNotificationType msgType = ((EventNotificationContent) msg
                     .getContent()).getEventNotificationType();
-            switch (msgType){
+            switch (msgType) {
                 //添加群成员事件特殊处理
                 case group_member_added:
                     List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();

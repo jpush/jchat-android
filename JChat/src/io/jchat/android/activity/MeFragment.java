@@ -47,11 +47,10 @@ public class MeFragment extends BaseFragment {
         mContext = this.getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mRootView = layoutInflater.inflate(R.layout.fragment_me,
-                (ViewGroup) getActivity().findViewById(R.id.main_view),
-                false);
+                (ViewGroup) getActivity().findViewById(R.id.main_view), false);
         mMeView = (MeView) mRootView.findViewById(R.id.me_view);
         mMeView.initModule(mDensity, mWidth);
-        mMeController = new MeController(mMeView, this);
+        mMeController = new MeController(mMeView, this, mWidth);
         mMeView.setListeners(mMeController);
     }
 
@@ -68,7 +67,7 @@ public class MeFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-        if (!mIsShowAvatar){
+        if (!mIsShowAvatar) {
             UserInfo myInfo = JMessageClient.getMyInfo();
             if (!TextUtils.isEmpty(myInfo.getAvatar())) {
                 myInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
@@ -100,7 +99,6 @@ public class MeFragment extends BaseFragment {
         UserInfo info = JMessageClient.getMyInfo();
         if (null != info) {
             intent.putExtra("userName", info.getUserName());
-            Log.i("MeFragment", "userName " + info.getUserName());
             File file = info.getAvatarFile();
             if (file != null && file.isFile()) {
                 intent.putExtra("avatarFilePath", file.getAbsolutePath());
@@ -150,7 +148,6 @@ public class MeFragment extends BaseFragment {
             }
         } else {
             Toast.makeText(this.getActivity(), mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
-            return;
         }
     }
 

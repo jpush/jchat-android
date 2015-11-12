@@ -9,13 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
 
-import io.jchat.android.R;
-
 import java.io.File;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
-
+import io.jchat.android.R;
 import io.jchat.android.tools.BitmapLoader;
 
 /**
@@ -28,19 +26,20 @@ public class LoginDialog {
         RelativeLayout layout = (RelativeLayout) v.findViewById(R.id.dialog_login_view);
         CircleImageView avatarIv = (CircleImageView) v.findViewById(R.id.login_iv);
         UserInfo userInfo = JMessageClient.getMyInfo();
-        if(userInfo != null){
+        if (userInfo != null) {
             File file = userInfo.getAvatarFile();
-            if (file != null){
+            if (file != null) {
                 DisplayMetrics dm = new DisplayMetrics();
                 ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(dm);
                 double density = dm.density;
-                Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(100 * density), (int)(100 * density));
+                Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), (int)(100 * density),
+                        (int)(100 * density));
                 avatarIv.setImageBitmap(bitmap);
             }
         }
         final Dialog loadingDialog = new Dialog(context, R.style.login_dialog_style);
-        loadingDialog.setContentView(layout, new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
+        loadingDialog.setContentView(layout, new RelativeLayout
+                .LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT));
         return loadingDialog;
     }

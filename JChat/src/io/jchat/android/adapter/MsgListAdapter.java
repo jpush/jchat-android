@@ -526,25 +526,6 @@ public class MsgListAdapter extends BaseAdapter {
             }
         }
 
-        switch (msg.getContentType()) {
-            case text:
-                handleTextMsg(msg, holder);
-                break;
-            case image:
-                handleImgMsg(msg, holder, position);
-                break;
-            case voice:
-                handleVoiceMsg(msg, holder, position);
-                break;
-            case location:
-                handleLocationMsg(msg, holder, position);
-                break;
-            case eventNotification:
-                handleGroupChangeMsg(msg, holder, msgTime);
-                break;
-            default:
-                handleCustomMsg(msg, holder);
-        }
         //显示头像
         if (holder.headIcon != null) {
           if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())){
@@ -613,8 +594,8 @@ public class MsgListAdapter extends BaseAdapter {
                                         }
                                     }
 
-                                    Toast.makeText(mContext, mContext.getString(R.string.copy_toast), Toast.LENGTH_SHORT)
-                                            .show();
+                                    Toast.makeText(mContext, mContext.getString(R.string.copy_toast),
+                                            Toast.LENGTH_SHORT).show();
                                     mDialog.dismiss();
                                 }
                                 break;
@@ -637,9 +618,25 @@ public class MsgListAdapter extends BaseAdapter {
                 return true;
             }
         };
-        try {
-            holder.txtContent.setOnLongClickListener(longClickListener);
-        } catch (Exception e) {
+
+        switch (msg.getContentType()) {
+            case text:
+                handleTextMsg(msg, holder, longClickListener);
+                break;
+            case image:
+                handleImgMsg(msg, holder, position);
+                break;
+            case voice:
+                handleVoiceMsg(msg, holder, position, longClickListener);
+                break;
+            case location:
+                handleLocationMsg(msg, holder, position);
+                break;
+            case eventNotification:
+                handleGroupChangeMsg(msg, holder, msgTime);
+                break;
+            default:
+                handleCustomMsg(msg, holder);
         }
 
         return convertView;
@@ -688,10 +685,10 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    private void handleTextMsg(final Message msg, final ViewHolder holder) {
+    private void handleTextMsg(final Message msg, final ViewHolder holder, OnLongClickListener longClickListener) {
         final String content = ((TextContent) msg.getContent()).getText();
         holder.txtContent.setText(content);
-
+        holder.txtContent.setOnLongClickListener(longClickListener);
         // 检查发送状态，发送方有重发机制
         if (msg.getDirect().equals(MessageDirect.send)) {
             final Animation sendingAnim = AnimationUtils.loadAnimation(mContext, R.anim.rotate);
@@ -938,7 +935,6 @@ public class MsgListAdapter extends BaseAdapter {
                     String progressStr = (int) (v * 100) + "%";
                     Log.d(TAG, "msg.getId: " + msg.getId() + " progress: " + progressStr);
                     holder.progressTv.setText(progressStr);
-
                 }
             });
         }
@@ -1005,7 +1001,7 @@ public class MsgListAdapter extends BaseAdapter {
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(path, opts);
-//                计算图片缩放比例
+        //计算图片缩放比例
         double imageWidth = opts.outWidth;
         double imageHeight = opts.outHeight;
         if (imageWidth < 100 * mDensity) {
@@ -1051,7 +1047,6 @@ public class MsgListAdapter extends BaseAdapter {
         viewHolder.resend.setVisibility(View.GONE);
         viewHolder.progressTv.setVisibility(View.VISIBLE);
         try {
-
             // 显示上传进度
             msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
                 @Override
@@ -1078,10 +1073,12 @@ public class MsgListAdapter extends BaseAdapter {
             }
             JMessageClient.sendMessage(msg);
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private void handleVoiceMsg(final Message msg, final ViewHolder holder, final int position) {
+    private void handleVoiceMsg(final Message msg, final ViewHolder holder, final int position,
+    OnLongClickListener longClickListener) {
         final VoiceContent content = (VoiceContent) msg.getContent();
         final MessageDirect msgDirect = msg.getDirect();
         int length = content.getDuration();
@@ -1090,6 +1087,7 @@ public class MsgListAdapter extends BaseAdapter {
         //控制语音长度显示，长度增幅随语音长度逐渐缩小
         int width = (int) (-0.04 * length * length + 4.526 * length + 75.214);
         holder.txtContent.setWidth((int) (width * mDensity));
+        holder.txtContent.setOnLongClickListener(longClickListener);
         if (msgDirect.equals(MessageDirect.send)) {
             holder.voice.setImageResource(R.drawable.send_3);
             final Animation sendingAnim = AnimationUtils.loadAnimation(mContext, R.anim.rotate);
@@ -1115,10 +1113,13 @@ public class MsgListAdapter extends BaseAdapter {
             holder.resend.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View arg0) {
-                    if (msg.getContent() != null)
+                    if (msg.getContent() != null) {
                         showResendDialog(holder, sendingAnim, msg);
-                    else
-                        Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast),
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         } else switch (msg.getStatus()) {
@@ -1139,17 +1140,12 @@ public class MsgListAdapter extends BaseAdapter {
                     holder.readStatus.setVisibility(View.VISIBLE);
                     if (mIndexList.size() > 0) {
                         if (!mIndexList.contains(position)) {
-                            Log.i("mIndexList", "position: " + position);
                             addTolistAndSort(position);
-                            Log.i("mIndexList", "mIndexList.size()" + mIndexList.size());
                         }
                     } else {
-                        Log.i("mIndexList", "position: " + position);
                         addTolistAndSort(position);
                     }
-                    Log.d("", "current position  = " + position);
                     if (nextPlayPosition == position && autoPlay) {
-                        Log.d("", "nextPlayPosition = " + nextPlayPosition);
                         playVoiceThenRefresh(position, holder);
                     }
                 } else if (msg.getContent().getBooleanExtra("isReaded").equals(true)) {
@@ -1194,18 +1190,17 @@ public class MsgListAdapter extends BaseAdapter {
                 if (mp.isPlaying() && mPosition == position) {
                     if (msgDirect.equals(MessageDirect.send)) {
                         holder.voice.setImageResource(R.anim.voice_send);
-                    } else
+                    } else {
                         holder.voice.setImageResource(R.anim.voice_receive);
-                    mVoiceAnimation = (AnimationDrawable) holder.voice
-                            .getDrawable();
+                    }
+                    mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
                     pauseVoice();
                     mVoiceAnimation.stop();
                     // 开始播放录音
                 } else if (msgDirect.equals(MessageDirect.send)) {
                     try {
                         holder.voice.setImageResource(R.anim.voice_send);
-                        mVoiceAnimation = (AnimationDrawable) holder.voice
-                                .getDrawable();
+                        mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
 
                         // 继续播放之前暂停的录音
                         if (mSetData && mPosition == position) {
@@ -1215,10 +1210,8 @@ public class MsgListAdapter extends BaseAdapter {
                             mp.reset();
                             // 记录播放录音的位置
                             mPosition = position;
-                            Log.i(TAG, "content.getLocalPath:"
-                                    + content.getLocalPath());
-                            mFIS = new FileInputStream(content
-                                    .getLocalPath());
+                            Log.i(TAG, "content.getLocalPath:" + content.getLocalPath());
+                            mFIS = new FileInputStream(content.getLocalPath());
                             mFD = mFIS.getFD();
                             mp.setDataSource(mFD);
                             if (mIsEarPhoneOn) {
@@ -1274,8 +1267,7 @@ public class MsgListAdapter extends BaseAdapter {
                                 mPosition = position;
                                 if (content.getLocalPath() != null) {
                                     try {
-                                        mFIS = new FileInputStream(content
-                                                .getLocalPath());
+                                        mFIS = new FileInputStream(content.getLocalPath());
                                         mFD = mFIS.getFD();
                                         mp.setDataSource(mFD);
                                         mp.prepare();
@@ -1294,7 +1286,8 @@ public class MsgListAdapter extends BaseAdapter {
                                         }
                                     }
                                 } else {
-                                    Toast.makeText(mContext, mContext.getString(R.string.voice_fetch_failed_toast), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, mContext.getString(R.string.voice_fetch_failed_toast),
+                                            Toast.LENGTH_SHORT).show();
                                 }
 
                             }
@@ -1320,11 +1313,9 @@ public class MsgListAdapter extends BaseAdapter {
                         mSetData = false;
                         // 播放完毕，恢复初始状态
                         if (msgDirect.equals(MessageDirect.send))
-                            holder.voice
-                                    .setImageResource(R.drawable.send_3);
+                            holder.voice.setImageResource(R.drawable.send_3);
                         else {
-                            holder.voice
-                                    .setImageResource(R.drawable.receive_3);
+                            holder.voice.setImageResource(R.drawable.receive_3);
                             holder.readStatus.setVisibility(View.GONE);
                         }
                     }
@@ -1370,8 +1361,7 @@ public class MsgListAdapter extends BaseAdapter {
                     mVoiceAnimation.stop();
                     mp.reset();
                     mSetData = false;
-                    holder.voice
-                            .setImageResource(R.drawable.receive_3);
+                    holder.voice.setImageResource(R.drawable.receive_3);
                     int curCount = mIndexList.indexOf(position);
                     Log.d(TAG, "curCount = " + curCount);
                     if (curCount + 1 >= mIndexList.size()) {

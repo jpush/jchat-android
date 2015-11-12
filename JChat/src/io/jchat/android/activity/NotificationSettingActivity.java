@@ -1,16 +1,12 @@
 package io.jchat.android.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import io.jchat.android.R;
-
 import io.jchat.android.Listener.OnChangedListener;
-
 import io.jchat.android.view.SlipButton;
 
 public class NotificationSettingActivity extends BaseActivity implements OnChangedListener{

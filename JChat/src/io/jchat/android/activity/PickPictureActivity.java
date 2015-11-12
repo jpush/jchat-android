@@ -13,14 +13,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.model.Conversation;
@@ -64,15 +62,13 @@ public class PickPictureActivity extends BaseActivity {
         mIsGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
         if (mIsGroup) {
             mGroupId = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
-            Log.i("PickPictureActivity", "groupId : " + mGroupId);
             mConv = JMessageClient.getGroupConversation(mGroupId);
         } else {
             mTargetId = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
-            Log.i("PickPictureActivity", "mTargetId" + mTargetId);
             mConv = JMessageClient.getSingleConversation(mTargetId);
         }
         mList = intent.getStringArrayListExtra("data");
-        mAdapter = new PickPictureAdapter(this, mList, mGridView);
+        mAdapter = new PickPictureAdapter(this, mList, mGridView, mDensity);
         mGridView.setAdapter(mAdapter);
         mGridView.setOnItemClickListener(onItemListener);
         mSendPictureBtn.setOnClickListener(listener);
@@ -81,13 +77,14 @@ public class PickPictureActivity extends BaseActivity {
 
     private OnItemClickListener onItemListener = new OnItemClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> viewAdapter, View view, int position,
-                                long id) {
+        public void onItemClick(AdapterView<?> viewAdapter, View view, int position, long id) {
             Intent intent = new Intent();
             intent.putExtra("fromChatActivity", false);
             if (mIsGroup) {
                 intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupId);
-            } else intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetId);
+            } else {
+                intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetId);
+            }
             intent.putStringArrayListExtra("pathList", (ArrayList<String>) mList);
             intent.putExtra(JPushDemoApplication.POSITION, position);
             intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
@@ -184,7 +181,7 @@ public class PickPictureActivity extends BaseActivity {
             ImageContent.createImageContentAsync(bitmap, new ImageContent.CreateImageContentCallback() {
                 @Override
                 public void gotResult(int status, String desc, ImageContent imageContent) {
-                    if (status == 0){
+                    if (status == 0) {
                         Message msg = mConv.createSendMessage(imageContent);
                         mMsgIds[mIndex] = msg.getId();
                         mIndex++;
@@ -209,10 +206,11 @@ public class PickPictureActivity extends BaseActivity {
                 int[] selectedArray = data.getIntArrayExtra("pathArray");
                 int sum = 0;
                 for (int i : selectedArray) {
-                    if (i > 0)
+                    if (i > 0) {
                         ++sum;
+                    }
                 }
-                if (sum > 0){
+                if (sum > 0) {
                     String sendText = PickPictureActivity.this.getString(R.string.send) + "(" + sum + "/" + "9)";
                     mSendPictureBtn.setText(sendText);
                 }else {
@@ -246,8 +244,9 @@ public class PickPictureActivity extends BaseActivity {
                         intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupId);
                         intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIds);
                         activity.setResult(JPushDemoApplication.RESULT_CODE_SELECT_ALBUM, intent);
-                        if (activity.mDialog != null)
+                        if (activity.mDialog != null) {
                             activity.mDialog.dismiss();
+                        }
                         activity.finish();
                         break;
                 }

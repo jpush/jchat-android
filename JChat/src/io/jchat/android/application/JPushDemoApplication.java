@@ -2,7 +2,6 @@ package io.jchat.android.application;
 
 import android.app.Application;
 import android.util.Log;
-
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.receiver.NotificationClickEventReceiver;
 import io.jchat.android.tools.SharePreferenceManager;

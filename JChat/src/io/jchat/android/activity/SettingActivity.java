@@ -9,7 +9,6 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import io.jchat.android.R;
 import io.jchat.android.tools.DialogCreator;
 

@@ -3,7 +3,6 @@ package io.jchat.android.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.DisplayMetrics;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,16 +14,11 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import io.jchat.android.R;
-
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
-
 import java.util.ArrayList;
 import java.util.List;
-
-
+import io.jchat.android.R;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.NativeImageLoader.NativeImageCallBack;
 import io.jchat.android.view.MyImageView;
@@ -39,19 +33,17 @@ public class PickPictureAdapter extends BaseAdapter {
     protected LayoutInflater mInflater;
     private Context mContext;
     private Button mSendBtn;
-    private double mDensity;
+    private float mDensity;
     private boolean mChecked;
 
-    public PickPictureAdapter(Context context, List<String> list, GridView mGridView) {
+    public PickPictureAdapter(Context context, List<String> list, GridView mGridView, float density) {
         this.mContext = context;
         this.mList = list;
         this.mGridView = mGridView;
         mInflater = LayoutInflater.from(context);
         Activity activity = (Activity) mContext;
         mSendBtn = (Button) activity.findViewById(R.id.pick_picture_send_btn);
-        DisplayMetrics dm = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDensity = dm.density;
+        this.mDensity = density;
     }
 
     @Override
@@ -87,8 +79,6 @@ public class PickPictureAdapter extends BaseAdapter {
             viewHolder.mImageView.setImageResource(R.drawable.friends_sends_pictures_no);
         }
         viewHolder.mImageView.setTag(path);
-        if (mSelectMap.size() > 0)
-            initSelectedPicture();
         //增加选中checkbox面积
         viewHolder.mCheckBoxLl.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,10 +91,11 @@ public class PickPictureAdapter extends BaseAdapter {
                         mChecked = true;
                     } else {
                         mChecked = false;
-                        Toast.makeText(mContext, mContext.getString(R.string.picture_num_limit_toast), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, mContext.getString(R.string.picture_num_limit_toast),
+                                Toast.LENGTH_SHORT).show();
                         viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
                     }
-                }else if(mSelectMap.size() <= 9){
+                }else if (mSelectMap.size() <= 9) {
                     mSelectMap.delete(position);
                     mChecked = false;
                     viewHolder.mCheckBox.setChecked(false);
@@ -129,10 +120,11 @@ public class PickPictureAdapter extends BaseAdapter {
                         addAnimation(viewHolder.mCheckBox);
                     } else {
                         mChecked = false;
-                        Toast.makeText(mContext, mContext.getString(R.string.picture_num_limit_toast), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, mContext.getString(R.string.picture_num_limit_toast),
+                                Toast.LENGTH_SHORT).show();
                         viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
                     }
-                }else if(mSelectMap.size() <= 9){
+                }else if (mSelectMap.size() <= 9) {
                     mChecked = false;
                     mSelectMap.delete(position);
                 }
@@ -150,7 +142,8 @@ public class PickPictureAdapter extends BaseAdapter {
         viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
 
         //利用NativeImageLoader类加载本地图片
-        Bitmap bitmap = NativeImageLoader.getInstance().loadNativeImage(path, (int) (80 * mDensity), new NativeImageCallBack() {
+        Bitmap bitmap = NativeImageLoader.getInstance().loadNativeImage(path, (int) (80 * mDensity),
+                new NativeImageCallBack() {
 
             @Override
             public void onImageLoader(Bitmap bitmap, String path) {
@@ -168,10 +161,6 @@ public class PickPictureAdapter extends BaseAdapter {
         }
 
         return convertView;
-    }
-
-    private void initSelectedPicture() {
-
     }
 
     /**
@@ -206,8 +195,9 @@ public class PickPictureAdapter extends BaseAdapter {
      */
     public int[] getSelectedArray() {
         int pathArray[] = new int[mList.size()];
-        for (int i = 0; i < pathArray.length; i++)
+        for (int i = 0; i < pathArray.length; i++) {
             pathArray[i] = 0;
+        }
         for (int i = 0; i < mSelectMap.size(); i++) {
             pathArray[mSelectMap.keyAt(i)] = 1;
         }
@@ -217,8 +207,9 @@ public class PickPictureAdapter extends BaseAdapter {
     public void refresh(int[] pathArray) {
         mSelectMap.clear();
         for (int i = 0; i < pathArray.length; i++) {
-            if (pathArray[i] == 1)
+            if (pathArray[i] == 1) {
                 mSelectMap.put(i, true);
+            }
         }
         notifyDataSetChanged();
     }

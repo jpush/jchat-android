@@ -105,12 +105,11 @@ public class MainActivity extends FragmentActivity{
         if (requestCode == JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
             String path = mMainController.getPhotoPath();
             File file = new File(path);
-            if (file.isFile()){
+            if (file.isFile()) {
                 mUri = Uri.fromFile(file);
                 //拍照后直接进行裁剪
                 mMainController.cropRawPhoto(mUri);
             }
-//                mMainController.uploadUserAvatar(path);
         } else if (requestCode == JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
             if (data != null) {
                 Uri selectedImg = data.getData();
@@ -148,10 +147,9 @@ public class MainActivity extends FragmentActivity{
                             cursor.close();
                         }
                     }
-//                    mMainController.uploadUserAvatar(path);
                 }
             }
-        }else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE){
+        }else if (requestCode == JPushDemoApplication.REQUEST_CODE_CROP_PICTURE) {
             Bitmap bitmap = decodeUriAsBitmap(mUri);
             UserInfo myInfo = JMessageClient.getMyInfo();
             String path = BitmapLoader.saveBitmapToLocal(bitmap, this, myInfo.getUserName());
@@ -161,11 +159,10 @@ public class MainActivity extends FragmentActivity{
                     Log.d("MainActivity", "delete temp file success!");
                 }
             }
-            Log.d("MainActivity", "After compress Path: " + path);
             mMainController.uploadUserAvatar(path);
-        }else if (resultCode == JPushDemoApplication.RESULT_CODE_ME_INFO){
+        }else if (resultCode == JPushDemoApplication.RESULT_CODE_ME_INFO) {
             String newName = data.getStringExtra("newName");
-            if (!TextUtils.isEmpty(newName)){
+            if (!TextUtils.isEmpty(newName)) {
                 mMainController.refreshNickname(newName);
             }
         }
@@ -195,7 +192,7 @@ public class MainActivity extends FragmentActivity{
                         FileOutputStream fos = new FileOutputStream(tempFile);
                         byte[] bt = new byte[1024];
                         int c;
-                        while((c = fis.read(bt)) > 0){
+                        while((c = fis.read(bt)) > 0) {
                             fos.write(bt,0,c);
                         }
                         //关闭输入、输出流
@@ -230,7 +227,7 @@ public class MainActivity extends FragmentActivity{
         }
     }
 
-    private Bitmap decodeUriAsBitmap(Uri uri){
+    private Bitmap decodeUriAsBitmap(Uri uri) {
         Bitmap bitmap;
         try {
             bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));

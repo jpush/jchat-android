@@ -13,7 +13,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-
 import io.jchat.android.R;
 import io.jchat.android.application.JPushDemoApplication;
 

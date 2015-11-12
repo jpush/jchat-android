@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
-
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
 
@@ -28,7 +27,7 @@ public class AboutActivity extends Activity {
             String aboutContent = String.format(demoVersionName, version)
                     + this.getString(R.string.sdk_version) + sdkVersion + this.getString(R.string.about_date);
             mAboutTv.setText(aboutContent);
-        }catch (PackageManager.NameNotFoundException e){
+        }catch (PackageManager.NameNotFoundException e) {
             Log.d("AboutActivity", "Name not Found");
         }
 

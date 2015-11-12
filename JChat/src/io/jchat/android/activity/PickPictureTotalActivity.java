@@ -18,7 +18,6 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import io.jchat.android.R;
 import io.jchat.android.adapter.AlbumListAdapter;
 import io.jchat.android.application.JPushDemoApplication;
@@ -55,7 +53,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 	private static class MyHandler extends Handler{
 		private final WeakReference<PickPictureTotalActivity> mActivity;
 
-		public MyHandler(PickPictureTotalActivity activity){
+		public MyHandler(PickPictureTotalActivity activity) {
 			mActivity = new WeakReference<PickPictureTotalActivity>(activity);
 		}
 
@@ -63,12 +61,13 @@ public class PickPictureTotalActivity extends BaseActivity {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			PickPictureTotalActivity activity = mActivity.get();
-			if(activity != null){
+			if (activity != null) {
 				switch (msg.what) {
 					case SCAN_OK:
 						//关闭进度条
 						activity.mProgressDialog.dismiss();
-						activity.adapter = new AlbumListAdapter(activity, activity.list = activity.subGroupOfImage(activity.mGruopMap), activity.mListView);
+						activity.adapter = new AlbumListAdapter(activity, activity.list = activity
+								.subGroupOfImage(activity.mGruopMap), activity.mListView, activity.mDensity);
 						activity.mListView.setAdapter(activity.adapter);
 						break;
 					case SCAN_ERROR:
@@ -96,8 +95,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				List<String> childList = mGruopMap.get(list.get(position).getFolderName());
 				mIntent.setClass(PickPictureTotalActivity.this, PickPictureActivity.class);
 				mIntent.putStringArrayListExtra("data", (ArrayList<String>)childList);
@@ -142,9 +140,9 @@ public class PickPictureTotalActivity extends BaseActivity {
 						MediaStore.Images.Media.MIME_TYPE + "=? or "
 								+ MediaStore.Images.Media.MIME_TYPE + "=?",
 						new String[] { "image/jpeg", "image/png" }, MediaStore.Images.Media.DATE_MODIFIED);
-				if(mCursor == null || mCursor.getCount() == 0){
+				if (mCursor == null || mCursor.getCount() == 0) {
 					myHandler.sendEmptyMessage(SCAN_ERROR);
-                }else{
+                }else {
                     while (mCursor.moveToNext()) {
                         //获取图片的路径
                         String path = mCursor.getString(mCursor
@@ -161,7 +159,8 @@ public class PickPictureTotalActivity extends BaseActivity {
                             } else {
                                 mGruopMap.get(parentName).add(path);
                             }
-                        }catch (Exception e){
+                        }catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                     mCursor.close();
@@ -181,8 +180,8 @@ public class PickPictureTotalActivity extends BaseActivity {
 	 * @param mGruopMap 相册HashMap
 	 * @return List<ImageBean>
 	 */
-	private List<ImageBean> subGroupOfImage(HashMap<String, List<String>> mGruopMap){
-		if(mGruopMap.size() == 0){
+	private List<ImageBean> subGroupOfImage(HashMap<String, List<String>> mGruopMap) {
+		if (mGruopMap.size() == 0) {
 			return null;
 		}
 		List<ImageBean> list = new ArrayList<ImageBean>();
@@ -216,13 +215,13 @@ public class PickPictureTotalActivity extends BaseActivity {
 		if (resultCode == Activity.RESULT_CANCELED) {
 			return;
 		}
-		if (resultCode == JPushDemoApplication.RESULT_CODE_SELECT_ALBUM){
+		if (resultCode == JPushDemoApplication.RESULT_CODE_SELECT_ALBUM) {
 			setResult(JPushDemoApplication.RESULT_CODE_SELECT_PICTURE, data);
 			finish();
 		}
 	}
 
-    static class SortImageBeanComparator implements Comparator<ImageBean>{
+    static class SortImageBeanComparator implements Comparator<ImageBean> {
 
         List<ImageBean> list;
 
@@ -231,12 +230,12 @@ public class PickPictureTotalActivity extends BaseActivity {
         }
 
         //根据相册的第一张图片进行排序，最近修改的放在前面
-        public int compare(ImageBean arg0, ImageBean arg1){
+        public int compare(ImageBean arg0, ImageBean arg1) {
             String path1 = arg0.getTopImagePath();
             String path2 = arg1.getTopImagePath();
             File f1 = new File(path1);
             File f2 = new File(path2);
-            if (f1.lastModified() < f2.lastModified()){
+            if (f1.lastModified() < f2.lastModified()) {
                 return 1;
             }else {
                 return -1;

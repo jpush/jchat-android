@@ -14,12 +14,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-
 import cn.jpush.im.android.api.JMessageClient;
-
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
@@ -33,7 +30,6 @@ public class ResetNickNameActivity extends BaseActivity {
     private TextView mTitleTv;
     private Button mCommitBtn;
     private EditText mNickNameEt;
-    private DialogCreator mLD;
     private Dialog mDialog;
     private Context mContext;
 
@@ -64,33 +60,25 @@ public class ResetNickNameActivity extends BaseActivity {
                     Toast.makeText(mContext, mContext.getString(R.string.nickname_not_null_toast), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (oldNickName.equals(nickName)) {
-                    return;
-                } else {
-                    mLD = new DialogCreator();
-                    mDialog = mLD.createLoadingDialog(mContext, mContext.getString(R.string.modifying_hint));
+                if (!oldNickName.equals(nickName)) {
+                    mDialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.modifying_hint));
                     mDialog.show();
                     UserInfo myUserInfo = JMessageClient.getMyInfo();
                     myUserInfo.setNickname(nickName);
-                    JMessageClient.updateMyInfo(UserInfo.Field.nickname, myUserInfo, new BasicCallback(false) {
+                    JMessageClient.updateMyInfo(UserInfo.Field.nickname, myUserInfo, new BasicCallback() {
                         @Override
                         public void gotResult(final int status, final String desc) {
-                            ((Activity) mContext).runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mDialog.dismiss();
-                                    if (status == 0) {
-                                        Toast.makeText(mContext, ResetNickNameActivity.this.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent();
-                                        intent.putExtra("nickName", nickName);
-                                        setResult(0, intent);
-                                        finish();
-                                    } else {
-                                        dismissSoftInput();
-                                        HandleResponseCode.onHandle(mContext, status, false);
-                                    }
-                                }
-                            });
+                            mDialog.dismiss();
+                            if (status == 0) {
+                                Toast.makeText(mContext, ResetNickNameActivity.this.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent();
+                                intent.putExtra("nickName", nickName);
+                                setResult(0, intent);
+                                finish();
+                            } else {
+                                dismissSoftInput();
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
                         }
                     });
                 }
@@ -104,8 +92,10 @@ public class ResetNickNameActivity extends BaseActivity {
         InputMethodManager imm = ((InputMethodManager) mContext
                 .getSystemService(Activity.INPUT_METHOD_SERVICE));
         if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
-            if (getCurrentFocus() != null)
-                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.RESULT_HIDDEN);
+            if (getCurrentFocus() != null) {
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                        InputMethodManager.RESULT_HIDDEN);
+            }
         }
     }
 }
