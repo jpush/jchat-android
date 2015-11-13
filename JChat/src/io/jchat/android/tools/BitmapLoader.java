@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
 
+import io.jchat.android.application.JChatDemoApplication;
+
 /**
  * Created by Ken on 2015/2/9.
  */
@@ -55,13 +57,11 @@ public class BitmapLoader {
         FileOutputStream fileOutput = null;
         File imgFile;
         try {
-            File rootDir = context.getFilesDir();
-            String fileDir = rootDir.getAbsolutePath() + "/pictures";
-            File desDir = new File(fileDir);
+            File desDir = new File(JChatDemoApplication.PICTURE_DIR);
             if (!desDir.exists()) {
                 desDir.mkdirs();
             }
-            imgFile = new File(desDir.getAbsoluteFile() + "/" + userName + ".png");
+            imgFile = new File(JChatDemoApplication.PICTURE_DIR, userName + ".png");
             imgFile.createNewFile();
             fileOutput = new FileOutputStream(imgFile);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutput);

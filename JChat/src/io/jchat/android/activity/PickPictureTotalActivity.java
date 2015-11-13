@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import io.jchat.android.R;
 import io.jchat.android.adapter.AlbumListAdapter;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.entity.ImageBean;
 import io.jchat.android.tools.SortPictureList;
 
@@ -99,7 +99,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 				List<String> childList = mGruopMap.get(list.get(position).getFolderName());
 				mIntent.setClass(PickPictureTotalActivity.this, PickPictureActivity.class);
 				mIntent.putStringArrayListExtra("data", (ArrayList<String>)childList);
-				startActivityForResult(mIntent, JPushDemoApplication.REQUEST_CODE_SELECT_ALBUM);
+				startActivityForResult(mIntent, JChatDemoApplication.REQUEST_CODE_SELECT_ALBUM);
 				
 			}
 		});
@@ -215,8 +215,8 @@ public class PickPictureTotalActivity extends BaseActivity {
 		if (resultCode == Activity.RESULT_CANCELED) {
 			return;
 		}
-		if (resultCode == JPushDemoApplication.RESULT_CODE_SELECT_ALBUM) {
-			setResult(JPushDemoApplication.RESULT_CODE_SELECT_PICTURE, data);
+		if (resultCode == JChatDemoApplication.RESULT_CODE_SELECT_ALBUM) {
+			setResult(JChatDemoApplication.RESULT_CODE_SELECT_PICTURE, data);
 			finish();
 		}
 	}

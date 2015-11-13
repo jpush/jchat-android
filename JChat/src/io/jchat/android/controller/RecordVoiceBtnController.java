@@ -9,7 +9,6 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
@@ -36,6 +35,7 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.adapter.MsgListAdapter;
+import io.jchat.android.tools.FileHelper;
 import io.jchat.android.tools.HandleResponseCode;
 
 public class RecordVoiceBtnController extends Button {
@@ -67,7 +67,6 @@ public class RecordVoiceBtnController extends Button {
     private ObtainDecibelThread mThread;
 
     private Handler mVolumeHandler;
-    private boolean sdCardExist;
     public static boolean mIsPressed = false;
     private Context mContext;
     private Conversation mConv;
@@ -114,8 +113,7 @@ public class RecordVoiceBtnController extends Button {
                 time1 = System.currentTimeMillis();
                 mTouchY1 = event.getY();
                 //检查sd卡是否存在
-                sdCardExist = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
-                if (sdCardExist) {
+                if (FileHelper.isSdCardExist()) {
                     if (isTimerCanceled) {
                         timer = createTimer();
                     }

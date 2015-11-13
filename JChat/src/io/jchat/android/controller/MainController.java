@@ -21,7 +21,7 @@ import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.activity.MainActivity;
 import io.jchat.android.activity.MeFragment;
 import io.jchat.android.adapter.ViewPagerAdapter;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MainView;
 
@@ -96,7 +96,7 @@ public class MainController implements OnClickListener, OnPageChangeListener {
         intent.putExtra("return-data", false);
         intent.putExtra("outputFormat", Bitmap.CompressFormat.PNG.toString());
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-        mContext.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_CROP_PICTURE);
+        mContext.startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_CROP_PICTURE);
     }
 
     public void uploadUserAvatar(final String path) {

@@ -33,7 +33,7 @@ import io.jchat.android.activity.ChatDetailActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.adapter.GroupMemberGridAdapter;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.entity.Event;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
@@ -81,10 +81,10 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
      */
     private void initData() {
         Intent intent = mContext.getIntent();
-        mIsGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
-        mGroupId = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+        mIsGroup = intent.getBooleanExtra(JChatDemoApplication.IS_GROUP, false);
+        mGroupId = intent.getLongExtra(JChatDemoApplication.GROUP_ID, 0);
         Log.i(TAG, "mGroupId" + mGroupId);
-        mTargetId = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
+        mTargetId = intent.getStringExtra(JChatDemoApplication.TARGET_ID);
         Log.i(TAG, "mTargetId: " + mTargetId);
         // 是群组
         if (mIsGroup) {
@@ -135,9 +135,9 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             case R.id.return_btn:
                 Intent intent = new Intent();
                 intent.putExtra("deleteMsg", mDeleteMsg);
-                intent.putExtra(JPushDemoApplication.NAME, getName());
+                intent.putExtra(JChatDemoApplication.NAME, getName());
                 intent.putExtra("currentCount", mCurrentNum);
-                mContext.setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
+                mContext.setResult(JChatDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
                 mContext.finish();
                 break;
 
@@ -246,9 +246,9 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             .equals(JMessageClient.getMyInfo().getUserName())) {
                         intent.setClass(mContext, MeInfoActivity.class);
                     } else {
-                        intent.putExtra(JPushDemoApplication.TARGET_ID,
+                        intent.putExtra(JChatDemoApplication.TARGET_ID,
                                 mMemberInfoList.get(position).getUserName());
-                        intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupId);
+                        intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
                         intent.setClass(mContext, FriendInfoActivity.class);
                     }
                     mContext.startActivity(intent);
@@ -265,9 +265,9 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 }
                 //单聊
             } else if (position < mCurrentNum) {
-                intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetId);
+                intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
                 intent.setClass(mContext, FriendInfoActivity.class);
-                mContext.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_FRIEND_INFO);
+                mContext.startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_FRIEND_INFO);
             } else if (position == mCurrentNum) {
                 addMemberToGroup();
             }

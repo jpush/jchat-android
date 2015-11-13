@@ -13,7 +13,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.controller.MeInfoController;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MeInfoView;
@@ -158,7 +158,7 @@ public class MeInfoActivity extends BaseActivity {
     public void setResultAndFinish() {
         Intent intent = new Intent();
         intent.putExtra("newName", mModifiedName);
-        setResult(JPushDemoApplication.RESULT_CODE_ME_INFO, intent);
+        setResult(JChatDemoApplication.RESULT_CODE_ME_INFO, intent);
         finish();
     }
 }

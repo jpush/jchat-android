@@ -64,7 +64,7 @@ import cn.jpush.im.android.api.enums.MessageDirect;
 import io.jchat.android.activity.BrowserViewPagerActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.TimeFormat;
@@ -115,7 +115,7 @@ public class MsgListAdapter extends BaseAdapter {
     //当前第0项消息的位置
     private int mStart;
     //上一页的消息数
-    private int mOffset = JPushDemoApplication.PAGE_MESSAGE_COUNT;
+    private int mOffset = JChatDemoApplication.PAGE_MESSAGE_COUNT;
     private boolean mHasLastPage = false;
     private Dialog mDialog;
     //发送图片消息的队列
@@ -189,7 +189,7 @@ public class MsgListAdapter extends BaseAdapter {
 
     public void dropDownToRefresh() {
         if (mConv != null) {
-            List<Message> msgList = mConv.getMessagesFromNewest(mStart, JPushDemoApplication.PAGE_MESSAGE_COUNT);
+            List<Message> msgList = mConv.getMessagesFromNewest(mStart, JChatDemoApplication.PAGE_MESSAGE_COUNT);
             if (msgList != null) {
                 for (Message msg : msgList) {
                     mMsgList.add(0, msg);
@@ -551,17 +551,17 @@ public class MsgListAdapter extends BaseAdapter {
                 public void onClick(View arg0) {
                     Intent intent = new Intent();
                     if (msg.getDirect().equals(MessageDirect.send)) {
-                        intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetId);
+                        intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
                         Log.i(TAG, "msg.getFromName() " + mTargetId);
                         intent.setClass(mContext, MeInfoActivity.class);
                         mContext.startActivity(intent);
                     } else {
                         String targetID = userInfo.getUserName();
-                        intent.putExtra(JPushDemoApplication.TARGET_ID, targetID);
-                        intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupId);
+                        intent.putExtra(JChatDemoApplication.TARGET_ID, targetID);
+                        intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
                         intent.setClass(mContext, FriendInfoActivity.class);
                         ((Activity) mContext).startActivityForResult(intent,
-                                JPushDemoApplication.REQUEST_CODE_FRIEND_INFO);
+                                JChatDemoApplication.REQUEST_CODE_FRIEND_INFO);
                     }
                 }
             });
@@ -877,11 +877,11 @@ public class MsgListAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View arg0) {
                     Intent intent = new Intent();
-                    intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetId);
+                    intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
                     intent.putExtra("msgId", msg.getId());
-                    intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupId);
+                    intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
                     intent.putExtra("msgCount", mMsgList.size());
-                    intent.putIntegerArrayListExtra(JPushDemoApplication.MsgIDs, getImgMsgIDList());
+                    intent.putIntegerArrayListExtra(JChatDemoApplication.MsgIDs, getImgMsgIDList());
                     intent.putExtra("fromChatActivity", true);
                     intent.setClass(mContext, BrowserViewPagerActivity.class);
                     mContext.startActivity(intent);

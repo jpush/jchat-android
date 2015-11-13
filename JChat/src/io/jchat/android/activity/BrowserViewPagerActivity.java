@@ -39,7 +39,7 @@ import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import io.jchat.android.R;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ImgBrowserViewPager;
@@ -109,17 +109,17 @@ public class BrowserViewPagerActivity extends BaseActivity {
         mLoadBtn = (Button) findViewById(R.id.load_image_btn);
 
         final Intent intent = this.getIntent();
-        mGroupId = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
+        mGroupId = intent.getLongExtra(JChatDemoApplication.GROUP_ID, 0);
         if (mGroupId != 0){
             mConv = JMessageClient.getGroupConversation(mGroupId);
         }else {
-            mTargetId = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
+            mTargetId = intent.getStringExtra(JChatDemoApplication.TARGET_ID);
             if (mTargetId != null){
                 mConv = JMessageClient.getSingleConversation(mTargetId);
             }
         }
         mStart = intent.getIntExtra("msgCount", 0);
-        mPosition = intent.getIntExtra(JPushDemoApplication.POSITION, 0);
+        mPosition = intent.getIntExtra(JChatDemoApplication.POSITION, 0);
         mFromChatActivity = intent.getBooleanExtra("fromChatActivity", true);
         boolean browserAvatar = intent.getBooleanExtra("browserAvatar", false);
 
@@ -424,7 +424,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
      * 初始化会话中的所有图片路径
      */
     private void initImgPathList() {
-        mMsgIdList = this.getIntent().getIntegerArrayListExtra(JPushDemoApplication.MsgIDs);
+        mMsgIdList = this.getIntent().getIntegerArrayListExtra(JChatDemoApplication.MsgIDs);
         Message msg;
         ImageContent ic;
         for (int msgID : mMsgIdList) {
@@ -453,7 +453,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }
                     Intent intent = new Intent();
                     intent.putExtra("pathArray", pathArray);
-                    setResult(JPushDemoApplication.RESULT_CODE_SELECT_PICTURE, intent);
+                    setResult(JChatDemoApplication.RESULT_CODE_SELECT_PICTURE, intent);
                     finish();
                     break;
                 case R.id.pick_picture_send_btn:
@@ -635,7 +635,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
         Intent intent = new Intent();
         intent.putExtra("pathArray", pathArray);
-        setResult(JPushDemoApplication.RESULT_CODE_SELECT_PICTURE, intent);
+        setResult(JChatDemoApplication.RESULT_CODE_SELECT_PICTURE, intent);
         super.onBackPressed();
     }
 
@@ -681,7 +681,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                             msg.what = DOWNLOAD_ORIGIN_IMAGE_SUCCEED;
                             Bundle bundle = new Bundle();
                             bundle.putString("path", file.getAbsolutePath());
-                            bundle.putInt(JPushDemoApplication.POSITION, mViewPager.getCurrentItem());
+                            bundle.putInt(JChatDemoApplication.POSITION, mViewPager.getCurrentItem());
                             msg.setData(bundle);
                             msg.sendToTarget();
                         } else {
@@ -712,7 +712,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     case DOWNLOAD_ORIGIN_IMAGE_SUCCEED:
                         //更新图片并显示
                         Bundle bundle = msg.getData();
-                        activity.mPathList.set(bundle.getInt(JPushDemoApplication.POSITION), bundle.getString("path"));
+                        activity.mPathList.set(bundle.getInt(JChatDemoApplication.POSITION), bundle.getString("path"));
                         activity.mViewPager.getAdapter().notifyDataSetChanged();
                         activity.mLoadBtn.setVisibility(View.GONE);
                         break;
@@ -724,10 +724,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         break;
                     case SEND_PICTURE:
                         Intent intent = new Intent();
-                        intent.putExtra(JPushDemoApplication.TARGET_ID, activity.mTargetId);
-                        intent.putExtra(JPushDemoApplication.GROUP_ID, activity.mGroupId);
-                        intent.putExtra(JPushDemoApplication.MsgIDs, activity.mMsgIds);
-                        activity.setResult(JPushDemoApplication.RESULT_CODE_BROWSER_PICTURE, intent);
+                        intent.putExtra(JChatDemoApplication.TARGET_ID, activity.mTargetId);
+                        intent.putExtra(JChatDemoApplication.GROUP_ID, activity.mGroupId);
+                        intent.putExtra(JChatDemoApplication.MsgIDs, activity.mMsgIds);
+                        activity.setResult(JChatDemoApplication.RESULT_CODE_BROWSER_PICTURE, intent);
                         activity.finish();
                         break;
                     //显示下载原图进度

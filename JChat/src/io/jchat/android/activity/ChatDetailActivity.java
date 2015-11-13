@@ -31,7 +31,7 @@ import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.controller.ChatDetailController;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ChatDetailView;
@@ -181,10 +181,10 @@ public class ChatDetailActivity extends BaseActivity {
     public void onBackPressed() {
         Log.i(TAG, "onBackPressed");
         Intent intent = new Intent();
-        intent.putExtra(JPushDemoApplication.NAME, mChatDetailController.getName());
+        intent.putExtra(JChatDemoApplication.NAME, mChatDetailController.getName());
         intent.putExtra("currentCount", mChatDetailController.getCurrentCount());
         intent.putExtra("deleteMsg", mChatDetailController.getDeleteFlag());
-        setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
+        setResult(JChatDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
         finish();
         super.onBackPressed();
     }
@@ -204,8 +204,8 @@ public class ChatDetailActivity extends BaseActivity {
     @Override
     public void handleMsg(Message msg) {
         switch (msg.what) {
-            case JPushDemoApplication.ON_GROUP_EVENT:
-                mChatDetailController.refresh(msg.getData().getLong(JPushDemoApplication.GROUP_ID, 0));
+            case JChatDemoApplication.ON_GROUP_EVENT:
+                mChatDetailController.refresh(msg.getData().getLong(JChatDemoApplication.GROUP_ID, 0));
                 break;
         }
     }
@@ -221,11 +221,11 @@ public class ChatDetailActivity extends BaseActivity {
         } else if (requestCode == MY_NAME_REQUEST_CODE) {
             Log.i(TAG, "myName = " + data.getStringExtra("resultName"));
             mChatDetailView.setMyName(data.getStringExtra("resultName"));
-        }else if (resultCode == JPushDemoApplication.RESULT_CODE_FRIEND_INFO){
+        }else if (resultCode == JChatDemoApplication.RESULT_CODE_FRIEND_INFO){
             if (data.getBooleanExtra("returnChatActivity", false)){
                 data.putExtra("deleteMsg", mChatDetailController.getDeleteFlag());
-                data.putExtra(JPushDemoApplication.NAME, mChatDetailController.getName());
-                setResult(JPushDemoApplication.RESULT_CODE_CHAT_DETAIL, data);
+                data.putExtra(JChatDemoApplication.NAME, mChatDetailController.getName());
+                setResult(JChatDemoApplication.RESULT_CODE_CHAT_DETAIL, data);
                 finish();
             }
         }
@@ -312,7 +312,7 @@ public class ChatDetailActivity extends BaseActivity {
             }
             //无论是否添加群成员，刷新界面
             android.os.Message handleMsg = mHandler.obtainMessage();
-            handleMsg.what = JPushDemoApplication.ON_GROUP_EVENT;
+            handleMsg.what = JChatDemoApplication.ON_GROUP_EVENT;
             Bundle bundle = new Bundle();
             bundle.putLong("groupID", ((GroupInfo)msg.getTargetInfo()).getGroupID());
             handleMsg.setData(bundle);
