@@ -4,18 +4,16 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.controller.MeInfoController;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MeInfoView;
@@ -83,19 +81,13 @@ public class MeInfoActivity extends BaseActivity {
                                 @Override
                                 public void gotResult(final int status, final String desc) {
                                     if (status == 0) {
-                                        MeInfoActivity.this.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                mMeInfoView.setGender(true);
-                                                Toast.makeText(MeInfoActivity.this, MeInfoActivity.this.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    } else MeInfoActivity.this.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            HandleResponseCode.onHandle(MeInfoActivity.this, status, false);
-                                        }
-                                    });
+                                        mMeInfoView.setGender(true);
+                                        Toast.makeText(MeInfoActivity.this,
+                                                MeInfoActivity.this.getString(R.string.modify_success_toast),
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        HandleResponseCode.onHandle(MeInfoActivity.this, status, false);
+                                    }
                                 }
                             });
                         }
@@ -109,19 +101,13 @@ public class MeInfoActivity extends BaseActivity {
                                 @Override
                                 public void gotResult(final int status, final String desc) {
                                     if (status == 0) {
-                                        MeInfoActivity.this.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                mMeInfoView.setGender(false);
-                                                Toast.makeText(MeInfoActivity.this, MeInfoActivity.this.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                    } else MeInfoActivity.this.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            HandleResponseCode.onHandle(MeInfoActivity.this, status, false);
-                                        }
-                                    });
+                                        mMeInfoView.setGender(false);
+                                        Toast.makeText(MeInfoActivity.this,
+                                                MeInfoActivity.this.getString(R.string.modify_success_toast),
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        HandleResponseCode.onHandle(MeInfoActivity.this, status, false);
+                                    }
                                 }
                             });
                         }
@@ -155,11 +141,11 @@ public class MeInfoActivity extends BaseActivity {
             if (requestCode == MODIFY_NICKNAME_REQUEST_CODE) {
                 mModifiedName = data.getStringExtra("nickName");
                 mMeInfoView.setNickName(mModifiedName);
-                Log.i("MeInfoActivity", "data.getStringExtra(nickName) " + mModifiedName);
-            } else if (requestCode == SELECT_AREA_REQUEST_CODE)
+            } else if (requestCode == SELECT_AREA_REQUEST_CODE) {
                 mMeInfoView.setRegion(data.getStringExtra("region"));
-            else if (requestCode == MODIFY_SIGNATURE_REQUEST_CODE)
+            } else if (requestCode == MODIFY_SIGNATURE_REQUEST_CODE) {
                 mMeInfoView.setSignature(data.getStringExtra("signature"));
+            }
         }
     }
 
@@ -169,10 +155,10 @@ public class MeInfoActivity extends BaseActivity {
         super.onBackPressed();
     }
 
-    public void setResultAndFinish(){
+    public void setResultAndFinish() {
         Intent intent = new Intent();
         intent.putExtra("newName", mModifiedName);
-        setResult(JPushDemoApplication.RESULT_CODE_ME_INFO, intent);
+        setResult(JChatDemoApplication.RESULT_CODE_ME_INFO, intent);
         finish();
     }
 }

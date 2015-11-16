@@ -14,12 +14,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
-import io.jchat.android.R;
-import io.jchat.android.application.JPushDemoApplication;
 import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.R;
 import io.jchat.android.tools.HandleResponseCode;
 
 
@@ -58,7 +56,6 @@ public class SelectAreaActivity extends BaseActivity {
                 final String region = mEditAreaEt.getText().toString().trim();
                 if (TextUtils.isEmpty(region)) {
                     Toast.makeText(mContext, mContext.getString(R.string.input_area_error), Toast.LENGTH_SHORT).show();
-                    return;
                 } else {
                     final ProgressDialog dialog = new ProgressDialog(mContext);
                     dialog.setMessage(mContext.getString(R.string.modifying_hint));
@@ -68,24 +65,20 @@ public class SelectAreaActivity extends BaseActivity {
                     JMessageClient.updateMyInfo(UserInfo.Field.region, myUserInfo, new BasicCallback() {
                         @Override
                         public void gotResult(final int status, final String desc) {
-                            SelectAreaActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    dialog.dismiss();
-                                    if (status == 0) {
-                                        Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast),
-                                                Toast.LENGTH_SHORT).show();
-                                        Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent();
-                                        intent.putExtra("region", region);
-                                        setResult(1, intent);
-                                        finish();
-                                    }else {
-                                        dismissSoftInput();
-                                        HandleResponseCode.onHandle(mContext, status, false);
-                                    }
-                                }
-                            });
+                            dialog.dismiss();
+                            if (status == 0) {
+                                Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast),
+                                        Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast),
+                                        Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent();
+                                intent.putExtra("region", region);
+                                setResult(1, intent);
+                                finish();
+                            } else {
+                                dismissSoftInput();
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
                         }
                     });
                 }
@@ -99,8 +92,9 @@ public class SelectAreaActivity extends BaseActivity {
         InputMethodManager imm = ((InputMethodManager) mContext
                 .getSystemService(Activity.INPUT_METHOD_SERVICE));
         if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
-            if (getCurrentFocus() != null)
+            if (getCurrentFocus() != null) {
                 imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
         }
     }
 }

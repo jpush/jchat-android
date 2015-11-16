@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.jchat.android"
-    android:versionCode="43"
+    android:versionCode="44"
     android:versionName="1.2.3">
 
     <uses-sdk
@@ -32,7 +32,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
 
     <application
-        android:name="io.jchat.android.application.JPushDemoApplication"
+        android:name=".application.JChatDemoApplication"
         android:allowBackup="true"
         android:configChanges="fontScale"
         android:icon="@drawable/icon"

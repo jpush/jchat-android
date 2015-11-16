@@ -9,10 +9,8 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
 import io.jchat.android.activity.LoginActivity;
@@ -22,7 +20,8 @@ import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.view.LoginView;
 import cn.jpush.im.api.BasicCallback;
 
-public class LoginController implements LoginView.Listener, OnClickListener, CompoundButton.OnCheckedChangeListener {
+public class LoginController implements LoginView.Listener, OnClickListener,
+        CompoundButton.OnCheckedChangeListener {
 
     private LoginView mLoginView;
     private LoginActivity mContext;
@@ -40,10 +39,14 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
                 break;
             case R.id.login_btn:
                 //隐藏软键盘
-                InputMethodManager manager = ((InputMethodManager) mContext.getSystemService(Activity.INPUT_METHOD_SERVICE));
-                if (mContext.getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
-                    if (mContext.getCurrentFocus() != null)
-                        manager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                InputMethodManager manager = ((InputMethodManager) mContext
+                        .getSystemService(Activity.INPUT_METHOD_SERVICE));
+                if (mContext.getWindow().getAttributes().softInputMode
+                        != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
+                    if (mContext.getCurrentFocus() != null) {
+                        manager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(),
+                                InputMethodManager.HIDE_NOT_ALWAYS);
+                    }
                 }
 
                 final String userId = mLoginView.getUserId();
@@ -56,7 +59,8 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
                     mLoginView.passwordError(mContext);
                     break;
                 }
-                final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.login_hint));
+                final Dialog dialog = DialogCreator.createLoadingDialog(mContext,
+                        mContext.getString(R.string.login_hint));
                 dialog.show();
                 JMessageClient.login(userId, password, new BasicCallback() {
                     @Override
@@ -80,7 +84,7 @@ public class LoginController implements LoginView.Listener, OnClickListener, Com
     @Override
     public void onSoftKeyboardShown(int w, int h, int oldw, int oldh) {
         int softKeyboardHeight = oldh - h;
-        if(softKeyboardHeight > 300){
+        if (softKeyboardHeight > 300) {
             mLoginView.setRegistBtnVisable(View.INVISIBLE);
             boolean writable = SharePreferenceManager.getCachedWritableFlag();
             if (writable) {

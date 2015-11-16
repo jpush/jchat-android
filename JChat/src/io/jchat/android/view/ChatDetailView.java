@@ -61,7 +61,7 @@ public class ChatDetailView extends LinearLayout{
 		mGridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
 	}
 	
-	public void setListeners(OnClickListener onClickListener){
+	public void setListeners(OnClickListener onClickListener) {
 		mGroupNameLL.setOnClickListener(onClickListener);
 		mMyNameLL.setOnClickListener(onClickListener);
 		mGroupNumLL.setOnClickListener(onClickListener);
@@ -71,15 +71,15 @@ public class ChatDetailView extends LinearLayout{
 		mDelGroupBtn.setOnClickListener(onClickListener);
 	}
 	
-	public void setItemListener(OnItemClickListener listener){
+	public void setItemListener(OnItemClickListener listener) {
 		mGridView.setOnItemClickListener(listener);
 	}
 	
-	public void setLongClickListener(OnItemLongClickListener listener){
+	public void setLongClickListener(OnItemLongClickListener listener) {
 		mGridView.setOnItemLongClickListener(listener);
 	}
 
-	public void setAdapter(GroupMemberGridAdapter adapter){
+	public void setAdapter(GroupMemberGridAdapter adapter) {
 		mGridView.setAdapter(adapter);
 	}
 

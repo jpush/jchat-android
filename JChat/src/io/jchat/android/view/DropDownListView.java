@@ -13,9 +13,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-
 import io.jchat.android.R;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 
 
 public class DropDownListView extends ListView implements OnScrollListener {
@@ -57,7 +56,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
     private float actionDownPointY;
 
     private float actionMovePointY;
-    private int mOffset = JPushDemoApplication.PAGE_MESSAGE_COUNT;
+    private int mOffset = JChatDemoApplication.PAGE_MESSAGE_COUNT;
 
     public DropDownListView(Context context) {
         super(context);
@@ -171,7 +170,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
         if (isDropDownStyle) {
             if (currentScrollState == SCROLL_STATE_TOUCH_SCROLL && currentHeaderStatus != HEADER_STATUS_LOADING) {
                 if (firstVisibleItem == 0 && actionMovePointY - actionDownPointY > 0
-                        && mOffset == JPushDemoApplication.PAGE_MESSAGE_COUNT) {
+                        && mOffset == JChatDemoApplication.PAGE_MESSAGE_COUNT) {
                     onDropDown();
                 }
 
@@ -182,7 +181,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
                  * first item(header layout) is visible and header status is not HEADER_STATUS_LOADING, then hide first
                  * item, set second item visible and set hasReachedTop true.
                  */
-                if (mOffset == JPushDemoApplication.PAGE_MESSAGE_COUNT){
+                if (mOffset == JChatDemoApplication.PAGE_MESSAGE_COUNT){
                     onDropDown();
                 }
                 hasReachedTop = true;

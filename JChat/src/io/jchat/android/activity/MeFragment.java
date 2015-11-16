@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,15 +16,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import java.io.File;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.controller.MeController;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.tools.FileHelper;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.MeView;
 
@@ -47,11 +49,10 @@ public class MeFragment extends BaseFragment {
         mContext = this.getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mRootView = layoutInflater.inflate(R.layout.fragment_me,
-                (ViewGroup) getActivity().findViewById(R.id.main_view),
-                false);
+                (ViewGroup) getActivity().findViewById(R.id.main_view), false);
         mMeView = (MeView) mRootView.findViewById(R.id.me_view);
         mMeView.initModule(mDensity, mWidth);
-        mMeController = new MeController(mMeView, this);
+        mMeController = new MeController(mMeView, this, mWidth);
         mMeView.setListeners(mMeController);
     }
 
@@ -68,7 +69,7 @@ public class MeFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-        if (!mIsShowAvatar){
+        if (!mIsShowAvatar) {
             UserInfo myInfo = JMessageClient.getMyInfo();
             if (!TextUtils.isEmpty(myInfo.getAvatar())) {
                 myInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
@@ -100,7 +101,6 @@ public class MeFragment extends BaseFragment {
         UserInfo info = JMessageClient.getMyInfo();
         if (null != info) {
             intent.putExtra("userName", info.getUserName());
-            Log.i("MeFragment", "userName " + info.getUserName());
             File file = info.getAvatarFile();
             if (file != null && file.isFile()) {
                 intent.putExtra("avatarFilePath", file.getAbsolutePath());
@@ -122,7 +122,7 @@ public class MeFragment extends BaseFragment {
     public void startMeInfoActivity() {
         Intent intent = new Intent();
         intent.setClass(this.getActivity(), MeInfoActivity.class);
-        startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_ME_INFO);
+        startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_ME_INFO);
     }
 
     public void cancelNotification() {
@@ -133,24 +133,17 @@ public class MeFragment extends BaseFragment {
 
     //照相
     public void takePhoto() {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            String dir = JPushDemoApplication.PICTURE_DIR;
-            File destDir = new File(dir);
-            if (!destDir.exists()) {
-                destDir.mkdirs();
-            }
-            File file = new File(dir, JMessageClient.getMyInfo().getUserName() + ".png");
-            mPath = file.getAbsolutePath();
+        if (FileHelper.isSdCardExist()) {
+            mPath = FileHelper.createAvatarPath(JMessageClient.getMyInfo().getUserName());
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(mPath)));
             try {
-                getActivity().startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO);
+                getActivity().startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_TAKE_PHOTO);
             } catch (ActivityNotFoundException anf) {
                 Toast.makeText(this.getActivity(), mContext.getString(R.string.camera_not_prepared), Toast.LENGTH_SHORT).show();
             }
         } else {
             Toast.makeText(this.getActivity(), mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
-            return;
         }
     }
 
@@ -160,7 +153,7 @@ public class MeFragment extends BaseFragment {
 
     //选择本地图片
     public void selectImageFromLocal() {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (FileHelper.isSdCardExist()) {
             Intent intent;
             if (Build.VERSION.SDK_INT < 19) {
                 intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -169,7 +162,7 @@ public class MeFragment extends BaseFragment {
                 intent = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             }
-            getActivity().startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_SELECT_PICTURE);
+            getActivity().startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_SELECT_PICTURE);
         } else {
             Toast.makeText(this.getActivity(), mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
         }
@@ -185,25 +178,37 @@ public class MeFragment extends BaseFragment {
     //预览头像
     public void startBrowserAvatar() {
         final UserInfo myInfo = JMessageClient.getMyInfo();
-        if (!TextUtils.isEmpty(myInfo.getAvatar())) {
-            final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
-            dialog.show();
-            myInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
-                @Override
-                public void gotResult(int status, String desc, Bitmap bitmap) {
-                    if (status == 0) {
-                        String path = BitmapLoader.saveBitmapToLocal(bitmap, mContext);
-                        Intent intent = new Intent();
-                        intent.putExtra("browserAvatar", true);
-                        intent.putExtra("avatarPath", path);
-                        intent.setClass(mContext, BrowserViewPagerActivity.class);
-                        startActivity(intent);
-                    }else {
-                        HandleResponseCode.onHandle(mContext, status, false);
+        //如果本地保存了图片，直接加载，否则下载
+        String path = FileHelper.getUserAvatarPath(myInfo.getUserName());
+        File file = new File(path);
+        if (file.exists()) {
+            Intent intent = new Intent();
+            intent.putExtra("browserAvatar", true);
+            intent.putExtra("avatarPath", path);
+            intent.setClass(mContext, BrowserViewPagerActivity.class);
+            startActivity(intent);
+        }else {
+            if (!TextUtils.isEmpty(myInfo.getAvatar())) {
+                final Dialog dialog = DialogCreator.createLoadingDialog(mContext,
+                        mContext.getString(R.string.loading));
+                dialog.show();
+                myInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, Bitmap bitmap) {
+                        if (status == 0) {
+                            String path = BitmapLoader.saveBitmapToLocal(bitmap, mContext, myInfo.getUserName());
+                            Intent intent = new Intent();
+                            intent.putExtra("browserAvatar", true);
+                            intent.putExtra("avatarPath", path);
+                            intent.setClass(mContext, BrowserViewPagerActivity.class);
+                            startActivity(intent);
+                        }else {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
+                        dialog.dismiss();
                     }
-                    dialog.dismiss();
-                }
-            });
+                });
+            }
         }
     }
 

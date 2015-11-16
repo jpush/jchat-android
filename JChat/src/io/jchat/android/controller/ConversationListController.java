@@ -8,11 +8,9 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
@@ -22,7 +20,7 @@ import io.jchat.android.R;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.adapter.ConversationListAdapter;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.view.ConversationListView;
@@ -77,15 +75,15 @@ public class ConversationListController implements OnClickListener,
         // 当前点击的会话是否为群组
         if (mDatas.get(position).getType().equals(ConversationType.group)) {
             long groupId = ((GroupInfo) mDatas.get(position).getTargetInfo()).getGroupID();
-            intent.putExtra(JPushDemoApplication.IS_GROUP, true);
-            intent.putExtra(JPushDemoApplication.GROUP_ID, groupId);
+            intent.putExtra(JChatDemoApplication.IS_GROUP, true);
+            intent.putExtra(JChatDemoApplication.GROUP_ID, groupId);
             intent.setClass(mContext.getActivity(), ChatActivity.class);
             mContext.getActivity().startActivity(intent);
             return;
         } else {
             String targetId = ((UserInfo) mDatas.get(position).getTargetInfo()).getUserName();
-            intent.putExtra(JPushDemoApplication.TARGET_ID, targetId);
-            intent.putExtra(JPushDemoApplication.IS_GROUP, false);
+            intent.putExtra(JChatDemoApplication.TARGET_ID, targetId);
+            intent.putExtra(JChatDemoApplication.IS_GROUP, false);
         }
         intent.setClass(mContext.getActivity(), ChatActivity.class);
         mContext.getActivity().startActivity(intent);
@@ -102,13 +100,12 @@ public class ConversationListController implements OnClickListener,
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> viewAdapter, View view,
-                                   final int position, long id) {
+    public boolean onItemLongClick(AdapterView<?> viewAdapter, View view, final int position, long id) {
         final Conversation conv = mDatas.get(position);
         OnClickListener listener = new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (conv.getType().equals(ConversationType.group)){
+                if (conv.getType().equals(ConversationType.group)) {
                     JMessageClient.deleteGroupConversation(((GroupInfo) conv.getTargetInfo())
                             .getGroupID());
                 }

@@ -4,7 +4,6 @@ package io.jchat.android.receiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.NotificationClickEvent;

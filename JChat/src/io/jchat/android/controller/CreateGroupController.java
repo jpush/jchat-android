@@ -4,9 +4,7 @@ import android.app.Dialog;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-
 import io.jchat.android.R;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
 import io.jchat.android.activity.CreateGroupActivity;
@@ -21,8 +19,7 @@ public class CreateGroupController implements OnClickListener {
     private Dialog mDialog = null;
     private String mGroupName;
 
-    public CreateGroupController(CreateGroupView view,
-                                 CreateGroupActivity context) {
+    public CreateGroupController(CreateGroupView view, CreateGroupActivity context) {
         this.mCreateGroupView = view;
         this.mContext = context;
         initData();

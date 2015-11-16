@@ -109,11 +109,13 @@ public class ConversationListAdapter extends BaseAdapter {
                     .findViewById(R.id.msg_item_head_icon);
             viewHolder.convName = (TextView) convertView
                     .findViewById(R.id.conv_item_name);
-            if (mDensityDpi <= 160){
+            if (mDensityDpi <= 160) {
                 viewHolder.convName.setEms(6);
-            }else if (mDensityDpi <= 240){
+            }else if (mDensityDpi <= 240) {
                 viewHolder.convName.setEms(8);
-            }else viewHolder.convName.setEms(10);
+            }else {
+                viewHolder.convName.setEms(10);
+            }
             viewHolder.content = (TextView) convertView
                     .findViewById(R.id.msg_item_content);
             viewHolder.datetime = (TextView) convertView
@@ -126,7 +128,7 @@ public class ConversationListAdapter extends BaseAdapter {
 
         }
         Message lastMsg = convItem.getLatestMessage();
-        if (lastMsg != null){
+        if (lastMsg != null) {
             TimeFormat timeFormat = new TimeFormat(mContext, lastMsg.getCreateTime());
             viewHolder.datetime.setText(timeFormat.getTime());
             // 按照最后一条消息的消息类型进行处理
@@ -146,9 +148,11 @@ public class ConversationListAdapter extends BaseAdapter {
                 case custom:
                     CustomContent content = (CustomContent)lastMsg.getContent();
                     Boolean isBlackListHint = content.getBooleanValue("blackList");
-                    if (isBlackListHint != null && isBlackListHint){
+                    if (isBlackListHint != null && isBlackListHint) {
                         viewHolder.content.setText(mContext.getString(R.string.server_803008));
-                    }else viewHolder.content.setText(mContext.getString(R.string.type_custom));
+                    }else {
+                        viewHolder.content.setText(mContext.getString(R.string.type_custom));
+                    }
                     break;
                 default:
                     viewHolder.content.setText(((TextContent) lastMsg.getContent()).getText());
@@ -162,7 +166,7 @@ public class ConversationListAdapter extends BaseAdapter {
         if (convItem.getType().equals(ConversationType.single)) {
             viewHolder.convName.setText(convItem.getTitle());
             UserInfo userInfo = (UserInfo) convItem.getTargetInfo();
-            if (!TextUtils.isEmpty(userInfo.getAvatar())){
+            if (!TextUtils.isEmpty(userInfo.getAvatar())) {
                 userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
                     @Override
                     public void gotResult(int status, String desc, Bitmap bitmap) {
@@ -188,9 +192,12 @@ public class ConversationListAdapter extends BaseAdapter {
         // TODO 更新Message的数量,
         if (convItem.getUnReadMsgCnt() > 0) {
             viewHolder.newMsgNumber.setVisibility(View.VISIBLE);
-            if (convItem.getUnReadMsgCnt() < 100)
+            if (convItem.getUnReadMsgCnt() < 100) {
                 viewHolder.newMsgNumber.setText(String.valueOf(convItem.getUnReadMsgCnt()));
-            else viewHolder.newMsgNumber.setText("99");
+            }
+            else {
+                viewHolder.newMsgNumber.setText("99");
+            }
         } else {
             viewHolder.newMsgNumber.setVisibility(View.GONE);
         }

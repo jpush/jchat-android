@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Checkable;
 import android.widget.ListAdapter;
-
 import java.util.LinkedList;
 import java.util.List;
 

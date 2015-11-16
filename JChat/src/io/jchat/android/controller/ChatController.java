@@ -4,11 +4,9 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,10 +15,10 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
-import java.util.Calendar;
-import java.util.Locale;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.content.CustomContent;
@@ -33,7 +31,8 @@ import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.adapter.MsgListAdapter;
-import io.jchat.android.application.JPushDemoApplication;
+import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.tools.FileHelper;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ChatView;
 import io.jchat.android.view.DropDownListView;
@@ -70,10 +69,10 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
 
     private void initData() {
         Intent intent = mContext.getIntent();
-        mTargetId = intent.getStringExtra(JPushDemoApplication.TARGET_ID);
+        mTargetId = intent.getStringExtra(JChatDemoApplication.TARGET_ID);
         Log.i("ChatController", "mTargetId " + mTargetId);
-        mGroupId = intent.getLongExtra(JPushDemoApplication.GROUP_ID, 0);
-        mIsGroup = intent.getBooleanExtra(JPushDemoApplication.IS_GROUP, false);
+        mGroupId = intent.getLongExtra(JChatDemoApplication.GROUP_ID, 0);
+        mIsGroup = intent.getBooleanExtra(JChatDemoApplication.IS_GROUP, false);
         final boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
         // 如果是群组，特别处理
         if (mIsGroup) {
@@ -84,7 +83,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                         intent.getIntExtra("memberCount", 0));
                 mConv = JMessageClient.getGroupConversation(mGroupId);
             } else {
-                if (mTargetId != null){
+                if (mTargetId != null) {
                     mGroupId = Long.parseLong(mTargetId);
                 }
                 mConv = JMessageClient.getGroupConversation(mGroupId);
@@ -140,7 +139,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             mConv = JMessageClient.getSingleConversation(mTargetId);
             if (mConv != null) {
                 UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
-                if (TextUtils.isEmpty(userInfo.getNickname())){
+                if (TextUtils.isEmpty(userInfo.getNickname())) {
                     mChatView.setChatTitle(userInfo.getUserName());
                 }else {
                     mChatView.setChatTitle(userInfo.getNickname());
@@ -156,7 +155,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
         } else if (mConv == null && !mIsGroup) {
             mConv = Conversation.createSingleConversation(mTargetId);
             UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
-            if (TextUtils.isEmpty(userInfo.getNickname())){
+            if (TextUtils.isEmpty(userInfo.getNickname())) {
                 mChatView.setChatTitle(userInfo.getUserName());
             }else {
                 mChatView.setChatTitle(userInfo.getNickname());
@@ -244,7 +243,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                             customContent.setBooleanValue("blackList", true);
                             Message customMsg = mConv.createSendMessage(customContent);
                             mChatAdapter.addMsgToList(customMsg);
-                        }else if (status != 0){
+                        }else if (status != 0) {
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                         // 发送成功或失败都要刷新一次
@@ -294,11 +293,11 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                 }
                 Intent intent = new Intent();
                 if (mIsGroup) {
-                    intent.putExtra(JPushDemoApplication.GROUP_ID, mGroupId);
+                    intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
                 } else {
-                    intent.putExtra(JPushDemoApplication.TARGET_ID, mTargetId);
+                    intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
                 }
-                intent.putExtra(JPushDemoApplication.IS_GROUP, mIsGroup);
+                intent.putExtra(JChatDemoApplication.IS_GROUP, mIsGroup);
                 mContext.startPickPictureTotalActivity(intent);
                 break;
             case R.id.send_location_btn:
@@ -310,12 +309,14 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     public boolean onTouch(View view, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                switch (view.getId()){
+                switch (view.getId()) {
                     case R.id.chat_input_et:
-                        if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE && !mShowSoftInput){
+                        if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE && !mShowSoftInput) {
                             showSoftInputAndDismissMenu();
                             return false;
-                        }else return false;
+                        }else {
+                            return false;
+                        }
                 }
                 if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE){
                     mChatView.dismissMoreMenu();
@@ -333,8 +334,8 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
         return false;
     }
 
-    private void dismissSoftInput(){
-        if (mShowSoftInput){
+    private void dismissSoftInput() {
+        if (mShowSoftInput) {
             if (mImm != null) {
                 mImm.hideSoftInputFromWindow(mChatView.getInputView().getWindowToken(), 0);
                 mShowSoftInput = false;
@@ -384,18 +385,12 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     }
 
     private void takePhoto() {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            File destDir = new File(JPushDemoApplication.PICTURE_DIR);
-            if (!destDir.exists()) {
-                destDir.mkdirs();
-            }
-            File file = new File(JPushDemoApplication.PICTURE_DIR, new DateFormat().format("yyyy_MMdd_hhmmss",
-                    Calendar.getInstance(Locale.CHINA)) + ".jpg");
+        if (FileHelper.isSdCardExist()) {
+            mPhotoPath = FileHelper.createAvatarPath(null);
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-            setPhotoPath(file.getAbsolutePath());
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(mPhotoPath)));
             try {
-                mContext.startActivityForResult(intent, JPushDemoApplication.REQUEST_CODE_TAKE_PHOTO);
+                mContext.startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_TAKE_PHOTO);
             } catch (ActivityNotFoundException anf) {
                 Toast.makeText(mContext, mContext.getString(R.string.camera_not_prepared),
                         Toast.LENGTH_SHORT).show();
@@ -404,10 +399,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast),
                     Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void setPhotoPath(String path) {
-        mPhotoPath = path;
     }
 
     public String getPhotoPath() {
@@ -419,7 +410,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     }
 
     public void resetUnreadMsg() {
-        if (mConv != null){
+        if (mConv != null) {
             mConv.resetUnreadCount();
         }
     }
@@ -471,7 +462,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
         return mConv;
     }
 
-    public String getTargetID() {
+    public String getTargetId() {
         return mTargetId;
     }
 
@@ -486,12 +477,10 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     @Override
     public void onSizeChanged(int w, int h, int oldw, int oldh) {
         if (oldh - h > 300) {
-            Log.i("ChatController", "onSizeChanged, soft input is open");
             mShowSoftInput = true;
             mChatView.setMoreMenuHeight();
         } else {
             mShowSoftInput = false;
-            Log.i("ChatController", "onSizeChanged, soft input is close");
         }
     }
 

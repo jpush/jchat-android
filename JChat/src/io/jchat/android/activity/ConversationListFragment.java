@@ -54,8 +54,7 @@ public class ConversationListFragment extends BaseFragment {
         EventBus.getDefault().register(this);
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mRootView = layoutInflater.inflate(R.layout.fragment_conv_list,
-                (ViewGroup) getActivity().findViewById(R.id.main_view),
-                false);
+                (ViewGroup) getActivity().findViewById(R.id.main_view), false);
         mConvListView = new ConversationListView(mRootView, this.getActivity());
         mConvListView.initModule();
         mMenuView = getActivity().getLayoutInflater().inflate(R.layout.drop_down_menu, null);

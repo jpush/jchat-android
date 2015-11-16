@@ -7,7 +7,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import io.jchat.android.R;
 import io.jchat.android.adapter.StickyListAdapter;
 
@@ -30,8 +29,8 @@ public class SelectFriendView extends LinearLayout {
         this.mContext = context;
     }
 
-    public void initModule(float ratio){
-        mCancelBtn = (ImageButton)findViewById(R.id.cancel_btn);
+    public void initModule(float ratio) {
+        mCancelBtn = (ImageButton) findViewById(R.id.cancel_btn);
         mSearchEt = (EditText) findViewById(R.id.search_et);
         mSearchBtn = (ImageButton) findViewById(R.id.search_btn);
         mListView = (StickyListHeadersListView) findViewById(R.id.sticky_list_view);
@@ -45,12 +44,12 @@ public class SelectFriendView extends LinearLayout {
         mListView.setStickyHeaderTopOffset(0);
     }
 
-    public void setListeners(OnClickListener listener){
+    public void setListeners(OnClickListener listener) {
         mCancelBtn.setOnClickListener(listener);
         mSearchBtn.setOnClickListener(listener);
     }
 
-    public void setAdapter(StickyListAdapter adapter){
+    public void setAdapter(StickyListAdapter adapter) {
         mListView.setAdapter(adapter);
     }
 

@@ -11,9 +11,7 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-
 import java.io.File;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.event.UserDeletedEvent;
 import cn.jpush.im.android.api.event.UserLogoutEvent;

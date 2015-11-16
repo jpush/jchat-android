@@ -2,7 +2,6 @@ package io.jchat.android.view;
 
 import android.view.View;
 import android.widget.LinearLayout;
-
 import io.jchat.android.R;
 
 
@@ -15,16 +14,16 @@ public class MenuItemView {
     private LinearLayout mCreateGroupLl;
     private LinearLayout mAddFriendLl;
 
-    public MenuItemView(View view){
+    public MenuItemView(View view) {
         this.mView = view;
     }
 
-    public void initModule(){
+    public void initModule() {
         mCreateGroupLl = (LinearLayout) mView.findViewById(R.id.create_group_ll);
         mAddFriendLl = (LinearLayout) mView.findViewById(R.id.add_friend_ll);
     }
 
-    public void setListeners(View.OnClickListener listener){
+    public void setListeners(View.OnClickListener listener) {
         mCreateGroupLl.setOnClickListener(listener);
         mAddFriendLl.setOnClickListener(listener);
     }
