@@ -1286,6 +1286,9 @@ public class MsgListAdapter extends BaseAdapter {
                                         }
                                     }
                                 } else {
+                                    mVoiceAnimation.stop();
+                                    holder.voice.clearAnimation();
+                                    holder.voice.setImageResource(R.drawable.receive_3);
                                     Toast.makeText(mContext, mContext.getString(R.string.voice_fetch_failed_toast),
                                             Toast.LENGTH_SHORT).show();
                                 }
