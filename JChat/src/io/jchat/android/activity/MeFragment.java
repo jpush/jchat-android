@@ -104,6 +104,12 @@ public class MeFragment extends BaseFragment {
             File file = info.getAvatarFile();
             if (file != null && file.isFile()) {
                 intent.putExtra("avatarFilePath", file.getAbsolutePath());
+            }else {
+                String path = FileHelper.getUserAvatarPath(info.getUserName());
+                file = new File(path);
+                if (file.exists()) {
+                    intent.putExtra("avatarFilePath", file.getAbsolutePath());
+                }
             }
             JMessageClient.logout();
             intent.setClass(mContext, ReloginActivity.class);

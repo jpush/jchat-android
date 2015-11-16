@@ -289,8 +289,13 @@ public class FixProfileActivity extends BaseActivity {
                     Toast.makeText(FixProfileActivity.this,
                             FixProfileActivity.this.getString(R.string.avatar_modify_succeed_toast),
                             Toast.LENGTH_SHORT).show();
+                //如果头像上传失败，删除剪裁后的文件
                 } else {
                     HandleResponseCode.onHandle(mContext, status, false);
+                    File file = new File(path);
+                    if (file.delete()) {
+                        Log.d(TAG, "Upload failed, delete cropped file succeed");
+                    }
                 }
             }
         });

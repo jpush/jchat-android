@@ -30,8 +30,8 @@ public class ReloginActivity extends BaseActivity {
     private void fillContent() {
         String userName = getIntent().getStringExtra("userName");
         String userAvatarPath = getIntent().getStringExtra("avatarFilePath");
-        NativeImageLoader.getInstance().loadNativeImage(userAvatarPath, (int) (80 * mDensity),
-                new NativeImageLoader.NativeImageCallBack() {
+        Bitmap bitmap = NativeImageLoader.getInstance().loadNativeImage(userAvatarPath, (int) (80 * mDensity),
+                 new NativeImageLoader.NativeImageCallBack() {
             @Override
             public void onImageLoader(Bitmap bitmap, String path) {
                 if (bitmap != null) {
@@ -39,6 +39,9 @@ public class ReloginActivity extends BaseActivity {
                 }
             }
         });
+        if (bitmap != null) {
+            mReloginView.showAvatar(bitmap);
+        }
         mReloginView.setUserName(userName);
         mReloginController = new ReloginController(mReloginView, this, userName);
         SharePreferenceManager.setCachedUsername(userName);
