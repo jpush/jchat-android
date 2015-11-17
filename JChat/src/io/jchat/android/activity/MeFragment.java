@@ -78,7 +78,7 @@ public class MeFragment extends BaseFragment {
                         if (status == 0) {
                             mMeView.showPhoto(bitmap);
                             mIsShowAvatar = true;
-                        }else {
+                        } else {
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
@@ -104,7 +104,7 @@ public class MeFragment extends BaseFragment {
             File file = info.getAvatarFile();
             if (file != null && file.isFile()) {
                 intent.putExtra("avatarFilePath", file.getAbsolutePath());
-            }else {
+            } else {
                 String path = FileHelper.getUserAvatarPath(info.getUserName());
                 file = new File(path);
                 if (file.exists()) {
@@ -193,7 +193,7 @@ public class MeFragment extends BaseFragment {
             intent.putExtra("avatarPath", path);
             intent.setClass(mContext, BrowserViewPagerActivity.class);
             startActivity(intent);
-        }else {
+        } else {
             if (!TextUtils.isEmpty(myInfo.getAvatar())) {
                 final Dialog dialog = DialogCreator.createLoadingDialog(mContext,
                         mContext.getString(R.string.loading));
@@ -208,7 +208,7 @@ public class MeFragment extends BaseFragment {
                             intent.putExtra("avatarPath", path);
                             intent.setClass(mContext, BrowserViewPagerActivity.class);
                             startActivity(intent);
-                        }else {
+                        } else {
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                         dialog.dismiss();

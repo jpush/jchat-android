@@ -108,7 +108,7 @@ public class FixProfileActivity extends BaseActivity {
                                 startMainActivity();
                             }
                         });
-                    } else {
+                    }else {
                         Toast.makeText(FixProfileActivity.this, FixProfileActivity.this
                                 .getString(R.string.nickname_not_null_toast), Toast.LENGTH_SHORT).show();
                         return;
@@ -153,7 +153,7 @@ public class FixProfileActivity extends BaseActivity {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_TAKE_PHOTO);
-        } else {
+        }else {
             Toast.makeText(this, this.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
         }
     }
@@ -163,7 +163,7 @@ public class FixProfileActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT < 19) {
             intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
-        } else {
+        }else {
             intent = new Intent(Intent.ACTION_PICK,
                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         }
@@ -182,7 +182,7 @@ public class FixProfileActivity extends BaseActivity {
                 mUri = Uri.fromFile(new File(mPath));
                 cropRawPhoto(mUri);
             }
-        } else if (requestCode == JChatDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
+        }else if (requestCode == JChatDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
             if (data != null) {
                 Uri selectedImg = data.getData();
                 if (selectedImg != null) {
@@ -214,7 +214,7 @@ public class FixProfileActivity extends BaseActivity {
                                 Toast.makeText(this, this.getString(R.string.picture_not_found),
                                         Toast.LENGTH_SHORT).show();
                                 cursor.close();
-                            } else {
+                            }else {
                                 //如果是选择本地图片进行头像设置，复制到临时文件，并进行裁剪
                                 copyAndCrop(file);
                                 cursor.close();
@@ -226,7 +226,7 @@ public class FixProfileActivity extends BaseActivity {
                 }
 
             }
-        } else if (requestCode == JChatDemoApplication.REQUEST_CODE_CROP_PICTURE) {
+        }else if (requestCode == JChatDemoApplication.REQUEST_CODE_CROP_PICTURE) {
             uploadUserAvatar(mUri.getPath());
         }
     }
@@ -290,7 +290,7 @@ public class FixProfileActivity extends BaseActivity {
                             FixProfileActivity.this.getString(R.string.avatar_modify_succeed_toast),
                             Toast.LENGTH_SHORT).show();
                 //如果头像上传失败，删除剪裁后的文件
-                } else {
+                }else {
                     HandleResponseCode.onHandle(mContext, status, false);
                     File file = new File(path);
                     if (file.delete()) {

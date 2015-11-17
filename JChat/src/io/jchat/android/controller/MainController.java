@@ -114,7 +114,7 @@ public class MainController implements OnClickListener, OnPageChangeListener {
                     Log.i(TAG, "Update avatar succeed path " + path);
                     loadUserAvatar(path);
                 //如果头像上传失败，删除剪裁后的文件
-                } else {
+                }else {
                     HandleResponseCode.onHandle(mContext, status, false);
                     File file = new File(path);
                     if (file.delete()) {

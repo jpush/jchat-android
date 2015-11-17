@@ -111,7 +111,6 @@ public class MsgListAdapter extends BaseAdapter {
     private boolean autoPlay = false;
     private int nextPlayPosition = 0;
     private boolean mIsEarPhoneOn;
-    private GroupInfo mGroupInfo;
     //当前第0项消息的位置
     private int mStart;
     //上一页的消息数
@@ -151,7 +150,7 @@ public class MsgListAdapter extends BaseAdapter {
         Collections.reverse(list);
     }
 
-    public MsgListAdapter(Context context, long groupId, GroupInfo groupInfo) {
+    public MsgListAdapter(Context context, long groupId) {
         initData(context);
         this.mGroupId = groupId;
         this.mIsGroup = true;
@@ -159,7 +158,6 @@ public class MsgListAdapter extends BaseAdapter {
         this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
         reverse(mMsgList);
         mStart = mOffset;
-        this.mGroupInfo = groupInfo;
         checkSendingImgMsg();
     }
 

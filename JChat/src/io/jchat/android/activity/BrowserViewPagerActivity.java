@@ -28,9 +28,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
@@ -42,6 +40,7 @@ import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ImgBrowserViewPager;
 import io.jchat.android.view.photoview.PhotoView;
 
@@ -75,7 +74,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private Long mGroupId;
     private int[] mMsgIds;
     private int mIndex = 0;
-    private Queue<String> mPathQueue = new LinkedList<String>();
     private final MyHandler myHandler = new MyHandler(this);
     private final static int DOWNLOAD_ORIGIN_IMAGE_SUCCEED = 1;
     private final static int DOWNLOAD_PROGRESS = 2;
@@ -110,11 +108,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
         final Intent intent = this.getIntent();
         mGroupId = intent.getLongExtra(JChatDemoApplication.GROUP_ID, 0);
-        if (mGroupId != 0){
+        if (mGroupId != 0) {
             mConv = JMessageClient.getGroupConversation(mGroupId);
-        }else {
+        } else {
             mTargetId = intent.getStringExtra(JChatDemoApplication.TARGET_ID);
-            if (mTargetId != null){
+            if (mTargetId != null) {
                 mConv = JMessageClient.getSingleConversation(mTargetId);
             }
         }
@@ -138,11 +136,21 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 photoView = new PhotoView(mFromChatActivity, container.getContext());
                 photoView.setTag(position);
                 String path = mPathList.get(position);
-                Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
-                if (bitmap != null) {
-                    photoView.setImageBitmap(bitmap);
+                File file = new File(path);
+                if (file.exists()) {
+                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
+                    if (bitmap != null) {
+                        photoView.setImageBitmap(bitmap);
+                    } else {
+                        photoView.setImageResource(R.drawable.friends_sends_pictures_no);
+                    }
                 } else {
-                    photoView.setImageResource(R.drawable.friends_sends_pictures_no);
+                    Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(path);
+                    if (bitmap != null) {
+                        photoView.setImageBitmap(bitmap);
+                    } else {
+                        photoView.setImageResource(R.drawable.friends_sends_pictures_no);
+                    }
                 }
                 container.addView(photoView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
                 return photoView;
@@ -185,11 +193,17 @@ public class BrowserViewPagerActivity extends BaseActivity {
             }
             //预览头像
             if (browserAvatar) {
-                mPathList.add(intent.getStringExtra("avatarPath"));
+                String path = intent.getStringExtra("avatarPath");
+                File file = new File(path);
+                mPathList.add(path);
                 photoView = new PhotoView(mFromChatActivity, mContext);
                 mLoadBtn.setVisibility(View.GONE);
                 try {
-                    Picasso.with(mContext).load(new File(mPathList.get(0))).into(photoView);
+                    if (file.exists()) {
+                        Picasso.with(mContext).load(file).into(photoView);
+                    } else {
+                        photoView.setImageBitmap(NativeImageLoader.getInstance().getBitmapFromMemCache(path));
+                    }
                 } catch (Exception e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
                     if (mPathList.get(0) == null) {
@@ -213,11 +227,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }
                     String path = mPathList.get(mMsgIdList.indexOf(mMsg.getId()));
                     //如果发送方上传了原图
-                    if(ic.getBooleanExtra("originalPicture") != null && ic.getBooleanExtra("originalPicture")) {
+                    if (ic.getBooleanExtra("originalPicture") != null && ic.getBooleanExtra("originalPicture")) {
                         mLoadBtn.setVisibility(View.GONE);
                         setLoadBtnText(ic);
                         photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(path, mWidth, mHeight));
-                    }else {
+                    } else {
                         Picasso.with(mContext).load(new File(path)).into(photoView);
                     }
 
@@ -225,7 +239,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 } catch (NullPointerException e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
                     mViewPager.setCurrentItem(currentItem);
-                }finally {
+                } finally {
                     if (currentItem == 0) {
                         getImgMsg();
                     }
@@ -356,10 +370,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 if (ic.getLocalPath() == null && i != mPosition) {
 //                    mLoadBtn.setVisibility(View.VISIBLE);
                     downloadImage();
-                } else if(ic.getBooleanExtra("hasDownloaded") != null && !ic.getBooleanExtra("hasDownloaded")) {
+                } else if (ic.getBooleanExtra("hasDownloaded") != null && !ic.getBooleanExtra("hasDownloaded")) {
                     setLoadBtnText(ic);
                     mLoadBtn.setVisibility(View.GONE);
-                }else {
+                } else {
                     mLoadBtn.setVisibility(View.GONE);
                 }
                 if (i == 0) {
@@ -395,7 +409,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                             ic = (ImageContent) msg.getContent();
                             if (!TextUtils.isEmpty(ic.getLocalPath())) {
                                 mPathList.add(0, ic.getLocalPath());
-                            }else {
+                            } else {
                                 mPathList.add(0, ic.getLocalThumbnailPath());
                             }
                         }
@@ -403,7 +417,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     mStart += mOffset;
                     if (msgSize == mMsgIdList.size()) {
                         getImgMsg();
-                    }else {
+                    } else {
                         //加载完上一页图片后，设置当前图片仍为加载前的那一张图片
                         BrowserViewPagerActivity.this.runOnUiThread(new Runnable() {
                             @Override
@@ -433,7 +447,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 ic = (ImageContent) msg.getContent();
                 if (!TextUtils.isEmpty(ic.getLocalPath())) {
                     mPathList.add(ic.getLocalPath());
-                }else {
+                } else {
                     mPathList.add(ic.getLocalThumbnailPath());
                 }
             }
@@ -446,8 +460,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
             switch (v.getId()) {
                 case R.id.return_btn:
                     int pathArray[] = new int[mPathList.size()];
-                    for (int i = 0; i < pathArray.length; i++)
+                    for (int i = 0; i < pathArray.length; i++) {
                         pathArray[i] = 0;
+                    }
                     for (int j = 0; j < mSelectMap.size(); j++) {
                         pathArray[mSelectMap.keyAt(j)] = 1;
                     }
@@ -504,7 +519,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 public void onComplete(int status, String desc, File file) {
                     if (status == 0) {
                         imgContent.setBooleanExtra("hasDownloaded", true);
-                    }else {
+                    } else {
                         imgContent.setBooleanExtra("hasDownloaded", false);
                         if (mProgressDialog != null) {
                             mProgressDialog.dismiss();
@@ -529,12 +544,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
         mMsgIds = new int[mSelectMap.size()];
         //根据选择的图片路径生成队列
         for (int i = 0; i < mSelectMap.size(); i++) {
-            mPathQueue.offer(mPathList.get(mSelectMap.keyAt(i)));
+            createImageContent(mPathList.get(mSelectMap.keyAt(i)), true);
         }
-
-        //从队列中取出第一个元素，生成ImageContent
-        String path = mPathQueue.element();
-        createNextImgContent(path, true);
     }
 
     /**
@@ -548,21 +559,17 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
         mMsgIds = new int[mSelectMap.size()];
         for (int i = 0; i < mSelectMap.size(); i++) {
-            mPathQueue.offer(mPathList.get(mSelectMap.keyAt(i)));
+            createImageContent(mPathList.get(mSelectMap.keyAt(i)), false);
         }
-
-        String path = mPathQueue.element();
-        createNextImgContent(path, false);
     }
 
     /**
-     * 根据图片路径创建ImageContent
+     * 根据图片路径生成ImageContent
      * @param path 图片路径
      * @param isOriginal 是否发送原图
      */
-    private void createNextImgContent(final String path, final boolean isOriginal) {
+    private void createImageContent(String path, final boolean isOriginal) {
         Bitmap bitmap;
-        //若isOriginal为true或者图片大小小于720 * 1280则直接发送原图，否则压缩
         if (isOriginal || BitmapLoader.verifyPictureSize(path)) {
             File file = new File(path);
             ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
@@ -570,21 +577,18 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 public void gotResult(int status, String desc, ImageContent imageContent) {
                     if (status == 0) {
                         if (isOriginal) {
-                            imageContent.setBooleanExtra("originalPicture", true);
+                            imageContent.setBooleanExtra("originalPicture" , true);
                         }
                         Message msg = mConv.createSendMessage(imageContent);
                         mMsgIds[mIndex] = msg.getId();
-                        //自增索引，出列
                         mIndex++;
-                        mPathQueue.poll();
-                        //如果队列不为空， 继续创建下一个ImageContent
-                        if (!mPathQueue.isEmpty()) {
-                            createNextImgContent(mPathQueue.element(), isOriginal);
-                        //否则，队列中所有元素创建完毕，通知Handler
-                        } else {
+                        if (mIndex >= mSelectMap.size()) {
                             myHandler.sendEmptyMessage(SEND_PICTURE);
                         }
                     } else {
+                        if (mProgressDialog != null) {
+                            mProgressDialog.dismiss();
+                        }
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
@@ -598,13 +602,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         Message msg = mConv.createSendMessage(imageContent);
                         mMsgIds[mIndex] = msg.getId();
                         mIndex++;
-                        mPathQueue.poll();
-                        if (!mPathQueue.isEmpty()) {
-                            createNextImgContent(mPathQueue.element(), false);
-                        } else {
+                        if (mIndex >= mSelectMap.size()) {
                             myHandler.sendEmptyMessage(SEND_PICTURE);
                         }
                     } else {
+                        if (mProgressDialog != null) {
+                            mProgressDialog.dismiss();
+                        }
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
@@ -707,7 +711,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
         public void handleMessage(android.os.Message msg) {
             super.handleMessage(msg);
             BrowserViewPagerActivity activity = mActivity.get();
-            if(activity != null) {
+            if (activity != null) {
                 switch (msg.what) {
                     case DOWNLOAD_ORIGIN_IMAGE_SUCCEED:
                         //更新图片并显示
