@@ -29,6 +29,7 @@ public class FriendInfoActivity extends BaseActivity {
     private long mGroupId;
     private UserInfo mUserInfo;
     private String mNickname;
+    private boolean mIsGetAvatar = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,14 +107,16 @@ public class FriendInfoActivity extends BaseActivity {
     //点击头像预览大图
     public void startBrowserAvatar() {
         if (mUserInfo != null && !TextUtils.isEmpty(mUserInfo.getAvatar())) {
-            //如果缓存了图片，直接加载
-            Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mUserInfo.getUserName());
-            if (bitmap != null) {
-                Intent intent = new Intent();
-                intent.putExtra("browserAvatar", true);
-                intent.putExtra("avatarPath", mUserInfo.getUserName());
-                intent.setClass(this, BrowserViewPagerActivity.class);
-                startActivity(intent);
+            if (mIsGetAvatar) {
+                //如果缓存了图片，直接加载
+                Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mUserInfo.getUserName());
+                if (bitmap != null) {
+                    Intent intent = new Intent();
+                    intent.putExtra("browserAvatar", true);
+                    intent.putExtra("avatarPath", mUserInfo.getUserName());
+                    intent.setClass(this, BrowserViewPagerActivity.class);
+                    startActivity(intent);
+                }
             } else {
                 final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.loading));
                 dialog.show();
@@ -121,6 +124,7 @@ public class FriendInfoActivity extends BaseActivity {
                     @Override
                     public void gotResult(int status, String desc, Bitmap bitmap) {
                         if (status == 0) {
+                            mIsGetAvatar = true;
                             //缓存头像
                             NativeImageLoader.getInstance().updateBitmapFromCache(mUserInfo.getUserName(), bitmap);
                             Intent intent = new Intent();
