@@ -53,7 +53,6 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
     private boolean mIsGroup;
     private String mPhotoPath = null;
     private final MyHandler myHandler = new MyHandler(this);
-    private GroupInfo mGroupInfo;
     private String mGroupName;
     Window mWindow;
     InputMethodManager mImm;
@@ -87,22 +86,22 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                     mGroupId = Long.parseLong(mTargetId);
                 }
                 mConv = JMessageClient.getGroupConversation(mGroupId);
-                mGroupInfo = (GroupInfo)mConv.getTargetInfo();
-                Log.d("ChatController", "GroupInfo: " + mGroupInfo.toString());
-                UserInfo userInfo = mGroupInfo.getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
+                GroupInfo groupInfo = (GroupInfo)mConv.getTargetInfo();
+                Log.d("ChatController", "GroupInfo: " + groupInfo.toString());
+                UserInfo userInfo = groupInfo.getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
                 //如果自己在群聊中，聊天标题显示群人数
                 if (userInfo != null) {
-                    if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
-                        mGroupName = mGroupInfo.getGroupName();
-                        mChatView.setChatTitle(mGroupName, mGroupInfo.getGroupMembers().size());
+                    if (!TextUtils.isEmpty(groupInfo.getGroupName())) {
+                        mGroupName = groupInfo.getGroupName();
+                        mChatView.setChatTitle(mGroupName, groupInfo.getGroupMembers().size());
                     } else {
                         mChatView.setChatTitle(mContext.getString(R.string.group),
-                                mGroupInfo.getGroupMembers().size());
+                                groupInfo.getGroupMembers().size());
                     }
                     mChatView.showRightBtn();
                 } else {
-                    if (!TextUtils.isEmpty(mGroupInfo.getGroupName())) {
-                        mGroupName = mGroupInfo.getGroupName();
+                    if (!TextUtils.isEmpty(groupInfo.getGroupName())) {
+                        mGroupName = groupInfo.getGroupName();
                         mChatView.setChatTitle(mGroupName);
                     } else {
                         mChatView.setChatTitle(mContext.getString(R.string.group));
@@ -163,7 +162,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
         }
         if (mConv != null) {
             if (mIsGroup) {
-                mChatAdapter = new MsgListAdapter(mContext, mGroupId, mGroupInfo);
+                mChatAdapter = new MsgListAdapter(mContext, mGroupId);
             } else {
                 mChatAdapter = new MsgListAdapter(mContext, mTargetId);
             }

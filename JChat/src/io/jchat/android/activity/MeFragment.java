@@ -16,9 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import java.io.File;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -41,6 +39,7 @@ public class MeFragment extends BaseFragment {
     private Context mContext;
     private String mPath;
     private boolean mIsShowAvatar = false;
+    private boolean mIsGetAvatar = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,7 +77,7 @@ public class MeFragment extends BaseFragment {
                         if (status == 0) {
                             mMeView.showPhoto(bitmap);
                             mIsShowAvatar = true;
-                        }else {
+                        } else {
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
@@ -104,6 +103,12 @@ public class MeFragment extends BaseFragment {
             File file = info.getAvatarFile();
             if (file != null && file.isFile()) {
                 intent.putExtra("avatarFilePath", file.getAbsolutePath());
+            } else {
+                String path = FileHelper.getUserAvatarPath(info.getUserName());
+                file = new File(path);
+                if (file.exists()) {
+                    intent.putExtra("avatarFilePath", file.getAbsolutePath());
+                }
             }
             JMessageClient.logout();
             intent.setClass(mContext, ReloginActivity.class);
@@ -171,6 +176,7 @@ public class MeFragment extends BaseFragment {
 
     public void loadUserAvatar(String path) {
         if (null != mMeView) {
+            mIsGetAvatar = true;
             mMeView.showPhoto(path);
         }
     }
@@ -179,36 +185,37 @@ public class MeFragment extends BaseFragment {
     public void startBrowserAvatar() {
         final UserInfo myInfo = JMessageClient.getMyInfo();
         //如果本地保存了图片，直接加载，否则下载
-        String path = FileHelper.getUserAvatarPath(myInfo.getUserName());
-        File file = new File(path);
-        if (file.exists()) {
-            Intent intent = new Intent();
-            intent.putExtra("browserAvatar", true);
-            intent.putExtra("avatarPath", path);
-            intent.setClass(mContext, BrowserViewPagerActivity.class);
-            startActivity(intent);
-        }else {
-            if (!TextUtils.isEmpty(myInfo.getAvatar())) {
-                final Dialog dialog = DialogCreator.createLoadingDialog(mContext,
-                        mContext.getString(R.string.loading));
-                dialog.show();
-                myInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, Bitmap bitmap) {
-                        if (status == 0) {
-                            String path = BitmapLoader.saveBitmapToLocal(bitmap, mContext, myInfo.getUserName());
-                            Intent intent = new Intent();
-                            intent.putExtra("browserAvatar", true);
-                            intent.putExtra("avatarPath", path);
-                            intent.setClass(mContext, BrowserViewPagerActivity.class);
-                            startActivity(intent);
-                        }else {
-                            HandleResponseCode.onHandle(mContext, status, false);
-                        }
-                        dialog.dismiss();
-                    }
-                });
+        if (mIsGetAvatar) {
+            String path = FileHelper.getUserAvatarPath(myInfo.getUserName());
+            File file = new File(path);
+            if (file.exists()) {
+                Intent intent = new Intent();
+                intent.putExtra("browserAvatar", true);
+                intent.putExtra("avatarPath", path);
+                intent.setClass(mContext, BrowserViewPagerActivity.class);
+                startActivity(intent);
             }
+        } else if (!TextUtils.isEmpty(myInfo.getAvatar())) {
+            final Dialog dialog = DialogCreator.createLoadingDialog(mContext,
+                    mContext.getString(R.string.loading));
+            dialog.show();
+            myInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+                @Override
+                public void gotResult(int status, String desc, Bitmap bitmap) {
+                    if (status == 0) {
+                        mIsGetAvatar = true;
+                        String path = BitmapLoader.saveBitmapToLocal(bitmap, mContext, myInfo.getUserName());
+                        Intent intent = new Intent();
+                        intent.putExtra("browserAvatar", true);
+                        intent.putExtra("avatarPath", path);
+                        intent.setClass(mContext, BrowserViewPagerActivity.class);
+                        startActivity(intent);
+                    } else {
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                    dialog.dismiss();
+                }
+            });
         }
     }
 

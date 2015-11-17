@@ -27,6 +27,8 @@ import io.jchat.android.view.MainView;
 
 public class MainController implements OnClickListener, OnPageChangeListener {
 
+    private final static String TAG = "MainController";
+
     private ConversationListFragment mConvListFragment;
     private MeFragment mMeActivity;
     private MainView mMainView;
@@ -109,10 +111,15 @@ public class MainController implements OnClickListener, OnPageChangeListener {
             public void gotResult(final int status, final String desc) {
                 mDialog.dismiss();
                 if (status == 0) {
-                    Log.i("MainController", "Update avatar succeed path " + path);
+                    Log.i(TAG, "Update avatar succeed path " + path);
                     loadUserAvatar(path);
-                } else {
+                //如果头像上传失败，删除剪裁后的文件
+                }else {
                     HandleResponseCode.onHandle(mContext, status, false);
+                    File file = new File(path);
+                    if (file.delete()) {
+                        Log.d(TAG, "Upload failed, delete cropped file succeed");
+                    }
                 }
             }
         });

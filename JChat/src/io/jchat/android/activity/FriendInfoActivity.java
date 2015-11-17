@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
-import java.io.File;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
@@ -17,10 +16,9 @@ import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.controller.FriendInfoController;
 import io.jchat.android.entity.Event;
-import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.FileHelper;
 import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.FriendInfoView;
 
 public class FriendInfoActivity extends BaseActivity {
@@ -31,6 +29,7 @@ public class FriendInfoActivity extends BaseActivity {
     private long mGroupId;
     private UserInfo mUserInfo;
     private String mNickname;
+    private boolean mIsGetAvatar = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,30 +107,32 @@ public class FriendInfoActivity extends BaseActivity {
     //点击头像预览大图
     public void startBrowserAvatar() {
         if (mUserInfo != null && !TextUtils.isEmpty(mUserInfo.getAvatar())) {
-            //如果本地保存了图片，直接加载，否则下载
-            String path = FileHelper.getUserAvatarPath(mUserInfo.getUserName());
-            File file = new File(path);
-            if (file.exists()) {
-                Intent intent = new Intent();
-                intent.putExtra("browserAvatar", true);
-                intent.putExtra("avatarPath", path);
-                intent.setClass(this, BrowserViewPagerActivity.class);
-                startActivity(intent);
-            }else {
+            if (mIsGetAvatar) {
+                //如果缓存了图片，直接加载
+                Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mUserInfo.getUserName());
+                if (bitmap != null) {
+                    Intent intent = new Intent();
+                    intent.putExtra("browserAvatar", true);
+                    intent.putExtra("avatarPath", mUserInfo.getUserName());
+                    intent.setClass(this, BrowserViewPagerActivity.class);
+                    startActivity(intent);
+                }
+            } else {
                 final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.loading));
                 dialog.show();
                 mUserInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
                     @Override
                     public void gotResult(int status, String desc, Bitmap bitmap) {
                         if (status == 0) {
-                            String path = BitmapLoader.saveBitmapToLocal(bitmap, FriendInfoActivity.this,
-                                    mUserInfo.getUserName());
+                            mIsGetAvatar = true;
+                            //缓存头像
+                            NativeImageLoader.getInstance().updateBitmapFromCache(mUserInfo.getUserName(), bitmap);
                             Intent intent = new Intent();
                             intent.putExtra("browserAvatar", true);
-                            intent.putExtra("avatarPath", path);
+                            intent.putExtra("avatarPath", mUserInfo.getUserName());
                             intent.setClass(FriendInfoActivity.this, BrowserViewPagerActivity.class);
                             startActivity(intent);
-                        }else {
+                        } else {
                             HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
                         }
                         dialog.dismiss();

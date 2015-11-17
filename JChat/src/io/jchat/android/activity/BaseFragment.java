@@ -16,6 +16,7 @@ import cn.jpush.im.android.api.event.UserLogoutEvent;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.tools.FileHelper;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -63,6 +64,12 @@ public class BaseFragment extends Fragment {
                 File avatar = myInfo.getAvatarFile();
                 if (null != avatar && avatar.exists()) {
                     intent.putExtra("avatarFilePath", avatar.getAbsolutePath());
+                }else {
+                    String path = FileHelper.getUserAvatarPath(myInfo.getUserName());
+                    avatar = new File(path);
+                    if (avatar.exists()) {
+                        intent.putExtra("avatarFilePath", avatar.getAbsolutePath());
+                    }
                 }
                 Log.i(TAG, "userName " + myInfo.getUserName());
                 JMessageClient.logout();

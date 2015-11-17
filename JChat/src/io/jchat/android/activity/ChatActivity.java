@@ -372,7 +372,7 @@ public class ChatActivity extends BaseActivity {
                             mChatController.getAdapter().addMsgToList(msg);
                         }
                     }
-                }else {
+                } else {
                     long groupID = ((GroupInfo)msg.getTargetInfo()).getGroupID();
                     if (mChatController.isGroup() && groupID == mChatController.getGroupId()) {
                         Message lastMsg = mChatController.getConversation().getLatestMessage();

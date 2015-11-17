@@ -114,12 +114,12 @@ public class MainActivity extends FragmentActivity {
                         if (file.isFile()) {
                             copyAndCrop(file);
                             return;
-                        }else {
+                        } else {
                             Toast.makeText(this, this.getString(R.string.picture_not_found),
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
-                    }else if (!cursor.moveToFirst()) {
+                    } else if (!cursor.moveToFirst()) {
                         Toast.makeText(this, this.getString(R.string.picture_not_found),
                                 Toast.LENGTH_SHORT).show();
                         return;
@@ -132,7 +132,7 @@ public class MainActivity extends FragmentActivity {
                             Toast.makeText(this, this.getString(R.string.picture_not_found),
                                     Toast.LENGTH_SHORT).show();
                             cursor.close();
-                        }else {
+                        } else {
                             //如果是选择本地图片进行头像设置，复制到临时文件，并进行裁剪
                             copyAndCrop(file);
                             cursor.close();
@@ -140,9 +140,9 @@ public class MainActivity extends FragmentActivity {
                     }
                 }
             }
-        }else if (requestCode == JChatDemoApplication.REQUEST_CODE_CROP_PICTURE) {
+        } else if (requestCode == JChatDemoApplication.REQUEST_CODE_CROP_PICTURE) {
             mMainController.uploadUserAvatar(mUri.getPath());
-        }else if (resultCode == JChatDemoApplication.RESULT_CODE_ME_INFO) {
+        } else if (resultCode == JChatDemoApplication.RESULT_CODE_ME_INFO) {
             String newName = data.getStringExtra("newName");
             if (!TextUtils.isEmpty(newName)) {
                 mMainController.refreshNickname(newName);
