@@ -196,7 +196,7 @@ public class MeFragment extends BaseFragment {
                 intent.putExtra("avatarPath", path);
                 intent.setClass(mContext, BrowserViewPagerActivity.class);
                 startActivity(intent);
-            } else {
+            } else if (!TextUtils.isEmpty(myInfo.getAvatar())) {
                 getBigAvatar(myInfo);
             }
         } else if (!TextUtils.isEmpty(myInfo.getAvatar())) {
