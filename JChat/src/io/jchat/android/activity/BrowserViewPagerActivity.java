@@ -194,11 +194,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
             //预览头像
             if (browserAvatar) {
                 String path = intent.getStringExtra("avatarPath");
-                File file = new File(path);
-                mPathList.add(path);
                 photoView = new PhotoView(mFromChatActivity, mContext);
                 mLoadBtn.setVisibility(View.GONE);
                 try {
+                    File file = new File(path);
+                    mPathList.add(path);
                     if (file.exists()) {
                         Picasso.with(mContext).load(file).into(photoView);
                     } else {
@@ -206,9 +206,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }
                 } catch (Exception e) {
                     photoView.setImageResource(R.drawable.friends_sends_pictures_no);
-                    if (mPathList.get(0) == null) {
-                        HandleResponseCode.onHandle(mContext, 1001, false);
-                    }
+                    HandleResponseCode.onHandle(mContext, 1001, false);
                 }
             //预览聊天界面中的图片
             } else {
