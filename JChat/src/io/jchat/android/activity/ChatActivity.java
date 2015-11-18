@@ -367,17 +367,21 @@ public class ChatActivity extends BaseActivity {
                     String targetID = ((UserInfo) msg.getTargetInfo()).getUserName();
                     //判断消息是否在当前会话中
                     if (!mChatController.isGroup() && targetID.equals(mChatController.getTargetId())) {
-                        Message lastMsg = mChatController.getConversation().getLatestMessage();
+                        Message lastMsg = mChatController.getAdapter().getLastMsg();
                         if (lastMsg == null || msg.getId() != lastMsg.getId()) {
                             mChatController.getAdapter().addMsgToList(msg);
+                        } else {
+                            mChatController.getAdapter().notifyDataSetChanged();
                         }
                     }
                 } else {
                     long groupID = ((GroupInfo)msg.getTargetInfo()).getGroupID();
                     if (mChatController.isGroup() && groupID == mChatController.getGroupId()) {
-                        Message lastMsg = mChatController.getConversation().getLatestMessage();
+                        Message lastMsg = mChatController.getAdapter().getLastMsg();
                         if (lastMsg == null || msg.getId() != lastMsg.getId()) {
                             mChatController.getAdapter().addMsgToList(msg);
+                        } else {
+                            mChatController.getAdapter().notifyDataSetChanged();
                         }
                     }
                 }

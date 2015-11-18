@@ -313,6 +313,10 @@ public class MsgListAdapter extends BaseAdapter {
         });
     }
 
+    public Message getLastMsg() {
+        return mMsgList.get(mMsgList.size() - 1);
+    }
+
     @Override
     public int getCount() {
         return mMsgList.size();
