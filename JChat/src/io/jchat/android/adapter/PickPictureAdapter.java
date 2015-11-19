@@ -76,7 +76,7 @@ public class PickPictureAdapter extends BaseAdapter {
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
-            viewHolder.mImageView.setImageResource(R.drawable.friends_sends_pictures_no);
+            viewHolder.mImageView.setImageResource(R.drawable.picture_not_found);
         }
         viewHolder.mImageView.setTag(path);
         //增加选中checkbox面积
@@ -157,7 +157,7 @@ public class PickPictureAdapter extends BaseAdapter {
         if (bitmap != null) {
             viewHolder.mImageView.setImageBitmap(bitmap);
         } else {
-            viewHolder.mImageView.setImageResource(R.drawable.friends_sends_pictures_no);
+            viewHolder.mImageView.setImageResource(R.drawable.picture_not_found);
         }
 
         return convertView;

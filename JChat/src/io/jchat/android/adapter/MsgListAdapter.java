@@ -821,7 +821,7 @@ public class MsgListAdapter extends BaseAdapter {
                 Picasso.with(mContext).load(new File(path))
                         .into(holder.picture);
             } catch (NullPointerException e) {
-                Picasso.with(mContext).load(R.drawable.friends_sends_pictures_no)
+                Picasso.with(mContext).load(R.drawable.picture_not_found)
                         .into(holder.picture);
             }
 

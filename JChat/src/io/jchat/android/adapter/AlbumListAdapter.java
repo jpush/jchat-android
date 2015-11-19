@@ -77,7 +77,7 @@ public class AlbumListAdapter extends BaseAdapter{
             convertView.setTag(viewHolder);
         }else {
             viewHolder = (ViewHolder) convertView.getTag();
-            viewHolder.mImageView.setImageResource(R.drawable.friends_sends_pictures_no);
+            viewHolder.mImageView.setImageResource(R.drawable.picture_not_found);
         }
 
         viewHolder.mTextViewTitle.setText(mImageBean.getFolderName());
@@ -102,7 +102,7 @@ public class AlbumListAdapter extends BaseAdapter{
         if (bitmap != null) {
             viewHolder.mImageView.setImageBitmap(bitmap);
         }else {
-            viewHolder.mImageView.setImageResource(R.drawable.friends_sends_pictures_no);
+            viewHolder.mImageView.setImageResource(R.drawable.picture_not_found);
         }
         return convertView;
     }
