@@ -16,9 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import java.io.File;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -29,6 +27,7 @@ import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.FileHelper;
 import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.MeView;
 
 public class MeFragment extends BaseFragment {
@@ -112,6 +111,8 @@ public class MeFragment extends BaseFragment {
                     intent.putExtra("avatarFilePath", file.getAbsolutePath());
                 }
             }
+            SharePreferenceManager.setCachedUsername(info.getUserName());
+            SharePreferenceManager.setCachedAvatarPath(file.getAbsolutePath());
             JMessageClient.logout();
             intent.setClass(mContext, ReloginActivity.class);
             startActivity(intent);
