@@ -136,21 +136,25 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 photoView = new PhotoView(mFromChatActivity, container.getContext());
                 photoView.setTag(position);
                 String path = mPathList.get(position);
-                File file = new File(path);
-                if (file.exists()) {
-                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
-                    if (bitmap != null) {
-                        photoView.setImageBitmap(bitmap);
+                if (path != null) {
+                    File file = new File(path);
+                    if (file.exists()) {
+                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
+                        if (bitmap != null) {
+                            photoView.setImageBitmap(bitmap);
+                        } else {
+                            photoView.setImageResource(R.drawable.picture_not_found);
+                        }
                     } else {
-                        photoView.setImageResource(R.drawable.friends_sends_pictures_no);
+                        Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(path);
+                        if (bitmap != null) {
+                            photoView.setImageBitmap(bitmap);
+                        } else {
+                            photoView.setImageResource(R.drawable.picture_not_found);
+                        }
                     }
                 } else {
-                    Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(path);
-                    if (bitmap != null) {
-                        photoView.setImageBitmap(bitmap);
-                    } else {
-                        photoView.setImageResource(R.drawable.friends_sends_pictures_no);
-                    }
+                    photoView.setImageResource(R.drawable.picture_not_found);
                 }
                 container.addView(photoView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
                 return photoView;
@@ -205,7 +209,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         photoView.setImageBitmap(NativeImageLoader.getInstance().getBitmapFromMemCache(path));
                     }
                 } catch (Exception e) {
-                    photoView.setImageResource(R.drawable.friends_sends_pictures_no);
+                    photoView.setImageResource(R.drawable.picture_not_found);
                     HandleResponseCode.onHandle(mContext, 1001, false);
                 }
             //预览聊天界面中的图片
@@ -235,7 +239,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
                     mViewPager.setCurrentItem(currentItem);
                 } catch (NullPointerException e) {
-                    photoView.setImageResource(R.drawable.friends_sends_pictures_no);
+                    photoView.setImageResource(R.drawable.picture_not_found);
                     mViewPager.setCurrentItem(currentItem);
                 } finally {
                     if (currentItem == 0) {

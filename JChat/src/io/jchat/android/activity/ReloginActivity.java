@@ -3,9 +3,10 @@ package io.jchat.android.activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+
 import io.jchat.android.R;
 import io.jchat.android.controller.ReloginController;
-import io.jchat.android.tools.NativeImageLoader;
+import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.SharePreferenceManager;
 import io.jchat.android.view.ReloginView;
 
@@ -28,17 +29,9 @@ public class ReloginActivity extends BaseActivity {
     }
 
     private void fillContent() {
-        String userName = getIntent().getStringExtra("userName");
-        String userAvatarPath = getIntent().getStringExtra("avatarFilePath");
-        Bitmap bitmap = NativeImageLoader.getInstance().loadNativeImage(userAvatarPath, (int) (80 * mDensity),
-                 new NativeImageLoader.NativeImageCallBack() {
-            @Override
-            public void onImageLoader(Bitmap bitmap, String path) {
-                if (bitmap != null) {
-                    mReloginView.showAvatar(bitmap);
-                }
-            }
-        });
+        String userName = SharePreferenceManager.getCachedUsername();
+        String userAvatarPath = SharePreferenceManager.getCachedAvatarPath();
+        Bitmap bitmap = BitmapLoader.getBitmapFromFile(userAvatarPath, mAvatarSize, mAvatarSize);
         if (bitmap != null) {
             mReloginView.showAvatar(bitmap);
         }
