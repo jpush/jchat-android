@@ -72,18 +72,21 @@ public class ConversationListController implements OnClickListener,
     public void onItemClick(AdapterView<?> viewAdapter, View view, int position, long id) {
         // TODO Auto-generated method stub
         final Intent intent = new Intent();
+        Conversation conv = mDatas.get(position);
         // 当前点击的会话是否为群组
-        if (mDatas.get(position).getType().equals(ConversationType.group)) {
-            long groupId = ((GroupInfo) mDatas.get(position).getTargetInfo()).getGroupID();
+        if (conv.getType().equals(ConversationType.group)) {
+            long groupId = ((GroupInfo) conv.getTargetInfo()).getGroupID();
             intent.putExtra(JChatDemoApplication.IS_GROUP, true);
             intent.putExtra(JChatDemoApplication.GROUP_ID, groupId);
+            intent.putExtra(JChatDemoApplication.DRAFT, getAdapter().getDraft(conv.getId()));
             intent.setClass(mContext.getActivity(), ChatActivity.class);
             mContext.getActivity().startActivity(intent);
             return;
         } else {
-            String targetId = ((UserInfo) mDatas.get(position).getTargetInfo()).getUserName();
+            String targetId = ((UserInfo) conv.getTargetInfo()).getUserName();
             intent.putExtra(JChatDemoApplication.TARGET_ID, targetId);
             intent.putExtra(JChatDemoApplication.IS_GROUP, false);
+            intent.putExtra(JChatDemoApplication.DRAFT, getAdapter().getDraft(conv.getId()));
         }
         intent.setClass(mContext.getActivity(), ChatActivity.class);
         mContext.getActivity().startActivity(intent);

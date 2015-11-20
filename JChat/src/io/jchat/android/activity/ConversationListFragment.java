@@ -147,8 +147,8 @@ public class ConversationListFragment extends BaseFragment {
      */
     public void onEventMainThread(Event.StringEvent event) {
         Log.d(TAG, "StringEvent execute");
-        String targetID = event.getTargetID();
-        Conversation conv = JMessageClient.getSingleConversation(targetID);
+        String targetId = event.getTargetId();
+        Conversation conv = JMessageClient.getSingleConversation(targetId);
         if (conv != null) {
             mConvListController.getAdapter().addNewConversation(conv);
         }
@@ -160,10 +160,28 @@ public class ConversationListFragment extends BaseFragment {
      * @param event 从event中得到groupID
      */
     public void onEventMainThread(Event.LongEvent event) {
-        long groupID = event.getGroupID();
-        Conversation conv = JMessageClient.getGroupConversation(groupID);
+        long groupId = event.getGroupId();
+        Conversation conv = JMessageClient.getGroupConversation(groupId);
         if (conv != null) {
             mConvListController.getAdapter().addNewConversation(conv);
+        }
+    }
+
+    public void onEventMainThread(Event.DraftEvent event) {
+        String draft = event.getDraft();
+        String targetId = event.getTargetId();
+        Conversation conv;
+        if (targetId != null) {
+            conv = JMessageClient.getSingleConversation(targetId);
+        } else {
+            long groupId = event.getGroupId();
+            conv = JMessageClient.getGroupConversation(groupId);
+        }
+        if (!TextUtils.isEmpty(draft)) {
+            mConvListController.getAdapter().putDraftToMap(conv.getId(), draft);
+            mConvListController.getAdapter().setToTop(conv);
+        } else {
+            mConvListController.getAdapter().delDraftFromMap(conv.getId());
         }
     }
 

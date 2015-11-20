@@ -95,6 +95,7 @@
         否则将无法使用录音功能</string>
     <string name="record_voice_permission_request">若要使用语音功能，请选择允许录音</string>
     <string name="voice_fetch_failed_toast">获取语音失败，请重试</string>
+    <string name="draft">[草稿]</string>
     <string name="picture">图片</string>
     <string name="type_picture">[图片]</string>
     <string name="type_voice">[语音]</string>

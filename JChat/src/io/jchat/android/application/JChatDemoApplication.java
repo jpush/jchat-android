@@ -29,15 +29,16 @@ public class JChatDemoApplication extends Application {
 
     private static final String JCHAT_CONFIGS = "JChat_configs";
 
-    public static final String TARGET_ID = "targetID";
+    public static final String TARGET_ID = "targetId";
     public static final String NAME = "name";
     public static final String NICKNAME = "nickname";
-    public static final String GROUP_ID = "groupID";
+    public static final String GROUP_ID = "groupId";
     public static final String IS_GROUP = "isGroup";
     public static final String GROUP_NAME = "groupName";
     public static final String STATUS = "status";
     public static final String POSITION = "position";
     public static final String MsgIDs = "msgIDs";
+    public static final String DRAFT = "draft";
     public static final String PICTURE_DIR = "sdcard/JChatDemo/pictures/";
 
 

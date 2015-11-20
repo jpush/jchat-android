@@ -11,9 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.ImageContent;
@@ -24,10 +22,12 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.controller.ChatController;
 import io.jchat.android.controller.RecordVoiceBtnController;
+import io.jchat.android.entity.Event;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.FileHelper;
 import io.jchat.android.view.ChatView;
@@ -140,6 +140,14 @@ public class ChatActivity extends BaseActivity {
         } else {
             mChatController.resetUnreadMsg();
         }
+        if (mChatController.isGroup()) {
+            EventBus.getDefault().post(new Event.DraftEvent(mChatController.getGroupId(),
+                    mChatView.getChatInput()));
+        } else {
+            EventBus.getDefault().post(new Event.DraftEvent(mChatController.getTargetId(),
+                    mChatView.getChatInput()));
+        }
+
         super.onBackPressed();
     }
 
