@@ -314,7 +314,11 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     public Message getLastMsg() {
-        return mMsgList.get(mMsgList.size() - 1);
+        if (mMsgList.size() > 0) {
+            return mMsgList.get(mMsgList.size() - 1);
+        } else {
+            return null;
+        }
     }
 
     @Override
