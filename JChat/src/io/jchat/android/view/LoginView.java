@@ -46,9 +46,10 @@ public class LoginView extends LinearLayout {
 	private void initTestEvnCB() {
 		if (!DEV_FLAG) {
 			mTestEvnCB.setVisibility(View.GONE);
-		}
-		Boolean isTestEvn = invokeIsTestEvn();
-		mTestEvnCB.setChecked(isTestEvn);
+		} else {
+            Boolean isTestEvn = invokeIsTestEvn();
+            mTestEvnCB.setChecked(isTestEvn);
+        }
 	}
 
 	private Boolean invokeIsTestEvn() {
