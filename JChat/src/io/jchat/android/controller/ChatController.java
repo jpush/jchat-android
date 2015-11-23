@@ -194,6 +194,7 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                 mConv.resetUnreadCount();
                 dismissSoftInput();
                 JMessageClient.exitConversaion();
+                //发送保存为草稿事件到会话列表
                 if (isGroup()) {
                     EventBus.getDefault().post(new Event.DraftEvent(getGroupId(),
                             mChatView.getChatInput()));

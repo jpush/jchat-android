@@ -140,6 +140,7 @@ public class ChatActivity extends BaseActivity {
         } else {
             mChatController.resetUnreadMsg();
         }
+        //发送保存为草稿事件到会话列表界面
         if (mChatController.isGroup()) {
             EventBus.getDefault().post(new Event.DraftEvent(mChatController.getGroupId(),
                     mChatView.getChatInput()));
@@ -376,6 +377,7 @@ public class ChatActivity extends BaseActivity {
                     //判断消息是否在当前会话中
                     if (!mChatController.isGroup() && targetID.equals(mChatController.getTargetId())) {
                         Message lastMsg = mChatController.getAdapter().getLastMsg();
+                        //收到的消息和Adapter中最后一条消息比较，如果最后一条为空或者不相同，则加入到MsgList
                         if (lastMsg == null || msg.getId() != lastMsg.getId()) {
                             mChatController.getAdapter().addMsgToList(msg);
                         } else {

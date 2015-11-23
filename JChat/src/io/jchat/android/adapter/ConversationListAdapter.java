@@ -148,6 +148,7 @@ public class ConversationListAdapter extends BaseAdapter {
 
         }
         String draft = mDraftMap.get(convItem.getId());
+        //如果该会话草稿为空，显示最后一条消息
         if (TextUtils.isEmpty(draft)) {
             Message lastMsg = convItem.getLatestMessage();
             if (lastMsg != null) {

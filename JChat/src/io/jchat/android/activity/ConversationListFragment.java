@@ -167,6 +167,10 @@ public class ConversationListFragment extends BaseFragment {
         }
     }
 
+    /**
+     * 收到保存为草稿事件
+     * @param event 从event中得到Conversation Id及草稿内容
+     */
     public void onEventMainThread(Event.DraftEvent event) {
         String draft = event.getDraft();
         String targetId = event.getTargetId();
@@ -177,9 +181,11 @@ public class ConversationListFragment extends BaseFragment {
             long groupId = event.getGroupId();
             conv = JMessageClient.getGroupConversation(groupId);
         }
+        //如果草稿内容不为空，保存，并且置顶该会话
         if (!TextUtils.isEmpty(draft)) {
             mConvListController.getAdapter().putDraftToMap(conv.getId(), draft);
             mConvListController.getAdapter().setToTop(conv);
+        //否则删除
         } else {
             mConvListController.getAdapter().delDraftFromMap(conv.getId());
         }
