@@ -140,15 +140,13 @@ public class PickPictureActivity extends BaseActivity {
                         if (status == 0) {
                             Message msg = mConv.createSendMessage(imageContent);
                             mMsgIds[mIndex] = msg.getId();
-                            mIndex++;
-                            if (mIndex >= mPickedList.size()) {
-                                myHandler.sendEmptyMessage(SEND_PICTURE);
-                            }
                         } else {
-                            if (mDialog != null) {
-                                mDialog.dismiss();
-                            }
+                            mMsgIds[mIndex] = -1;
                             HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
+                        }
+                        mIndex++;
+                        if (mIndex >= mPickedList.size()) {
+                            myHandler.sendEmptyMessage(SEND_PICTURE);
                         }
                     }
                 });
@@ -160,15 +158,13 @@ public class PickPictureActivity extends BaseActivity {
                         if (status == 0) {
                             Message msg = mConv.createSendMessage(imageContent);
                             mMsgIds[mIndex] = msg.getId();
-                            mIndex++;
-                            if (mIndex >= mPickedList.size()) {
-                                myHandler.sendEmptyMessage(SEND_PICTURE);
-                            }
                         } else {
-                            if (mDialog != null) {
-                                mDialog.dismiss();
-                            }
+                            mMsgIds[mIndex] = -1;
                             HandleResponseCode.onHandle(PickPictureActivity.this, status, false);
+                        }
+                        mIndex++;
+                        if (mIndex >= mPickedList.size()) {
+                            myHandler.sendEmptyMessage(SEND_PICTURE);
                         }
                     }
                 });

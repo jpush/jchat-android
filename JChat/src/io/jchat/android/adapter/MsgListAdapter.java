@@ -66,6 +66,7 @@ import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.tools.FileHelper;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.TimeFormat;
 import io.jchat.android.view.CircleImageView;
@@ -244,10 +245,11 @@ public class MsgListAdapter extends BaseAdapter {
         mConv = JMessageClient.getSingleConversation(targetId);
         for (int msgId : msgIds) {
             msg = mConv.getMessage(msgId);
-//            JMessageClient.sendMessage(msg);
-            mMsgList.add(msg);
-            incrementStartPosition();
-            mMsgQueue.offer(msg);
+            if (msg != null) {
+                mMsgList.add(msg);
+                incrementStartPosition();
+                mMsgQueue.offer(msg);
+            }
         }
 
         Message message = mMsgQueue.element();
@@ -260,10 +262,11 @@ public class MsgListAdapter extends BaseAdapter {
         mConv = JMessageClient.getGroupConversation(groupId);
         for (int msgId : msgIds) {
             msg = mConv.getMessage(msgId);
-//            JMessageClient.sendMessage(msg);
-            mMsgList.add(msg);
-            incrementStartPosition();
-            mMsgQueue.offer(msg);
+            if (msg != null) {
+                mMsgList.add(msg);
+                incrementStartPosition();
+                mMsgQueue.offer(msg);
+            }
         }
 
         Message message = mMsgQueue.element();
@@ -1183,8 +1186,7 @@ public class MsgListAdapter extends BaseAdapter {
         holder.txtContent.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                boolean sdCardExist = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
-                if (!sdCardExist && msg.getDirect().equals(MessageDirect.send)) {
+                if (!FileHelper.isSdCardExist() && msg.getDirect().equals(MessageDirect.send)) {
                     Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
                     return;
                 }
