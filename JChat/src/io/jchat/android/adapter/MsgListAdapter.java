@@ -137,7 +137,7 @@ public class MsgListAdapter extends BaseAdapter {
                 public void gotResult(int status, String desc, Bitmap bitmap) {
                     if (status == 0) {
                         notifyDataSetChanged();
-                    }else {
+                    } else {
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
@@ -370,9 +370,8 @@ public class MsgListAdapter extends BaseAdapter {
                         .inflate(R.layout.chat_item_receive_voice, null);
             case location:
                 return getItemViewType(position) == TYPE_SEND_LOCATION ? mInflater
-                        .inflate(R.layout.chat_item_send_location, null)
-                        : mInflater.inflate(R.layout.chat_item_receive_location,
-                        null);
+                        .inflate(R.layout.chat_item_send_location, null) : mInflater
+                        .inflate(R.layout.chat_item_receive_location, null);
             case eventNotification:
                 if (getItemViewType(position) == TYPE_GROUP_CHANGE)
                     return mInflater.inflate(R.layout.chat_item_group_change, null);
@@ -521,6 +520,7 @@ public class MsgListAdapter extends BaseAdapter {
             if (position == 0 || position == mOffset
                     || (position - mOffset) % 18 == 0) {
                 TimeFormat timeFormat = new TimeFormat(mContext, nowDate);
+
                 msgTime.setText(timeFormat.getDetailTime());
                 msgTime.setVisibility(View.VISIBLE);
             } else {

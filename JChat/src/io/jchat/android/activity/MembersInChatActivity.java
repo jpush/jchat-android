@@ -381,10 +381,12 @@ public class MembersInChatActivity extends BaseActivity {
                         }
                     }
                 }
-                String sortString = sb.toString().substring(0, 1).toUpperCase();
-                if (displayName.contains(data) || displayName.startsWith(data)
-                        || sortString.equals(data.substring(0, 1).toUpperCase())) {
-                    filterList.add(userInfo);
+                if (!TextUtils.isEmpty(sb)) {
+                    String sortString = sb.toString().substring(0, 1).toUpperCase();
+                    if (displayName.contains(data) || displayName.startsWith(data)
+                            || sortString.equals(data.substring(0, 1).toUpperCase())) {
+                        filterList.add(userInfo);
+                    }
                 }
             }
         }
