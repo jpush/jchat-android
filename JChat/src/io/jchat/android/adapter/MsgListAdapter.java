@@ -15,7 +15,6 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Build;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -175,7 +174,9 @@ public class MsgListAdapter extends BaseAdapter {
         audioManager.setMode(AudioManager.MODE_NORMAL);
         if (audioManager.isSpeakerphoneOn()) {
             audioManager.setSpeakerphoneOn(true);
-        } else audioManager.setSpeakerphoneOn(false);
+        } else {
+            audioManager.setSpeakerphoneOn(false);
+        }
         mp.setAudioStreamType(AudioManager.STREAM_RING);
         mp.setOnErrorListener(new OnErrorListener() {
 
