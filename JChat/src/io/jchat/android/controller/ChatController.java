@@ -15,10 +15,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.content.CustomContent;
@@ -28,10 +26,12 @@ import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
+import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
 import io.jchat.android.activity.ChatActivity;
 import io.jchat.android.adapter.MsgListAdapter;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.entity.Event;
 import io.jchat.android.tools.FileHelper;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ChatView;
@@ -161,6 +161,10 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
             }
         }
         if (mConv != null) {
+            String draft = intent.getStringExtra(JChatDemoApplication.DRAFT);
+            if (draft != null && !TextUtils.isEmpty(draft)) {
+                mChatView.setInputText(draft);
+            }
             if (mIsGroup) {
                 mChatAdapter = new MsgListAdapter(mContext, mGroupId);
             } else {
@@ -190,6 +194,14 @@ public class ChatController implements OnClickListener, View.OnTouchListener,
                 mConv.resetUnreadCount();
                 dismissSoftInput();
                 JMessageClient.exitConversaion();
+                //发送保存为草稿事件到会话列表
+                if (isGroup()) {
+                    EventBus.getDefault().post(new Event.DraftEvent(getGroupId(),
+                            mChatView.getChatInput()));
+                } else {
+                    EventBus.getDefault().post(new Event.DraftEvent(getTargetId(),
+                            mChatView.getChatInput()));
+                }
                 mContext.finish();
                 break;
             // 聊天详细信息

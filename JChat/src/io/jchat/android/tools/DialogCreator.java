@@ -225,4 +225,27 @@ public class DialogCreator {
         return dialog;
     }
 
+    public static Dialog createDeleteMemberDialog(Context context, View.OnClickListener listener,
+                                                  boolean isSingle) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.dialog_base_with_button, null);
+        builder.setView(view);
+        TextView title = (TextView) view.findViewById(R.id.title);
+        if (isSingle) {
+            title.setText(context.getString(R.string.delete_member_confirm_hint));
+        } else {
+            title.setText(context.getString(R.string.delete_confirm_hint));
+        }
+        final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
+        final Button commit = (Button) view.findViewById(R.id.commit_btn);
+        cancel.setOnClickListener(listener);
+        commit.setOnClickListener(listener);
+        commit.setText(context.getString(R.string.confirm));
+        final Dialog dialog = builder.create();
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        return dialog;
+    }
+
 }

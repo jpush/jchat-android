@@ -41,6 +41,7 @@
     <string name="search_friend_hit">邮箱/用户名/ID</string>
     <string name="search">搜索...</string>
     <string name="take_monent">稍等片刻</string>
+    <string name="add">添加</string>
     <string name="add_friend">添加朋友</string>
     <string name="fetch_user_info_failed">用户信息获取失败</string>
     <string name="create_group">创建群聊</string>
@@ -95,6 +96,7 @@
         否则将无法使用录音功能</string>
     <string name="record_voice_permission_request">若要使用语音功能，请选择允许录音</string>
     <string name="voice_fetch_failed_toast">获取语音失败，请重试</string>
+    <string name="draft">[草稿]</string>
     <string name="picture">图片</string>
     <string name="type_picture">[图片]</string>
     <string name="type_voice">[语音]</string>
@@ -193,9 +195,10 @@
     <string name="unnamed">未命名</string>
     <string name="added">已添加</string>
     <string name="chat_peoples_num">目前已有1名参与人</string>
-    <string name="chat_detail_del">删除</string>
     <string name="chat_detail_add">添加</string>
     <string name="chat_detail_title">聊天详情</string>
+    <string name="members_in_chat">聊天成员</string>
+    <string name="all_group_members">全部群成员</string>
     <string name="group_name_hit">群聊名称</string>
     <string name="group_name_not_null_toast">名称不能为空</string>
     <string name="modify_success_toast">修改成功</string>
@@ -205,6 +208,8 @@
     <string name="modifying_hint">正在修改</string>
     <string name="adding_group_member_hint">正在增加群成员</string>
     <string name="deleting_group_member_hint">正在删除群成员</string>
+    <string name="delete_member_confirm_hint">确定删除此成员？</string>
+    <string name="delete_confirm_hint">确定删除？</string>
     <string name="join_group_toast">加入了群聊</string>
     <string name="exiting_group_toast">正在退出</string>
     <string name="deleted_by_creator">你被请出了群聊</string>

@@ -147,8 +147,8 @@ public class ConversationListFragment extends BaseFragment {
      */
     public void onEventMainThread(Event.StringEvent event) {
         Log.d(TAG, "StringEvent execute");
-        String targetID = event.getTargetID();
-        Conversation conv = JMessageClient.getSingleConversation(targetID);
+        String targetId = event.getTargetId();
+        Conversation conv = JMessageClient.getSingleConversation(targetId);
         if (conv != null) {
             mConvListController.getAdapter().addNewConversation(conv);
         }
@@ -160,10 +160,34 @@ public class ConversationListFragment extends BaseFragment {
      * @param event 从event中得到groupID
      */
     public void onEventMainThread(Event.LongEvent event) {
-        long groupID = event.getGroupID();
-        Conversation conv = JMessageClient.getGroupConversation(groupID);
+        long groupId = event.getGroupId();
+        Conversation conv = JMessageClient.getGroupConversation(groupId);
         if (conv != null) {
             mConvListController.getAdapter().addNewConversation(conv);
+        }
+    }
+
+    /**
+     * 收到保存为草稿事件
+     * @param event 从event中得到Conversation Id及草稿内容
+     */
+    public void onEventMainThread(Event.DraftEvent event) {
+        String draft = event.getDraft();
+        String targetId = event.getTargetId();
+        Conversation conv;
+        if (targetId != null) {
+            conv = JMessageClient.getSingleConversation(targetId);
+        } else {
+            long groupId = event.getGroupId();
+            conv = JMessageClient.getGroupConversation(groupId);
+        }
+        //如果草稿内容不为空，保存，并且置顶该会话
+        if (!TextUtils.isEmpty(draft)) {
+            mConvListController.getAdapter().putDraftToMap(conv.getId(), draft);
+            mConvListController.getAdapter().setToTop(conv);
+        //否则删除
+        } else {
+            mConvListController.getAdapter().delDraftFromMap(conv.getId());
         }
     }
 

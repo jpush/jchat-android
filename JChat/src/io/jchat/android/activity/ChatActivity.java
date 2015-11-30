@@ -11,9 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 import java.util.List;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.ImageContent;
@@ -24,10 +22,12 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.controller.ChatController;
 import io.jchat.android.controller.RecordVoiceBtnController;
+import io.jchat.android.entity.Event;
 import io.jchat.android.tools.BitmapLoader;
 import io.jchat.android.tools.FileHelper;
 import io.jchat.android.view.ChatView;
@@ -90,13 +90,13 @@ public class ChatActivity extends BaseActivity {
         switch (msg.what) {
             case JChatDemoApplication.REFRESH_GROUP_NAME:
                 if (mChatController.getConversation() != null) {
-                    int num = msg.getData().getInt("membersCount");
+                    int num = msg.getData().getInt(JChatDemoApplication.MEMBERS_COUNT);
                     String groupName = msg.getData().getString(JChatDemoApplication.GROUP_NAME);
                     mChatView.setChatTitle(groupName, num);
                 }
                 break;
             case JChatDemoApplication.REFRESH_GROUP_NUM:
-                int num = msg.getData().getInt("membersCount");
+                int num = msg.getData().getInt(JChatDemoApplication.MEMBERS_COUNT);
                 mChatView.setChatTitle(ChatActivity.this.getString(R.string.group), num);
                 break;
         }
@@ -140,6 +140,15 @@ public class ChatActivity extends BaseActivity {
         } else {
             mChatController.resetUnreadMsg();
         }
+        //发送保存为草稿事件到会话列表界面
+        if (mChatController.isGroup()) {
+            EventBus.getDefault().post(new Event.DraftEvent(mChatController.getGroupId(),
+                    mChatView.getChatInput()));
+        } else {
+            EventBus.getDefault().post(new Event.DraftEvent(mChatController.getTargetId(),
+                    mChatView.getChatInput()));
+        }
+
         super.onBackPressed();
     }
 
@@ -249,10 +258,10 @@ public class ChatActivity extends BaseActivity {
                 if (userInfo != null) {
                     if (TextUtils.isEmpty(data.getStringExtra(JChatDemoApplication.NAME))) {
                         mChatView.setChatTitle(this.getString(R.string.group),
-                                data.getIntExtra("currentCount", 0));
+                                data.getIntExtra(JChatDemoApplication.MEMBERS_COUNT, 0));
                     } else {
                         mChatView.setChatTitle(data.getStringExtra(JChatDemoApplication.NAME),
-                                data.getIntExtra("currentCount", 0));
+                                data.getIntExtra(JChatDemoApplication.MEMBERS_COUNT, 0));
                     }
                 } else {
                     if (TextUtils.isEmpty(data.getStringExtra(JChatDemoApplication.NAME))) {
@@ -368,6 +377,7 @@ public class ChatActivity extends BaseActivity {
                     //判断消息是否在当前会话中
                     if (!mChatController.isGroup() && targetID.equals(mChatController.getTargetId())) {
                         Message lastMsg = mChatController.getAdapter().getLastMsg();
+                        //收到的消息和Adapter中最后一条消息比较，如果最后一条为空或者不相同，则加入到MsgList
                         if (lastMsg == null || msg.getId() != lastMsg.getId()) {
                             mChatController.getAdapter().addMsgToList(msg);
                         } else {
@@ -397,14 +407,14 @@ public class ChatActivity extends BaseActivity {
             handleMessage.what = JChatDemoApplication.REFRESH_GROUP_NAME;
             Bundle bundle = new Bundle();
             bundle.putString(JChatDemoApplication.GROUP_NAME, groupInfo.getGroupName());
-            bundle.putInt("membersCount", groupInfo.getGroupMembers().size());
+            bundle.putInt(JChatDemoApplication.MEMBERS_COUNT, groupInfo.getGroupMembers().size());
             handleMessage.setData(bundle);
             handleMessage.sendToTarget();
         } else {
             android.os.Message handleMessage = mHandler.obtainMessage();
             handleMessage.what = JChatDemoApplication.REFRESH_GROUP_NUM;
             Bundle bundle = new Bundle();
-            bundle.putInt("membersCount", groupInfo.getGroupMembers().size());
+            bundle.putInt(JChatDemoApplication.MEMBERS_COUNT, groupInfo.getGroupMembers().size());
             handleMessage.setData(bundle);
             handleMessage.sendToTarget();
         }

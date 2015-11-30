@@ -2,7 +2,11 @@ package io.jchat.android.adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +14,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.TextContent;
@@ -29,6 +35,7 @@ public class ConversationListAdapter extends BaseAdapter {
     List<Conversation> mDatas;
     private Activity mContext;
     private int mDensityDpi;
+    private Map<String, String> mDraftMap = new HashMap<String, String>();
 
     public ConversationListAdapter(Activity context, List<Conversation> data, int densityDpi) {
         this.mContext = context;
@@ -74,6 +81,19 @@ public class ConversationListAdapter extends BaseAdapter {
     public void addNewConversation(Conversation conv) {
         mDatas.add(0, conv);
         notifyDataSetChanged();
+    }
+
+    public void putDraftToMap(String convId, String draft) {
+        mDraftMap.put(convId, draft);
+    }
+
+    public void delDraftFromMap(String convId) {
+        mDraftMap.remove(convId);
+        notifyDataSetChanged();
+    }
+
+    public String getDraft(String convId) {
+        return mDraftMap.get(convId);
     }
 
     @Override
@@ -127,41 +147,51 @@ public class ConversationListAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
 
         }
-        Message lastMsg = convItem.getLatestMessage();
-        if (lastMsg != null) {
-            TimeFormat timeFormat = new TimeFormat(mContext, lastMsg.getCreateTime());
-            viewHolder.datetime.setText(timeFormat.getTime());
-            // 按照最后一条消息的消息类型进行处理
-            switch (lastMsg.getContentType()) {
-                case image:
-                    viewHolder.content.setText(mContext.getString(R.string.type_picture));
-                    break;
-                case voice:
-                    viewHolder.content.setText(mContext.getString(R.string.type_voice));
-                    break;
-                case location:
-                    viewHolder.content.setText(mContext.getString(R.string.type_location));
-                    break;
-                case eventNotification:
-                    viewHolder.content.setText(mContext.getString(R.string.group_notification));
-                    break;
-                case custom:
-                    CustomContent content = (CustomContent)lastMsg.getContent();
-                    Boolean isBlackListHint = content.getBooleanValue("blackList");
-                    if (isBlackListHint != null && isBlackListHint) {
-                        viewHolder.content.setText(mContext.getString(R.string.server_803008));
-                    }else {
-                        viewHolder.content.setText(mContext.getString(R.string.type_custom));
-                    }
-                    break;
-                default:
-                    viewHolder.content.setText(((TextContent) lastMsg.getContent()).getText());
+        String draft = mDraftMap.get(convItem.getId());
+        //如果该会话草稿为空，显示最后一条消息
+        if (TextUtils.isEmpty(draft)) {
+            Message lastMsg = convItem.getLatestMessage();
+            if (lastMsg != null) {
+                TimeFormat timeFormat = new TimeFormat(mContext, lastMsg.getCreateTime());
+                viewHolder.datetime.setText(timeFormat.getTime());
+                // 按照最后一条消息的消息类型进行处理
+                switch (lastMsg.getContentType()) {
+                    case image:
+                        viewHolder.content.setText(mContext.getString(R.string.type_picture));
+                        break;
+                    case voice:
+                        viewHolder.content.setText(mContext.getString(R.string.type_voice));
+                        break;
+                    case location:
+                        viewHolder.content.setText(mContext.getString(R.string.type_location));
+                        break;
+                    case eventNotification:
+                        viewHolder.content.setText(mContext.getString(R.string.group_notification));
+                        break;
+                    case custom:
+                        CustomContent content = (CustomContent) lastMsg.getContent();
+                        Boolean isBlackListHint = content.getBooleanValue("blackList");
+                        if (isBlackListHint != null && isBlackListHint) {
+                            viewHolder.content.setText(mContext.getString(R.string.server_803008));
+                        } else {
+                            viewHolder.content.setText(mContext.getString(R.string.type_custom));
+                        }
+                        break;
+                    default:
+                        viewHolder.content.setText(((TextContent) lastMsg.getContent()).getText());
+                }
+            }else {
+                TimeFormat timeFormat = new TimeFormat(mContext, convItem.getLastMsgDate());
+                viewHolder.datetime.setText(timeFormat.getTime());
+                viewHolder.content.setText("");
             }
-        }else {
-            TimeFormat timeFormat = new TimeFormat(mContext, convItem.getLastMsgDate());
-            viewHolder.datetime.setText(timeFormat.getTime());
-            viewHolder.content.setText("");
+        } else {
+            String content = mContext.getString(R.string.draft) + draft;
+            SpannableStringBuilder builder = new SpannableStringBuilder(content);
+            builder.setSpan(new ForegroundColorSpan(Color.RED), 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            viewHolder.content.setText(builder);
         }
+
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
             viewHolder.convName.setText(convItem.getTitle());

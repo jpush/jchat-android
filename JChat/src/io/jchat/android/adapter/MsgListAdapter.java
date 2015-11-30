@@ -15,7 +15,6 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Build;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -66,6 +65,7 @@ import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.tools.FileHelper;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.TimeFormat;
 import io.jchat.android.view.CircleImageView;
@@ -137,7 +137,7 @@ public class MsgListAdapter extends BaseAdapter {
                 public void gotResult(int status, String desc, Bitmap bitmap) {
                     if (status == 0) {
                         notifyDataSetChanged();
-                    }else {
+                    } else {
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
@@ -174,7 +174,9 @@ public class MsgListAdapter extends BaseAdapter {
         audioManager.setMode(AudioManager.MODE_NORMAL);
         if (audioManager.isSpeakerphoneOn()) {
             audioManager.setSpeakerphoneOn(true);
-        } else audioManager.setSpeakerphoneOn(false);
+        } else {
+            audioManager.setSpeakerphoneOn(false);
+        }
         mp.setAudioStreamType(AudioManager.STREAM_RING);
         mp.setOnErrorListener(new OnErrorListener() {
 
@@ -244,10 +246,11 @@ public class MsgListAdapter extends BaseAdapter {
         mConv = JMessageClient.getSingleConversation(targetId);
         for (int msgId : msgIds) {
             msg = mConv.getMessage(msgId);
-//            JMessageClient.sendMessage(msg);
-            mMsgList.add(msg);
-            incrementStartPosition();
-            mMsgQueue.offer(msg);
+            if (msg != null) {
+                mMsgList.add(msg);
+                incrementStartPosition();
+                mMsgQueue.offer(msg);
+            }
         }
 
         Message message = mMsgQueue.element();
@@ -260,10 +263,11 @@ public class MsgListAdapter extends BaseAdapter {
         mConv = JMessageClient.getGroupConversation(groupId);
         for (int msgId : msgIds) {
             msg = mConv.getMessage(msgId);
-//            JMessageClient.sendMessage(msg);
-            mMsgList.add(msg);
-            incrementStartPosition();
-            mMsgQueue.offer(msg);
+            if (msg != null) {
+                mMsgList.add(msg);
+                incrementStartPosition();
+                mMsgQueue.offer(msg);
+            }
         }
 
         Message message = mMsgQueue.element();
@@ -366,9 +370,8 @@ public class MsgListAdapter extends BaseAdapter {
                         .inflate(R.layout.chat_item_receive_voice, null);
             case location:
                 return getItemViewType(position) == TYPE_SEND_LOCATION ? mInflater
-                        .inflate(R.layout.chat_item_send_location, null)
-                        : mInflater.inflate(R.layout.chat_item_receive_location,
-                        null);
+                        .inflate(R.layout.chat_item_send_location, null) : mInflater
+                        .inflate(R.layout.chat_item_receive_location, null);
             case eventNotification:
                 if (getItemViewType(position) == TYPE_GROUP_CHANGE)
                     return mInflater.inflate(R.layout.chat_item_group_change, null);
@@ -517,6 +520,7 @@ public class MsgListAdapter extends BaseAdapter {
             if (position == 0 || position == mOffset
                     || (position - mOffset) % 18 == 0) {
                 TimeFormat timeFormat = new TimeFormat(mContext, nowDate);
+
                 msgTime.setText(timeFormat.getDetailTime());
                 msgTime.setVisibility(View.VISIBLE);
             } else {
@@ -1183,8 +1187,7 @@ public class MsgListAdapter extends BaseAdapter {
         holder.txtContent.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                boolean sdCardExist = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
-                if (!sdCardExist && msg.getDirect().equals(MessageDirect.send)) {
+                if (!FileHelper.isSdCardExist() && msg.getDirect().equals(MessageDirect.send)) {
                     Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
                     return;
                 }

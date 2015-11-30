@@ -33,11 +33,36 @@
             android:verticalSpacing="10dp">
         </io.jchat.android.view.GroupGridView>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/chat_detail_split_line_color" />
 
-    <View
+        <LinearLayout
+            android:id="@+id/all_member_ll"
+            style="@style/ChatDetailItem">
+
+            <TextView
+                android:id="@+id/members_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/selected_num"
+                android:textColor="@color/chat_detail_item_hit_color"
+                android:textSize="@dimen/text_medium_size" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/chat_detail_split_line_color" />
+
+
+        <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:background="@color/chat_detail_split_line_color" />
 
     <LinearLayout

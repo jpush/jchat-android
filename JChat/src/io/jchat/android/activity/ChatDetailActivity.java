@@ -64,7 +64,6 @@ public class ChatDetailActivity extends BaseActivity {
         mChatDetailController = new ChatDetailController(mChatDetailView, this, mAvatarSize);
         mChatDetailView.setListeners(mChatDetailController);
         mChatDetailView.setItemListener(mChatDetailController);
-        mChatDetailView.setLongClickListener(mChatDetailController);
     }
 
     //设置群聊名称
@@ -182,7 +181,7 @@ public class ChatDetailActivity extends BaseActivity {
         Log.i(TAG, "onBackPressed");
         Intent intent = new Intent();
         intent.putExtra(JChatDemoApplication.NAME, mChatDetailController.getName());
-        intent.putExtra("currentCount", mChatDetailController.getCurrentCount());
+        intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, mChatDetailController.getCurrentCount());
         intent.putExtra("deleteMsg", mChatDetailController.getDeleteFlag());
         setResult(JChatDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
         finish();
@@ -221,12 +220,18 @@ public class ChatDetailActivity extends BaseActivity {
         } else if (requestCode == MY_NAME_REQUEST_CODE) {
             Log.i(TAG, "myName = " + data.getStringExtra("resultName"));
             mChatDetailView.setMyName(data.getStringExtra("resultName"));
-        }else if (resultCode == JChatDemoApplication.RESULT_CODE_FRIEND_INFO){
-            if (data.getBooleanExtra("returnChatActivity", false)){
+        } else if (resultCode == JChatDemoApplication.RESULT_CODE_FRIEND_INFO) {
+            if (data.getBooleanExtra("returnChatActivity", false)) {
                 data.putExtra("deleteMsg", mChatDetailController.getDeleteFlag());
                 data.putExtra(JChatDemoApplication.NAME, mChatDetailController.getName());
                 setResult(JChatDemoApplication.RESULT_CODE_CHAT_DETAIL, data);
                 finish();
+            }
+        } else if (requestCode == JChatDemoApplication.REQUEST_CODE_ALL_MEMBER) {
+            int memberCount = data.getIntExtra(JChatDemoApplication.MEMBERS_COUNT, -1);
+            if (memberCount != -1) {
+                mChatDetailView.setTitle(memberCount);
+                mChatDetailView.setMembersNum(memberCount);
             }
         }
     }

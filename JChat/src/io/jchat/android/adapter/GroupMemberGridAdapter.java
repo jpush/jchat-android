@@ -10,9 +10,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.Conversation;
@@ -31,7 +33,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     //群成员列表
     private List<UserInfo> mMemberList = new ArrayList<UserInfo>();
     private boolean mIsCreator = false;
-    private boolean mIsShowDelete;
     //群成员个数
     private int mCurrentNum;
     //记录空白项的数组
@@ -53,7 +54,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         mCurrentNum = mMemberList.size();
         this.mIsCreator = isCreator;
         this.mAvatarSize = size;
-        mIsShowDelete = false;
         initBlankItem();
     }
 
@@ -65,27 +65,20 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     }
 
     public void initBlankItem() {
-        mCurrentNum = mMemberList.size();
+        if (mMemberList.size() > 40) {
+            mCurrentNum = 39;
+        } else {
+            mCurrentNum = mMemberList.size();
+        }
         mRestNum = mRestArray[mCurrentNum % 4];
     }
 
-    public void refreshMemberList(long groupId){
+    public void refreshMemberList(long groupId) {
         Conversation conv = JMessageClient.getGroupConversation(groupId);
-        GroupInfo groupInfo = (GroupInfo)conv.getTargetInfo();
+        GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
         mMemberList = groupInfo.getGroupMembers();
         mCurrentNum = mMemberList.size();
         mRestNum = mRestArray[mCurrentNum % 4];
-        notifyDataSetChanged();
-    }
-
-    public void setIsShowDelete(boolean isShowDelete) {
-        this.mIsShowDelete = isShowDelete;
-        notifyDataSetChanged();
-    }
-
-    public void setIsShowDelete(boolean isShowDelete, int restNum) {
-        this.mIsShowDelete = isShowDelete;
-        mRestNum = restNum;
         notifyDataSetChanged();
     }
 
@@ -130,26 +123,26 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 UserInfo userInfo = mMemberList.get(position);
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
-                if (!TextUtils.isEmpty(userInfo.getAvatar())){
+                if (!TextUtils.isEmpty(userInfo.getAvatar())) {
                     File file = userInfo.getAvatarFile();
                     if (file != null && file.isFile()) {
                         Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
                                 mAvatarSize, mAvatarSize);
                         viewTag.icon.setImageBitmap(bitmap);
-                    }else {
+                    } else {
                         userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
                             @Override
                             public void gotResult(int status, String desc, Bitmap bitmap) {
                                 if (status == 0) {
                                     viewTag.icon.setImageBitmap(bitmap);
-                                }else {
+                                } else {
                                     viewTag.icon.setImageResource(R.drawable.head_icon);
                                     HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
                     }
-                }else {
+                } else {
                     viewTag.icon.setImageResource(R.drawable.head_icon);
                 }
 
@@ -159,46 +152,29 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                     viewTag.name.setText(userInfo.getNickname());
                 }
             }
-            //是Delete状态
-            if (mIsShowDelete) {
-                if (position < mCurrentNum) {
-                    UserInfo userInfo = mMemberList.get(position);
-                    //群主不能删除自己
-                    if (userInfo.getUserName().equals(JMessageClient.getMyInfo().getUserName()))
-                        viewTag.deleteIcon.setVisibility(View.GONE);
-                    else viewTag.deleteIcon.setVisibility(View.VISIBLE);
+            viewTag.deleteIcon.setVisibility(View.INVISIBLE);
+            if (position < mCurrentNum) {
+                viewTag.icon.setVisibility(View.VISIBLE);
+                viewTag.name.setVisibility(View.VISIBLE);
+            } else if (position == mCurrentNum) {
+                viewTag.icon.setImageResource(R.drawable.chat_detail_add);
+                viewTag.icon.setVisibility(View.VISIBLE);
+                viewTag.name.setVisibility(View.INVISIBLE);
 
-                } else {
-                    viewTag.deleteIcon.setVisibility(View.INVISIBLE);
-                    viewTag.icon.setVisibility(View.INVISIBLE);
+                //设置删除群成员按钮
+            } else if (position == mCurrentNum + 1) {
+                if (mIsCreator && mCurrentNum > 1) {
+                    viewTag.icon.setImageResource(R.drawable.chat_detail_del);
+                    viewTag.icon.setVisibility(View.VISIBLE);
                     viewTag.name.setVisibility(View.INVISIBLE);
+                } else {
+                    viewTag.icon.setVisibility(View.GONE);
+                    viewTag.name.setVisibility(View.GONE);
                 }
-                //非Delete状态
+                //空白项
             } else {
-                viewTag.deleteIcon.setVisibility(View.INVISIBLE);
-                if (position < mCurrentNum) {
-                    viewTag.icon.setVisibility(View.VISIBLE);
-                    viewTag.name.setVisibility(View.VISIBLE);
-                } else if (position == mCurrentNum) {
-                    viewTag.icon.setImageResource(R.drawable.chat_detail_add);
-                    viewTag.icon.setVisibility(View.VISIBLE);
-                    viewTag.name.setVisibility(View.INVISIBLE);
-
-                    //设置删除群成员按钮
-                } else if (position == mCurrentNum + 1) {
-                    if (mIsCreator && mCurrentNum > 1) {
-                        viewTag.icon.setImageResource(R.drawable.chat_detail_del);
-                        viewTag.icon.setVisibility(View.VISIBLE);
-                        viewTag.name.setVisibility(View.INVISIBLE);
-                    } else {
-                        viewTag.icon.setVisibility(View.GONE);
-                        viewTag.name.setVisibility(View.GONE);
-                    }
-                    //空白项
-                } else {
-                    viewTag.icon.setVisibility(View.INVISIBLE);
-                    viewTag.name.setVisibility(View.INVISIBLE);
-                }
+                viewTag.icon.setVisibility(View.INVISIBLE);
+                viewTag.name.setVisibility(View.INVISIBLE);
             }
         } else {
             if (position == 0) {
@@ -217,9 +193,9 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                         }
                     });
                 }
-                if (TextUtils.isEmpty(userInfo.getNickname())){
+                if (TextUtils.isEmpty(userInfo.getNickname())) {
                     viewTag.name.setText(userInfo.getUserName());
-                }else {
+                } else {
                     viewTag.name.setText(userInfo.getNickname());
                 }
                 viewTag.icon.setVisibility(View.VISIBLE);

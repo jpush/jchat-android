@@ -7,16 +7,17 @@ import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import io.jchat.android.R;
 import io.jchat.android.adapter.GroupMemberGridAdapter;
 
 public class ChatDetailView extends LinearLayout{
-	
+
+	private LinearLayout mAllGroupMemberLL;
 	private LinearLayout mGroupNameLL;
 	private LinearLayout mMyNameLL;
 	private LinearLayout mGroupNumLL;
@@ -24,6 +25,7 @@ public class ChatDetailView extends LinearLayout{
 	private LinearLayout mGroupChatDelLL;
 	private ImageButton mReturnBtn;
 	private TextView mTitle;
+    private TextView mMembersNum;
 	private ImageButton mMenuBtn;
 	private Button mDelGroupBtn;
 	private TextView mGroupName;
@@ -40,6 +42,7 @@ public class ChatDetailView extends LinearLayout{
 	}
 	
 	public void initModule(){
+        mAllGroupMemberLL = (LinearLayout) findViewById(R.id.all_member_ll);
 		mGroupNameLL = (LinearLayout) findViewById(R.id.group_name_ll);
 		mMyNameLL = (LinearLayout) findViewById(R.id.group_my_name_ll);
 		mGroupNumLL = (LinearLayout) findViewById(R.id.group_num_ll);
@@ -47,6 +50,7 @@ public class ChatDetailView extends LinearLayout{
 		mGroupChatDelLL = (LinearLayout) findViewById(R.id.group_chat_del_ll);
 		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
 		mTitle = (TextView) findViewById(R.id.title);
+        mMembersNum = (TextView) findViewById(R.id.members_num);
 		mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
 		mDelGroupBtn = (Button) findViewById(R.id.chat_detail_del_group);
 		mGroupName = (TextView) findViewById(R.id.chat_detail_group_name);
@@ -62,6 +66,7 @@ public class ChatDetailView extends LinearLayout{
 	}
 	
 	public void setListeners(OnClickListener onClickListener) {
+        mAllGroupMemberLL.setOnClickListener(onClickListener);
 		mGroupNameLL.setOnClickListener(onClickListener);
 		mMyNameLL.setOnClickListener(onClickListener);
 		mGroupNumLL.setOnClickListener(onClickListener);
@@ -75,9 +80,9 @@ public class ChatDetailView extends LinearLayout{
 		mGridView.setOnItemClickListener(listener);
 	}
 	
-	public void setLongClickListener(OnItemLongClickListener listener) {
-		mGridView.setOnItemLongClickListener(listener);
-	}
+//	public void setLongClickListener(OnItemLongClickListener listener) {
+//		mGridView.setOnItemLongClickListener(listener);
+//	}
 
 	public void setAdapter(GroupMemberGridAdapter adapter) {
 		mGridView.setAdapter(adapter);
@@ -111,5 +116,11 @@ public class ChatDetailView extends LinearLayout{
 
     public GroupGridView getGridView() {
         return mGridView;
+    }
+
+    public void setMembersNum(int size) {
+        String text = mContext.getString(R.string.all_group_members)
+                + mContext.getString(R.string.combine_title);
+        mMembersNum.setText(String.format(text, size));
     }
 }

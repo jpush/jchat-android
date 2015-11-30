@@ -156,6 +156,10 @@ public class ChatView extends RelativeLayout{
         mGroupNumTv.setVisibility(View.GONE);
     }
 
+    public void setInputText(String text) {
+        mChatInputEt.setText(text);
+    }
+
     public interface OnSizeChangedListener {
         void onSizeChanged(int w, int h, int oldw, int oldh);
     }

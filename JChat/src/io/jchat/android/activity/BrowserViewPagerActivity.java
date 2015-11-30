@@ -583,15 +583,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         }
                         Message msg = mConv.createSendMessage(imageContent);
                         mMsgIds[mIndex] = msg.getId();
-                        mIndex++;
-                        if (mIndex >= mSelectMap.size()) {
-                            myHandler.sendEmptyMessage(SEND_PICTURE);
-                        }
                     } else {
-                        if (mProgressDialog != null) {
-                            mProgressDialog.dismiss();
-                        }
+                        mMsgIds[mIndex] = -1;
                         HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                    mIndex++;
+                    if (mIndex >= mSelectMap.size()) {
+                        myHandler.sendEmptyMessage(SEND_PICTURE);
                     }
                 }
             });
@@ -603,15 +601,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     if (status == 0) {
                         Message msg = mConv.createSendMessage(imageContent);
                         mMsgIds[mIndex] = msg.getId();
-                        mIndex++;
-                        if (mIndex >= mSelectMap.size()) {
-                            myHandler.sendEmptyMessage(SEND_PICTURE);
-                        }
                     } else {
-                        if (mProgressDialog != null) {
-                            mProgressDialog.dismiss();
-                        }
+                        mMsgIds[mIndex] = -1;
                         HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                    mIndex++;
+                    if (mIndex >= mSelectMap.size()) {
+                        myHandler.sendEmptyMessage(SEND_PICTURE);
                     }
                 }
             });
