@@ -3,9 +3,6 @@ package io.jchat.android.tools;
 import java.io.File;
 import java.util.Comparator;
 
-/**
- * Created by jpush on 2015/7/6.
- */
 public class SortPictureList implements Comparator {
     @Override
     public int compare(Object o, Object t1) {

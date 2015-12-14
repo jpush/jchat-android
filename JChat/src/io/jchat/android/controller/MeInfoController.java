@@ -2,9 +2,7 @@ package io.jchat.android.controller;
 
 import android.view.View;
 import android.view.View.OnClickListener;
-
 import io.jchat.android.R;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.activity.MeInfoActivity;
@@ -25,7 +23,7 @@ public class MeInfoController implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.return_btn:
-                mContext.finish();
+                mContext.setResultAndFinish();
                 break;
             case R.id.nick_name_rl:
                 mContext.startModifyNickNameActivity();

@@ -1,9 +1,8 @@
 package io.jchat.android.tools;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,6 +10,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
+
+import io.jchat.android.application.JChatDemoApplication;
 
 /**
  * Created by Ken on 2015/2/9.
@@ -48,7 +49,7 @@ public class BitmapLoader {
      * @param bitmap
      * @return
      */
-    public static String saveBitmapToLocal(Bitmap bitmap) {
+    public static String saveBitmapToLocal(Bitmap bitmap, Context context, String userName) {
         if (null == bitmap) {
             return null;
         }
@@ -56,16 +57,14 @@ public class BitmapLoader {
         FileOutputStream fileOutput = null;
         File imgFile;
         try {
-            String dir = "sdcard/JPushDemo/pictures/";
-            File desDir = new File(dir);
+            File desDir = new File(JChatDemoApplication.PICTURE_DIR);
             if (!desDir.exists()) {
                 desDir.mkdirs();
             }
-            //使用随机数使得发送的图片的缩略图文件名不相同
-            imgFile = new File(desDir.getAbsoluteFile() + "/" + String.valueOf(bitmap.hashCode() + Math.random()));
+            imgFile = new File(JChatDemoApplication.PICTURE_DIR, userName + ".png");
             imgFile.createNewFile();
             fileOutput = new FileOutputStream(imgFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fileOutput);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutput);
             fileOutput.flush();
             filePath = imgFile.getAbsolutePath();
         } catch (FileNotFoundException e) {

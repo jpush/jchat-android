@@ -1,9 +1,7 @@
 package io.jchat.android.activity;
 
 import android.os.Bundle;
-
 import io.jchat.android.R;
-
 import io.jchat.android.controller.GroupSettingController;
 import io.jchat.android.view.GroupSettingView;
 

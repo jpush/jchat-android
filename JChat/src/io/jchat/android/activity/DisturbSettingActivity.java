@@ -11,9 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
-
 import io.jchat.android.R;
-
 import io.jchat.android.Listener.OnChangedListener;
 import io.jchat.android.view.SlipButton;
 
@@ -73,7 +71,7 @@ public class DisturbSettingActivity extends BaseActivity implements OnChangedLis
             final Button commit = (Button) view.findViewById(R.id.commit_btn);
             builder.setView(view);
             timePicker.setIs24HourView(false);
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.begin_time_ll:
                     timePicker.setCurrentHour(23);
                     timePicker.setCurrentMinute(0);
@@ -83,16 +81,20 @@ public class DisturbSettingActivity extends BaseActivity implements OnChangedLis
                         @Override
                         public void onClick(View view) {
                             StringBuffer sb = new StringBuffer();
-                            if(timePicker.getCurrentHour() < 12)
+                            if (timePicker.getCurrentHour() < 12) {
                                 sb.append(mContext.getString(R.string.morning) + " ");
-                                else if (timePicker.getCurrentHour() < 18)
+                            } else if (timePicker.getCurrentHour() < 18) {
                                 sb.append(mContext.getString(R.string.afternoon) + " ");
-                                else sb.append(mContext.getString(R.string.night) + " ");
-                            if(timePicker.getCurrentHour() < 10)
+                            } else {
+                                sb.append(mContext.getString(R.string.night) + " ");
+                            }
+                            if (timePicker.getCurrentHour() < 10) {
                                 sb.append("0");
+                            }
                             sb.append(timePicker.getCurrentHour()).append(":");
-                            if(timePicker.getCurrentMinute() < 10)
+                            if (timePicker.getCurrentMinute() < 10) {
                                 sb.append("0");
+                            }
                             sb.append(timePicker.getCurrentMinute());
                             mBeginTime.setText(sb);
                             dialog.cancel();
@@ -109,16 +111,20 @@ public class DisturbSettingActivity extends BaseActivity implements OnChangedLis
                         @Override
                         public void onClick(View view) {
                             StringBuffer sb = new StringBuffer();
-                            if(timePicker.getCurrentHour() < 12)
+                            if(timePicker.getCurrentHour() < 12) {
                                 sb.append(mContext.getString(R.string.morning) + " ");
-                            else if (timePicker.getCurrentHour() < 18)
+                            } else if (timePicker.getCurrentHour() < 18) {
                                 sb.append(mContext.getString(R.string.afternoon) + " ");
-                            else sb.append(mContext.getString(R.string.night) + " ");
-                            if(timePicker.getCurrentHour() < 10)
+                            } else {
+                                sb.append(mContext.getString(R.string.night) + " ");
+                            }
+                            if (timePicker.getCurrentHour() < 10) {
                                 sb.append("0");
+                            }
                             sb.append(timePicker.getCurrentHour()).append(":");
-                            if(timePicker.getCurrentMinute() < 10)
+                            if (timePicker.getCurrentMinute() < 10) {
                                 sb.append("0");
+                            }
                             sb.append(timePicker.getCurrentMinute());
                             mEndTime.setText(sb);
                             dialog1.cancel();
@@ -131,7 +137,7 @@ public class DisturbSettingActivity extends BaseActivity implements OnChangedLis
 
     @Override
     public void OnChanged(int id, boolean flag) {
-        if(flag){
+        if (flag) {
             mTimeSettingLl.setVisibility(View.VISIBLE);
         }else
             mTimeSettingLl.setVisibility(View.GONE);

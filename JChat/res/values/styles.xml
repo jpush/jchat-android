@@ -31,8 +31,8 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:gravity">center_horizontal</item>
-        <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingBottom">7dp</item>
+        <item name="android:paddingTop">7dp</item>
+        <item name="android:paddingBottom">5dp</item>
         <item name="android:textColor">@color/action_bar_txt_color</item>
         <item name="android:background">#3C3C3C</item>
         <item name="android:textSize">@dimen/text_minimum_size</item>
@@ -56,7 +56,7 @@
         <item name="android:layout_height">55dp</item>
         <item name="android:padding">5dp</item>
         <item name="android:background">@drawable/list_item_bg</item>
-        <item name="android:orientation">horizontal </item>
+        <item name="android:orientation">horizontal</item>
     </style>
 
     <style name="ChatDetailItemHit">
@@ -161,6 +161,15 @@
         <item name="android:layout_centerVertical">true</item>
     </style>
 
+    <style name="SettingItemTextStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
     <style name="SettingItemSwitch">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -235,6 +244,7 @@
     <style name="msg_text_style">
         <item name="android:maxWidth">225dp</item>
         <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_gravity">center_vertical</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:textSize">18sp</item>

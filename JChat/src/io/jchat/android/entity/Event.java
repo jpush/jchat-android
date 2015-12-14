@@ -1,10 +1,5 @@
 package io.jchat.android.entity;
 
-import cn.jpush.im.android.api.model.Message;
-
-/**
- * Created by jpush on 2015/8/26.
- */
 public class Event {
 
     public static class StringEvent{
@@ -31,15 +26,4 @@ public class Event {
         }
     }
 
-    public static class MessageEvent{
-        private Message mMessage;
-
-        public MessageEvent(Message msg){
-            this.mMessage = msg;
-        }
-
-        public Message getMessage(){
-            return mMessage;
-        }
-    }
 }

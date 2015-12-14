@@ -57,14 +57,14 @@ public class LoginActivity extends BaseActivity {
         return this;
     }
 
-    public void StartMainActivity() {
+    public void startMainActivity() {
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setClass(getContext(), MainActivity.class);
         startActivity(intent);
     }
 
-    public void StartRegisterActivity() {
+    public void startRegisterActivity() {
         Intent intent = new Intent();
         intent.setClass(this, RegisterActivity.class);
         startActivity(intent);

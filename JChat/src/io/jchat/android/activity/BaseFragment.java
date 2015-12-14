@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 
@@ -17,6 +18,8 @@ import cn.jpush.im.android.api.event.UserLogoutEvent;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.tools.FileHelper;
+import io.jchat.android.tools.SharePreferenceManager;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,17 +31,27 @@ public class BaseFragment extends Fragment {
     private Dialog dialog;
 
     private UserInfo myInfo;
+    protected float mDensity;
+    protected int mDensityDpi;
+    protected int mWidth;
+    protected int mAvatarSize;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         JMessageClient.registerEventReceiver(this);
+        DisplayMetrics dm = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mDensity = dm.density;
+        mDensityDpi = dm.densityDpi;
+        mWidth = dm.widthPixels;
+        mAvatarSize = (int) (50 * mDensity);
     }
 
     @Override
     public void onDestroy() {
         JMessageClient.unRegisterEventReceiver(this);
-        if (dialog != null){
+        if (dialog != null) {
             dialog.dismiss();
         }
         super.onDestroy();
@@ -50,12 +63,16 @@ public class BaseFragment extends Fragment {
             dialog.dismiss();
             Intent intent = new Intent();
             if (null != myInfo) {
-                intent.putExtra("userName", myInfo.getUserName());
+                String path;
                 File avatar = myInfo.getAvatarFile();
-                if (null != avatar && avatar.exists()) {
-                    intent.putExtra("userAvatar", avatar.getAbsolutePath());
+                if (avatar != null && avatar.exists()) {
+                    path = avatar.getAbsolutePath();
+                } else {
+                    path = FileHelper.getUserAvatarPath(myInfo.getUserName());
                 }
                 Log.i(TAG, "userName " + myInfo.getUserName());
+                SharePreferenceManager.setCachedUsername(myInfo.getUserName());
+                SharePreferenceManager.setCachedAvatarPath(path);
                 JMessageClient.logout();
                 intent.setClass(BaseFragment.this.getActivity(), ReloginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

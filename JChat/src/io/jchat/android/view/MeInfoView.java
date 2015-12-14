@@ -15,58 +15,56 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import io.jchat.android.R;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.tools.DialogCreator;
 
 
-public class MeInfoView extends LinearLayout{
+public class MeInfoView extends LinearLayout {
 
-	// private LinearLayout mTitleBarContainer;
+    // private LinearLayout mTitleBarContainer;
 
-	private CircleImageView mUserAvatar;
-	private TextView mUsername;
-	private TextView mNicknameTv;
-	private ImageView mGenderIcon;
-	private TextView mGenderTv;
+    private CircleImageView mUserAvatar;
+    private TextView mUsername;
+    private TextView mNicknameTv;
+    private ImageView mGenderIcon;
+    private TextView mGenderTv;
     private ImageView mGenderIv;
-	private TextView mRegionTv;
-	private TextView mSignatureTv;
-	private TextView mBirthday;
-	private ImageButton mReturnBtn;
-	private TextView mTitle;
-	private ImageButton mMenuBtn;
+    private TextView mRegionTv;
+    private TextView mSignatureTv;
+    private TextView mBirthday;
+    private ImageButton mReturnBtn;
+    private TextView mTitle;
+    private ImageButton mMenuBtn;
 
     private LinearLayout mNickNameRl;
     private LinearLayout mSexRl;
     private LinearLayout mAreaRl;
     private LinearLayout mSignatureRl;
-	private LinearLayout mBirthdayLayout;
-	private LinearLayout mPasswordLayout;
-	private LinearLayout mSettingLayout;
-	private LinearLayout mLogoutLayout;
-	
-	private DialogCreator mLD = null;
-	private Dialog mLoadingDialog = null;
+    private LinearLayout mBirthdayLayout;
+    private LinearLayout mPasswordLayout;
+    private LinearLayout mSettingLayout;
+    private LinearLayout mLogoutLayout;
 
-	private RelativeLayout mEditLayout;
-	private EditText mInputEdit;
-	private ChangeType mType;
+    private DialogCreator mLD = null;
+    private Dialog mLoadingDialog = null;
 
-	private DatePickerDialog mDatePickerDialog;
+    private RelativeLayout mEditLayout;
+    private EditText mInputEdit;
+    private ChangeType mType;
 
-	private AlertDialog mChangAvatarDialog;
-	private RelativeLayout mUsePhoto;
-	private RelativeLayout mUseCamera;
+    private DatePickerDialog mDatePickerDialog;
 
-	private ImageView mAvatarBg;
+    private AlertDialog mChangAvatarDialog;
+    private RelativeLayout mUsePhoto;
+    private RelativeLayout mUseCamera;
 
-	private String nicknameStr, birthdayStr, regionStr, signatureStr, genderStr;
+    private ImageView mAvatarBg;
 
-	private Bitmap mAvatarBitmap;
+    private String nicknameStr, birthdayStr, regionStr, signatureStr, genderStr;
+
+    private Bitmap mAvatarBitmap;
     private Context mContext;
 
     public void setSignature(String signature) {
@@ -77,11 +75,11 @@ public class MeInfoView extends LinearLayout{
         mNicknameTv.setText(nickName);
     }
 
-    public void setGender(boolean isMan){
-        if(isMan){
+    public void setGender(boolean isMan) {
+        if (isMan) {
             mGenderTv.setText(mContext.getString(R.string.man));
             mGenderIv.setImageResource(R.drawable.sex_man);
-        }else {
+        } else {
             mGenderTv.setText(mContext.getString(R.string.woman));
             mGenderIv.setImageResource(R.drawable.sex_woman);
         }
@@ -93,62 +91,62 @@ public class MeInfoView extends LinearLayout{
 
 
     private enum ChangeType {
-		NICKNAME, LOCATION, SIGNATURE
-	}
-	
-	public MeInfoView(Context context, AttributeSet attrs) {
-		super(context, attrs);
+        NICKNAME, LOCATION, SIGNATURE
+    }
+
+    public MeInfoView(Context context, AttributeSet attrs) {
+        super(context, attrs);
         this.mContext = context;
-		// TODO Auto-generated constructor stub
-	}
-	
-	public void initModule(){
-		mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
-		mTitle = (TextView) findViewById(R.id.title);
-		mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
+        // TODO Auto-generated constructor stub
+    }
+
+    public void initModule() {
+        mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
+        mTitle = (TextView) findViewById(R.id.title);
+        mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
         mNickNameRl = (LinearLayout) findViewById(R.id.nick_name_rl);
         mSexRl = (LinearLayout) findViewById(R.id.sex_rl);
         mAreaRl = (LinearLayout) findViewById(R.id.location_rl);
         mRegionTv = (TextView) findViewById(R.id.region_tv);
         mSignatureRl = (LinearLayout) findViewById(R.id.sign_rl);
-		mNicknameTv = (TextView) findViewById(R.id.nick_name_tv);
-		mGenderTv = (TextView) findViewById(R.id.gender_tv);
+        mNicknameTv = (TextView) findViewById(R.id.nick_name_tv);
+        mGenderTv = (TextView) findViewById(R.id.gender_tv);
         mGenderIv = (ImageView) findViewById(R.id.sex_icon);
-		mRegionTv = (TextView) findViewById(R.id.region_tv);
-		mSignatureTv = (TextView) findViewById(R.id.signature_tv);
-		mTitle.setText(mContext.getString(R.string.detail_info));
-		mMenuBtn.setVisibility(View.GONE);
+        mRegionTv = (TextView) findViewById(R.id.region_tv);
+        mSignatureTv = (TextView) findViewById(R.id.signature_tv);
+        mTitle.setText(mContext.getString(R.string.detail_info));
+        mMenuBtn.setVisibility(View.GONE);
         refreshUserInfo(JMessageClient.getMyInfo());
-	}
+    }
 
     public void refreshUserInfo(UserInfo userInfo) {
-        if(userInfo != null){
-            if(!TextUtils.isEmpty(userInfo.getNickname()))
+        if (userInfo != null) {
+            if (!TextUtils.isEmpty(userInfo.getNickname()))
                 mNicknameTv.setText(userInfo.getNickname());
-            if(userInfo.getGender() == UserInfo.Gender.male){
+            if (userInfo.getGender() == UserInfo.Gender.male) {
                 mGenderTv.setText(mContext.getString(R.string.man));
                 mGenderIv.setImageResource(R.drawable.sex_man);
-            }else if(userInfo.getGender() == UserInfo.Gender.female){
+            } else if (userInfo.getGender() == UserInfo.Gender.female) {
                 mGenderTv.setText(mContext.getString(R.string.woman));
                 mGenderIv.setImageResource(R.drawable.sex_woman);
-            }else {
+            } else {
                 mGenderTv.setText(mContext.getString(R.string.unknown));
             }
-            if(!TextUtils.isEmpty(userInfo.getRegion()))
+            if (!TextUtils.isEmpty(userInfo.getRegion()))
                 mRegionTv.setText(userInfo.getRegion());
-            if(!TextUtils.isEmpty(userInfo.getSignature()))
+            if (!TextUtils.isEmpty(userInfo.getSignature()))
                 mSignatureTv.setText(userInfo.getSignature());
         }
     }
 
     public void setListeners(OnClickListener onClickListener) {
-		mReturnBtn.setOnClickListener(onClickListener);
+        mReturnBtn.setOnClickListener(onClickListener);
         mNickNameRl.setOnClickListener(onClickListener);
         mSexRl.setOnClickListener(onClickListener);
         mAreaRl.setOnClickListener(onClickListener);
         mSignatureRl.setOnClickListener(onClickListener);
 ////		JPushIMManager.getInstance().registerUserAvatarChangeObserver(this);
-	}
+    }
 
 
 }

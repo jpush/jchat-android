@@ -1,14 +1,11 @@
 package io.jchat.android.controller;
 
 import android.app.Dialog;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-
 import io.jchat.android.R;
-
 import io.jchat.android.activity.MeFragment;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.NativeImageLoader;
@@ -21,12 +18,10 @@ public class MeController implements OnClickListener {
     private Dialog mDialog;
     private int mWidth;
 
-    public MeController(MeView meView, MeFragment context) {
+    public MeController(MeView meView, MeFragment context, int width) {
         this.mMeView = meView;
         this.mContext = context;
-        DisplayMetrics dm = new DisplayMetrics();
-        mContext.getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mWidth = dm.widthPixels;
+        this.mWidth = width;
     }
 
     @Override
@@ -57,7 +52,7 @@ public class MeController implements OnClickListener {
                 mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 break;
             case R.id.user_info_rl:
-                mContext.StartMeInfoActivity();
+                mContext.startMeInfoActivity();
                 break;
             case R.id.setting_rl:
                 mContext.StartSettingActivity();
@@ -84,10 +79,6 @@ public class MeController implements OnClickListener {
                 mDialog = DialogCreator.createLogoutDialog(mContext.getActivity(), listener);
                 mDialog.show();
                 break;
-            case R.id.about_rl:
-                mContext.startAboutActivity();
-                break;
-
 //		case R.id.birthday:
 //			Calendar calendar = Calendar.getInstance();
 //			String dateStr = mBirthday.getText().toString().trim();
@@ -123,39 +114,5 @@ public class MeController implements OnClickListener {
 //			break;
         }
     }
-
-//    @Override
-//    public boolean onTouch(View view, MotionEvent e) {
-//        switch (e.getAction()){
-//            case MotionEvent.ACTION_DOWN:
-//                startY = e.getY();
-//                return false;
-//            case MotionEvent.ACTION_MOVE:
-//                 return mMeView.touchEvent(e);
-//            case MotionEvent.ACTION_UP:
-//                float endY = e.getY();
-//                if(endY - startY > 10)
-//                    return mMeView.touchEvent(e);
-//                else return onSingleTapConfirmed(view);
-//            default:
-//                return false;
-//        }
-//    }
-
-//    private boolean onSingleTapConfirmed(View v) {
-//        switch (v.getId()){
-//            case R.id.user_info_rl:
-//                mContext.StartMeInfoActivity();
-//                break;
-//            case R.id.setting_rl:
-//                mContext.StartSettingActivity();
-//                break;
-////			//退出登录 清除Notification，清除缓存
-//            case R.id.logout_rl:
-//
-//                break;
-//        }
-//        return false;
-//    }
 
 }

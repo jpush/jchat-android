@@ -1,22 +1,19 @@
 package io.jchat.android.view;
 
 
-
-import io.jchat.android.adapter.GroupMemberGridAdapter;
-
-import android.view.View;
-import android.widget.AdapterView.OnItemClickListener;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
+import android.view.View;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import io.jchat.android.R;
+import io.jchat.android.adapter.GroupMemberGridAdapter;
 
 public class ChatDetailView extends LinearLayout{
 	
@@ -64,7 +61,7 @@ public class ChatDetailView extends LinearLayout{
 		mGridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
 	}
 	
-	public void setListeners(OnClickListener onClickListener){
+	public void setListeners(OnClickListener onClickListener) {
 		mGroupNameLL.setOnClickListener(onClickListener);
 		mMyNameLL.setOnClickListener(onClickListener);
 		mGroupNumLL.setOnClickListener(onClickListener);
@@ -74,19 +71,15 @@ public class ChatDetailView extends LinearLayout{
 		mDelGroupBtn.setOnClickListener(onClickListener);
 	}
 	
-	public void setItemListener(OnItemClickListener listener){
+	public void setItemListener(OnItemClickListener listener) {
 		mGridView.setOnItemClickListener(listener);
 	}
 	
-	public void setLongClickListener(OnItemLongClickListener listener){
+	public void setLongClickListener(OnItemLongClickListener listener) {
 		mGridView.setOnItemLongClickListener(listener);
 	}
 
-	public void setChatDetailInfo(String[] detailInfo){
-//		mGroupName.setText(detailInfo[0]);
-	}
-
-	public void setAdapter(GroupMemberGridAdapter adapter){
+	public void setAdapter(GroupMemberGridAdapter adapter) {
 		mGridView.setAdapter(adapter);
 	}
 
@@ -98,10 +91,6 @@ public class ChatDetailView extends LinearLayout{
 		mMyName.setText(str);
 	}
 	
-	public void setGroupNum(int num){
-		mGroupNum.setText(num + "");
-	}
-
 	public void setSingleView() {
 		mGroupNameLL.setVisibility(View.GONE);
 		mGroupNumLL.setVisibility(View.GONE);
@@ -112,12 +101,6 @@ public class ChatDetailView extends LinearLayout{
 
     public void updateGroupName(String newName) {
         mGroupName.setText(newName);
-    }
-
-    public void refreshGroupName(String groupName) {
-        if(groupName != null){
-            mGroupName.setText(groupName);
-        }
     }
 
 	public void setTitle(int size) {

@@ -161,39 +161,6 @@
                     android:layout_height="1dp"
                     android:background="@color/me_split_line_color" />
 
-                <RelativeLayout
-                    android:id="@+id/about_rl"
-                    style="@style/SettingItemStyle">
-
-                    <ImageView
-                        android:id="@+id/later_focus_iv"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/later_focus" />
-
-                    <TextView
-                        style="@style/info_left_txt_style"
-                        android:layout_toRightOf="@+id/later_focus_iv"
-                        android:text="@string/about"
-                        />
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="10dp"
-                        android:background="@drawable/arrow" />
-
-                </RelativeLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/me_split_line_color" />
-
             </LinearLayout>
 
         </ScrollView>

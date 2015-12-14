@@ -2,18 +2,16 @@ package io.jchat.android.adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.util.DisplayMetrics;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
-
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -21,8 +19,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.NativeImageLoader;
+import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.tools.TimeFormat;
 import io.jchat.android.view.CircleImageView;
@@ -31,27 +28,12 @@ public class ConversationListAdapter extends BaseAdapter {
 
     List<Conversation> mDatas;
     private Activity mContext;
-    private int mDensityDPI;
+    private int mDensityDpi;
 
-    public ConversationListAdapter(Activity context,
-                                   List<Conversation> data) {
+    public ConversationListAdapter(Activity context, List<Conversation> data, int densityDpi) {
         this.mContext = context;
         this.mDatas = data;
-        DisplayMetrics dm = new DisplayMetrics();
-        mContext.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        double density = dm.density;
-        mDensityDPI = dm.densityDpi;
-        for (Conversation conv : mDatas) {
-            if (conv.getType().equals(ConversationType.single)) {
-                File file = conv.getAvatarFile();
-                if (file != null) {
-                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                            (int) (50 * density), (int) (50 * density));
-                    NativeImageLoader.getInstance()
-                            .updateBitmapFromCache(((UserInfo) conv.getTargetInfo()).getUserName(), bitmap);
-                }
-            }
-        }
+        this.mDensityDpi = densityDpi;
     }
 
     /**
@@ -127,11 +109,13 @@ public class ConversationListAdapter extends BaseAdapter {
                     .findViewById(R.id.msg_item_head_icon);
             viewHolder.convName = (TextView) convertView
                     .findViewById(R.id.conv_item_name);
-            if (mDensityDPI <= 160){
+            if (mDensityDpi <= 160) {
                 viewHolder.convName.setEms(6);
-            }else if (mDensityDPI <= 240){
+            }else if (mDensityDpi <= 240) {
                 viewHolder.convName.setEms(8);
-            }else viewHolder.convName.setEms(10);
+            }else {
+                viewHolder.convName.setEms(10);
+            }
             viewHolder.content = (TextView) convertView
                     .findViewById(R.id.msg_item_content);
             viewHolder.datetime = (TextView) convertView
@@ -144,7 +128,7 @@ public class ConversationListAdapter extends BaseAdapter {
 
         }
         Message lastMsg = convItem.getLatestMessage();
-        if (lastMsg != null){
+        if (lastMsg != null) {
             TimeFormat timeFormat = new TimeFormat(mContext, lastMsg.getCreateTime());
             viewHolder.datetime.setText(timeFormat.getTime());
             // 按照最后一条消息的消息类型进行处理
@@ -164,9 +148,11 @@ public class ConversationListAdapter extends BaseAdapter {
                 case custom:
                     CustomContent content = (CustomContent)lastMsg.getContent();
                     Boolean isBlackListHint = content.getBooleanValue("blackList");
-                    if (isBlackListHint != null && isBlackListHint){
+                    if (isBlackListHint != null && isBlackListHint) {
                         viewHolder.content.setText(mContext.getString(R.string.server_803008));
-                    }else viewHolder.content.setText(mContext.getString(R.string.type_custom));
+                    }else {
+                        viewHolder.content.setText(mContext.getString(R.string.type_custom));
+                    }
                     break;
                 default:
                     viewHolder.content.setText(((TextContent) lastMsg.getContent()).getText());
@@ -176,15 +162,25 @@ public class ConversationListAdapter extends BaseAdapter {
             viewHolder.datetime.setText(timeFormat.getTime());
             viewHolder.content.setText("");
         }
-//		viewHolder.headIcon.setImageResource(R.drawable.head_icon);
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
             viewHolder.convName.setText(convItem.getTitle());
-            Bitmap bitmap = NativeImageLoader.getInstance()
-                    .getBitmapFromMemCache(((UserInfo)convItem.getTargetInfo()).getUserName());
-            if (bitmap != null)
-                viewHolder.headIcon.setImageBitmap(bitmap);
-            else viewHolder.headIcon.setImageResource(R.drawable.head_icon);
+            UserInfo userInfo = (UserInfo) convItem.getTargetInfo();
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
+                userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, Bitmap bitmap) {
+                        if (status == 0) {
+                            viewHolder.headIcon.setImageBitmap(bitmap);
+                        }else {
+                            viewHolder.headIcon.setImageResource(R.drawable.head_icon);
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
+                    }
+                });
+            }else {
+                viewHolder.headIcon.setImageResource(R.drawable.head_icon);
+            }
         }
         // 群聊
         else {
@@ -196,9 +192,12 @@ public class ConversationListAdapter extends BaseAdapter {
         // TODO 更新Message的数量,
         if (convItem.getUnReadMsgCnt() > 0) {
             viewHolder.newMsgNumber.setVisibility(View.VISIBLE);
-            if (convItem.getUnReadMsgCnt() < 100)
+            if (convItem.getUnReadMsgCnt() < 100) {
                 viewHolder.newMsgNumber.setText(String.valueOf(convItem.getUnReadMsgCnt()));
-            else viewHolder.newMsgNumber.setText("99");
+            }
+            else {
+                viewHolder.newMsgNumber.setText("99");
+            }
         } else {
             viewHolder.newMsgNumber.setVisibility(View.GONE);
         }

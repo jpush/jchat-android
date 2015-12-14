@@ -3,7 +3,6 @@ package io.jchat.android.activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -11,11 +10,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import io.jchat.android.R;
-
 import cn.jpush.im.android.api.JMessageClient;
-
 import io.jchat.android.tools.HandleResponseCode;
 import cn.jpush.im.api.BasicCallback;
 
@@ -58,36 +54,33 @@ public class ResetPasswordActivity extends BaseActivity {
                 case R.id.commit_btn:
                     String newPwd = mNewPwdEt.getText().toString().trim();
                     String confirmPwd = mConfirmPwdEt.getText().toString().trim();
-                    if(TextUtils.isEmpty(newPwd) || TextUtils.isEmpty(confirmPwd)){
+                    if (TextUtils.isEmpty(newPwd) || TextUtils.isEmpty(confirmPwd)) {
                         Toast.makeText(mContext, mContext.getString(R.string.password_not_null_toast), Toast.LENGTH_SHORT).show();
                     }else {
-                        if(newPwd.equals(confirmPwd)){
-                            if(JMessageClient.isCurrentUserPasswordValid(newPwd)){
-                                Toast.makeText(mContext, mContext.getString(R.string.password_same_to_previous), Toast.LENGTH_SHORT).show();
+                        if (newPwd.equals(confirmPwd)) {
+                            if (JMessageClient.isCurrentUserPasswordValid(newPwd)) {
+                                Toast.makeText(mContext, mContext.getString(R.string.password_same_to_previous),
+                                        Toast.LENGTH_SHORT).show();
                                 return;
                             }
                             final ProgressDialog dialog = new ProgressDialog(mContext);
                             dialog.setMessage(mContext.getString(R.string.modifying_hint));
                             dialog.show();
                             JMessageClient.updateUserPassword(getIntent().getStringExtra("oldPassword"),
-                                    newPwd, new BasicCallback(false) {
-                                @Override
-                                public void gotResult(final int status, final String desc) {
-                                    ResetPasswordActivity.this.runOnUiThread(new Runnable() {
+                                    newPwd, new BasicCallback() {
                                         @Override
-                                        public void run() {
+                                        public void gotResult(final int status, final String desc) {
                                             dialog.dismiss();
-                                            if(status == 0){
+                                            if (status == 0) {
                                                 finish();
-                                            }else{
+                                            } else {
                                                 HandleResponseCode.onHandle(mContext, status, false);
                                             }
                                         }
                                     });
-                                }
-                            });
                         }
-                        else Toast.makeText(mContext, mContext.getString(R.string.password_not_match_toast), Toast.LENGTH_SHORT).show();
+                        else Toast.makeText(mContext, mContext.getString(R.string.password_not_match_toast),
+                                Toast.LENGTH_SHORT).show();
                     }
                     break;
             }

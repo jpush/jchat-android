@@ -1,35 +1,31 @@
 package io.jchat.android.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import cn.jpush.im.android.api.callback.DownloadAvatarCallback;
-import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import cn.jpush.im.android.api.JMessageClient;
-
 import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.NativeImageLoader;
+import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.CircleImageView;
 
 public class GroupMemberGridAdapter extends BaseAdapter {
+
+    private static final String TAG = "GroupMemberGridAdapter";
 
     private LayoutInflater mInflater;
     //群成员列表
@@ -42,67 +38,30 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private int[] mRestArray = new int[]{2, 1, 0, 3};
     //用群成员项数余4得到，作为下标查找mRestArray，得到空白项
     private int mRestNum;
-    private int mDefaultSize;
     private boolean mIsGroup;
-    private String mTargetID;
+    private String mTargetId;
+    private Context mContext;
+    private int mAvatarSize;
 
     //群聊
-    public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator) {
+    public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator,
+                                  int size) {
+        this.mContext = context;
+        mInflater = LayoutInflater.from(context);
         mIsGroup = true;
         this.mMemberList = memberList;
         mCurrentNum = mMemberList.size();
         this.mIsCreator = isCreator;
+        this.mAvatarSize = size;
         mIsShowDelete = false;
         initBlankItem();
-        initData(context);
-        initMembersAvatar();
     }
 
     //单聊
-    public GroupMemberGridAdapter(Context context, String targetID) {
-        this.mTargetID = targetID;
-        initData(context);
-    }
-
-    private void initData(Context context) {
+    public GroupMemberGridAdapter(Context context, String targetId) {
+        this.mContext = context;
         mInflater = LayoutInflater.from(context);
-        DisplayMetrics dm = new DisplayMetrics();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDefaultSize = (int) (50 * dm.density);
-    }
-
-    //初始化群成员头像
-    private void initMembersAvatar() {
-        File file;
-        Bitmap bitmap;
-        for(final UserInfo userInfo : mMemberList){
-            bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
-            if (bitmap == null){
-                if (userInfo.getAvatar() != null){
-                    file = userInfo.getAvatarFile();
-                    if (file != null && file.isFile()){
-                        bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(), mDefaultSize,
-                                mDefaultSize);
-                        NativeImageLoader.getInstance().updateBitmapFromCache(userInfo.getUserName(),
-                                bitmap);
-                        notifyDataSetChanged();
-                    }else {
-                        userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
-                            @Override
-                            public void gotResult(int status, String desc, File file) {
-                                if (status == 0 && file != null && file.isFile()){
-                                    Bitmap bmp = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                            mDefaultSize, mDefaultSize);
-                                    NativeImageLoader.getInstance()
-                                            .updateBitmapFromCache(userInfo.getUserName(), bmp);
-                                    notifyDataSetChanged();
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-        }
+        this.mTargetId = targetId;
     }
 
     public void initBlankItem() {
@@ -110,8 +69,8 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         mRestNum = mRestArray[mCurrentNum % 4];
     }
 
-    public void refreshMemberList(long groupID){
-        Conversation conv = JMessageClient.getGroupConversation(groupID);
+    public void refreshMemberList(long groupId){
+        Conversation conv = JMessageClient.getGroupConversation(groupId);
         GroupInfo groupInfo = (GroupInfo)conv.getTargetInfo();
         mMemberList = groupInfo.getGroupMembers();
         mCurrentNum = mMemberList.size();
@@ -133,9 +92,11 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         //如果是普通成员，并且群组成员余4等于3，特殊处理，隐藏下面一栏空白
-        if (mCurrentNum % 4 == 3 && !mIsCreator)
+        if (mCurrentNum % 4 == 3 && !mIsCreator) {
             return mCurrentNum + 1;
-        else return mCurrentNum + mRestNum + 2;
+        } else {
+            return mCurrentNum + mRestNum + 2;
+        }
     }
 
     @Override
@@ -153,7 +114,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final ItemViewTag viewTag;
-        Bitmap bitmap;
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.group_grid_view_item, null);
             viewTag = new ItemViewTag((CircleImageView) convertView.findViewById(R.id.grid_avatar),
@@ -163,15 +123,33 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         } else {
             viewTag = (ItemViewTag) convertView.getTag();
         }
+        //群聊
         if (mIsGroup) {
+            //群成员
             if (position < mMemberList.size()) {
                 UserInfo userInfo = mMemberList.get(position);
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(userInfo.getUserName());
-                if (bitmap != null)
-                    viewTag.icon.setImageBitmap(bitmap);
-                else {
+                if (!TextUtils.isEmpty(userInfo.getAvatar())){
+                    File file = userInfo.getAvatarFile();
+                    if (file != null && file.isFile()) {
+                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
+                                mAvatarSize, mAvatarSize);
+                        viewTag.icon.setImageBitmap(bitmap);
+                    }else {
+                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, Bitmap bitmap) {
+                                if (status == 0) {
+                                    viewTag.icon.setImageBitmap(bitmap);
+                                }else {
+                                    viewTag.icon.setImageResource(R.drawable.head_icon);
+                                    HandleResponseCode.onHandle(mContext, status, false);
+                                }
+                            }
+                        });
+                    }
+                }else {
                     viewTag.icon.setImageResource(R.drawable.head_icon);
                 }
 
@@ -224,38 +202,20 @@ public class GroupMemberGridAdapter extends BaseAdapter {
             }
         } else {
             if (position == 0) {
-                Conversation conv = JMessageClient.getSingleConversation(mTargetID);
-                UserInfo userInfo = (UserInfo)conv.getTargetInfo();
-                bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mTargetID);
-                if (bitmap != null) {
-                    viewTag.icon.setImageBitmap(bitmap);
-                } else {
-                    if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-                        File file = userInfo.getAvatarFile();
-                        if (file != null && file.isFile()) {
-                            Bitmap bitmap1 = BitmapLoader.getBitmapFromFile(file.getAbsolutePath(),
-                                    mDefaultSize, mDefaultSize);
-                            NativeImageLoader.getInstance()
-                                    .updateBitmapFromCache(userInfo.getUserName(), bitmap1);
-                            viewTag.icon.setImageBitmap(bitmap1);
-                        } else {
-                            viewTag.icon.setImageResource(R.drawable.head_icon);
-                            final String userName = userInfo.getUserName();
-                            userInfo.getAvatarFileAsync(new DownloadAvatarCallback() {
-                                @Override
-                                public void gotResult(int status, String desc, File file) {
-                                    if (status == 0) {
-                                        Bitmap bitmap = BitmapLoader
-                                                .getBitmapFromFile(file.getAbsolutePath(),
-                                                        mDefaultSize, mDefaultSize);
-                                        NativeImageLoader.getInstance()
-                                                .updateBitmapFromCache(userName, bitmap);
-                                        notifyDataSetChanged();
-                                    }
-                                }
-                            });
+                Conversation conv = JMessageClient.getSingleConversation(mTargetId);
+                UserInfo userInfo = (UserInfo) conv.getTargetInfo();
+                if (!TextUtils.isEmpty(userInfo.getAvatar())) {
+                    userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                        @Override
+                        public void gotResult(int status, String desc, Bitmap bitmap) {
+                            if (status == 0) {
+                                Log.d(TAG, "Get small avatar success");
+                                viewTag.icon.setImageBitmap(bitmap);
+                            } else {
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
                         }
-                    }
+                    });
                 }
                 if (TextUtils.isEmpty(userInfo.getNickname())){
                     viewTag.name.setText(userInfo.getUserName());

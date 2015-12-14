@@ -9,13 +9,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
 import io.jchat.android.R;
 
 /**
  * Created by jpush on 2015/7/30.
  */
-public class EditNoteNameActivity extends Activity implements View.OnClickListener{
+public class EditNoteNameActivity extends Activity implements View.OnClickListener {
 
     private ImageButton mReturnBtn;
     private TextView mTitle;
@@ -55,6 +54,7 @@ public class EditNoteNameActivity extends Activity implements View.OnClickListen
         private CharSequence temp;
         private int editStart;
         private int editEnd;
+        private String note;
         @Override
         public void beforeTextChanged(CharSequence s, int i, int i1, int i2) {
 
@@ -70,7 +70,8 @@ public class EditNoteNameActivity extends Activity implements View.OnClickListen
             editStart = mFriendInfoEt.getSelectionStart();
             editEnd = mFriendInfoEt.getSelectionEnd();
             if (temp.length() >= 0) {
-                mCountTv.setText(""+ (temp.length()) + "/" + (200 - temp.length()) + "");
+                note = "" + (temp.length()) + "/" + (200 - temp.length()) + "";
+                mCountTv.setText(note);
             }
             if (temp.length() > 200) {
                 editable.delete(editStart - 1, editEnd);

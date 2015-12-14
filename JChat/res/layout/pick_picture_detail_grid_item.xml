@@ -9,7 +9,7 @@
         android:id="@+id/child_image"
         android:layout_width="fill_parent"
         android:layout_height="100dip"
-        android:background="@drawable/friends_sends_pictures_no"
+        android:background="@drawable/picture_not_found"
         android:scaleType="centerCrop" />
 
     <LinearLayout

@@ -1,11 +1,8 @@
 package io.jchat.android.view;
 
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -14,10 +11,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
 
@@ -48,22 +43,26 @@ public class LoginView extends LinearLayout {
 		initTestEvnCB();
 	}
 
-	private void initTestEvnCB(){
-		if(!DEV_FLAG){
+	private void initTestEvnCB() {
+		if (!DEV_FLAG) {
 			mTestEvnCB.setVisibility(View.GONE);
-		}
-		Boolean isTestEvn = invokeIsTestEvn();
-		mTestEvnCB.setChecked(isTestEvn);
+		} else {
+            Boolean isTestEvn = invokeIsTestEvn();
+            mTestEvnCB.setChecked(isTestEvn);
+        }
 	}
 
-	private Boolean invokeIsTestEvn(){
+	private Boolean invokeIsTestEvn() {
 		try {
 			Method method = JMessageClient.class.getDeclaredMethod("isTestEnvironment");
 			Object result = method.invoke(null);
 			return (Boolean)result;
 		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
 		} catch (InvocationTargetException e) {
+            e.printStackTrace();
 		} catch (IllegalAccessException e) {
+            e.printStackTrace();
 		}
 		return false;
 	}
@@ -78,11 +77,11 @@ public class LoginView extends LinearLayout {
 		mTestEvnCB.setOnCheckedChangeListener(onCheckedChangeListener);
 	}
 
-	public String getUserId(){
+	public String getUserId() {
 		return mUserId.getText().toString().trim();
 	}
 	
-	public String getPassword(){
+	public String getPassword() {
 		return mPassword.getText().toString().trim();
 	}
 	
@@ -94,7 +93,7 @@ public class LoginView extends LinearLayout {
 		Toast.makeText(context, context.getString(R.string.password_not_null_toast), Toast.LENGTH_SHORT).show();
 	}
 
-    public void setListener(Listener listener){
+    public void setListener(Listener listener) {
         this.mListener = listener;
     }
 
@@ -108,7 +107,7 @@ public class LoginView extends LinearLayout {
 		void onSoftKeyboardShown(int w, int h, int oldw, int oldh);
 	}
 
-	public void setRegistBtnVisable(int visibility){
+	public void setRegistBtnVisable(int visibility) {
 		mRegistBtnOnlogin.setVisibility(visibility);
 	}
 

@@ -1,24 +1,15 @@
 package io.jchat.android.view;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
-import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import io.jchat.android.R;
 
 public class ReloginView extends LinearLayout {
@@ -79,7 +70,7 @@ public class ReloginView extends LinearLayout {
         mUserNameTv.setText(userName);
     }
 
-    public void setmUserAvatarIv(Bitmap bitmap) {
+    public void showAvatar(Bitmap bitmap) {
         mUserAvatarIv.setImageBitmap(bitmap);
     }
 

@@ -8,17 +8,18 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-
 import java.io.File;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.event.UserDeletedEvent;
 import cn.jpush.im.android.api.event.UserLogoutEvent;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.tools.FileHelper;
+import io.jchat.android.tools.SharePreferenceManager;
 
 /**
  * Created by Ken on 2015/3/13.
@@ -27,6 +28,11 @@ public class BaseActivity extends Activity {
     private static final String TAG = "BaseActivity";
 
     protected BaseHandler mHandler;
+    protected float mDensity;
+    protected int mDensityDpi;
+    protected int mAvatarSize;
+    protected int mWidth;
+    protected int mHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +40,13 @@ public class BaseActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         mHandler = new BaseHandler();
         JMessageClient.registerEventReceiver(this);
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mDensity = dm.density;
+        mDensityDpi = dm.densityDpi;
+        mWidth = dm.widthPixels;
+        mHeight = dm.heightPixels;
+        mAvatarSize = (int) (50 * mDensity);
     }
 
     private Dialog dialog;
@@ -46,12 +59,16 @@ public class BaseActivity extends Activity {
             dialog.dismiss();
             Intent intent = new Intent();
             if (null != myInfo) {
-                intent.putExtra("userName", myInfo.getUserName());
+                String path;
                 File avatar = myInfo.getAvatarFile();
-                if (null != avatar && avatar.exists()) {
-                    intent.putExtra("userAvatar", avatar.getAbsolutePath());
+                if (avatar != null && avatar.exists()) {
+                    path = avatar.getAbsolutePath();
+                } else {
+                    path = FileHelper.getUserAvatarPath(myInfo.getUserName());
                 }
                 Log.i(TAG, "userName " + myInfo.getUserName());
+                SharePreferenceManager.setCachedUsername(myInfo.getUserName());
+                SharePreferenceManager.setCachedAvatarPath(path);
                 JMessageClient.logout();
                 intent.setClass(BaseActivity.this, ReloginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

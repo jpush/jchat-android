@@ -1,24 +1,15 @@
 package io.jchat.android.activity;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import io.jchat.android.R;
-
-import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.tools.DialogCreator;
 
 public class SettingActivity extends BaseActivity implements OnClickListener{
@@ -29,6 +20,7 @@ public class SettingActivity extends BaseActivity implements OnClickListener{
 	private RelativeLayout mNotificationLl;
 	private RelativeLayout mDisturbModeLl;
     private RelativeLayout mResetPwdRl;
+	private RelativeLayout mAboutRl;
     private Context mContext;
 
 	@Override
@@ -43,23 +35,25 @@ public class SettingActivity extends BaseActivity implements OnClickListener{
 		mNotificationLl = (RelativeLayout) findViewById(R.id.notification_rl);
 		mDisturbModeLl = (RelativeLayout) findViewById(R.id.disturb_mode_rl);
         mResetPwdRl = (RelativeLayout) findViewById(R.id.change_password_rl);
-
+        mAboutRl = (RelativeLayout) findViewById(R.id.about_rl);
 		mMenuBtn.setVisibility(View.GONE);
 		mTitle.setText(this.getString(R.string.setting));
 		mReturnBtn.setOnClickListener(this);
 		mNotificationLl.setOnClickListener(this);
 		mDisturbModeLl.setOnClickListener(this);
         mResetPwdRl.setOnClickListener(this);
+        mAboutRl.setOnClickListener(this);
 	}
 
 	@Override
 	public void onClick(View v) {
+        Intent intent;
 		switch(v.getId()){
 		case R.id.return_btn:
 			finish();
 			break;
 		case R.id.notification_rl:
-			Intent intent = new Intent();
+            intent = new Intent();
 			intent.setClass(mContext, NotificationSettingActivity.class);
 			startActivity(intent);
 			break;
@@ -71,6 +65,11 @@ public class SettingActivity extends BaseActivity implements OnClickListener{
             case R.id.change_password_rl:
                 Dialog dialog = DialogCreator.createResetPwdDialog(this);
                 dialog.show();
+                break;
+            case R.id.about_rl:
+                intent = new Intent();
+                intent.setClass(mContext, AboutActivity.class);
+                startActivity(intent);
                 break;
 		}
 	} 

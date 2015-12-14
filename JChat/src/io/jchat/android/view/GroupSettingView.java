@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import io.jchat.android.R;
 
 public class GroupSettingView extends RelativeLayout{
@@ -24,7 +23,7 @@ public class GroupSettingView extends RelativeLayout{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void initModule(){
+	public void initModule() {
 		mDialogName = (TextView) findViewById(R.id.dialog_name);
 		mEditName = (EditText) findViewById(R.id.set_group);
 		mHint = (TextView) findViewById(R.id.nick_name_hint);
@@ -32,7 +31,7 @@ public class GroupSettingView extends RelativeLayout{
 		mCommit = (Button) findViewById(R.id.commit_btn);
 	}
 	
-	public void setListeners(OnClickListener onClickListener){
+	public void setListeners(OnClickListener onClickListener) {
 		mCancel.setOnClickListener(onClickListener);
 		mCommit.setOnClickListener(onClickListener);
 	}
