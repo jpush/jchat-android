@@ -9,7 +9,9 @@ JChat android app. A real app for jmessage.
 
 [JChat Web](https://github.com/jpush/jchat-web)
 
-####在Android Studio中导入JChat demo
+####一、在Android Studio中导入JChat demo
+
+如果你想在Android Studio上运行JChat demo 
 
 1、下载jchat.zip或者在[这里](https://www.jpush.cn/common/downloads/sdk/im_android/)下载.
 
@@ -34,3 +36,224 @@ JChat android app. A real app for jmessage.
 ![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot5.png)
 
 然后点击find，完成后在菜单栏中选择Build-->Make Module 'JChat'即可。
+
+#####JChat的工程结构
+
+JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener模块)，有兴趣的可以参考[这里]()。
+
+- Application 主要作用是jmessage－sdk的初始化以及Notification的相关设置
+
+- activity包 JChat的Activity的集合，主要负责绑定Controller和View，以及界面的跳转
+
+- controller包 主要负责事件的点击、数据处理等，是Activity和View的中间层
+
+- view包 主要负责界面的展示、控件的初始化、点击事件的绑定等
+
+- adapter包 主要负责ListView或GridView的数据处理
+
+- tools包 工具类的集合
+
+ 
+
+
+####二、在你的项目中集成jmessage-sdk
+
+1、类库配置
+
+在下载的JChat demo中打开libs文件夹，将libs的so库文件以及jmessage－sdk拷贝到你的项目中，目录结构
+
+![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot1.png)
+
+接下来，修改你项目中的build.gradle文件，在android块中加入sourceSets（参考 demo）
+
+```
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            jniLibs.srcDirs = ['libs']
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        instrumentTest.setRoot('tests')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+```
+
+这样可以兼容Android Studio和Eclipse。
+
+2、AndroidManifest配置
+
+在demo中将jmessage－sdk以及jpush需求的配置项复制过来（jmessage集成了jpush的功能）
+
+权限声明
+
+```
+
+    <permission
+        android:name="${applicationId}.permission.JPUSH_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <!--Required 一些系统要求的权限，如访问网络等-->
+    <uses-permission android:name="${applicationId}.permission.JPUSH_MESSAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
+
+    <!-- JMessage Demo required for record audio-->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+
+```
+
+application配置项
+
+```
+
+        <!-- Required Push SDK核心功能-->
+        <service
+            android:name="cn.jpush.android.service.PushService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="cn.jpush.android.intent.REGISTER" />
+                <action android:name="cn.jpush.android.intent.REPORT" />
+                <action android:name="cn.jpush.android.intent.PushService" />
+                <action android:name="cn.jpush.android.intent.PUSH_TIME" />
+            </intent-filter>
+        </service>
+
+        <!-- Required Push SDK核心功能-->
+        <receiver
+            android:name="cn.jpush.android.service.PushReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter android:priority="1000">
+                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED_PROXY" />  <!--Required  显示通知栏 -->
+                <category android:name="${applicationId}" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+            <!-- Optional -->
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Required Push SDK核心功能 -->
+        <activity
+            android:name="cn.jpush.android.ui.PushActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="cn.jpush.android.ui.PushActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </activity>
+        <!-- Required Push SDK核心功能 -->
+        <service
+            android:name="cn.jpush.android.service.DownloadService"
+            android:enabled="true"
+            android:exported="false" />
+        <!-- Required Push SDK核心功能 -->
+        <receiver android:name="cn.jpush.android.service.AlarmReceiver" android:exported="false"/>
+
+        <!-- IM Required IM SDK核心功能-->
+        <receiver
+            android:name="cn.jpush.im.android.helpers.IMReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter android:priority="1000">
+                <action android:name="cn.jpush.im.android.action.IM_RESPONSE" />
+                <action android:name="cn.jpush.im.android.action.NOTIFICATION_CLICK_PROXY" />
+
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
+
+        <!-- option 可选项。用于同一设备中不同应用的JPush服务相互拉起的功能。 -->
+        <!-- 若不启用该功能可删除该组件，将不拉起其他应用也不能被其他应用拉起 -->
+        <service
+            android:name="cn.jpush.android.service.DaemonService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="cn.jpush.android.intent.DaemonService" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+
+        </service>
+
+        <!-- Required. Enable it you can get statistics data with channel -->
+        <meta-data
+            android:name="JPUSH_CHANNEL"
+            android:value="developer-default" />
+        <!-- Required. AppKey copied from Portal -->
+        <meta-data
+            android:name="JPUSH_APPKEY"
+            android:value="4f7aef34fb361292c566a1cd" /><!--  </>值来自开发者平台取得的AppKey-->
+
+```
+
+3、初始化jmessage－sdk
+
+在你的application类中，需要调用以下方法以初始化jmessage－sdk
+
+```
+  JMessageClient.init(getApplicationContext());
+  SharePreferenceManager.init(getApplicationContext(), JCHAT_CONFIGS);
+  JMessageClient.setNotificationMode(JMessageClient.NOTI_MODE_DEFAULT);
+  new NotificationClickEventReceiver(getApplicationContext());
+```
+如果你想自定义Notification的样式，可以将上面的NotificationMode的值设为No_Notification，并且去掉下面的
+
+NotificationClickEventReceiver，然后在接收到消息时再创建Notification（下面会说到）。
+
+在你的启动Activity的onPause()和onResume()方法中需要分别调用
+
+```
+JPushInterface.onPause(this);
+```
+以及
+```
+JPushInterface.onResume(this);
+```
+
+####jmessage－sdk主要接口的使用
+
+
+
+
+
+
