@@ -52,9 +52,10 @@ JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener�
 
 ####在你的项目中集成jmessage-sdk
 
-1. 类库配置
+* 1 类库配置
 
-在下载的JChat demo中打开libs文件夹，将libs的so库文件以及jmessage－sdk拷贝到你的项目中，目录结构![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot1.png)接下来，修改你项目中的build.gradle文件，在android块中加入sourceSets（参考 demo）
+在下载的JChat demo中打开libs文件夹，将libs的so库文件以及jmessage－sdk拷贝到你的项目中，目录结构![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot1.png)
+接下来，修改你项目中的build.gradle文件，在android块中加入sourceSets（参考 demo）
 
 ```
     sourceSets {
@@ -84,7 +85,7 @@ JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener�
 ```
 这样可以兼容Android Studio和Eclipse。
 
-2. AndroidManifest配置
+* AndroidManifest配置
 
 在demo中将jmessage－sdk以及jpush需求的配置项复制过来（jmessage集成了jpush的功能）
 
@@ -215,7 +216,7 @@ application配置项
 
 ```
 
-3. 初始化jmessage－sdk
+* 初始化jmessage－sdk
 
 在你的application类中，需要调用以下方法以初始化jmessage－sdk
 
