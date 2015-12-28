@@ -252,7 +252,95 @@ JPushInterface.onResume(this);
 
 ####jmessage－sdk主要接口的使用
 
+- 接收消息
 
+1、在Activity的onCreate()方法中先调用
+
+```
+JMessageClient.registerEventReceiver(this);
+```
+然后重写onEvent()方法，刷新聊天界面，如下所示：
+
+```
+    /**
+     * 接收消息类事件
+     *
+     * @param event 消息事件
+     */
+    public void onEvent(MessageEvent event) {
+        final Message msg = event.getMessage();
+        
+        //可以在这里创建Notification
+        ...
+        
+        //刷新消息
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //收到消息的类型为单聊
+                if (msg.getTargetType().equals(ConversationType.single)) {
+                    String targetID = ((UserInfo) msg.getTargetInfo()).getUserName();
+                    //判断消息是否在当前会话中
+                    if (targetID.equals(mTargetId)) {
+                        Message lastMsg = mChatAdapter.getLastMsg();
+                        //收到的消息和Adapter中最后一条消息比较，如果最后一条为空或者不相同，则加入到MsgList
+                        if (lastMsg == null || msg.getId() != lastMsg.getId()) {
+                            mChatAdapter.addMsgToList(msg);
+                        } else {
+                            mChatAdapter.notifyDataSetChanged();
+                        }
+                    }
+                } else {
+                    long groupId = ((GroupInfo)msg.getTargetInfo()).getGroupID();
+                    if (!mIsSingle && groupId == mGroupId) {
+                        Message lastMsg = mChatAdapter.getLastMsg();
+                        if (lastMsg == null || msg.getId() != lastMsg.getId()) {
+                            mChatAdapter.addMsgToList(msg);
+                        } else {
+                            mChatAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+            }
+        });
+    }
+```
+
+其中，MessageEvent中的Message类型可以是普通消息，也可以是EventNotification或者Custom类型，可以根据ContentType分别处理。
+
+- 发送消息
+
+1、发送文本消息：
+
+```
+   //其中msgContent为string，mConv为Conversation
+   TextContent content = new TextContent(msgContent);
+   Message msg = mConv.createSendMessage(content);
+   JMessageClient.sendMessage(msg);
+```
+
+2、发送语音消息：
+
+```
+//mRecAudioFile为录音文件，duration为录音时长
+VoiceContent content = new VoiceContent(myRecAudioFile, duration);
+Message msg = mConv.createSendMessage(content);
+JMessageClient.sendMessage(msg);
+```
+
+3、发送图片消息
+
+```
+ ImageContent.createImageContentAsync(bitmap, new ImageContent.CreateImageContentCallback() {
+     @Override
+     public void gotResult(int status, String desc, ImageContent imageContent) {
+         if (status == 0) {
+             Message msg = mConv.createSendMessage(imageContent);
+             JMessageClient.sendMessage(msg);
+         }
+     }
+ });
+```
 
 
 
