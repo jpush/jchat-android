@@ -9,25 +9,19 @@ JChat android app. A real app for jmessage.
 
 [JChat Web](https://github.com/jpush/jchat-web)
 
-####一、在Android Studio中导入JChat demo
+####在Android Studio中导入JChat demo
 
 如果你想在Android Studio上运行JChat demo 
 
-1、下载jchat.zip或者在[这里](https://www.jpush.cn/common/downloads/sdk/im_android/)下载.
+1. 下载jchat.zip或者在[这里](https://www.jpush.cn/common/downloads/sdk/im_android/)下载.
 
-2、解压jchat.zip，在Android Studio中新建一个project或者在你当前的project中选择import module--> jchat（选择jchat文件夹）
+2. 解压jchat.zip，在Android Studio中新建一个project或者在你当前的project中选择import module--> jchat（选择jchat文件夹）![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot2.png)
 
-![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot2.png)
+3. 修改jchat module下的build.gradle文件，将buildToolsVersion改为你Android Studio当前所使用的版本，sync一下。
 
-3、修改jchat module下的build.gradle文件，将buildToolsVersion改为你Android Studio当前所使用的版本，sync一下。
+4. 修改AndroidManifest，将Manifest中“您的包名”、“您的AppKey”全部替换为你在JPush控制台上注册应用的包名和对应的AppKey。（或者将“您的包名”全部替换成${applicationId}，然后在build.gradle文件中defaultConfig集合中声明一个applicationId![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot3.png)）
 
-4、修改AndroidManifest，将Manifest中“您的包名”、“您的AppKey”全部替换为你在JPush控制台上注册应用的包名和对应的AppKey。（或者
-
-将“您的包名”全部替换成${applicationId}，然后在build.gradle文件中defaultConfig集合中声明一个applicationId
-
-![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot3.png)）
-
-5、全局替换R引用。选择src下io.jchat.android目录，右键点击，选择Replace in Path... 
+5. 全局替换R引用。选择src下io.jchat.android目录，右键点击，选择Replace in Path... 
 
 ![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot4.png)
 
@@ -56,15 +50,11 @@ JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener�
  
 
 
-####二、在你的项目中集成jmessage-sdk
+####在你的项目中集成jmessage-sdk
 
-1、类库配置
+1. 类库配置
 
-在下载的JChat demo中打开libs文件夹，将libs的so库文件以及jmessage－sdk拷贝到你的项目中，目录结构
-
-![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot1.png)
-
-接下来，修改你项目中的build.gradle文件，在android块中加入sourceSets（参考 demo）
+在下载的JChat demo中打开libs文件夹，将libs的so库文件以及jmessage－sdk拷贝到你的项目中，目录结构![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot1.png)接下来，修改你项目中的build.gradle文件，在android块中加入sourceSets（参考 demo）
 
 ```
     sourceSets {
@@ -92,10 +82,9 @@ JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener�
         release.setRoot('build-types/release')
     }
 ```
-
 这样可以兼容Android Studio和Eclipse。
 
-2、AndroidManifest配置
+2. AndroidManifest配置
 
 在demo中将jmessage－sdk以及jpush需求的配置项复制过来（jmessage集成了jpush的功能）
 
@@ -226,7 +215,7 @@ application配置项
 
 ```
 
-3、初始化jmessage－sdk
+3. 初始化jmessage－sdk
 
 在你的application类中，需要调用以下方法以初始化jmessage－sdk
 
@@ -254,7 +243,7 @@ JPushInterface.onResume(this);
 
 - 接收消息
 
-1、在Activity的onCreate()方法中先调用
+在Activity的onCreate()方法中先调用
 
 ```
 JMessageClient.registerEventReceiver(this);
@@ -310,7 +299,7 @@ JMessageClient.registerEventReceiver(this);
 
 - 发送消息
 
-1、发送文本消息：
+发送文本消息：
 
 ```
    //其中msgContent为string，mConv为Conversation
@@ -319,7 +308,7 @@ JMessageClient.registerEventReceiver(this);
    JMessageClient.sendMessage(msg);
 ```
 
-2、发送语音消息：
+发送语音消息：
 
 ```
 //mRecAudioFile为录音文件，duration为录音时长
@@ -328,7 +317,7 @@ Message msg = mConv.createSendMessage(content);
 JMessageClient.sendMessage(msg);
 ```
 
-3、发送图片消息
+发送图片消息
 
 ```
  ImageContent.createImageContentAsync(bitmap, new ImageContent.CreateImageContentCallback() {
