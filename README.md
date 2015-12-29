@@ -33,7 +33,7 @@ JChat android app. A real app for jmessage.
 
 #####JChat的工程结构
 
-JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener模块)，有兴趣的可以参考[这里]()。
+JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener模块)，有兴趣的可以参考[这里](http://pan.baidu.com/s/1mhoms4o)。
 
 - Application 主要作用是jmessage－sdk的初始化以及Notification的相关设置
 
