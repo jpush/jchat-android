@@ -52,7 +52,7 @@ JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener�
 
 ####在你的项目中集成jmessage-sdk
 
-* 1 类库配置
+* 类库配置
 
 在下载的JChat demo中打开libs文件夹，将libs的so库文件以及jmessage－sdk拷贝到你的项目中，目录结构![如图](https://github.com/KenChoi1992/jchat-android/raw/dev/JChat/screenshots/screenshot1.png)
 
@@ -122,6 +122,7 @@ JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener�
 ```
 
 application配置项
+> demo AndroidManifest.xml
 
 ```
 
@@ -255,7 +256,7 @@ JMessageClient.registerEventReceiver(this);
 ```
 然后重写onEvent()方法，刷新聊天界面，如下所示：
 
-> demo ChatActivity.java
+> demo ChatActivity.java onEvent()
 
 ```
     /**
