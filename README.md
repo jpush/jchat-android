@@ -48,7 +48,7 @@ JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener�
 - tools包 工具类的集合
 
  
-
+---
 
 ####在你的项目中集成jmessage-sdk
 
@@ -249,12 +249,12 @@ JPushInterface.onResume(this);
 
 - 接收消息
 
-在Activity的onCreate()方法中先调用
+ 在Activity的onCreate()方法中先调用
 
 ```
-JMessageClient.registerEventReceiver(this);
+ JMessageClient.registerEventReceiver(this);
 ```
-然后重写onEvent()方法，刷新聊天界面，如下所示：
+ 然后重写onEvent()方法，刷新聊天界面，如下所示：
 
 > demo ChatActivity.java onEvent()
 
@@ -307,8 +307,7 @@ JMessageClient.registerEventReceiver(this);
 
 - 发送消息
 
-发送文本消息：
-
+  发送文本消息：
 ```
    //其中msgContent为string，mConv为Conversation
    TextContent content = new TextContent(msgContent);
@@ -316,27 +315,25 @@ JMessageClient.registerEventReceiver(this);
    JMessageClient.sendMessage(msg);
 ```
 
-发送语音消息：
-
+  发送语音消息：
 ```
-//mRecAudioFile为录音文件，duration为录音时长
-VoiceContent content = new VoiceContent(myRecAudioFile, duration);
-Message msg = mConv.createSendMessage(content);
-JMessageClient.sendMessage(msg);
+  //mRecAudioFile为录音文件，duration为录音时长
+  VoiceContent content = new VoiceContent(myRecAudioFile, duration);
+  Message msg = mConv.createSendMessage(content);
+  JMessageClient.sendMessage(msg);
 ```
 
-发送图片消息
-
+  发送图片消息
 ```
- ImageContent.createImageContentAsync(bitmap, new ImageContent.CreateImageContentCallback() {
-     @Override
-     public void gotResult(int status, String desc, ImageContent imageContent) {
-         if (status == 0) {
-             Message msg = mConv.createSendMessage(imageContent);
-             JMessageClient.sendMessage(msg);
-         }
-     }
- });
+  ImageContent.createImageContentAsync(bitmap, new ImageContent.CreateImageContentCallback() {
+      @Override
+      public void gotResult(int status, String desc, ImageContent imageContent) {
+          if (status == 0) {
+              Message msg = mConv.createSendMessage(imageContent);
+              JMessageClient.sendMessage(msg);
+          }
+      }
+  });
 ```
 
 
