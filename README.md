@@ -275,7 +275,7 @@ JMessageClient.registerEventReceiver(this);
             @Override
             public void run() {
                 //收到消息的类型为单聊
-                if (msg.getTargetType().equals(ConversationType.single)) {
+                if (msg.getTargetType() == ConversationType.single) {
                     String targetID = ((UserInfo) msg.getTargetInfo()).getUserName();
                     //判断消息是否在当前会话中
                     if (targetID.equals(mTargetId)) {
