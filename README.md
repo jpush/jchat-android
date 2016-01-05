@@ -267,7 +267,8 @@ JPushInterface.onResume(this);
  ```
  JMessageClient.exitConversaion();
  ```
- 这样就可以控制Notification是否要显示给用户。然后重写onEvent()方法，刷新聊天界面，如下所示：
+ 这样就可以控制Notification是否要显示给用户。
+ 接下来你可以重写onEvent()方法来接收消息，并刷新聊天界面，如下所示：
 
 > demo ChatActivity.java onEvent()
 
