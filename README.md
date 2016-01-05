@@ -258,7 +258,16 @@ JPushInterface.onResume(this);
 ```
  JMessageClient.registerEventReceiver(this);
 ```
- 然后重写onEvent()方法，刷新聊天界面，如下所示：
+ 注意：如果你是用了jmessage－sdk提供的Notification，在进入了聊天界面后，需要在onCreate()或者onResume()方法中调用
+ ```
+ JMessageClient.enterSingleConversaion(targetId);
+ //或者JMessageClient.enterGroupConversaion(groupId);
+ ```
+ 并且在onPause()中调用
+ ```
+ JMessageClient.exitConversaion();
+ ```
+ 这样就可以控制Notification是否要显示给用户。然后重写onEvent()方法，刷新聊天界面，如下所示：
 
 > demo ChatActivity.java onEvent()
 
