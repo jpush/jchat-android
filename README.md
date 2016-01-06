@@ -349,6 +349,20 @@ JPushInterface.onResume(this);
       }
   });
 ```
+---
+####JChat中所使用的开源项目简介
+
+- android-shape-imageview [github地址](https://github.com/siyamed/android-shape-imageview) 自定义ImageView的形状
+
+- PhotoView [github地址](https://github.com/chrisbanes/PhotoView) 根据手势缩放图片
+
+- DropDownListView [github地址](https://github.com/Trinea/android-common) 下拉刷新ListView
+
+- NativeImageLoader [blog地址](http://blog.csdn.net/xiaanming/article/details/18730223) 扫描手机中的图片
+
+- EventBus [github地址](https://github.com/greenrobot/EventBus) 在组件之间传递消息
+
+- Picasso [官网](http://square.github.io/picasso/) 加载、显示、缓存图片
 
 
 
