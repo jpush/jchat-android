@@ -250,6 +250,9 @@ JPushInterface.onResume(this);
 ```
 
 ####jmessage－sdk主要接口的使用
+#####[Android JMessage-sdk 概述](http://docs.jpush.io/client/im_sdk_android/)
+#####[Android JMessage-sdk-doc文档](http://docs.jpush.io/client/im_android_api_docs/)
+
 - 会话Conversation
 会话在JChat中是聊天的载体，发消息需要先用会话创建消息，收消息sdk会将消息放入相应的会话，如果本地没有会话，则会新建一个会话，并将之加到会话，所以上层只需要刷新会话列表。以下是得到会话的两种方式：
 1. 得到会话列表：
@@ -431,6 +434,61 @@ JPushInterface.onResume(this);
                 }
             });
 
+```
+- UserInfo相关接口用法：
+得到用户头像(分为拿大头像和小头像两个接口)
+```
+    //拿头像之前先判断userInfo是否为空，并且要判断该用户是否设置了头像
+    if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
+        //异步接口，拿到头像后，sdk会缓存
+        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+            @Override
+            public void gotResult(int status, String desc, Bitmap bitmap) {
+                if (status == 0) {
+                    holder.headIcon.setImageBitmap(bitmap);
+                } else {
+                    holder.headIcon.setImageResource(R.drawable.head_icon);
+                    HandleResponseCode.onHandle(mContext, status, false);
+                }
+            }
+        });
+    } else {
+        holder.headIcon.setImageResource(R.drawable.head_icon);
+    }
+    
+    //得到大头像
+    if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar)) {
+        //拿大头像sdk不会缓存，如有需要可以自己添加缓存
+        userInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+            @Override
+            public void gotResult(int status, String desc, Bitmap bitmap) {
+                //TODO 
+            }
+        });
+    }
+```
+用userInfo判断是否加入了黑名单：
+```
+    //等于1表示加入了黑名单
+    if (1 == userInfo.getBlacklist()) {}
+```
+另外可以从userInfo得到username、nickname等属性，此处不再一一赘述。
+
+- GroupInfo相关接口用法：
+```
+    //得到群主用户名
+    String groupOwnerId = groupInfo.getGroupOwner();
+    //得到群成员信息
+    List<UserInfo> membersInfo = groupInfo.getGroupMembers();
+    String groupName  = groupInfo.getGroupName();
+```
+- 创建群聊
+```
+    JMessageClient.createGroup("", "", new CreateGroupCallback() {
+        @Override
+        public void gotResult(int status, final String desc, final long groupId) {
+        }
+    });
 ```
 ---
 ####JChat中所使用的开源项目简介
