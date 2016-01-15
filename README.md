@@ -250,6 +250,38 @@ JPushInterface.onResume(this);
 ```
 
 ####jmessage－sdk主要接口的使用
+- 会话Conversation
+会话在JChat中是聊天的载体，发消息需要先用会话创建消息，收消息sdk会将消息放入相应的会话，如果本地没有会话，则会新建一个会话，并将之加到会话，所以上层只需要刷新会话列表。以下是得到会话的两种方式：
+1. 得到会话列表：
+```
+    //此方法得到本地保存的历史会话列表
+    List<Conversation> mDatas = JMessageClient.getConversationList();
+```
+2.  创建会话：
+```
+    //创建单聊
+    Conversation conv = Conversation.createSingleConversation(username);
+    //创建群聊
+    Conversation conv = Conversation.createGroupConversation(groupId);
+```
+使用Conversation得到TargetInfo，如果该Conversation为单聊，则得到UserInfo，如果为群聊则得到GroupInfo：
+```
+    UserInfo userInfo = (UserInfo) conv.getTargetInfo();
+    GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
+```
+使用Conversation得到历史消息：
+```
+    //得到所有消息
+    List<Message> msgList = conv.getAllMessage();
+    //按时间顺序（最先收到的消息放在最前），从start开始得到offset条消息
+    List<Message> msgList = conv.getMessagesFromOldest(start, offset);
+    //按照最近消息顺序（最近的消息放在最前），从start开始得到offset条消息
+    List<Message> msgList = conv.getMessagesFromNewest(start, offset);
+    //根据messageId得到某一条消息
+    Message msg = conv.getMessage(messageId);
+    //根据messageId删除某一条消息
+    conv.deleteMessage(messageId);
+```
 
 - 接收消息
 
@@ -318,7 +350,17 @@ JPushInterface.onResume(this);
 ```
 
 其中，MessageEvent中的Message类型可以是普通消息，也可以是EventNotification或者Custom类型，可以根据ContentType分别处理。
-
+消息的状态：消息状态可以使用msg.getStatus()获得，为Enum类型，在getView时可以根据消息的状态做相应的展示。
+```
+    switch (msg.getStatus) {
+        case send_success:
+        case send_fail:
+        case send_going:
+        case receive_success:
+        case receive_fail:
+        case receive_going:
+    }
+```
 - 发送消息
 
   发送文本消息：
@@ -327,6 +369,17 @@ JPushInterface.onResume(this);
    TextContent content = new TextContent(msgContent);
    Message msg = mConv.createSendMessage(content);
    JMessageClient.sendMessage(msg);
+   //发送时要注册一个callback，监听消息是否发送成功
+   if (!msg.isSendCompleteCallbackExists()) {
+            msg.setOnSendCompleteCallback(new BasicCallback() {
+                @Override
+                public void gotResult(final int status, final String desc) {
+                   if (status == 0) {
+                   //发送成功
+                   } 
+                }
+            }
+    });
 ```
 
   发送语音消息：
@@ -335,6 +388,17 @@ JPushInterface.onResume(this);
   VoiceContent content = new VoiceContent(myRecAudioFile, duration);
   Message msg = mConv.createSendMessage(content);
   JMessageClient.sendMessage(msg);
+  //发送时要注册一个callback，监听消息是否发送成功
+   if (!msg.isSendCompleteCallbackExists()) {
+            msg.setOnSendCompleteCallback(new BasicCallback() {
+                @Override
+                public void gotResult(final int status, final String desc) {
+                   if (status == 0) {
+                   //发送成功
+                   } 
+                }
+            }
+    });
 ```
 
   发送图片消息
@@ -348,6 +412,25 @@ JPushInterface.onResume(this);
           }
       }
   });
+  //如果图片正在发送，可以注册callback获取进度
+        if (!msg.isContentUploadProgressCallbackExists()) {
+            msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
+                @Override
+                public void onProgressUpdate(double v) {
+                    String progressStr = (int) (v * 100) + "%";
+                    Log.d(TAG, "msg.getId: " + msg.getId() + " progress: " + progressStr);
+                    holder.progressTv.setText(progressStr);
+                }
+            });
+        }
+        if (!msg.isSendCompleteCallbackExists()) {
+            msg.setOnSendCompleteCallback(new BasicCallback() {
+                @Override
+                public void gotResult(final int status, String desc) {
+                   
+                }
+            });
+
 ```
 ---
 ####JChat中所使用的开源项目简介
