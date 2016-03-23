@@ -33,12 +33,10 @@
     <color name="me_split_line_color">#d0d0d0</color>
     <color name="msg_list_item_sel_color">#A3C2EF</color>
     <color name="item_click_bg_color">#dddddd</color>
-    <color name="friend_request_acept">#808080</color>
     <color name="friend_content_text_color">#7f7f7f</color>
     <color name="chat_text_color">#373334</color>
     <color name="chat_detail_hit_color">#3C3C3C</color>
     <color name="chat_detail_item_hit_color">#555555</color>
-    <color name="chat_detail_item_content_color">#808080</color>
     <color name="chat_detail_split_line_color">#d3d3d3</color>
     <color name="dialog_select_color">#d4d4d4</color>
     <color name="finish_btn_unclickable_color">#b9ebb8</color>
@@ -57,6 +55,8 @@
     <color name="section_text_color">#858585</color>
     <color name="sidebar_text_color">#0a6afd</color>
     <color name="select_friend_item_split_color">#dddddd</color>
+    <color name="network_disconnected_bg_color">#ffdfe0</color>
+    <color name="all_members_bg_color">#f0f1f3</color>
     <!-- 黑色 -->
     <color name="black">#000000</color>
     <color name="gray">#808080</color>

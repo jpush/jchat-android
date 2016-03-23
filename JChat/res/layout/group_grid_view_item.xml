@@ -36,7 +36,7 @@
         android:ems="4"
         android:singleLine="true"
         android:layout_marginTop="3dp"
-        android:textColor="@color/chat_detail_item_content_color"
+        android:textColor="@color/gray"
         android:visibility="visible" />
 
 

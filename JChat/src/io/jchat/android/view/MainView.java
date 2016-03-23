@@ -33,7 +33,7 @@ public class MainView extends RelativeLayout {
         for (int i = 0; i < 3; i++) {
             mBtnList[i] = (Button) findViewById(mBtnListID[i]);
         }
-        mMsgUnreadiv = (ImageView) findViewById(R.id.msg_unread_iv);
+//        mMsgUnreadiv = (ImageView) findViewById(R.id.msg_unread_iv);
         mViewContainer = (ScrollControllViewPager) findViewById(R.id.viewpager);
         mBtnList[0].setTextColor(getResources().getColor(R.color.actionbar_pres_color));
         mBtnList[0].setSelected(true);
@@ -70,11 +70,11 @@ public class MainView extends RelativeLayout {
     }
 
 
-    public void dismissUnreadFlag() {
-        mMsgUnreadiv.setVisibility(View.INVISIBLE);
-    }
-
-    public void showNewMsgReceivedFlag() {
-        mMsgUnreadiv.setVisibility(View.VISIBLE);
-    }
+//    public void dismissUnreadFlag() {
+//        mMsgUnreadiv.setVisibility(View.INVISIBLE);
+//    }
+//
+//    public void showNewMsgReceivedFlag() {
+//        mMsgUnreadiv.setVisibility(View.VISIBLE);
+//    }
 }

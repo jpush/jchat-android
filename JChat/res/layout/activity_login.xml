@@ -58,7 +58,7 @@
             android:cursorVisible="true"
             android:textCursorDrawable="@drawable/text_cursor_bg"
             android:hint="@string/username_hit"
-            android:textColorHint="@color/chat_detail_item_content_color"
+            android:textColorHint="@color/gray"
             android:singleLine="true"
             android:textSize="@dimen/text_medium_size"
             android:textColor="@color/black" >
@@ -96,7 +96,7 @@
             android:layout_toRightOf="@id/iv_password"
             android:background="@null"
             android:hint="@string/password_hit"
-            android:textColorHint="@color/chat_detail_item_content_color"
+            android:textColorHint="@color/gray"
             android:cursorVisible="true"
             android:textCursorDrawable="@drawable/text_cursor_bg"
             android:inputType="textPassword"

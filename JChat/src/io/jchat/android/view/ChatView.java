@@ -1,6 +1,7 @@
 package io.jchat.android.view;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -156,6 +158,10 @@ public class ChatView extends RelativeLayout{
         mGroupNumTv.setVisibility(View.GONE);
     }
 
+    public void setInputText(String text) {
+        mChatInputEt.setText(text);
+    }
+
     public interface OnSizeChangedListener {
         void onSizeChanged(int w, int h, int oldw, int oldh);
     }
@@ -244,8 +250,11 @@ public class ChatView extends RelativeLayout{
 
 	public void setChatListAdapter(MsgListAdapter adapter) {
 		mChatListView.setAdapter(adapter);
-		setToBottom();
 	}
+
+    public void setListItemClickListener(AdapterView.OnItemClickListener listener) {
+        mChatListView.setOnItemClickListener(listener);
+    }
 
 	//如果是文字输入
 	public void isKeyBoard() {
@@ -263,11 +272,11 @@ public class ChatView extends RelativeLayout{
 	}
 
 	//语音输入
-	public void notKeyBoard(Conversation conv, MsgListAdapter adapter) {
+	public void notKeyBoard(Conversation conv, MsgListAdapter adapter, ChatView chatView) {
 		mChatInputEt.setVisibility(View.GONE);
 		mSwitchIb.setBackgroundResource(R.drawable.keyboard);
 		mVoiceBtn.setVisibility(View.VISIBLE);
-		mVoiceBtn.initConv(conv, adapter);
+		mVoiceBtn.initConv(conv, adapter, chatView);
 		mExpressionIb.setVisibility(View.GONE);
         mSendMsgBtn.setVisibility(View.GONE);
         mAddFileIb.setVisibility(View.VISIBLE);
@@ -295,13 +304,14 @@ public class ChatView extends RelativeLayout{
 	}
 
 	public void setToBottom() {
-			mChatListView.post(new Runnable() {
-                @Override
-                public void run() {
-                    mChatListView.setSelection(mChatListView.getBottom());
-                }
-            });
-	}
+        mChatListView.clearFocus();
+        mChatListView.post(new Runnable() {
+            @Override
+            public void run() {
+                mChatListView.setSelection(mChatListView.getAdapter().getCount() - 1);
+            }
+        });
+    }
 
 	public void setGroupIcon() {
 		mRightBtn.setImageResource(R.drawable.group_chat_detail);

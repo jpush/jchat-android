@@ -30,6 +30,7 @@ public class FriendInfoActivity extends BaseActivity {
     private UserInfo mUserInfo;
     private String mNickname;
     private boolean mIsGetAvatar = false;
+    private String mTargetAppKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,26 +39,32 @@ public class FriendInfoActivity extends BaseActivity {
         setContentView(R.layout.activity_friend_info);
         mFriendInfoView = (FriendInfoView) findViewById(R.id.friend_info_view);
         mTargetId = getIntent().getStringExtra(JChatDemoApplication.TARGET_ID);
+        mTargetAppKey = getIntent().getStringExtra(JChatDemoApplication.TARGET_APP_KEY);
+        if (mTargetAppKey == null) {
+            mTargetAppKey = JMessageClient.getMyInfo().getAppKey();
+        }
         mGroupId = getIntent().getLongExtra(JChatDemoApplication.GROUP_ID, 0);
         Conversation conv;
-        conv = JMessageClient.getSingleConversation(mTargetId);
-        if (conv == null) {
+        if (mGroupId == 0) {
+            conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
+            mUserInfo = (UserInfo) conv.getTargetInfo();
+        } else {
             conv = JMessageClient.getGroupConversation(mGroupId);
             GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
             mUserInfo = groupInfo.getGroupMemberInfo(mTargetId);
-        } else {
-            mUserInfo = (UserInfo) conv.getTargetInfo();
         }
+
         mFriendInfoView.initModule();
         //先从Conversation里获得UserInfo展示出来
         mFriendInfoView.initInfo(mUserInfo);
         mFriendInfoController = new FriendInfoController(mFriendInfoView, this);
         mFriendInfoView.setListeners(mFriendInfoController);
+        mFriendInfoView.setOnChangeListener(mFriendInfoController);
         //更新一次UserInfo
         final Dialog dialog = DialogCreator.createLoadingDialog(FriendInfoActivity.this,
                 FriendInfoActivity.this.getString(R.string.loading));
         dialog.show();
-        JMessageClient.getUserInfo(mTargetId, new GetUserInfoCallback() {
+        JMessageClient.getUserInfo(mTargetId, mTargetAppKey, new GetUserInfoCallback() {
             @Override
             public void gotResult(int status, String desc, final UserInfo userInfo) {
                 dialog.dismiss();
@@ -74,7 +81,7 @@ public class FriendInfoActivity extends BaseActivity {
     }
 
     /**
-     * 如果是群聊，使用startActivity启动聊天界面，如果是单聊，setResult然后
+     * 如果是从群聊跳转过来，使用startActivity启动聊天界面，如果是单聊跳转过来，setResult然后
      * finish掉此界面
      */
     public void startChatActivity() {
@@ -82,6 +89,7 @@ public class FriendInfoActivity extends BaseActivity {
             Intent intent = new Intent();
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
+            intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
             intent.setClass(this, ChatActivity.class);
             startActivity(intent);
         } else {
@@ -90,17 +98,21 @@ public class FriendInfoActivity extends BaseActivity {
             intent.putExtra(JChatDemoApplication.NICKNAME, mNickname);
             setResult(JChatDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
         }
-        Conversation conv = JMessageClient.getSingleConversation(mTargetId);
+        Conversation conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
         //如果会话为空，使用EventBus通知会话列表添加新会话
         if (conv == null) {
-            conv = Conversation.createSingleConversation(mTargetId);
-            EventBus.getDefault().post(new Event.StringEvent(mTargetId));
+            conv = Conversation.createSingleConversation(mTargetId, mTargetAppKey);
+            EventBus.getDefault().post(new Event.StringEvent(mTargetId, mTargetAppKey));
         }
         finish();
     }
 
     public String getNickname() {
         return mNickname;
+    }
+
+    public String getUserName() {
+        return mUserInfo.getUserName();
     }
 
 

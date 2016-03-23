@@ -12,13 +12,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import io.jchat.android.R;
-import io.jchat.android.Listener.OnChangedListener;
 import io.jchat.android.view.SlipButton;
 
 /*
 勿扰模式界面
  */
-public class DisturbSettingActivity extends BaseActivity implements OnChangedListener{
+public class DisturbSettingActivity extends BaseActivity implements SlipButton.OnChangedListener{
 
     private ImageButton mReturnBtn;
     private TextView mTitle;
@@ -136,7 +135,7 @@ public class DisturbSettingActivity extends BaseActivity implements OnChangedLis
     };
 
     @Override
-    public void OnChanged(int id, boolean flag) {
+    public void onChanged(int id, boolean flag) {
         if (flag) {
             mTimeSettingLl.setVisibility(View.VISIBLE);
         }else

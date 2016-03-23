@@ -3,17 +3,15 @@
     android:id="@+id/main_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     android:orientation="vertical">
 
 
     <LinearLayout
         android:id="@+id/actionbar_layout_tmp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:background="#3C3C3C">
+        android:orientation="horizontal">
 
         <FrameLayout
             android:layout_width="0dp"
@@ -26,6 +24,8 @@
                 android:drawableTop="@drawable/actionbar_msg_drawable_bg"
                 android:text="@string/actionbar_msg" />
 
+            <!--
+
             <ImageView
                 android:id="@+id/msg_unread_iv"
                 android:layout_width="wrap_content"
@@ -33,6 +33,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="3dp"
                 android:layout_marginLeft="13dp"/>
+            !-->
 
         </FrameLayout>
 
@@ -46,9 +47,6 @@
                 style="@style/ActionBarItem"
                 android:drawableTop="@drawable/actionbar_contact_drawable_bg"
                 android:text="@string/actionbar_contact" />
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
 
         </FrameLayout>
 

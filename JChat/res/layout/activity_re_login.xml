@@ -96,7 +96,7 @@
                     android:paddingTop="20dp"
                     android:singleLine="true"
                     android:textColor="@color/black"
-                    android:textColorHint="@color/chat_detail_item_content_color"
+                    android:textColorHint="@color/gray"
                     android:textCursorDrawable="@drawable/text_cursor_bg"
                     android:textSize="18sp" />
 

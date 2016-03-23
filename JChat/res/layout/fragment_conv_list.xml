@@ -3,7 +3,8 @@
     android:id="@+id/conv_fragment_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#ffffff">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -36,5 +37,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@color/conv_list_split_line_color"
+        android:headerDividersEnabled="false"
         android:dividerHeight="1dp"/>
 </LinearLayout>

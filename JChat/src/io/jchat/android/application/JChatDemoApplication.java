@@ -22,22 +22,27 @@ public class JChatDemoApplication extends Application {
     public static final int REQUEST_CODE_CROP_PICTURE = 18;
     public static final int REQUEST_CODE_ME_INFO = 19;
     public static final int RESULT_CODE_ME_INFO = 20;
+    public static final int REQUEST_CODE_ALL_MEMBER = 21;
+    public static final int RESULT_CODE_ALL_MEMBER = 22;
     public static final int REFRESH_GROUP_NAME = 3000;
     public static final int REFRESH_GROUP_NUM = 3001;
     public static final int ON_GROUP_EVENT = 3004;
     public static final int PAGE_MESSAGE_COUNT = 18;
 
     private static final String JCHAT_CONFIGS = "JChat_configs";
-
-    public static final String TARGET_ID = "targetID";
+    public static final String TARGET_APP_KEY = "targetAppKey";
+    public static final String TARGET_ID = "targetId";
     public static final String NAME = "name";
     public static final String NICKNAME = "nickname";
-    public static final String GROUP_ID = "groupID";
+    public static final String GROUP_ID = "groupId";
     public static final String IS_GROUP = "isGroup";
     public static final String GROUP_NAME = "groupName";
     public static final String STATUS = "status";
     public static final String POSITION = "position";
     public static final String MsgIDs = "msgIDs";
+    public static final String DRAFT = "draft";
+    public static final String DELETE_MODE = "deleteMode";
+    public static final String MEMBERS_COUNT = "membersCount";
     public static final String PICTURE_DIR = "sdcard/JChatDemo/pictures/";
 
 
@@ -45,9 +50,12 @@ public class JChatDemoApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Log.i("JpushDemoApplication", "init");
+        //初始化JMessage-sdk
         JMessageClient.init(getApplicationContext());
         SharePreferenceManager.init(getApplicationContext(), JCHAT_CONFIGS);
+        //设置Notification的模式
         JMessageClient.setNotificationMode(JMessageClient.NOTI_MODE_DEFAULT);
+        //注册Notification点击的接收器
         new NotificationClickEventReceiver(getApplicationContext());
     }
 

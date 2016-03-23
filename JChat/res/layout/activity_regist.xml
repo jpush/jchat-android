@@ -56,7 +56,7 @@
             android:layout_toRightOf="@id/iv_username"
             android:background="@null"
             android:hint="@string/register_username_hit"
-            android:textColorHint="@color/chat_detail_item_content_color"
+            android:textColorHint="@color/gray"
             android:singleLine="true"
             android:textSize="@dimen/text_medium_size"
             android:textColor="@color/black" />
@@ -94,7 +94,7 @@
             android:layout_toRightOf="@id/iv_password"
             android:background="@null"
             android:hint="@string/password_hit"
-            android:textColorHint="@color/chat_detail_item_content_color"
+            android:textColorHint="@color/gray"
             android:password="true"
             android:singleLine="true"
             android:textSize="18sp"

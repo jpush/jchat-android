@@ -77,6 +77,7 @@ public class MeController implements OnClickListener {
                     }
                 };
                 mDialog = DialogCreator.createLogoutDialog(mContext.getActivity(), listener);
+                mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 mDialog.show();
                 break;
 //		case R.id.birthday:
