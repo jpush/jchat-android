@@ -4,11 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -26,6 +28,7 @@ public class FriendInfoView extends LinearLayout {
     private TextView mGenderTv;
     private TextView mAreaTv;
     private TextView mSignatureTv;
+    private SlipButton mBlackListBtn;
     private Context mContext;
 
     public FriendInfoView(Context context, AttributeSet attrs) {
@@ -45,6 +48,7 @@ public class FriendInfoView extends LinearLayout {
         mGenderTv = (TextView) findViewById(R.id.gender_tv);
         mAreaTv = (TextView) findViewById(R.id.region_tv);
         mSignatureTv = (TextView) findViewById(R.id.signature_tv);
+        mBlackListBtn = (SlipButton) findViewById(R.id.black_list_slip_btn);
     }
 
     public void initInfo(UserInfo userInfo) {
@@ -55,7 +59,7 @@ public class FriendInfoView extends LinearLayout {
                     public void gotResult(int status, String desc, Bitmap bitmap) {
                         if (status == 0) {
                             mAvatarIv.setImageBitmap(bitmap);
-                        }else {
+                        } else {
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
@@ -78,6 +82,9 @@ public class FriendInfoView extends LinearLayout {
             }
             mAreaTv.setText(userInfo.getRegion());
             mSignatureTv.setText(userInfo.getSignature());
+
+            mBlackListBtn.setChecked(1 == userInfo.getBlacklist());
+            Log.d("FriendInfoView", "userInfo.getBlacklist(): " + userInfo.getBlacklist());
         } else {
             mGenderTv.setText(mContext.getString(R.string.unknown));
         }
@@ -91,7 +98,15 @@ public class FriendInfoView extends LinearLayout {
         mAvatarIv.setOnClickListener(onClickListener);
     }
 
+    public void setOnChangeListener(SlipButton.OnChangedListener listener) {
+        mBlackListBtn.setOnChangedListener(R.id.black_list_slip_btn, listener);
+    }
+
     public void setFriendAvatar(Bitmap bitmap) {
         mAvatarIv.setImageBitmap(bitmap);
+    }
+
+    public void setCheck(boolean flag) {
+        mBlackListBtn.setChecked(flag);
     }
 }

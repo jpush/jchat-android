@@ -6,10 +6,5 @@
             <solid android:color="@color/item_click_bg_color" />
         </shape>
     </item>
-    <item>
-        <shape>
-            <solid android:color="@android:color/white" />
-        </shape>
-    </item>
 
 </selector>

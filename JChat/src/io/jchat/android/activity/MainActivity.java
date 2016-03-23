@@ -99,7 +99,11 @@ public class MainActivity extends FragmentActivity {
             if (file.isFile()) {
                 mUri = Uri.fromFile(file);
                 //拍照后直接进行裁剪
-                mMainController.cropRawPhoto(mUri);
+//                mMainController.cropRawPhoto(mUri);
+                Intent intent = new Intent();
+                intent.putExtra("filePath", mUri.getPath());
+                intent.setClass(this, CropImageActivity.class);
+                startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_CROP_PICTURE);
             }
         } else if (requestCode == JChatDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
             if (data != null) {
@@ -141,7 +145,11 @@ public class MainActivity extends FragmentActivity {
                 }
             }
         } else if (requestCode == JChatDemoApplication.REQUEST_CODE_CROP_PICTURE) {
-            mMainController.uploadUserAvatar(mUri.getPath());
+//            mMainController.uploadUserAvatar(mUri.getPath());
+            String path = data.getStringExtra("filePath");
+            if (path != null) {
+                mMainController.uploadUserAvatar(path);
+            }
         } else if (resultCode == JChatDemoApplication.RESULT_CODE_ME_INFO) {
             String newName = data.getStringExtra("newName");
             if (!TextUtils.isEmpty(newName)) {
@@ -159,7 +167,11 @@ public class MainActivity extends FragmentActivity {
             @Override
             public void copyCallback(Uri uri) {
                 mUri = uri;
-                mMainController.cropRawPhoto(mUri);
+//                mMainController.cropRawPhoto(mUri);
+                Intent intent = new Intent();
+                intent.putExtra("filePath", mUri.getPath());
+                intent.setClass(MainActivity.this, CropImageActivity.class);
+                startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_CROP_PICTURE);
             }
         });
     }

@@ -1,6 +1,5 @@
 package io.jchat.android.tools;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +7,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -40,11 +40,10 @@ public class DialogCreator {
 
     public static Dialog createBaseCustomDialog(Context context, String title, String text,
                                                 View.OnClickListener onClickListener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Dialog baseDialog = new Dialog(context, R.style.default_dialog_style);
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_base, null);
-        builder.setView(v);
-        Dialog baseDialog = builder.create();
+        baseDialog.setContentView(v);
         TextView titleTv = (TextView) v.findViewById(R.id.dialog_base_title_tv);
         TextView textTv = (TextView) v.findViewById(R.id.dialog_base_text_tv);
         Button confirmBtn = (Button) v.findViewById(R.id.dialog_base_confirm_btn);
@@ -57,15 +56,14 @@ public class DialogCreator {
 
     public static Dialog createDelConversationDialog(Context context, String title,
                                                      View.OnClickListener listener){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Dialog dialog = new Dialog(context, R.style.default_dialog_style);
         View v = LayoutInflater.from(context).inflate(
                 R.layout.dialog_delete_conv, null);
-        builder.setView(v);
+        dialog.setContentView(v);
         TextView titleTv = (TextView) v.findViewById(R.id.dialog_title);
-        final Button deleteBtn = (Button) v.findViewById(R.id.delete_conv_btn);
+        final LinearLayout deleteLl = (LinearLayout) v.findViewById(R.id.delete_conv_ll);
         titleTv.setText(title);
-        final Dialog dialog = builder.create();
-        deleteBtn.setOnClickListener(listener);
+        deleteLl.setOnClickListener(listener);
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;
@@ -73,10 +71,10 @@ public class DialogCreator {
 
     public static Dialog createLongPressMessageDialog(Context context, String title, boolean hide,
                                                       View.OnClickListener listener){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Dialog dialog = new Dialog(context, R.style.default_dialog_style);
         View view = LayoutInflater.from(context).inflate(
                 R.layout.dialog_msg_alert, null);
-        builder.setView(view);
+        dialog.setContentView(view);
         Button copyBtn = (Button) view
                 .findViewById(R.id.copy_msg_btn);
         Button forwardBtn = (Button) view
@@ -93,7 +91,6 @@ public class DialogCreator {
             line2.setVisibility(View.GONE);
         }
         titleTv.setText(title);
-        final Dialog dialog = builder.create();
         copyBtn.setOnClickListener(listener);
         forwardBtn.setOnClickListener(listener);
         deleteBtn.setOnClickListener(listener);
@@ -103,13 +100,12 @@ public class DialogCreator {
     }
 
     public static Dialog createResendDialog(Context context, View.OnClickListener listener){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Dialog dialog = new Dialog(context, R.style.default_dialog_style);
         View view = LayoutInflater.from(context).inflate(
                 R.layout.dialog_base_with_button, null);
-        builder.setView(view);
+        dialog.setContentView(view);
         Button cancelBtn = (Button) view.findViewById(R.id.cancel_btn);
         Button resendBtn = (Button) view.findViewById(R.id.commit_btn);
-        final Dialog dialog = builder.create();
         cancelBtn.setOnClickListener(listener);
         resendBtn.setOnClickListener(listener);
         dialog.setCancelable(true);
@@ -118,11 +114,10 @@ public class DialogCreator {
     }
 
     public static Dialog createDeleteMessageDialog(Context context, View.OnClickListener listener){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Dialog dialog = new Dialog(context, R.style.default_dialog_style);
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_base_with_button, null);
-        builder.setView(v);
-        Dialog dialog = builder.create();
+        dialog.setContentView(v);
         TextView title = (TextView) v.findViewById(R.id.title);
         title.setText(context.getString(R.string.clear_history_confirm_title));
         final Button cancel = (Button) v.findViewById(R.id.cancel_btn);
@@ -136,11 +131,10 @@ public class DialogCreator {
     }
 
     public static Dialog createExitGroupDialog(Context context, View.OnClickListener listener){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Dialog dialog = new Dialog(context, R.style.default_dialog_style);
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_base_with_button, null);
-        builder.setView(v);
-        Dialog dialog = builder.create();
+        dialog.setContentView(v);
         TextView title = (TextView) v.findViewById(R.id.title);
         title.setText(context.getString(R.string.delete_group_confirm_title));
         final Button cancel = (Button) v.findViewById(R.id.cancel_btn);
@@ -154,24 +148,23 @@ public class DialogCreator {
     }
 
     public static Dialog createSetAvatarDialog(Context context, View.OnClickListener listener){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Dialog dialog = new Dialog(context, R.style.default_dialog_style);
         final LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.dialog_set_avatar, null);
-        builder.setView(view);
+        dialog.setContentView(view);
         Button takePhotoBtn = (Button) view.findViewById(R.id.take_photo_btn);
         Button pickPictureBtn = (Button) view.findViewById(R.id.pick_picture_btn);
         takePhotoBtn.setOnClickListener(listener);
         pickPictureBtn.setOnClickListener(listener);
-        final Dialog dialog = builder.create();
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;
     }
 
     public static Dialog createLogoutDialog(Context context, View.OnClickListener listener){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Dialog dialog = new Dialog(context, R.style.default_dialog_style);
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_base_with_button, null);
-        builder.setView(view);
+        dialog.setContentView(view);
         TextView title = (TextView) view.findViewById(R.id.title);
         title.setText(context.getString(R.string.logout_confirm));
         final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
@@ -179,18 +172,16 @@ public class DialogCreator {
         cancel.setOnClickListener(listener);
         commit.setOnClickListener(listener);
         commit.setText(context.getString(R.string.confirm));
-        final Dialog dialog = builder.create();
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;
     }
 
     public static Dialog createResetPwdDialog(final Context context){
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        final Dialog dialog = new Dialog(context, R.style.default_dialog_style);
         final LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.dialog_reset_password, null);
-        builder.setView(view);
-        final Dialog dialog = builder.create();
+        dialog.setContentView(view);
         final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
         final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
         final Button commit = (Button) view.findViewById(R.id.commit_btn);
@@ -220,6 +211,28 @@ public class DialogCreator {
         };
         cancel.setOnClickListener(listener);
         commit.setOnClickListener(listener);
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        return dialog;
+    }
+
+    public static Dialog createDeleteMemberDialog(Context context, View.OnClickListener listener,
+                                                  boolean isSingle) {
+        Dialog dialog = new Dialog(context, R.style.default_dialog_style);
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.dialog_base_with_button, null);
+        dialog.setContentView(view);
+        TextView title = (TextView) view.findViewById(R.id.title);
+        if (isSingle) {
+            title.setText(context.getString(R.string.delete_member_confirm_hint));
+        } else {
+            title.setText(context.getString(R.string.delete_confirm_hint));
+        }
+        final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
+        final Button commit = (Button) view.findViewById(R.id.commit_btn);
+        cancel.setOnClickListener(listener);
+        commit.setOnClickListener(listener);
+        commit.setText(context.getString(R.string.confirm));
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;

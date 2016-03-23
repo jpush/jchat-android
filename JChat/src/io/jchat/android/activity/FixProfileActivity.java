@@ -180,7 +180,11 @@ public class FixProfileActivity extends BaseActivity {
         if (requestCode == JChatDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
             if (mPath != null) {
                 mUri = Uri.fromFile(new File(mPath));
-                cropRawPhoto(mUri);
+//                cropRawPhoto(mUri);
+                Intent intent = new Intent();
+                intent.putExtra("filePath", mUri.getPath());
+                intent.setClass(this, CropImageActivity.class);
+                startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_CROP_PICTURE);
             }
         }else if (requestCode == JChatDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
             if (data != null) {
@@ -227,7 +231,11 @@ public class FixProfileActivity extends BaseActivity {
 
             }
         }else if (requestCode == JChatDemoApplication.REQUEST_CODE_CROP_PICTURE) {
-            uploadUserAvatar(mUri.getPath());
+//            uploadUserAvatar(mUri.getPath());
+            String path = data.getStringExtra("filePath");
+            if (path != null) {
+                uploadUserAvatar(path);
+            }
         }
     }
 
@@ -263,7 +271,11 @@ public class FixProfileActivity extends BaseActivity {
             @Override
             public void copyCallback(Uri uri) {
                 mUri = uri;
-                cropRawPhoto(mUri);
+//                cropRawPhoto(mUri);
+                Intent intent = new Intent();
+                intent.putExtra("filePath", mUri.getPath());
+                intent.setClass(mContext, CropImageActivity.class);
+                startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_CROP_PICTURE);
             }
         });
     }

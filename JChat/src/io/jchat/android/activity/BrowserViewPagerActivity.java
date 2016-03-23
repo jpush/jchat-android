@@ -81,6 +81,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private final static int SEND_PICTURE = 5;
     private final static int DOWNLOAD_ORIGIN_PROGRESS = 6;
     private final static int DOWNLOAD_ORIGIN_COMPLETED = 7;
+    private String mTargetAppKey;
 
     /**
      * 用来存储图片的选中情况
@@ -108,12 +109,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
         final Intent intent = this.getIntent();
         mGroupId = intent.getLongExtra(JChatDemoApplication.GROUP_ID, 0);
+        mTargetAppKey = intent.getStringExtra(JChatDemoApplication.TARGET_APP_KEY);
         if (mGroupId != 0) {
             mConv = JMessageClient.getGroupConversation(mGroupId);
         } else {
             mTargetId = intent.getStringExtra(JChatDemoApplication.TARGET_ID);
             if (mTargetId != null) {
-                mConv = JMessageClient.getSingleConversation(mTargetId);
+                mConv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
             }
         }
         mStart = intent.getIntExtra("msgCount", 0);
@@ -190,11 +192,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
         // 在聊天界面中点击图片
         if (mFromChatActivity) {
-            titleBarRl.setVisibility(View.GONE);
-            checkBoxRl.setVisibility(View.GONE);
             if(mViewPager != null && mViewPager.getAdapter() != null) {
                 mViewPager.getAdapter().notifyDataSetChanged();
             }
+            titleBarRl.setVisibility(View.GONE);
+            checkBoxRl.setVisibility(View.GONE);
             //预览头像
             if (browserAvatar) {
                 String path = intent.getStringExtra("avatarPath");
@@ -583,15 +585,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         }
                         Message msg = mConv.createSendMessage(imageContent);
                         mMsgIds[mIndex] = msg.getId();
-                        mIndex++;
-                        if (mIndex >= mSelectMap.size()) {
-                            myHandler.sendEmptyMessage(SEND_PICTURE);
-                        }
                     } else {
-                        if (mProgressDialog != null) {
-                            mProgressDialog.dismiss();
-                        }
+                        mMsgIds[mIndex] = -1;
                         HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                    mIndex++;
+                    if (mIndex >= mSelectMap.size()) {
+                        myHandler.sendEmptyMessage(SEND_PICTURE);
                     }
                 }
             });
@@ -603,15 +603,13 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     if (status == 0) {
                         Message msg = mConv.createSendMessage(imageContent);
                         mMsgIds[mIndex] = msg.getId();
-                        mIndex++;
-                        if (mIndex >= mSelectMap.size()) {
-                            myHandler.sendEmptyMessage(SEND_PICTURE);
-                        }
                     } else {
-                        if (mProgressDialog != null) {
-                            mProgressDialog.dismiss();
-                        }
+                        mMsgIds[mIndex] = -1;
                         HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                    mIndex++;
+                    if (mIndex >= mSelectMap.size()) {
+                        myHandler.sendEmptyMessage(SEND_PICTURE);
                     }
                 }
             });
@@ -730,8 +728,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         break;
                     case SEND_PICTURE:
                         Intent intent = new Intent();
-                        intent.putExtra(JChatDemoApplication.TARGET_ID, activity.mTargetId);
-                        intent.putExtra(JChatDemoApplication.GROUP_ID, activity.mGroupId);
                         intent.putExtra(JChatDemoApplication.MsgIDs, activity.mMsgIds);
                         activity.setResult(JChatDemoApplication.RESULT_CODE_BROWSER_PICTURE, intent);
                         activity.finish();

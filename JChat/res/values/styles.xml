@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="notitle">
+    <style name="noTitle">
         <item name="android:windowNoTitle">true</item>
     </style>
 
@@ -76,8 +76,8 @@
         <item name="android:paddingRight">10dp</item>
         <item name="android:gravity">right</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/chat_detail_item_content_color</item>
-        <item name="android:textColorHint">@color/chat_detail_item_content_color</item>
+        <item name="android:textColor">@color/gray</item>
+        <item name="android:textColorHint">@color/gray</item>
     </style>
 
     <style name="MeInfoItemContent">
@@ -186,6 +186,9 @@
     </style>
 
     <style name="chat_text_date_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
         <item name="android:paddingLeft">5dp</item>
         <item name="android:paddingRight">5dp</item>
         <item name="android:paddingTop">2dp</item>
@@ -205,11 +208,15 @@
     </style>
 
     <style name="chat_item_receive_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingBottom">10dp</item>
         <item name="android:orientation">vertical</item>
     </style>
 
     <style name="chat_item_send_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingBottom">10dp</item>
         <item name="android:orientation">vertical</item>
     </style>
@@ -369,7 +376,7 @@
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowBackground">@color/translucent_background</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:radius">5dp</item>
     </style>

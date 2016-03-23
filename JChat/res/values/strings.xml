@@ -34,13 +34,16 @@
     <string name="nickname_save_failed">昵称保存失败</string>
 
     <!--聊天相关-->
+    <string name="network_disconnected_hint">当前网络不可用, 请检查你的网络设置</string>
     <string name="actionbar_msg">聊天</string>
+    <string name="cross_app_key">跨应用</string>
     <string name="actionbar_conversation">会话</string>
     <string name="actionbar_contact">通讯录</string>
     <string name="actionbar_me">我</string>
     <string name="search_friend_hit">邮箱/用户名/ID</string>
     <string name="search">搜索...</string>
     <string name="take_monent">稍等片刻</string>
+    <string name="add">添加</string>
     <string name="add_friend">添加朋友</string>
     <string name="fetch_user_info_failed">用户信息获取失败</string>
     <string name="create_group">创建群聊</string>
@@ -95,6 +98,7 @@
         否则将无法使用录音功能</string>
     <string name="record_voice_permission_request">若要使用语音功能，请选择允许录音</string>
     <string name="voice_fetch_failed_toast">获取语音失败，请重试</string>
+    <string name="draft">[草稿]</string>
     <string name="picture">图片</string>
     <string name="type_picture">[图片]</string>
     <string name="type_voice">[语音]</string>
@@ -102,6 +106,9 @@
     <string name="video">视频</string>
     <string name="group_notification">[群成员变动]</string>
     <string name="type_custom">[自定义消息]</string>
+    <string name="time_format_year_month_day">yyyy年-MM月-dd日</string>
+    <string name="time_format_accuracy">yyyy-MM-dd HH:mm </string>
+    <string name="time_format_hours">HH:mm</string>
     <string name="yesterday">昨天</string>
     <string name="before_dawn">凌晨</string>
     <string name="morning">早上</string>
@@ -140,7 +147,7 @@
     <string name="about">关于</string>
     <string name="demo_version_name">demo版本号:%s</string>
     <string name="sdk_version">\nsdk版本号:</string>
-    <string name="about_date">\n11月23日</string>
+    <string name="about_date">\n3月1日</string>
     <string name="add_to_friend">加为好友</string>
     <string name="setting_username_hit">昵称</string>
     <string name="setting_username_big_hit">更改名字</string>
@@ -173,6 +180,9 @@
     <string name="change_password_re_hit">再次填写密码</string>
     <string name="password_not_match_toast">两次输入的密码不一致</string>
     <string name="password_change_success_toast">修改成功，请牢记新密码</string>
+    <string name="add_to_blacklist">加入黑名单</string>
+    <string name="add_to_blacklist_success_hint">成功加入黑名单</string>
+    <string name="remove_from_blacklist_hint">已从黑名单移除</string>
     <string name="new_msg_remind_hit">新消息提醒</string>
     <string name="receive_new_msg_notification_hit">接收新消息通知</string>
     <string name="receive_new_msg_vibration_hit">震动</string>
@@ -193,9 +203,10 @@
     <string name="unnamed">未命名</string>
     <string name="added">已添加</string>
     <string name="chat_peoples_num">目前已有1名参与人</string>
-    <string name="chat_detail_del">删除</string>
     <string name="chat_detail_add">添加</string>
     <string name="chat_detail_title">聊天详情</string>
+    <string name="members_in_chat">聊天成员</string>
+    <string name="all_group_members">全部群成员</string>
     <string name="group_name_hit">群聊名称</string>
     <string name="group_name_not_null_toast">名称不能为空</string>
     <string name="modify_success_toast">修改成功</string>
@@ -205,6 +216,8 @@
     <string name="modifying_hint">正在修改</string>
     <string name="adding_group_member_hint">正在增加群成员</string>
     <string name="deleting_group_member_hint">正在删除群成员</string>
+    <string name="delete_member_confirm_hint">确定删除此成员？</string>
+    <string name="delete_confirm_hint">确定删除？</string>
     <string name="join_group_toast">加入了群聊</string>
     <string name="exiting_group_toast">正在退出</string>
     <string name="deleted_by_creator">你被请出了群聊</string>
@@ -221,10 +234,13 @@
     <string name="deleting_hint">删除中</string>
     <string name="group_exit_btn">删除并退出</string>
 
+    <string name="crop_image_title">裁剪头像</string>
+
     <!-- 下线提示 -->
     <string name="user_logout_dialog_title">下线提示</string>
     <string name="user_logout_dialog_message">您的账号已经在另一台设备上登录，您被迫下线</string>
     <string name="user_delete_hint_message">您的账号已被删除，您被迫下线</string>
+    <string name="change_password_message">您的密码已被修改，请重新登录</string>
 
 
     <string name="server_abnormal_toast">服务器返回异常，请重试</string>
@@ -251,6 +267,7 @@
     <string name="server_803004">发送失败，此群已被删除</string>
     <string name="server_803005">您已被请出此群，不能发送消息</string>
     <string name="server_803008">消息已发出，但被对方拒收了。</string>
+    <string name="server_803010">发送消息的频率超过限制，发送失败</string>
     <string name="server_808003">讨论组数量已达上限，创建失败</string>
     <string name="server_808004">群组名长度超出上限</string>
     <string name="server_810003">用户不属于该群组</string>
