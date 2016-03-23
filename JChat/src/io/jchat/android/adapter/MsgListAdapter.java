@@ -3,8 +3,6 @@ package io.jchat.android.adapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,8 +12,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.os.Build;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -33,6 +29,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
@@ -66,6 +63,7 @@ import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.tools.FileHelper;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.tools.TimeFormat;
 import io.jchat.android.view.CircleImageView;
@@ -122,22 +120,28 @@ public class MsgListAdapter extends BaseAdapter {
     private int mSendMsgId;
     private float mDensity;
     private int mWidth;
+    private Animation mSendingAnim;
+    private ContentLongClickListener mLongClickListener;
+    private String mTargetAppKey;
 
-    public MsgListAdapter(Context context, String targetId) {
+    public MsgListAdapter(Context context, String targetId, String appKey,
+                          ContentLongClickListener longClickListener) {
         initData(context);
         this.mTargetId = targetId;
-        this.mConv = JMessageClient.getSingleConversation(mTargetId);
+        this.mTargetAppKey = appKey;
+        this.mConv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
+        this.mLongClickListener = longClickListener;
         this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
         reverse(mMsgList);
         mStart = mOffset;
-        UserInfo userInfo = (UserInfo)mConv.getTargetInfo();
-        if (!TextUtils.isEmpty(userInfo.getAvatar())){
+        UserInfo userInfo = (UserInfo) mConv.getTargetInfo();
+        if (!TextUtils.isEmpty(userInfo.getAvatar())) {
             userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
                 @Override
                 public void gotResult(int status, String desc, Bitmap bitmap) {
                     if (status == 0) {
                         notifyDataSetChanged();
-                    }else {
+                    } else {
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
@@ -147,13 +151,16 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     private void reverse(List<Message> list) {
-        Collections.reverse(list);
+        if (list.size() >0 ){
+            Collections.reverse(list);
+        }
     }
 
-    public MsgListAdapter(Context context, long groupId) {
+    public MsgListAdapter(Context context, long groupId, ContentLongClickListener longClickListener) {
         initData(context);
         this.mGroupId = groupId;
         this.mIsGroup = true;
+        this.mLongClickListener = longClickListener;
         this.mConv = JMessageClient.getGroupConversation(groupId);
         this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
         reverse(mMsgList);
@@ -166,15 +173,22 @@ public class MsgListAdapter extends BaseAdapter {
         mActivity = (Activity) context;
         DisplayMetrics dm = new DisplayMetrics();
         mActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        mDensity = dm.density;
         mWidth = dm.widthPixels;
+        mDensity = dm.density;
         mInflater = LayoutInflater.from(mContext);
+
+        mSendingAnim = AnimationUtils.loadAnimation(mContext, R.anim.rotate);
+        LinearInterpolator lin = new LinearInterpolator();
+        mSendingAnim.setInterpolator(lin);
+
         AudioManager audioManager = (AudioManager) mContext
                 .getSystemService(Context.AUDIO_SERVICE);
         audioManager.setMode(AudioManager.MODE_NORMAL);
         if (audioManager.isSpeakerphoneOn()) {
             audioManager.setSpeakerphoneOn(true);
-        } else audioManager.setSpeakerphoneOn(false);
+        } else {
+            audioManager.setSpeakerphoneOn(false);
+        }
         mp.setAudioStreamType(AudioManager.STREAM_RING);
         mp.setOnErrorListener(new OnErrorListener() {
 
@@ -231,49 +245,41 @@ public class MsgListAdapter extends BaseAdapter {
      */
     private void checkSendingImgMsg() {
         for (Message msg : mMsgList) {
-            if (msg.getStatus().equals(MessageStatus.created)
-                    && msg.getContentType().equals(ContentType.image)) {
+            if (msg.getStatus() == MessageStatus.created
+                    && msg.getContentType() == ContentType.image) {
                 mMsgQueue.offer(msg);
             }
         }
     }
 
     //发送图片 将图片加入发送队列
-    public void setSendImg(String targetId, int[] msgIds) {
+    public void setSendImg(int[] msgIds) {
         Message msg;
-        mConv = JMessageClient.getSingleConversation(targetId);
+        if (mIsGroup) {
+            mConv = JMessageClient.getGroupConversation(mGroupId);
+        } else {
+            mConv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
+            Log.d(TAG, "mTargetAppKey: " + mTargetAppKey);
+        }
         for (int msgId : msgIds) {
             msg = mConv.getMessage(msgId);
-//            JMessageClient.sendMessage(msg);
-            mMsgList.add(msg);
-            incrementStartPosition();
-            mMsgQueue.offer(msg);
+            if (msg != null) {
+                mMsgList.add(msg);
+                incrementStartPosition();
+                mMsgQueue.offer(msg);
+            }
         }
 
-        Message message = mMsgQueue.element();
-        sendNextImgMsg(message);
-        notifyDataSetChanged();
-    }
-
-    public void setSendImg(long groupId, int[] msgIds) {
-        Message msg;
-        mConv = JMessageClient.getGroupConversation(groupId);
-        for (int msgId : msgIds) {
-            msg = mConv.getMessage(msgId);
-//            JMessageClient.sendMessage(msg);
-            mMsgList.add(msg);
-            incrementStartPosition();
-            mMsgQueue.offer(msg);
+        if (mMsgQueue.size() > 0) {
+            Message message = mMsgQueue.element();
+            sendNextImgMsg(message);
+            notifyDataSetChanged();
         }
-
-        Message message = mMsgQueue.element();
-        sendNextImgMsg(message);
-        notifyDataSetChanged();
-
     }
 
     /**
      * 从发送队列中出列，并发送图片
+     *
      * @param msg 图片消息
      */
     private void sendNextImgMsg(Message msg) {
@@ -321,6 +327,15 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
+    public Message getMessage(int position) {
+        return mMsgList.get(position);
+    }
+
+    public void removeMessage(int position) {
+        mMsgList.remove(position);
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         return mMsgList.size();
@@ -330,22 +345,23 @@ public class MsgListAdapter extends BaseAdapter {
     public int getItemViewType(int position) {
         Message msg = mMsgList.get(position);
         //是文字类型或者自定义类型（用来显示群成员变化消息）
-        if (msg.getContentType().equals(ContentType.text)) {
-            return msg.getDirect().equals(MessageDirect.send) ? TYPE_SEND_TXT
-                    : TYPE_RECEIVE_TXT;
-        } else if (msg.getContentType().equals(ContentType.image)) {
-            return msg.getDirect().equals(MessageDirect.send) ? TYPE_SEND_IMAGE
-                    : TYPE_RECEIVER_IMAGE;
-        } else if (msg.getContentType().equals(ContentType.voice)) {
-            return msg.getDirect().equals(MessageDirect.send) ? TYPE_SEND_VOICE
-                    : TYPE_RECEIVER_VOICE;
-        } else if (msg.getContentType().equals(ContentType.eventNotification)) {
-            return TYPE_GROUP_CHANGE;
-        } else if (msg.getContentType().equals(ContentType.location)) {
-            return msg.getDirect().equals(MessageDirect.send) ? TYPE_SEND_LOCATION
-                    : TYPE_RECEIVER_LOCATION;
-        } else {
-            return TYPE_CUSTOM_TXT;
+        switch (msg.getContentType()) {
+            case text:
+                return msg.getDirect() == MessageDirect.send ? TYPE_SEND_TXT
+                        : TYPE_RECEIVE_TXT;
+            case image:
+                return msg.getDirect() == MessageDirect.send ? TYPE_SEND_IMAGE
+                        : TYPE_RECEIVER_IMAGE;
+            case voice:
+                return msg.getDirect() == MessageDirect.send ? TYPE_SEND_VOICE
+                        : TYPE_RECEIVER_VOICE;
+            case location:
+                return msg.getDirect() == MessageDirect.send ? TYPE_SEND_LOCATION
+                        : TYPE_RECEIVER_LOCATION;
+            case eventNotification:
+                return TYPE_GROUP_CHANGE;
+            default:
+                return TYPE_CUSTOM_TXT;
         }
     }
 
@@ -366,9 +382,8 @@ public class MsgListAdapter extends BaseAdapter {
                         .inflate(R.layout.chat_item_receive_voice, null);
             case location:
                 return getItemViewType(position) == TYPE_SEND_LOCATION ? mInflater
-                        .inflate(R.layout.chat_item_send_location, null)
-                        : mInflater.inflate(R.layout.chat_item_receive_location,
-                        null);
+                        .inflate(R.layout.chat_item_send_location, null) : mInflater
+                        .inflate(R.layout.chat_item_receive_location, null);
             case eventNotification:
                 if (getItemViewType(position) == TYPE_GROUP_CHANGE)
                     return mInflater.inflate(R.layout.chat_item_group_change, null);
@@ -517,6 +532,7 @@ public class MsgListAdapter extends BaseAdapter {
             if (position == 0 || position == mOffset
                     || (position - mOffset) % 18 == 0) {
                 TimeFormat timeFormat = new TimeFormat(mContext, nowDate);
+
                 msgTime.setText(timeFormat.getDetailTime());
                 msgTime.setVisibility(View.VISIBLE);
             } else {
@@ -534,21 +550,21 @@ public class MsgListAdapter extends BaseAdapter {
 
         //显示头像
         if (holder.headIcon != null) {
-          if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())){
+            if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
                 userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
                     @Override
                     public void gotResult(int status, String desc, Bitmap bitmap) {
                         if (status == 0) {
                             holder.headIcon.setImageBitmap(bitmap);
-                        }else {
+                        } else {
                             holder.headIcon.setImageResource(R.drawable.head_icon);
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });
-            }else {
-              holder.headIcon.setImageResource(R.drawable.head_icon);
-          }
+            } else {
+                holder.headIcon.setImageResource(R.drawable.head_icon);
+            }
 
             // 点击头像跳转到个人信息界面
             holder.headIcon.setOnClickListener(new OnClickListener() {
@@ -556,7 +572,7 @@ public class MsgListAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View arg0) {
                     Intent intent = new Intent();
-                    if (msg.getDirect().equals(MessageDirect.send)) {
+                    if (msg.getDirect() == MessageDirect.send) {
                         intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
                         Log.i(TAG, "msg.getFromName() " + mTargetId);
                         intent.setClass(mContext, MeInfoActivity.class);
@@ -564,6 +580,9 @@ public class MsgListAdapter extends BaseAdapter {
                     } else {
                         String targetID = userInfo.getUserName();
                         intent.putExtra(JChatDemoApplication.TARGET_ID, targetID);
+                        if (!mIsGroup) {
+                            intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
+                        }
                         intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
                         intent.setClass(mContext, FriendInfoActivity.class);
                         ((Activity) mContext).startActivityForResult(intent,
@@ -573,67 +592,15 @@ public class MsgListAdapter extends BaseAdapter {
             });
         }
 
-        OnLongClickListener longClickListener = new OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View arg0) {
-                // 长按文本弹出菜单
-                String name = userInfo.getNickname();
-                OnClickListener listener = new OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        switch (v.getId()) {
-                            case R.id.copy_msg_btn:
-                                if (msg.getContentType().equals(ContentType.text)) {
-                                    final String content = ((TextContent) msg.getContent()).getText();
-                                    if (Build.VERSION.SDK_INT > 11) {
-                                        ClipboardManager clipboard = (ClipboardManager) mContext
-                                                .getSystemService(mContext.CLIPBOARD_SERVICE);
-                                        ClipData clip = ClipData.newPlainText("Simple text", content);
-                                        clipboard.setPrimaryClip(clip);
-                                    } else {
-                                        ClipboardManager clipboard = (ClipboardManager) mContext
-                                                .getSystemService(mContext.CLIPBOARD_SERVICE);
-                                        clipboard.setText(content);// 设置Clipboard 的内容
-                                        if (clipboard.hasText()) {
-                                            clipboard.getText();
-                                        }
-                                    }
-
-                                    Toast.makeText(mContext, mContext.getString(R.string.copy_toast),
-                                            Toast.LENGTH_SHORT).show();
-                                    mDialog.dismiss();
-                                }
-                                break;
-                            case R.id.forward_msg_btn:
-                                mDialog.dismiss();
-                                break;
-                            case R.id.delete_msg_btn:
-                                mConv.deleteMessage(msg.getId());
-                                mMsgList.remove(position);
-                                notifyDataSetChanged();
-                                mDialog.dismiss();
-                                break;
-                        }
-                    }
-                };
-                boolean hide = msg.getContentType().equals(ContentType.voice);
-                mDialog = DialogCreator.createLongPressMessageDialog(mContext, name, hide, listener);
-                mDialog.show();
-                mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-                return true;
-            }
-        };
-
         switch (msg.getContentType()) {
             case text:
-                handleTextMsg(msg, holder, longClickListener);
+                handleTextMsg(msg, holder, position);
                 break;
             case image:
                 handleImgMsg(msg, holder, position);
                 break;
             case voice:
-                handleVoiceMsg(msg, holder, position, longClickListener);
+                handleVoiceMsg(msg, holder, position);
                 break;
             case location:
                 handleLocationMsg(msg, holder, position);
@@ -691,15 +658,13 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    private void handleTextMsg(final Message msg, final ViewHolder holder, OnLongClickListener longClickListener) {
+    private void handleTextMsg(final Message msg, final ViewHolder holder, int position) {
         final String content = ((TextContent) msg.getContent()).getText();
         holder.txtContent.setText(content);
-        holder.txtContent.setOnLongClickListener(longClickListener);
+        holder.txtContent.setTag(position);
+        holder.txtContent.setOnLongClickListener(mLongClickListener);
         // 检查发送状态，发送方有重发机制
-        if (msg.getDirect().equals(MessageDirect.send)) {
-            final Animation sendingAnim = AnimationUtils.loadAnimation(mContext, R.anim.rotate);
-            LinearInterpolator lin = new LinearInterpolator();
-            sendingAnim.setInterpolator(lin);
+        if (msg.getDirect() == MessageDirect.send) {
             switch (msg.getStatus()) {
                 case send_success:
                     holder.sendingIv.clearAnimation();
@@ -712,7 +677,7 @@ public class MsgListAdapter extends BaseAdapter {
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
-                    sendingTextOrVoice(holder, sendingAnim, msg);
+                    sendingTextOrVoice(holder, msg);
                     break;
                 default:
             }
@@ -721,7 +686,7 @@ public class MsgListAdapter extends BaseAdapter {
 
                 @Override
                 public void onClick(View v) {
-                    showResendDialog(holder, sendingAnim, msg);
+                    showResendDialog(holder, msg);
                 }
             });
 
@@ -738,27 +703,33 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     //正在发送文字或语音
-    private void sendingTextOrVoice(ViewHolder holder, Animation sendingAnim, Message msg) {
+    private void sendingTextOrVoice(final ViewHolder holder, Message msg) {
         holder.sendingIv.setVisibility(View.VISIBLE);
-        holder.sendingIv.startAnimation(sendingAnim);
+        holder.sendingIv.startAnimation(mSendingAnim);
         holder.resend.setVisibility(View.GONE);
         //消息正在发送，重新注册一个监听消息发送完成的Callback
         if (!msg.isSendCompleteCallbackExists()) {
             msg.setOnSendCompleteCallback(new BasicCallback() {
                 @Override
                 public void gotResult(final int status, final String desc) {
-                    if (status != 0) {
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.sendingIv.clearAnimation();
+                    if (status == 803008) {
+                        CustomContent customContent = new CustomContent();
+                        customContent.setBooleanValue("blackList", true);
+                        Message customMsg = mConv.createSendMessage(customContent);
+                        addMsgToList(customMsg);
+                    } else if (status != 0) {
                         HandleResponseCode.onHandle(mContext, status, false);
+                        holder.resend.setVisibility(View.VISIBLE);
                     }
-                    notifyDataSetChanged();
-
                 }
             });
         }
     }
 
     //重发对话框
-    private void showResendDialog(final ViewHolder holder, final Animation sendingAnim, final Message msg) {
+    private void showResendDialog(final ViewHolder holder, final Message msg) {
         OnClickListener listener = new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -768,16 +739,17 @@ public class MsgListAdapter extends BaseAdapter {
                         break;
                     case R.id.commit_btn:
                         mDialog.dismiss();
-                        if (msg.getContentType().equals(ContentType.image)) {
-                            sendImage(holder, sendingAnim, msg);
+                        if (msg.getContentType() == ContentType.image) {
+                            resendImage(holder, msg);
                         } else {
-                            resendTextOrVoice(holder, sendingAnim, msg);
+                            resendTextOrVoice(holder, msg);
                         }
                         break;
                 }
             }
         };
         mDialog = DialogCreator.createResendDialog(mContext, listener);
+        mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         mDialog.show();
     }
 
@@ -787,7 +759,7 @@ public class MsgListAdapter extends BaseAdapter {
         // 先拿本地缩略图
         final String path = imgContent.getLocalThumbnailPath();
         // 接收图片
-        if (msg.getDirect().equals(MessageDirect.receive)) {
+        if (msg.getDirect() == MessageDirect.receive) {
             if (path == null) {
                 //从服务器上拿缩略图
                 imgContent.downloadThumbnailImage(msg, new DownloadCompletionCallback() {
@@ -828,10 +800,6 @@ public class MsgListAdapter extends BaseAdapter {
                 Picasso.with(mContext).load(R.drawable.picture_not_found)
                         .into(holder.picture);
             }
-
-            final Animation sendingAnim = AnimationUtils.loadAnimation(mContext, R.anim.rotate);
-            LinearInterpolator lin = new LinearInterpolator();
-            sendingAnim.setInterpolator(lin);
             //检查状态
             switch (msg.getStatus()) {
                 case send_success:
@@ -849,12 +817,12 @@ public class MsgListAdapter extends BaseAdapter {
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
-                    sendingImage(holder, sendingAnim, msg);
+                    sendingImage(msg, holder);
                     break;
                 default:
                     holder.picture.setAlpha(0.75f);
                     holder.sendingIv.setVisibility(View.VISIBLE);
-                    holder.sendingIv.startAnimation(sendingAnim);
+                    holder.sendingIv.startAnimation(mSendingAnim);
                     holder.progressTv.setVisibility(View.VISIBLE);
                     holder.progressTv.setText("0%");
                     holder.resend.setVisibility(View.GONE);
@@ -865,7 +833,7 @@ public class MsgListAdapter extends BaseAdapter {
                             Log.d(TAG, "Start sending message");
                             JMessageClient.sendMessage(message);
                             mSendMsgId = message.getId();
-                            sendingImage(holder, sendingAnim, message);
+                            sendingImage(message, holder);
                         }
                     }
             }
@@ -873,64 +841,24 @@ public class MsgListAdapter extends BaseAdapter {
             holder.resend.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View arg0) {
-                    showResendDialog(holder, sendingAnim, msg);
+                    showResendDialog(holder, msg);
                 }
             });
         }
         if (holder.picture != null) {
             // 点击预览图片
-            holder.picture.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View arg0) {
-                    Intent intent = new Intent();
-                    intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
-                    intent.putExtra("msgId", msg.getId());
-                    intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
-                    intent.putExtra("msgCount", mMsgList.size());
-                    intent.putIntegerArrayListExtra(JChatDemoApplication.MsgIDs, getImgMsgIDList());
-                    intent.putExtra("fromChatActivity", true);
-                    intent.setClass(mContext, BrowserViewPagerActivity.class);
-                    mContext.startActivity(intent);
-                }
-            });
+            holder.picture.setOnClickListener(new BtnOrTxtListener(position, holder));
 
-            holder.picture.setOnLongClickListener(new OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    String name = msg.getFromUser().getNickname();
-                    OnClickListener listener = new OnClickListener() {
-
-                        @Override
-                        public void onClick(View v) {
-                            switch (v.getId()) {
-                                case R.id.copy_msg_btn:
-                                    break;
-                                case R.id.forward_msg_btn:
-                                    mDialog.dismiss();
-                                    break;
-                                case R.id.delete_msg_btn:
-                                    mConv.deleteMessage(msg.getId());
-                                    mMsgList.remove(position);
-                                    notifyDataSetChanged();
-                                    mDialog.dismiss();
-                                    break;
-                            }
-                        }
-                    };
-                    mDialog = DialogCreator.createLongPressMessageDialog(mContext, name, true, listener);
-                    mDialog.show();
-                    mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-                    return true;
-                }
-            });
+            holder.picture.setTag(position);
+            holder.picture.setOnLongClickListener(mLongClickListener);
 
         }
     }
 
-    private void sendingImage(final ViewHolder holder, final Animation sendingAnim, final Message msg) {
+    private void sendingImage(final Message msg, final ViewHolder holder) {
         holder.picture.setAlpha(0.75f);
         holder.sendingIv.setVisibility(View.VISIBLE);
-        holder.sendingIv.startAnimation(sendingAnim);
+        holder.sendingIv.startAnimation(mSendingAnim);
         holder.progressTv.setVisibility(View.VISIBLE);
         holder.resend.setVisibility(View.GONE);
         //如果图片正在发送，重新注册上传进度Callback
@@ -957,22 +885,17 @@ public class MsgListAdapter extends BaseAdapter {
                             mSendMsgId = nextMsg.getId();
                         }
                     }
-                    if (status == 0) {
-                        holder.picture.setAlpha(1f);
-                        holder.progressTv.setVisibility(View.GONE);
-                        holder.sendingIv.clearAnimation();
-                        holder.sendingIv.setVisibility(View.GONE);
-                    } else if (status == 803008) {
+                    holder.picture.setAlpha(1.0f);
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.progressTv.setVisibility(View.GONE);
+                    if (status == 803008) {
                         CustomContent customContent = new CustomContent();
                         customContent.setBooleanValue("blackList", true);
                         Message customMsg = mConv.createSendMessage(customContent);
                         addMsgToList(customMsg);
-                    } else {
+                    } else if (status != 0) {
                         HandleResponseCode.onHandle(mContext, status, false);
-                        holder.sendingIv.clearAnimation();
-                        holder.sendingIv.setVisibility(View.GONE);
-                        holder.picture.setAlpha(1.0f);
-                        holder.progressTv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
                     }
 
@@ -980,7 +903,7 @@ public class MsgListAdapter extends BaseAdapter {
                     mMsgList.set(mMsgList.indexOf(msg), message);
                     Log.d(TAG, "msg.getId " + msg.getId() + " msg.getStatus " + msg.getStatus());
                     Log.d(TAG, "message.getId " + message.getId() + " message.getStatus " + message.getStatus());
-                    notifyDataSetChanged();
+//                    notifyDataSetChanged();
                 }
             });
 
@@ -990,11 +913,34 @@ public class MsgListAdapter extends BaseAdapter {
     private ArrayList<Integer> getImgMsgIDList() {
         ArrayList<Integer> imgMsgIDList = new ArrayList<Integer>();
         for (Message msg : mMsgList) {
-            if (msg.getContentType().equals(ContentType.image)) {
+            if (msg.getContentType() == ContentType.image) {
                 imgMsgIDList.add(msg.getId());
             }
         }
         return imgMsgIDList;
+    }
+
+    private void resendTextOrVoice(final ViewHolder holder, Message msg) {
+        holder.resend.setVisibility(View.GONE);
+        holder.sendingIv.setVisibility(View.VISIBLE);
+        holder.sendingIv.startAnimation(mSendingAnim);
+
+        if (!msg.isSendCompleteCallbackExists()) {
+            msg.setOnSendCompleteCallback(new BasicCallback() {
+                @Override
+                public void gotResult(final int status, String desc) {
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    if (status != 0) {
+                        HandleResponseCode.onHandle(mContext, status, false);
+                        holder.resend.setVisibility(View.VISIBLE);
+                        Log.i(TAG, "Resend message failed!");
+                    }
+                }
+            });
+        }
+
+        JMessageClient.sendMessage(msg);
     }
 
     /**
@@ -1020,38 +966,12 @@ public class MsgListAdapter extends BaseAdapter {
         imageView.setLayoutParams(params);
     }
 
-    private void resendTextOrVoice(final ViewHolder holder, Animation sendingAnim, Message msg) {
-        holder.resend.setVisibility(View.GONE);
+    private void resendImage(final ViewHolder holder, Message msg) {
         holder.sendingIv.setVisibility(View.VISIBLE);
-        holder.sendingIv.startAnimation(sendingAnim);
-
-        if (!msg.isSendCompleteCallbackExists()) {
-            msg.setOnSendCompleteCallback(new BasicCallback() {
-                @Override
-                public void gotResult(final int status, String desc) {
-                    if (status != 0) {
-                        HandleResponseCode.onHandle(mContext, status, false);
-                        holder.sendingIv.clearAnimation();
-                        holder.sendingIv.setVisibility(View.GONE);
-                        holder.resend.setVisibility(View.VISIBLE);
-                        Log.i(TAG, "Resend message failed!");
-                    }
-                    notifyDataSetChanged();
-                }
-            });
-        }
-
-        JMessageClient.sendMessage(msg);
-    }
-
-    private void sendImage(final ViewHolder viewHolder, Animation sendingAnim, Message msg) {
-        ImageContent imgContent = (ImageContent) msg.getContent();
-        final String path = imgContent.getLocalThumbnailPath();
-        viewHolder.sendingIv.setVisibility(View.VISIBLE);
-        viewHolder.sendingIv.startAnimation(sendingAnim);
-        viewHolder.picture.setAlpha(0.75f);
-        viewHolder.resend.setVisibility(View.GONE);
-        viewHolder.progressTv.setVisibility(View.VISIBLE);
+        holder.sendingIv.startAnimation(mSendingAnim);
+        holder.picture.setAlpha(0.75f);
+        holder.resend.setVisibility(View.GONE);
+        holder.progressTv.setVisibility(View.VISIBLE);
         try {
             // 显示上传进度
             msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
@@ -1061,7 +981,7 @@ public class MsgListAdapter extends BaseAdapter {
                         @Override
                         public void run() {
                             String progressStr = (int) (progress * 100) + "%";
-                            viewHolder.progressTv.setText(progressStr);
+                            holder.progressTv.setText(progressStr);
                         }
                     });
                 }
@@ -1070,10 +990,14 @@ public class MsgListAdapter extends BaseAdapter {
                 msg.setOnSendCompleteCallback(new BasicCallback() {
                     @Override
                     public void gotResult(final int status, String desc) {
-                        if (status != 0)
+                        holder.sendingIv.clearAnimation();
+                        holder.sendingIv.setVisibility(View.GONE);
+                        holder.progressTv.setVisibility(View.GONE);
+                        holder.picture.setAlpha(1.0f);
+                        if (status != 0) {
                             HandleResponseCode.onHandle(mContext, status, false);
-                        Picasso.with(mContext).load(new File(path)).into(viewHolder.picture);
-                        notifyDataSetChanged();
+                            holder.resend.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
             }
@@ -1083,8 +1007,7 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    private void handleVoiceMsg(final Message msg, final ViewHolder holder, final int position,
-    OnLongClickListener longClickListener) {
+    private void handleVoiceMsg(final Message msg, final ViewHolder holder, final int position) {
         final VoiceContent content = (VoiceContent) msg.getContent();
         final MessageDirect msgDirect = msg.getDirect();
         int length = content.getDuration();
@@ -1093,12 +1016,10 @@ public class MsgListAdapter extends BaseAdapter {
         //控制语音长度显示，长度增幅随语音长度逐渐缩小
         int width = (int) (-0.04 * length * length + 4.526 * length + 75.214);
         holder.txtContent.setWidth((int) (width * mDensity));
-        holder.txtContent.setOnLongClickListener(longClickListener);
-        if (msgDirect.equals(MessageDirect.send)) {
+        holder.txtContent.setTag(position);
+        holder.txtContent.setOnLongClickListener(mLongClickListener);
+        if (msgDirect == MessageDirect.send) {
             holder.voice.setImageResource(R.drawable.send_3);
-            final Animation sendingAnim = AnimationUtils.loadAnimation(mContext, R.anim.rotate);
-            LinearInterpolator lin = new LinearInterpolator();
-            sendingAnim.setInterpolator(lin);
             switch (msg.getStatus()) {
                 case send_success:
                     holder.sendingIv.clearAnimation();
@@ -1111,7 +1032,7 @@ public class MsgListAdapter extends BaseAdapter {
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
-                    sendingTextOrVoice(holder, sendingAnim, msg);
+                    sendingTextOrVoice(holder, msg);
                     break;
                 default:
             }
@@ -1120,9 +1041,8 @@ public class MsgListAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View arg0) {
                     if (msg.getContent() != null) {
-                        showResendDialog(holder, sendingAnim, msg);
-                    }
-                    else {
+                        showResendDialog(holder, msg);
+                    } else {
                         Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast),
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -1152,7 +1072,7 @@ public class MsgListAdapter extends BaseAdapter {
                         addTolistAndSort(position);
                     }
                     if (nextPlayPosition == position && autoPlay) {
-                        playVoiceThenRefresh(position, holder);
+                        playVoice(position, holder, false);
                     }
                 } else if (msg.getContent().getBooleanExtra("isReaded").equals(true)) {
                     holder.readStatus.setVisibility(View.GONE);
@@ -1180,182 +1100,35 @@ public class MsgListAdapter extends BaseAdapter {
         }
 
 
-        holder.txtContent.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                boolean sdCardExist = Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
-                if (!sdCardExist && msg.getDirect().equals(MessageDirect.send)) {
-                    Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                // 如果之前存在播放动画，无论这次点击触发的是暂停还是播放，停止上次播放的动画
-                if (mVoiceAnimation != null) {
-                    mVoiceAnimation.stop();
-                }
-                // 播放中点击了正在播放的Item 则暂停播放
-                if (mp.isPlaying() && mPosition == position) {
-                    if (msgDirect.equals(MessageDirect.send)) {
-                        holder.voice.setImageResource(R.anim.voice_send);
-                    } else {
-                        holder.voice.setImageResource(R.anim.voice_receive);
-                    }
-                    mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
-                    pauseVoice();
-                    mVoiceAnimation.stop();
-                    // 开始播放录音
-                } else if (msgDirect.equals(MessageDirect.send)) {
-                    try {
-                        holder.voice.setImageResource(R.anim.voice_send);
-                        mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
-
-                        // 继续播放之前暂停的录音
-                        if (mSetData && mPosition == position) {
-                            playVoice();
-                            // 否则重新播放该录音或者其他录音
-                        } else {
-                            mp.reset();
-                            // 记录播放录音的位置
-                            mPosition = position;
-                            Log.i(TAG, "content.getLocalPath:" + content.getLocalPath());
-                            mFIS = new FileInputStream(content.getLocalPath());
-                            mFD = mFIS.getFD();
-                            mp.setDataSource(mFD);
-                            if (mIsEarPhoneOn) {
-                                mp.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
-                            } else {
-                                mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                            }
-
-                            mp.prepare();
-                            playVoice();
-                        }
-                    } catch (NullPointerException e) {
-                        Toast.makeText(mActivity, mContext.getString(R.string.file_not_found_toast),
-                                Toast.LENGTH_SHORT).show();
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                    } catch (SecurityException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        Toast.makeText(mActivity, mContext.getString(R.string.file_not_found_toast),
-                                Toast.LENGTH_SHORT).show();
-                    } finally {
-                        try {
-                            if (mFIS != null) {
-                                mFIS.close();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    // 语音接收方特殊处理，自动连续播放未读语音
-                } else {
-                    try {
-                        // 继续播放之前暂停的录音
-                        if (mSetData && mPosition == position) {
-                            mVoiceAnimation.start();
-                            mp.start();
-                            // 否则开始播放另一条录音
-                        } else {
-                            // 选中的录音是否已经播放过，如果未播放，自动连续播放这条语音之后未播放的语音
-                            if (msg.getContent().getBooleanExtra("isReaded") == null
-                                    || !msg.getContent().getBooleanExtra("isReaded")) {
-                                autoPlay = true;
-                                playVoiceThenRefresh(position, holder);
-                                // 否则直接播放选中的语音
-                            } else {
-                                holder.voice.setImageResource(R.anim.voice_receive);
-                                mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
-                                mp.reset();
-                                // 记录播放录音的位置
-                                mPosition = position;
-                                if (content.getLocalPath() != null) {
-                                    try {
-                                        mFIS = new FileInputStream(content.getLocalPath());
-                                        mFD = mFIS.getFD();
-                                        mp.setDataSource(mFD);
-                                        mp.prepare();
-                                        playVoice();
-                                    } catch (FileNotFoundException e) {
-                                        e.printStackTrace();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    } finally {
-                                        try {
-                                            if (mFIS != null) {
-                                                mFIS.close();
-                                            }
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                } else {
-                                    mVoiceAnimation.stop();
-                                    holder.voice.clearAnimation();
-                                    holder.voice.setImageResource(R.drawable.receive_3);
-                                    Toast.makeText(mContext, mContext.getString(R.string.voice_fetch_failed_toast),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-
-                            }
-                        }
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                    } catch (SecurityException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            private void playVoice() {
-                mVoiceAnimation.start();
-                mp.start();
-                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer arg0) {
-                        mVoiceAnimation.stop();
-                        mp.reset();
-                        mSetData = false;
-                        // 播放完毕，恢复初始状态
-                        if (msgDirect.equals(MessageDirect.send))
-                            holder.voice.setImageResource(R.drawable.send_3);
-                        else {
-                            holder.voice.setImageResource(R.drawable.receive_3);
-                            holder.readStatus.setVisibility(View.GONE);
-                        }
-                    }
-                });
-            }
-
-            private void pauseVoice() {
-                mp.pause();
-                mSetData = true;
-            }
-        });
+        holder.txtContent.setOnClickListener(new BtnOrTxtListener(position, holder));
     }
 
-    private void playVoiceThenRefresh(final int position, final ViewHolder holder) {
-        Message message = mMsgList.get(position);
-        //设为已读
-        mConv.updateMessageExtra(message, "isReaded", true);
+    private void playVoice(final int position, final ViewHolder holder, final boolean isSender) {
+        // 记录播放录音的位置
         mPosition = position;
-        holder.readStatus.setVisibility(View.GONE);
-        if (mVoiceAnimation != null) {
-            mVoiceAnimation.stop();
-            mVoiceAnimation = null;
+        Message msg = mMsgList.get(position);
+        if (autoPlay) {
+            mConv.updateMessageExtra(msg, "isReaded", true);
+            holder.readStatus.setVisibility(View.GONE);
+            if (mVoiceAnimation != null) {
+                mVoiceAnimation.stop();
+                mVoiceAnimation = null;
+            }
+            holder.voice.setImageResource(R.anim.voice_receive);
+            mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
         }
-        holder.voice.setImageResource(R.anim.voice_receive);
-        mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
         try {
-            VoiceContent vc = (VoiceContent) message.getContent();
             mp.reset();
+            VoiceContent vc = (VoiceContent) msg.getContent();
+            Log.i(TAG, "content.getLocalPath:" + vc.getLocalPath());
             mFIS = new FileInputStream(vc.getLocalPath());
             mFD = mFIS.getFD();
             mp.setDataSource(mFD);
+            if (mIsEarPhoneOn) {
+                mp.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+            } else {
+                mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            }
             mp.prepare();
             mp.setOnPreparedListener(new OnPreparedListener() {
                 @Override
@@ -1370,24 +1143,31 @@ public class MsgListAdapter extends BaseAdapter {
                     mVoiceAnimation.stop();
                     mp.reset();
                     mSetData = false;
-                    holder.voice.setImageResource(R.drawable.receive_3);
-                    int curCount = mIndexList.indexOf(position);
-                    Log.d(TAG, "curCount = " + curCount);
-                    if (curCount + 1 >= mIndexList.size()) {
-                        nextPlayPosition = -1;
-                        autoPlay = false;
+                    if (isSender) {
+                        holder.voice.setImageResource(R.drawable.send_3);
                     } else {
-                        nextPlayPosition = mIndexList.get(curCount + 1);
-                        notifyDataSetChanged();
+                        holder.voice.setImageResource(R.drawable.receive_3);
                     }
-                    mIndexList.remove(curCount);
+                    if (autoPlay) {
+                        int curCount = mIndexList.indexOf(position);
+                        Log.d(TAG, "curCount = " + curCount);
+                        if (curCount + 1 >= mIndexList.size()) {
+                            nextPlayPosition = -1;
+                            autoPlay = false;
+                        } else {
+                            nextPlayPosition = mIndexList.get(curCount + 1);
+                            notifyDataSetChanged();
+                        }
+                        mIndexList.remove(curCount);
+                    }
                 }
             });
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Toast.makeText(mContext, mContext.getString(R.string.file_not_found_toast),
+                    Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
+            Toast.makeText(mActivity, mContext.getString(R.string.file_not_found_toast),
+                    Toast.LENGTH_SHORT).show();
         } finally {
             try {
                 if (mFIS != null) {
@@ -1397,6 +1177,12 @@ public class MsgListAdapter extends BaseAdapter {
                 e.printStackTrace();
             }
         }
+
+    }
+
+    private void pauseVoice() {
+        mp.pause();
+        mSetData = true;
     }
 
     private void addTolistAndSort(int position) {
@@ -1411,6 +1197,112 @@ public class MsgListAdapter extends BaseAdapter {
     public void stopMediaPlayer() {
         if (mp.isPlaying())
             mp.stop();
+    }
+
+    public static abstract class ContentLongClickListener implements OnLongClickListener {
+
+        @Override
+        public boolean onLongClick(View v) {
+            onContentLongClick((Integer)v.getTag(), v);
+            return true;
+        }
+
+        public abstract void onContentLongClick(int position, View view);
+    }
+
+    class BtnOrTxtListener implements OnClickListener {
+
+        private int position;
+        private ViewHolder holder;
+
+        public BtnOrTxtListener(int index, ViewHolder viewHolder) {
+            this.position = index;
+            this.holder = viewHolder;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Message msg = mMsgList.get(position);
+            MessageDirect msgDirect = msg.getDirect();
+            if (holder.txtContent != null && v.getId() == holder.txtContent.getId()) {
+                if (msg.getContentType() == ContentType.voice) {
+                    if (!FileHelper.isSdCardExist() && msg.getDirect() == MessageDirect.send) {
+                        Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast),
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    // 如果之前存在播放动画，无论这次点击触发的是暂停还是播放，停止上次播放的动画
+                    if (mVoiceAnimation != null) {
+                        mVoiceAnimation.stop();
+                    }
+                    // 播放中点击了正在播放的Item 则暂停播放
+                    if (mp.isPlaying() && mPosition == position) {
+                        if (msgDirect == MessageDirect.send) {
+                            holder.voice.setImageResource(R.anim.voice_send);
+                        } else {
+                            holder.voice.setImageResource(R.anim.voice_receive);
+                        }
+                        mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
+                        pauseVoice();
+                        mVoiceAnimation.stop();
+                        // 开始播放录音
+                    } else if (msgDirect == MessageDirect.send) {
+                        holder.voice.setImageResource(R.anim.voice_send);
+                        mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
+
+                        // 继续播放之前暂停的录音
+                        if (mSetData && mPosition == position) {
+                            mVoiceAnimation.start();
+                            mp.start();
+                            // 否则重新播放该录音或者其他录音
+                        } else {
+                            playVoice(position, holder, true);
+                        }
+                        // 语音接收方特殊处理，自动连续播放未读语音
+                    } else {
+                        try {
+                            // 继续播放之前暂停的录音
+                            if (mSetData && mPosition == position) {
+                                if (mVoiceAnimation != null) {
+                                    mVoiceAnimation.start();
+                                }
+                                mp.start();
+                                // 否则开始播放另一条录音
+                            } else {
+                                // 选中的录音是否已经播放过，如果未播放，自动连续播放这条语音之后未播放的语音
+                                if (msg.getContent().getBooleanExtra("isReaded") == null
+                                        || !msg.getContent().getBooleanExtra("isReaded")) {
+                                    autoPlay = true;
+                                    playVoice(position, holder, false);
+                                    // 否则直接播放选中的语音
+                                } else {
+                                    holder.voice.setImageResource(R.anim.voice_receive);
+                                    mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
+                                    playVoice(position, holder, false);
+                                }
+                            }
+                        } catch (IllegalArgumentException e) {
+                            e.printStackTrace();
+                        } catch (SecurityException e) {
+                            e.printStackTrace();
+                        } catch (IllegalStateException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            } else if (holder.picture != null && v.getId() == holder.picture.getId()) {
+                Intent intent = new Intent();
+                intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
+                intent.putExtra("msgId", msg.getId());
+                intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
+                intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
+                intent.putExtra("msgCount", mMsgList.size());
+                intent.putIntegerArrayListExtra(JChatDemoApplication.MsgIDs, getImgMsgIDList());
+                intent.putExtra("fromChatActivity", true);
+                intent.setClass(mContext, BrowserViewPagerActivity.class);
+                mContext.startActivity(intent);
+            }
+        }
     }
 
     public static class ViewHolder {

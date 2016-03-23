@@ -29,6 +29,9 @@ public class HandleResponseCode {
             case 1001:
                 content.setText(context.getString(R.string.local_picture_not_found_toast));
                 break;
+            case 1002:
+                content.setText(context.getString(R.string.user_already_exist_toast));
+                break;
             case 800002:
                 content.setText(context.getString(R.string.server_800002));
                 break;
@@ -84,6 +87,9 @@ public class HandleResponseCode {
                 break;
             case 803008:
                 content.setText(context.getString(R.string.server_803008));
+                break;
+            case 803010:
+                content.setText(context.getString(R.string.server_803010));
                 break;
             case 808003:
                 content.setText(context.getString(R.string.server_808003));

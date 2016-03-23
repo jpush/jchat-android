@@ -5,6 +5,35 @@
     android:layout_height="match_parent"
     android:background="#f0f1f3">
 
+    <RelativeLayout
+        android:id="@+id/menu_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_bar_height"
+        android:background="@color/jpush_blue"
+        android:orientation="vertical" >
+
+        <ImageButton
+            android:id="@+id/return_btn"
+            android:layout_width="@dimen/title_bar_height"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/back_btn"
+            android:background="@drawable/back_btn_bg"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="@string/about"
+            android:textColor="#FFFFFF"
+            android:layout_centerInParent="true"
+            android:singleLine="true"
+            android:textSize="20sp"/>
+
+    </RelativeLayout>
+
+
     <TextView
         android:id="@+id/about_tv"
         android:layout_width="wrap_content"

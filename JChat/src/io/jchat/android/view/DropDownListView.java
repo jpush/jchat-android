@@ -1,5 +1,10 @@
 package io.jchat.android.view;
 
+/**
+ * DropDownListView
+ *
+ * @author Trinea 2013-6-1
+ */
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;

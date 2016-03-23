@@ -3,7 +3,8 @@
     android:id="@+id/contacts_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#ffffff">
 
     <include layout="@layout/base_title_bar" />
 
@@ -49,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:textColor="@color/chat_detail_item_content_color"
+            android:textColor="@color/gray"
             android:textSize="24sp"
             android:text="敬请期待！"/>
 

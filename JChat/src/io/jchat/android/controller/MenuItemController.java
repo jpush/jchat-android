@@ -38,12 +38,14 @@ public class MenuItemController implements View.OnClickListener {
     private ConversationListController mController;
     private Dialog mLoadingDialog;
     private Dialog mAddFriendDialog;
+    private int mWidth;
 
     public MenuItemController(MenuItemView view, ConversationListFragment context,
-                              ConversationListController controller) {
+                              ConversationListController controller, int width) {
         this.mMenuItemView = view;
         this.mContext = context;
         this.mController = controller;
+        mWidth = width;
     }
 
     @Override
@@ -67,7 +69,7 @@ public class MenuItemController implements View.OnClickListener {
                             intent.putExtra(JChatDemoApplication.IS_GROUP, true);
                             //设置跳转标志
                             intent.putExtra("fromGroup", true);
-                            intent.putExtra("memberCount", 1);
+                            intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, 1);
                             intent.putExtra(JChatDemoApplication.GROUP_ID, groupId);
                             intent.putExtra(JChatDemoApplication.TARGET_ID, String.valueOf(groupId));
                             intent.setClass(mContext.getActivity(), ChatActivity.class);
@@ -81,11 +83,11 @@ public class MenuItemController implements View.OnClickListener {
                 break;
             case R.id.add_friend_ll:
                 mContext.dismissPopWindow();
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext.getActivity());
+                mAddFriendDialog = new Dialog(mContext.getActivity(), R.style.default_dialog_style);
                 final View view = LayoutInflater.from(mContext.getActivity())
                         .inflate(R.layout.dialog_add_friend_to_conv_list, null);
-                builder.setView(view);
-                mAddFriendDialog = builder.create();
+                mAddFriendDialog.setContentView(view);
+                mAddFriendDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 mAddFriendDialog.show();
                 final EditText userNameEt = (EditText) view.findViewById(R.id.user_name_et);
                 final Button cancel = (Button) view.findViewById(R.id.cancel_btn);

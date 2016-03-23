@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -49,11 +50,11 @@ public class MeInfoActivity extends BaseActivity {
     }
 
     public void showSexDialog(final UserInfo.Gender gender) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final Dialog dialog = new Dialog(this, R.style.default_dialog_style);
         final LayoutInflater inflater = LayoutInflater.from(this);
         View view = inflater.inflate(R.layout.dialog_set_sex, null);
-        builder.setView(view);
-        final Dialog dialog = builder.create();
+        dialog.setContentView(view);
+        dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         dialog.show();
         RelativeLayout manRl = (RelativeLayout) view.findViewById(R.id.man_rl);
         RelativeLayout womanRl = (RelativeLayout) view.findViewById(R.id.woman_rl);
