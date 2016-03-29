@@ -26,6 +26,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
                 android:horizontalSpacing="10dp"
                 android:numColumns="4"
                 android:stretchMode="columnWidth"
@@ -80,8 +81,31 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/chat_detail_split_line_color"
-                android:visibility="gone" />
+                android:background="@color/chat_detail_split_line_color" />
+
+            <RelativeLayout
+                android:id="@+id/no_disturb_rl"
+                style="@style/ChatDetailItem">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="@string/set_do_not_disturb" />
+
+                <io.jchat.android.view.SlipButton
+                    android:id="@+id/no_disturb_slip_btn"
+                    android:layout_width="70dp"
+                    android:layout_height="35dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    />
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/chat_detail_split_line_color" />
 
             <LinearLayout
                 android:id="@+id/group_num_ll"
@@ -140,12 +164,6 @@
 
                 <ImageView style="@style/ChatDetailArrow" />
             </LinearLayout>
-
-            <View
-                android:id="@+id/group_num_dividing_line"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/chat_detail_split_line_color" />
 
             <LinearLayout
                 android:id="@+id/group_chat_del_ll"

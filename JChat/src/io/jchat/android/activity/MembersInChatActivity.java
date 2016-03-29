@@ -72,7 +72,7 @@ public class MembersInChatActivity extends BaseActivity {
         String groupOwnerId = groupInfo.getGroupOwner();
         final UserInfo myInfo = JMessageClient.getMyInfo();
         final boolean isCreator = groupOwnerId != null && groupOwnerId.equals(myInfo.getUserName());
-        mAdapter = new AllMembersAdapter(this, mMemberInfoList, mIsDeleteMode);
+        mAdapter = new AllMembersAdapter(this, mMemberInfoList, mIsDeleteMode, isCreator, mGroupId, mWidth);
         mListView.setAdapter(mAdapter);
         mListView.requestFocus();
 
@@ -89,67 +89,10 @@ public class MembersInChatActivity extends BaseActivity {
         mSearchEt.addTextChangedListener(watcher);
 
         //单击ListView item，跳转到个人详情界面
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                UserInfo userInfo = mMemberInfoList.get(position);
-                String userName = userInfo.getUserName();
-                Intent intent = new Intent();
-                if (userName.equals(myInfo.getUserName())) {
-                    intent.setClass(mContext, MeInfoActivity.class);
-                    startActivity(intent);
-                } else {
-                    intent.setClass(mContext, FriendInfoActivity.class);
-                    intent.putExtra(JChatDemoApplication.TARGET_ID,
-                            userInfo.getUserName());
-                    intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
-                    startActivity(intent);
-                }
-            }
-        });
+        mListView.setOnItemClickListener(mAdapter);
 
         //如果是群主，长按ListView item可以删除群成员
-        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                if (isCreator && !mIsDeleteMode) {
-                    View.OnClickListener listener = new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            switch (v.getId()) {
-                                case R.id.cancel_btn:
-                                    mDialog.dismiss();
-                                    break;
-                                case R.id.commit_btn:
-                                    mDialog.dismiss();
-                                    mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
-                                            mContext.getString(R.string.deleting_hint));
-                                    mLoadingDialog.show();
-                                    List<String> list = new ArrayList<String>();
-                                    list.add(mMemberInfoList.get(position).getUserName());
-                                    JMessageClient.removeGroupMembers(mGroupId, list, new BasicCallback() {
-                                        @Override
-                                        public void gotResult(int status, String desc) {
-                                            mLoadingDialog.dismiss();
-                                            if (status == 0) {
-                                                refreshMemberList();
-                                            } else {
-                                                HandleResponseCode.onHandle(mContext, status, false);
-                                            }
-                                        }
-                                    });
-                                    break;
-
-                            }
-                        }
-                    };
-                    mDialog = DialogCreator.createDeleteMemberDialog(mContext, listener, true);
-                    mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-                    mDialog.show();
-                }
-                return true;
-            }
-        });
+        mListView.setOnItemLongClickListener(mAdapter);
     }
 
     View.OnClickListener listener = new View.OnClickListener() {
@@ -335,12 +278,12 @@ public class MembersInChatActivity extends BaseActivity {
     }
 
     //添加或者删除成员后重新获得MemberInfoList
-    private void refreshMemberList() {
+    public void refreshMemberList() {
         Conversation conv = JMessageClient.getGroupConversation(mGroupId);
         GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
         mMemberInfoList = groupInfo.getGroupMembers();
         mAdapter.refreshMemberList(mMemberInfoList);
-        mTitle.setText("(" + mMemberInfoList.size() + ")");
+        mTitle.setText(String.format(mContext.getString(R.string.combine_title), mMemberInfoList.size()));
     }
 
     /**
@@ -372,16 +315,22 @@ public class MembersInChatActivity extends BaseActivity {
                     }
                 }
 
-                if (displayName.contains(data) || displayName.startsWith(data)) {
-                    filterList.add(userInfo);
-                    continue;
+                if (!TextUtils.isEmpty(sb)) {
+                    String sortString = sb.toString().toUpperCase();
+                    if (sortString.equals(data.toUpperCase()) || sortString.contains(data.toUpperCase())) {
+                        filterList.add(userInfo);
+                        continue;
+                    }
                 }
 
-                if (!TextUtils.isEmpty(sb)) {
-                    String sortString = sb.toString().substring(0, 1).toUpperCase();
-                    if (sortString.equals(data.substring(0, 1).toUpperCase())) {
-                        filterList.add(userInfo);
-                    }
+                if (displayName.equals(data)) {
+                    filterList.add(0, userInfo);
+                    mAdapter.updateListView(filterList);
+                    return;
+                }
+
+                if (displayName.contains(data) || displayName.startsWith(data)) {
+                    filterList.add(userInfo);
                 }
             }
         }

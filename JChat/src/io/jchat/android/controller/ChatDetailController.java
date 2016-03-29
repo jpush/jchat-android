@@ -41,8 +41,9 @@ import io.jchat.android.entity.Event;
 import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.ChatDetailView;
+import io.jchat.android.view.SlipButton;
 
-public class ChatDetailController implements OnClickListener, OnItemClickListener{
+public class ChatDetailController implements OnClickListener, OnItemClickListener, SlipButton.OnChangedListener{
 
     private static final String TAG = "ChatDetailController";
 
@@ -72,6 +73,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private String mMyUsername;
     private String mTargetAppKey;
     private int mWidth;
+    private GroupInfo mGroupInfo;
+    private UserInfo mUserInfo;
 
     public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context, int size,
                                 int width) {
@@ -98,10 +101,11 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         if (mIsGroup) {
             //获得群组基本信息：群主ID、群组名、群组人数
             Conversation conv = JMessageClient.getGroupConversation(mGroupId);
-            GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
-            mMemberInfoList = groupInfo.getGroupMembers();
-            String groupOwnerId = groupInfo.getGroupOwner();
-            mGroupName = groupInfo.getGroupName();
+            mGroupInfo = (GroupInfo) conv.getTargetInfo();
+            mChatDetailView.initNoDisturb(mGroupInfo.getNoDisturb());
+            mMemberInfoList = mGroupInfo.getGroupMembers();
+            String groupOwnerId = mGroupInfo.getGroupOwner();
+            mGroupName = mGroupInfo.getGroupName();
             if (TextUtils.isEmpty(mGroupName)) {
                 mChatDetailView.setGroupName(mContext.getString(R.string.unnamed));
             } else {
@@ -119,6 +123,9 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             }
             // 是单聊
         } else {
+            Conversation conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
+            mUserInfo = (UserInfo) conv.getTargetInfo();
+            mChatDetailView.initNoDisturb(mUserInfo.getNoDisturb());
             mCurrentNum = 1;
             mGridAdapter = new GroupMemberGridAdapter(mContext, mTargetId, mTargetAppKey);
             mChatDetailView.setAdapter(mGridAdapter);
@@ -206,6 +213,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     }
                 };
                 mDialog = DialogCreator.createDeleteMessageDialog(mContext, listener);
+                mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 mDialog.show();
                 break;
             case R.id.chat_detail_del_group:
@@ -404,14 +412,70 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
 
     //添加或者删除成员后重新获得MemberInfoList
     public void refreshMemberList() {
-            mCurrentNum = mMemberInfoList.size() > MAX_GRID_ITEM ? MAX_GRID_ITEM - 1 : mMemberInfoList.size();
-            mGridAdapter.refreshMemberList();
-            mChatDetailView.setMembersNum(mMemberInfoList.size());
-            mChatDetailView.setTitle(mMemberInfoList.size());
+        mCurrentNum = mMemberInfoList.size() > MAX_GRID_ITEM ? MAX_GRID_ITEM - 1 : mMemberInfoList.size();
+        mGridAdapter.refreshMemberList();
+        mChatDetailView.setMembersNum(mMemberInfoList.size());
+        mChatDetailView.setTitle(mMemberInfoList.size());
     }
 
     public void refreshGroupName(String newName) {
         mGroupName = newName;
+    }
+
+    @Override
+    public void onChanged(int id, final boolean checked) {
+        final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
+        dialog.show();
+        //设置免打扰,1为将当前用户或群聊设为免打扰,0为移除免打扰
+        if (mIsGroup) {
+            mGroupInfo.setNoDisturb(checked ? 1 : 0, new BasicCallback() {
+                @Override
+                public void gotResult(int status, String desc) {
+                    dialog.dismiss();
+                    if (status == 0) {
+                        if (checked) {
+                            Toast.makeText(mContext, mContext.getString(R.string.set_do_not_disturb_success_hint),
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(mContext, mContext.getString(R.string.remove_from_no_disturb_list_hint),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    //设置失败,恢复为原来的状态
+                    } else {
+                        if (checked) {
+                            mChatDetailView.setNoDisturbChecked(false);
+                        } else {
+                            mChatDetailView.setNoDisturbChecked(true);
+                        }
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                }
+            });
+        } else {
+            mUserInfo.setNoDisturb(checked ? 1 : 0, new BasicCallback() {
+                @Override
+                public void gotResult(int status, String desc) {
+                    dialog.dismiss();
+                    if (status == 0) {
+                        if (checked) {
+                            Toast.makeText(mContext, mContext.getString(R.string.set_do_not_disturb_success_hint),
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(mContext, mContext.getString(R.string.remove_from_no_disturb_list_hint),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        //设置失败,恢复为原来的状态
+                    } else {
+                        if (checked) {
+                            mChatDetailView.setNoDisturbChecked(false);
+                        } else {
+                            mChatDetailView.setNoDisturbChecked(true);
+                        }
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                }
+            });
+        }
     }
 
     private static class MyHandler extends Handler {

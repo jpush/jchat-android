@@ -147,7 +147,7 @@
     <string name="about">关于</string>
     <string name="demo_version_name">demo版本号:%s</string>
     <string name="sdk_version">\nsdk版本号:</string>
-    <string name="about_date">\n3月1日</string>
+    <string name="about_date">\n3月24日</string>
     <string name="add_to_friend">加为好友</string>
     <string name="setting_username_hit">昵称</string>
     <string name="setting_username_big_hit">更改名字</string>
@@ -180,6 +180,9 @@
     <string name="change_password_re_hit">再次填写密码</string>
     <string name="password_not_match_toast">两次输入的密码不一致</string>
     <string name="password_change_success_toast">修改成功，请牢记新密码</string>
+    <string name="set_do_not_disturb" >消息免打扰</string>
+    <string name="set_do_not_disturb_success_hint">成功加入免打扰</string>
+    <string name="remove_from_no_disturb_list_hint">已移除免打扰</string>
     <string name="add_to_blacklist">加入黑名单</string>
     <string name="add_to_blacklist_success_hint">成功加入黑名单</string>
     <string name="remove_from_blacklist_hint">已从黑名单移除</string>

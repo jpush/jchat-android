@@ -1,5 +1,4 @@
 package io.jchat.android.view;
-
 /**
  * DropDownListView
  *

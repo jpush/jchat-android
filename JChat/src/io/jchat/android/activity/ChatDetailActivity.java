@@ -62,6 +62,7 @@ public class ChatDetailActivity extends BaseActivity {
         mChatDetailView.initModule();
         mChatDetailController = new ChatDetailController(mChatDetailView, this, mAvatarSize, mWidth);
         mChatDetailView.setListeners(mChatDetailController);
+        mChatDetailView.setOnChangeListener(mChatDetailController);
         mChatDetailView.setItemListener(mChatDetailController);
     }
 
