@@ -209,6 +209,41 @@
                 android:layout_height="1dp"
                 android:background="@color/me_split_line_color" />
 
+            <RelativeLayout
+                android:id="@+id/no_disturb_rl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:paddingLeft="15dp">
+
+                <ImageView
+                    android:id="@+id/no_disturb_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/no_disturb" />
+
+                <TextView
+                    style="@style/info_left_txt_style"
+                    android:text="@string/set_do_not_disturb"
+                    android:layout_toRightOf="@+id/no_disturb_icon"/>
+
+                <io.jchat.android.view.SlipButton
+                    android:id="@+id/no_disturb_slip_btn"
+                    android:layout_width="70dp"
+                    android:layout_height="35dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    />
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/me_split_line_color" />
 
             <RelativeLayout
                 android:id="@+id/add_to_black_list"

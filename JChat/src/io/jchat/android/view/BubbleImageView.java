@@ -1,5 +1,4 @@
 package io.jchat.android.view;
-
 /**
  *The MIT License (MIT)
  Copyright (c) 2015 Siyamed Sinir

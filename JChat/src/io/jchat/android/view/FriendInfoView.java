@@ -28,6 +28,7 @@ public class FriendInfoView extends LinearLayout {
     private TextView mGenderTv;
     private TextView mAreaTv;
     private TextView mSignatureTv;
+    private SlipButton mNoDisturb;
     private SlipButton mBlackListBtn;
     private Context mContext;
 
@@ -48,6 +49,7 @@ public class FriendInfoView extends LinearLayout {
         mGenderTv = (TextView) findViewById(R.id.gender_tv);
         mAreaTv = (TextView) findViewById(R.id.region_tv);
         mSignatureTv = (TextView) findViewById(R.id.signature_tv);
+        mNoDisturb = (SlipButton) findViewById(R.id.no_disturb_slip_btn);
         mBlackListBtn = (SlipButton) findViewById(R.id.black_list_slip_btn);
     }
 
@@ -85,6 +87,7 @@ public class FriendInfoView extends LinearLayout {
 
             mBlackListBtn.setChecked(1 == userInfo.getBlacklist());
             Log.d("FriendInfoView", "userInfo.getBlacklist(): " + userInfo.getBlacklist());
+            mNoDisturb.setChecked(1 == userInfo.getNoDisturb());
         } else {
             mGenderTv.setText(mContext.getString(R.string.unknown));
         }
@@ -100,13 +103,18 @@ public class FriendInfoView extends LinearLayout {
 
     public void setOnChangeListener(SlipButton.OnChangedListener listener) {
         mBlackListBtn.setOnChangedListener(R.id.black_list_slip_btn, listener);
+        mNoDisturb.setOnChangedListener(R.id.no_disturb_slip_btn, listener);
     }
 
     public void setFriendAvatar(Bitmap bitmap) {
         mAvatarIv.setImageBitmap(bitmap);
     }
 
-    public void setCheck(boolean flag) {
+    public void setBlackBtnChecked(boolean flag) {
         mBlackListBtn.setChecked(flag);
+    }
+
+    public void setNoDisturbChecked(boolean flag) {
+        mNoDisturb.setChecked(flag);
     }
 }

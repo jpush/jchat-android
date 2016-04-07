@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
@@ -328,6 +329,18 @@ public class CropImageView extends ImageView {
                 / (float) (mDrawableDst.width());
         matrix.postScale(scale, scale);
 
+        if (mDrawableFloat.left < 0) {
+            mDrawableFloat.left = 0;
+        }
+        if (mDrawableFloat.right > tmpBitmap.getWidth()) {
+            mDrawableFloat.right = tmpBitmap.getWidth();
+        }
+        if (mDrawableFloat.top < 0) {
+            mDrawableFloat.top = 0;
+        }
+        if (mDrawableFloat.bottom > tmpBitmap.getHeight()) {
+            mDrawableFloat.bottom = tmpBitmap.getHeight();
+        }
         Bitmap ret = Bitmap.createBitmap(tmpBitmap, mDrawableFloat.left,
                 mDrawableFloat.top, mDrawableFloat.width(),
                 mDrawableFloat.height(), matrix, true);

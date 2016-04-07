@@ -111,6 +111,10 @@ public class FriendInfoActivity extends BaseActivity {
         return mNickname;
     }
 
+    public UserInfo getUserInfo() {
+        return mUserInfo;
+    }
+
     public String getUserName() {
         return mUserInfo.getUserName();
     }

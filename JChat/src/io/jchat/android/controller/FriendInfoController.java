@@ -66,41 +66,75 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
 
     @Override
     public void onChanged(int id, final boolean flag) {
-        List<String> list = new ArrayList<String>();
-        list.add(mContext.getUserName());
         final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
-        dialog.show();
-        if (flag) {
-            JMessageClient.addUsersToBlacklist(list, new BasicCallback() {
-                @Override
-                public void gotResult(int status, String desc) {
-                    dialog.dismiss();
-                    if (status == 0) {
-                        Log.d("FriendInfoController", "add user to black list success!");
-                        Toast.makeText(mContext,
-                                mContext.getString(R.string.add_to_blacklist_success_hint),
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        mFriendInfoView.setCheck(false);
-                        HandleResponseCode.onHandle(mContext, status, false);
-                    }
+        switch (id) {
+            case R.id.black_list_slip_btn:
+                List<String> list = new ArrayList<String>();
+                list.add(mContext.getUserName());
+                dialog.show();
+                if (flag) {
+                    JMessageClient.addUsersToBlacklist(list, new BasicCallback() {
+                        @Override
+                        public void gotResult(int status, String desc) {
+                            dialog.dismiss();
+                            if (status == 0) {
+                                Log.d("FriendInfoController", "add user to black list success!");
+                                Toast.makeText(mContext,
+                                        mContext.getString(R.string.add_to_blacklist_success_hint),
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                mFriendInfoView.setBlackBtnChecked(false);
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
+                        }
+                    });
+                } else {
+                    JMessageClient.delUsersFromBlacklist(list, new BasicCallback() {
+                        @Override
+                        public void gotResult(int status, String desc) {
+                            dialog.dismiss();
+                            if (status == 0) {
+                                Toast.makeText(mContext,
+                                        mContext.getString(R.string.remove_from_blacklist_hint),
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                mFriendInfoView.setBlackBtnChecked(true);
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
+                        }
+                    });
                 }
-            });
-        } else {
-            JMessageClient.delUsersFromBlacklist(list, new BasicCallback() {
-                @Override
-                public void gotResult(int status, String desc) {
-                    dialog.dismiss();
-                    if (status == 0) {
-                        Toast.makeText(mContext,
-                                mContext.getString(R.string.remove_from_blacklist_hint),
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        mFriendInfoView.setCheck(true);
-                        HandleResponseCode.onHandle(mContext, status, false);
+                break;
+            //滑动免打扰按钮是否加入免打扰,userInfo.setNoDisturb(int flag, BasicCallback callback)
+            //flag为1表示加入免打扰,否则为0
+            case R.id.no_disturb_slip_btn:
+                dialog.show();
+                mContext.getUserInfo().setNoDisturb(flag ? 1 : 0, new BasicCallback() {
+                    @Override
+                    public void gotResult(int status, String desc) {
+                        dialog.dismiss();
+                        if (status == 0) {
+                            if (flag) {
+                                Toast.makeText(mContext, mContext
+                                                .getString(R.string.set_do_not_disturb_success_hint),
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(mContext, mContext
+                                                .getString(R.string.remove_from_no_disturb_list_hint),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        //设置失败恢复原来的状态
+                        } else {
+                            if (flag) {
+                                mFriendInfoView.setNoDisturbChecked(false);
+                            } else {
+                                mFriendInfoView.setNoDisturbChecked(true);
+                            }
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
                     }
-                }
-            });
+                });
+                break;
         }
     }
 }

@@ -1,6 +1,9 @@
 package io.jchat.android.adapter;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Log;
@@ -8,6 +11,8 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -23,25 +28,41 @@ import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
+import io.jchat.android.activity.FriendInfoActivity;
+import io.jchat.android.activity.MeInfoActivity;
+import io.jchat.android.activity.MembersInChatActivity;
+import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.tools.DialogCreator;
 import io.jchat.android.tools.HandleResponseCode;
 import io.jchat.android.view.CircleImageView;
 
 /**
  * Created by Ken on 2015/11/25.
  */
-public class AllMembersAdapter extends BaseAdapter {
+public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItemClickListener,
+        AdapterView.OnItemLongClickListener {
 
-    private Context mContext;
+    private MembersInChatActivity mContext;
     private List<UserInfo> mMemberList = new ArrayList<UserInfo>();
     private boolean mIsDeleteMode;
     private List<String> mSelectedList = new ArrayList<String>();
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
+    private Dialog mDialog;
+    private Dialog mLoadingDialog;
+    private boolean mIsCreator;
+    private long mGroupId;
+    private int mWidth;
 
-    public AllMembersAdapter(Context context, List<UserInfo> memberList, boolean isDeleteMode) {
+    public AllMembersAdapter(MembersInChatActivity context, List<UserInfo> memberList, boolean isDeleteMode,
+                             boolean isCreator, long groupId, int width) {
         this.mContext = context;
         this.mMemberList = memberList;
         this.mIsDeleteMode = isDeleteMode;
+        this.mIsCreator = isCreator;
+        this.mGroupId = groupId;
+        this.mWidth = width;
     }
 
     public void refreshMemberList(List<UserInfo> memberList){
@@ -76,7 +97,7 @@ public class AllMembersAdapter extends BaseAdapter {
                     (CheckBox) convertView.findViewById(R.id.check_box_cb));
             convertView.setTag(viewHolder);
         } else {
-           viewHolder = (ViewHolder)convertView.getTag();
+            viewHolder = (ViewHolder)convertView.getTag();
         }
 
         final UserInfo userInfo = mMemberList.get(position);
@@ -163,8 +184,65 @@ public class AllMembersAdapter extends BaseAdapter {
     }
 
     public void updateListView(List<UserInfo> filterList) {
-        this.mMemberList = filterList;
+        mMemberList = filterList;
         notifyDataSetChanged();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        UserInfo userInfo = mMemberList.get(position);
+        String userName = userInfo.getUserName();
+        Intent intent = new Intent();
+        if (userName.equals(JMessageClient.getMyInfo().getUserName())) {
+            intent.setClass(mContext, MeInfoActivity.class);
+            mContext.startActivity(intent);
+        } else {
+            intent.setClass(mContext, FriendInfoActivity.class);
+            intent.putExtra(JChatDemoApplication.TARGET_ID,
+                    userInfo.getUserName());
+            intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
+            mContext.startActivity(intent);
+        }
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+        if (mIsCreator && !mIsDeleteMode) {
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    switch (v.getId()) {
+                        case R.id.cancel_btn:
+                            mDialog.dismiss();
+                            break;
+                        case R.id.commit_btn:
+                            mDialog.dismiss();
+                            mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
+                                    mContext.getString(R.string.deleting_hint));
+                            mLoadingDialog.show();
+                            List<String> list = new ArrayList<String>();
+                            list.add(mMemberList.get(position).getUserName());
+                            JMessageClient.removeGroupMembers(mGroupId, list, new BasicCallback() {
+                                @Override
+                                public void gotResult(int status, String desc) {
+                                    mLoadingDialog.dismiss();
+                                    if (status == 0) {
+                                        mContext.refreshMemberList();
+                                    } else {
+                                        HandleResponseCode.onHandle(mContext, status, false);
+                                    }
+                                }
+                            });
+                            break;
+
+                    }
+                }
+            };
+            mDialog = DialogCreator.createDeleteMemberDialog(mContext, listener, true);
+            mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
+            mDialog.show();
+        }
+        return true;
     }
 
     class ViewHolder {
