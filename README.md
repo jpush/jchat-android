@@ -33,6 +33,8 @@ JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener�
 
 - Application 主要作用是jmessage－sdk的初始化以及Notification的相关设置
 
+- chatting 聊天界面相关类，如果开发者只要聊天界面可以只拷贝此文件夹下的文件，而资源文件可以从[JChat-UIKit-Chatting](https://github.com/jpush/jmessage-android-uikit/tree/master/Chatting)中拷贝
+
 - activity包 JChat的Activity的集合，主要负责绑定Controller和View，以及界面的跳转
 
 - controller包 主要负责事件的点击、数据处理等，是Activity和View的中间层
