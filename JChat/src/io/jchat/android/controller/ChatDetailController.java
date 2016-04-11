@@ -1,6 +1,5 @@
 package io.jchat.android.controller;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Handler;
@@ -38,8 +37,8 @@ import io.jchat.android.activity.MembersInChatActivity;
 import io.jchat.android.adapter.GroupMemberGridAdapter;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.entity.Event;
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.view.ChatDetailView;
 import io.jchat.android.view.SlipButton;
 
@@ -90,7 +89,6 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
      */
     private void initData() {
         Intent intent = mContext.getIntent();
-        mIsGroup = intent.getBooleanExtra(JChatDemoApplication.IS_GROUP, false);
         mGroupId = intent.getLongExtra(JChatDemoApplication.GROUP_ID, 0);
         Log.i(TAG, "mGroupId" + mGroupId);
         mTargetId = intent.getStringExtra(JChatDemoApplication.TARGET_ID);
@@ -98,7 +96,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         mMyUsername = JMessageClient.getMyInfo().getUserName();
         Log.i(TAG, "mTargetId: " + mTargetId);
         // 是群组
-        if (mIsGroup) {
+        if (mGroupId != 0) {
+            mIsGroup = true;
             //获得群组基本信息：群主ID、群组名、群组人数
             Conversation conv = JMessageClient.getGroupConversation(mGroupId);
             mGroupInfo = (GroupInfo) conv.getTargetInfo();
@@ -192,10 +191,10 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     @Override
                     public void onClick(View view) {
                         switch (view.getId()) {
-                            case R.id.cancel_btn:
+                            case R.id.jmui_cancel_btn:
                                 mDialog.cancel();
                                 break;
-                            case R.id.commit_btn:
+                            case R.id.jmui_commit_btn:
                                 Conversation conv;
                                 if (mIsGroup) {
                                     conv = JMessageClient.getGroupConversation(mGroupId);
@@ -221,10 +220,10 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     @Override
                     public void onClick(View view) {
                         switch (view.getId()) {
-                            case R.id.cancel_btn:
+                            case R.id.jmui_cancel_btn:
                                 mDialog.cancel();
                                 break;
-                            case R.id.commit_btn:
+                            case R.id.jmui_commit_btn:
                                 deleteAndExit();
                                 mDialog.cancel();
                                 break;
@@ -306,7 +305,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
 
     //点击添加按钮触发事件
     private void addMemberToGroup() {
-        final Dialog dialog = new Dialog(mContext, R.style.default_dialog_style);
+        final Dialog dialog = new Dialog(mContext, R.style.jmui_default_dialog_style);
         final View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.dialog_add_friend_to_conv_list, null);
         dialog.setContentView(view);
@@ -315,21 +314,20 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         TextView title = (TextView) view.findViewById(R.id.dialog_name);
         title.setText(mContext.getString(R.string.add_friend_to_group_title));
         final EditText userNameEt = (EditText) view.findViewById(R.id.user_name_et);
-        final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
-        final Button commit = (Button) view.findViewById(R.id.commit_btn);
+        final Button cancel = (Button) view.findViewById(R.id.jmui_cancel_btn);
+        final Button commit = (Button) view.findViewById(R.id.jmui_commit_btn);
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (view.getId()) {
-                    case R.id.cancel_btn:
+                    case R.id.jmui_cancel_btn:
                         dialog.cancel();
                         break;
-                    case R.id.commit_btn:
+                    case R.id.jmui_commit_btn:
                         final String targetId = userNameEt.getText().toString().trim();
                         Log.i(TAG, "targetID " + targetId);
                         if (TextUtils.isEmpty(targetId)) {
-                            Toast.makeText(mContext, mContext.getString(R.string.username_not_null_toast),
-                                    Toast.LENGTH_SHORT).show();
+                            HandleResponseCode.onHandle(mContext, 801001, true);
                             break;
                             //检查群组中是否包含该用户
                         } else if (checkIfNotContainUser(targetId)) {
@@ -338,9 +336,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             mLoadingDialog.show();
                             getUserInfo(targetId, dialog);
                         } else {
-                            dialog.cancel();
-                            Toast.makeText(mContext, mContext.getString(R.string.user_already_exist_toast),
-                                    Toast.LENGTH_SHORT).show();
+                            userNameEt.setText("");
+                            HandleResponseCode.onHandle(mContext, 1002, true);
                         }
                         break;
                 }
@@ -424,7 +421,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
 
     @Override
     public void onChanged(int id, final boolean checked) {
-        final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
+        final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.jmui_loading));
         dialog.show();
         //设置免打扰,1为将当前用户或群聊设为免打扰,0为移除免打扰
         if (mIsGroup) {

@@ -15,11 +15,12 @@ import java.io.File;
 
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.controller.MainController;
-import io.jchat.android.tools.FileHelper;
-import io.jchat.android.tools.SharePreferenceManager;
+import io.jchat.android.chatting.utils.FileHelper;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.view.MainView;
 
 public class MainActivity extends FragmentActivity {
@@ -56,7 +57,8 @@ public class MainActivity extends FragmentActivity {
         JPushInterface.onResume(this);
         //第一次登录需要设置昵称
         boolean flag = SharePreferenceManager.getCachedFixProfileFlag();
-        if (JMessageClient.getMyInfo() == null) {
+        UserInfo myInfo = JMessageClient.getMyInfo();
+        if (myInfo == null) {
             Intent intent = new Intent();
             if (null != SharePreferenceManager.getCachedUsername()) {
                 intent.putExtra("userName", SharePreferenceManager.getCachedUsername());
@@ -67,11 +69,14 @@ public class MainActivity extends FragmentActivity {
             }
             startActivity(intent);
             finish();
-        } else if (TextUtils.isEmpty(JMessageClient.getMyInfo().getNickname()) && flag) {
-            Intent intent = new Intent();
-            intent.setClass(this, FixProfileActivity.class);
-            startActivity(intent);
-            finish();
+        } else {
+            JChatDemoApplication.setPicturePath(myInfo.getAppKey());
+            if (TextUtils.isEmpty(myInfo.getNickname()) && flag) {
+                Intent intent = new Intent();
+                intent.setClass(this, FixProfileActivity.class);
+                startActivity(intent);
+                finish();
+            }
         }
         mMainController.sortConvList();
         super.onResume();
@@ -95,15 +100,17 @@ public class MainActivity extends FragmentActivity {
         }
         if (requestCode == JChatDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
             String path = mMainController.getPhotoPath();
-            File file = new File(path);
-            if (file.isFile()) {
-                mUri = Uri.fromFile(file);
-                //拍照后直接进行裁剪
+            if (path != null) {
+                File file = new File(path);
+                if (file.isFile()) {
+                    mUri = Uri.fromFile(file);
+                    //拍照后直接进行裁剪
 //                mMainController.cropRawPhoto(mUri);
-                Intent intent = new Intent();
-                intent.putExtra("filePath", mUri.getPath());
-                intent.setClass(this, CropImageActivity.class);
-                startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_CROP_PICTURE);
+                    Intent intent = new Intent();
+                    intent.putExtra("filePath", mUri.getPath());
+                    intent.setClass(this, CropImageActivity.class);
+                    startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_CROP_PICTURE);
+                }
             }
         } else if (requestCode == JChatDemoApplication.REQUEST_CODE_SELECT_PICTURE) {
             if (data != null) {

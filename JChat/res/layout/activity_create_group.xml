@@ -9,7 +9,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/jpush_blue" >
+        android:background="@color/jmui_jpush_blue" >
 
         <ImageButton
             android:id="@+id/creat_group_return_btn"
@@ -18,10 +18,10 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
-            android:background="@drawable/back_btn_bg" />
+            android:background="@drawable/jmui_back_btn_bg" />
 
         <Button
-            android:id="@+id/commit_btn"
+            android:id="@+id/jmui_commit_btn"
             android:layout_width="60dp"
             android:layout_height="30dp"
             android:layout_alignParentRight="true"
@@ -49,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:cursorVisible="true"
-        android:textCursorDrawable="@drawable/text_cursor_bg"
+        android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
         style="@style/default_input_style_with_bg"
         android:layout_margin="10dp"
         android:hint="输入群名"/>
@@ -84,11 +84,11 @@
         android:paddingTop="5dp"
         android:visibility="gone">
 
-        <io.jchat.android.view.CircleImageView
+        <io.jchat.android.chatting.CircleImageView
             android:id="@+id/contact_avatar"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/head_icon" />
+            android:src="@drawable/jmui_head_icon" />
 
         <TextView
             android:id="@+id/contact_username"

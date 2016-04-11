@@ -18,6 +18,8 @@ import android.support.v4.util.LruCache;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.jchat.android.chatting.utils.BitmapLoader;
+
 public class NativeImageLoader {
     private LruCache<String, Bitmap> mMemoryCache;
     private static NativeImageLoader mInstance = new NativeImageLoader();

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import io.jchat.android.R;
 import io.jchat.android.entity.UserLetterBean;
-import io.jchat.android.view.CircleImageView;
+import io.jchat.android.chatting.CircleImageView;
 
 public class StickyListAdapter extends BaseAdapter implements StickyListHeadersAdapter, SectionIndexer{
 
@@ -133,8 +133,8 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
             convertView = mInflater.inflate(R.layout.select_friend_item, parent, false);
             holder.itemLl = (LinearLayout) convertView.findViewById(R.id.select_friend_item_ll);
             holder.checkBox = (CheckBox) convertView.findViewById(R.id.selected_cb);
-            holder.avatar = (CircleImageView) convertView.findViewById(R.id.avatar_iv);
-            holder.displayName = (TextView) convertView.findViewById(R.id.display_name_tv);
+            holder.avatar = (CircleImageView) convertView.findViewById(R.id.jmui_avatar_iv);
+            holder.displayName = (TextView) convertView.findViewById(R.id.jmui_display_name_tv);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();

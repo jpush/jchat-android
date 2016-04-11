@@ -5,7 +5,7 @@
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
     android:layout_gravity="center_vertical"
-    android:background="@drawable/dialog_default_style"
+    android:background="@drawable/jmui_dialog_default_style"
     android:orientation="vertical">
 
     <TextView
@@ -32,7 +32,7 @@
     </TimePicker>
 
     <Button
-        android:id="@+id/commit_btn"
+        android:id="@+id/jmui_commit_btn"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="30dp"

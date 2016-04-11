@@ -10,7 +10,7 @@ import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.NotificationClickEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
-import io.jchat.android.activity.ChatActivity;
+import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.application.JChatDemoApplication;
 
 public class NotificationClickEventReceiver {
@@ -43,17 +43,16 @@ public class NotificationClickEventReceiver {
             Intent notificationIntent = new Intent(mContext, ChatActivity.class);
             if (type == ConversationType.single) {
                 conv = JMessageClient.getSingleConversation(targetId, appKey);
-                notificationIntent.putExtra(JChatDemoApplication.IS_GROUP, false);
+                notificationIntent.putExtra(JChatDemoApplication.TARGET_ID, targetId);
                 notificationIntent.putExtra(JChatDemoApplication.TARGET_APP_KEY, appKey);
                 Log.d("Notification", "msg.fromAppKey() " + appKey);
             } else {
                 conv = JMessageClient.getGroupConversation(Long.parseLong(targetId));
-                notificationIntent.putExtra(JChatDemoApplication.IS_GROUP, true);
+                notificationIntent.putExtra(JChatDemoApplication.GROUP_ID, Long.parseLong(targetId));
             }
             conv.resetUnreadCount();
             Log.d("Notification", "Conversation unread msg reset");
 //        notificationIntent.setAction(Intent.ACTION_MAIN);
-            notificationIntent.putExtra(JChatDemoApplication.TARGET_ID, targetId);
             notificationIntent.putExtra("fromGroup", false);
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TOP);

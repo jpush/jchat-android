@@ -1,6 +1,5 @@
 package io.jchat.android.activity;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,7 +15,7 @@ import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.controller.MeInfoController;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.view.MeInfoView;
 
 public class MeInfoActivity extends BaseActivity {
@@ -50,7 +49,7 @@ public class MeInfoActivity extends BaseActivity {
     }
 
     public void showSexDialog(final UserInfo.Gender gender) {
-        final Dialog dialog = new Dialog(this, R.style.default_dialog_style);
+        final Dialog dialog = new Dialog(this, R.style.jmui_default_dialog_style);
         final LayoutInflater inflater = LayoutInflater.from(this);
         View view = inflater.inflate(R.layout.dialog_set_sex, null);
         dialog.setContentView(view);

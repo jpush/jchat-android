@@ -19,8 +19,8 @@ import android.widget.Toast;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.chatting.utils.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
 
 /**
@@ -47,8 +47,8 @@ public class EditSignatureActivity extends BaseActivity implements View.OnClickL
         setContentView(R.layout.activity_edit_signature);
         mContext = this;
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
-        mTitle = (TextView) findViewById(R.id.title_tv);
-        mCommitBtn = (Button) findViewById(R.id.commit_btn);
+        mTitle = (TextView) findViewById(R.id.jmui_title_tv);
+        mCommitBtn = (Button) findViewById(R.id.jmui_commit_btn);
         mTextCountTv = (TextView) findViewById(R.id.text_count_tv);
         mDeleteBtn = (ImageButton) findViewById(R.id.delete_iv);
         mSignatureEt = (EditText) findViewById(R.id.signature_et);
@@ -115,7 +115,7 @@ public class EditSignatureActivity extends BaseActivity implements View.OnClickL
             case R.id.return_btn:
                 finish();
                 break;
-            case R.id.commit_btn:
+            case R.id.jmui_commit_btn:
                 final String signature = mSignatureEt.getText().toString().trim();
                 if (TextUtils.isEmpty(signature)) {
                     Toast.makeText(mContext, mContext.getString(R.string.input_signature_toast), Toast.LENGTH_SHORT).show();

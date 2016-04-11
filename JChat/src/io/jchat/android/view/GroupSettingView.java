@@ -27,8 +27,8 @@ public class GroupSettingView extends RelativeLayout{
 		mDialogName = (TextView) findViewById(R.id.dialog_name);
 		mEditName = (EditText) findViewById(R.id.set_group);
 		mHint = (TextView) findViewById(R.id.nick_name_hint);
-		mCancel = (Button) findViewById(R.id.cancel_btn);
-		mCommit = (Button) findViewById(R.id.commit_btn);
+		mCancel = (Button) findViewById(R.id.jmui_cancel_btn);
+		mCommit = (Button) findViewById(R.id.jmui_commit_btn);
 	}
 	
 	public void setListeners(OnClickListener onClickListener) {

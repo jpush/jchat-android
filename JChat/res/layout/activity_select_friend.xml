@@ -10,15 +10,15 @@
         android:id="@+id/menu_title_bar"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/jpush_blue">
+        android:background="@color/jmui_jpush_blue">
 
         <ImageButton
-            android:id="@+id/cancel_btn"
+            android:id="@+id/jmui_cancel_btn"
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:src="@drawable/cancel_btn"
-            android:background="@drawable/back_btn_bg"/>
+            android:background="@drawable/jmui_back_btn_bg"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

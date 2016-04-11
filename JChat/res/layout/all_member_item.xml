@@ -20,13 +20,13 @@
             android:button="@null"/>
 
         <!-- 联系人信息 -->
-        <io.jchat.android.view.CircleImageView
+        <io.jchat.android.chatting.CircleImageView
             android:id="@+id/icon_iv"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_toRightOf="@+id/check_box_cb"
             android:layout_marginLeft="5dp"
-            android:src="@drawable/head_icon" />
+            android:src="@drawable/jmui_head_icon" />
 
         <TextView
             android:id="@+id/name"

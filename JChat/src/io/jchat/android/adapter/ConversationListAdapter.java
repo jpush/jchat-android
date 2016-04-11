@@ -25,10 +25,10 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.tools.SortConvList;
-import io.jchat.android.tools.TimeFormat;
-import io.jchat.android.view.CircleImageView;
+import io.jchat.android.chatting.utils.TimeFormat;
+import io.jchat.android.chatting.CircleImageView;
 
 public class ConversationListAdapter extends BaseAdapter {
 
@@ -182,7 +182,7 @@ public class ConversationListAdapter extends BaseAdapter {
                         CustomContent content = (CustomContent) lastMsg.getContent();
                         Boolean isBlackListHint = content.getBooleanValue("blackList");
                         if (isBlackListHint != null && isBlackListHint) {
-                            viewHolder.content.setText(mContext.getString(R.string.server_803008));
+                            viewHolder.content.setText(mContext.getString(R.string.jmui_server_803008));
                         } else {
                             viewHolder.content.setText(mContext.getString(R.string.type_custom));
                         }
@@ -213,17 +213,15 @@ public class ConversationListAdapter extends BaseAdapter {
                         if (status == 0) {
                             viewHolder.headIcon.setImageBitmap(bitmap);
                         }else {
-                            viewHolder.headIcon.setImageResource(R.drawable.head_icon);
+                            viewHolder.headIcon.setImageResource(R.drawable.jmui_head_icon);
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });
             }else {
-                viewHolder.headIcon.setImageResource(R.drawable.head_icon);
+                viewHolder.headIcon.setImageResource(R.drawable.jmui_head_icon);
             }
-        }
-        // 群聊
-        else {
+        } else {
             viewHolder.headIcon.setImageResource(R.drawable.group);
             viewHolder.convName.setText(convItem.getTitle());
             Log.d("ConversationListAdapter", "Conversation title: " + convItem.getTitle());

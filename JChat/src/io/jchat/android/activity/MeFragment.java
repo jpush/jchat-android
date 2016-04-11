@@ -23,11 +23,11 @@ import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.controller.MeController;
-import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.FileHelper;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.SharePreferenceManager;
+import io.jchat.android.chatting.utils.BitmapLoader;
+import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.FileHelper;
+import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.view.MeView;
 
 public class MeFragment extends BaseFragment {
@@ -71,20 +71,27 @@ public class MeFragment extends BaseFragment {
     public void onResume() {
         if (!mIsShowAvatar) {
             UserInfo myInfo = JMessageClient.getMyInfo();
-            if (!TextUtils.isEmpty(myInfo.getAvatar())) {
-                myInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                    @Override
-                    public void gotResult(int status, String desc, Bitmap bitmap) {
-                        if (status == 0) {
-                            mMeView.showPhoto(bitmap);
-                            mIsShowAvatar = true;
-                        } else {
-                            HandleResponseCode.onHandle(mContext, status, false);
+            if (myInfo != null) {
+                if (!TextUtils.isEmpty(myInfo.getAvatar())) {
+                    myInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                        @Override
+                        public void gotResult(int status, String desc, Bitmap bitmap) {
+                            if (status == 0) {
+                                mMeView.showPhoto(bitmap);
+                                mIsShowAvatar = true;
+                            } else {
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                mMeView.showNickName(myInfo.getNickname());
+            //用户由于某种原因导致登出,跳转到重新登录界面
+            } else {
+                Intent intent = new Intent();
+                intent.setClass(mContext, ReloginActivity.class);
+                startActivity(intent);
             }
-            mMeView.showNickName(myInfo.getNickname());
         }
         super.onResume();
     }
@@ -151,7 +158,7 @@ public class MeFragment extends BaseFragment {
                 Toast.makeText(this.getActivity(), mContext.getString(R.string.camera_not_prepared), Toast.LENGTH_SHORT).show();
             }
         } else {
-            Toast.makeText(this.getActivity(), mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.getActivity(), mContext.getString(R.string.jmui_sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -172,7 +179,8 @@ public class MeFragment extends BaseFragment {
             }
             getActivity().startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_SELECT_PICTURE);
         } else {
-            Toast.makeText(this.getActivity(), mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.getActivity(), mContext.getString(R.string.jmui_sdcard_not_exist_toast),
+                    Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -207,7 +215,7 @@ public class MeFragment extends BaseFragment {
 
     private void getBigAvatar(final UserInfo myInfo) {
         final Dialog dialog = DialogCreator.createLoadingDialog(mContext,
-                mContext.getString(R.string.loading));
+                mContext.getString(R.string.jmui_loading));
         dialog.show();
         myInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
             @Override

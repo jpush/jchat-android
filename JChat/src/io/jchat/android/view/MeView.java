@@ -16,7 +16,8 @@ import java.lang.ref.WeakReference;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.chatting.CircleImageView;
+import io.jchat.android.chatting.utils.BitmapLoader;
 
 public class MeView extends LinearLayout {
 

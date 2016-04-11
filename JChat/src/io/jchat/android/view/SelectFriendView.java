@@ -30,7 +30,7 @@ public class SelectFriendView extends LinearLayout {
     }
 
     public void initModule(float ratio) {
-        mCancelBtn = (ImageButton) findViewById(R.id.cancel_btn);
+        mCancelBtn = (ImageButton) findViewById(R.id.jmui_cancel_btn);
         mSearchEt = (EditText) findViewById(R.id.search_et);
         mSearchBtn = (ImageButton) findViewById(R.id.search_btn);
         mListView = (StickyListHeadersListView) findViewById(R.id.sticky_list_view);

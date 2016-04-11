@@ -16,7 +16,7 @@
         android:paddingRight="20dp"
         android:paddingBottom="5dp"
         android:cursorVisible="true"
-        android:textCursorDrawable="@drawable/text_cursor_bg"
+        android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
         android:textColorHint="@color/gray"
         android:textColor="@color/me_info_edit_color"
         android:textSize="20sp"

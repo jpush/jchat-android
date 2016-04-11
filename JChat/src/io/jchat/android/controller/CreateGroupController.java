@@ -8,9 +8,9 @@ import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
 import io.jchat.android.activity.CreateGroupActivity;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.view.CreateGroupView;
-import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.chatting.utils.DialogCreator;
 
 public class CreateGroupController implements OnClickListener {
 
@@ -36,7 +36,7 @@ public class CreateGroupController implements OnClickListener {
             case R.id.creat_group_return_btn:
                 mContext.finish();
                 break;
-            case R.id.commit_btn:
+            case R.id.jmui_commit_btn:
                 mGroupName = mCreateGroupView.getGroupName();
                 if (mGroupName.equals("")) {
                     mCreateGroupView.groupNameError(mContext);

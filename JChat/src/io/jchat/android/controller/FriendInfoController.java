@@ -16,8 +16,8 @@ import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.view.FriendInfoView;
 import io.jchat.android.view.SlipButton;
 
@@ -66,7 +66,7 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
 
     @Override
     public void onChanged(int id, final boolean flag) {
-        final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.loading));
+        final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.jmui_loading));
         switch (id) {
             case R.id.black_list_slip_btn:
                 List<String> list = new ArrayList<String>();

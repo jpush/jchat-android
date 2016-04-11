@@ -39,7 +39,7 @@ public class GroupSettingController implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()) {
-		case R.id.commit_btn:
+		case R.id.jmui_commit_btn:
 			Intent intent = new Intent();
 			String resultName = mGroupSettingView.getResultName();
 			if (!resultName.equals("")) {
@@ -50,7 +50,7 @@ public class GroupSettingController implements OnClickListener{
 			}
 			mContext.finish();
 			break;
-		case R.id.cancel_btn:
+		case R.id.jmui_cancel_btn:
 			mContext.finish();
 			break;
 		}

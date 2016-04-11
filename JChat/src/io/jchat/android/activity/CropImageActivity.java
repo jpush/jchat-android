@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -13,7 +14,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.chatting.utils.BitmapLoader;
 import io.jchat.android.view.CropImageView;
 
 /**
@@ -34,12 +35,13 @@ public class CropImageActivity extends BaseActivity {
         setContentView(R.layout.activity_crop_image);
         mImageView = (CropImageView) findViewById(R.id.crop_image_view);
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
-        mTitle = (TextView) findViewById(R.id.title_tv);
-        mCommitBtn = (Button) findViewById(R.id.commit_btn);
+        mTitle = (TextView) findViewById(R.id.jmui_title_tv);
+        mCommitBtn = (Button) findViewById(R.id.jmui_commit_btn);
         mTitle.setText(this.getString(R.string.crop_image_title));
         Intent intent = getIntent();
         String path = intent.getStringExtra("filePath");
         Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
+        Log.i("CropImageActivity", "mWidth * mHeight: " + mWidth + " * " + mHeight);
         mImageView.setDrawable(new BitmapDrawable(getResources(), bitmap), 720, 720);
 
         mReturnBtn.setOnClickListener(new View.OnClickListener() {

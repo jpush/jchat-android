@@ -26,12 +26,12 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.FileHelper;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.SharePreferenceManager;
-import io.jchat.android.view.CircleImageView;
+import io.jchat.android.chatting.utils.BitmapLoader;
+import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.FileHelper;
+import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
+import io.jchat.android.chatting.CircleImageView;
 
 /**
  * Created by Ken on 2015/1/26.
@@ -62,7 +62,7 @@ public class FixProfileActivity extends BaseActivity {
         setContentView(R.layout.activity_fix_profile);
         mContext = this;
         mNickNameEt = (EditText) findViewById(R.id.nick_name_et);
-        mAvatarIv = (CircleImageView) findViewById(R.id.avatar_iv);
+        mAvatarIv = (CircleImageView) findViewById(R.id.jmui_avatar_iv);
         mFinishBtn = (Button) findViewById(R.id.finish_btn);
         mAvatarIv.setOnClickListener(listener);
         mFinishBtn.setOnClickListener(listener);
@@ -81,7 +81,7 @@ public class FixProfileActivity extends BaseActivity {
         @Override
         public void onClick(View view) {
             switch (view.getId()) {
-                case R.id.avatar_iv:
+                case R.id.jmui_avatar_iv:
                     showSetAvatarDialog();
                     break;
                 case R.id.finish_btn:
@@ -123,11 +123,11 @@ public class FixProfileActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
-                    case R.id.take_photo_btn:
+                    case R.id.jmui_take_photo_btn:
                         mSetAvatarDialog.cancel();
                         takePhoto();
                         break;
-                    case R.id.pick_picture_btn:
+                    case R.id.jmui_pick_picture_btn:
                         mSetAvatarDialog.cancel();
                         selectImageFromLocal();
                         break;
@@ -154,7 +154,7 @@ public class FixProfileActivity extends BaseActivity {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_TAKE_PHOTO);
         }else {
-            Toast.makeText(this, this.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, this.getString(R.string.jmui_sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
         }
     }
 
