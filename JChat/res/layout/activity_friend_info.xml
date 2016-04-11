@@ -8,15 +8,15 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/title_bar_height"
-        android:background="@color/jpush_blue">
+        android:background="@color/jmui_jpush_blue">
 
         <ImageButton
             android:id="@+id/friend_info_return_btn"
             android:layout_width="@dimen/title_bar_height"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:background="@drawable/back_btn_bg"
-            android:src="@drawable/back_btn" />
+            android:background="@drawable/jmui_back_btn_bg"
+            android:src="@drawable/jmui_back_btn" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -57,12 +57,12 @@
                     android:orientation="vertical"
                     android:padding="30dp">
 
-                    <io.jchat.android.view.CircleImageView
+                    <io.jchat.android.chatting.CircleImageView
                         android:id="@+id/friend_detail_avatar"
                         android:layout_width="@dimen/login_regist_head_icon_size"
                         android:layout_height="@dimen/login_regist_head_icon_size"
                         android:layout_gravity="center_horizontal"
-                        android:src="@drawable/head_icon" />
+                        android:src="@drawable/jmui_head_icon" />
 
                     <TextView
                         android:id="@+id/nick_name_tv"

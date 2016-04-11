@@ -19,7 +19,7 @@
         android:textSize="20sp"
         android:textColor="@color/me_info_edit_color"
         android:textColorHint="@color/me_info_hint_color"
-        android:textCursorDrawable="@drawable/text_cursor_bg"
+        android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
         android:background="@drawable/default_input_bg"/>
 
     <TextView

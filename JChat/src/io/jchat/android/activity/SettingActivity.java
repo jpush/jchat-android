@@ -6,11 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import io.jchat.android.R;
-import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.chatting.utils.DialogCreator;
 
 public class SettingActivity extends BaseActivity implements OnClickListener{
 	
@@ -64,6 +65,7 @@ public class SettingActivity extends BaseActivity implements OnClickListener{
 			break;
             case R.id.change_password_rl:
                 Dialog dialog = DialogCreator.createResetPwdDialog(this);
+                dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 dialog.show();
                 break;
             case R.id.about_rl:

@@ -9,14 +9,14 @@
 
     <include layout="@layout/base_title_bar"/>
 
-    <io.jchat.android.view.CircleImageView
+    <io.jchat.android.chatting.CircleImageView
         android:id="@+id/login_iv"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_above="@+id/login_wait_tv"
         android:layout_marginBottom="20dp"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/head_icon"/>
+        android:src="@drawable/jmui_head_icon"/>
 
     <TextView
         android:id="@+id/login_wait_tv"

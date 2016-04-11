@@ -18,12 +18,11 @@ import java.util.List;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.CircleImageView;
+import io.jchat.android.chatting.utils.BitmapLoader;
+import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.chatting.CircleImageView;
 
 public class GroupMemberGridAdapter extends BaseAdapter {
 
@@ -140,14 +139,14 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                                 if (status == 0) {
                                     viewTag.icon.setImageBitmap(bitmap);
                                 } else {
-                                    viewTag.icon.setImageResource(R.drawable.head_icon);
+                                    viewTag.icon.setImageResource(R.drawable.jmui_head_icon);
                                     HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
                     }
                 } else {
-                    viewTag.icon.setImageResource(R.drawable.head_icon);
+                    viewTag.icon.setImageResource(R.drawable.jmui_head_icon);
                 }
 
                 if (TextUtils.isEmpty(userInfo.getNickname())) {

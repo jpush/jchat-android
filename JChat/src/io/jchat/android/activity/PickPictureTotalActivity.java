@@ -126,7 +126,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 	 */
 	private void getImages() {
 		//显示进度条
-		mProgressDialog = ProgressDialog.show(this, null, PickPictureTotalActivity.this.getString(R.string.loading));
+		mProgressDialog = ProgressDialog.show(this, null, PickPictureTotalActivity.this.getString(R.string.jmui_loading));
 		
 		new Thread(new Runnable() {
 			

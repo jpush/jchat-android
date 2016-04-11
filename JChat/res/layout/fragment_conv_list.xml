@@ -9,7 +9,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/title_bar_height"
-        android:background="@color/jpush_blue">
+        android:background="@color/jmui_jpush_blue">
 
         <TextView
             android:id="@+id/main_title_bar_title"

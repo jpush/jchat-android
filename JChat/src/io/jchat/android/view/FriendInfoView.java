@@ -14,7 +14,8 @@ import android.widget.TextView;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.CircleImageView;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 
 public class FriendInfoView extends LinearLayout {
 

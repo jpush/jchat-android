@@ -33,8 +33,8 @@ public class EditNoteNameActivity extends Activity implements View.OnClickListen
 
     private void initModule() {
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
-        mTitle = (TextView) findViewById(R.id.title_tv);
-        mCommitBtn = (Button) findViewById(R.id.commit_btn);
+        mTitle = (TextView) findViewById(R.id.jmui_title_tv);
+        mCommitBtn = (Button) findViewById(R.id.jmui_commit_btn);
         mNoteNameEt = (EditText) findViewById(R.id.edit_note_name_et);
         mFriendInfoEt = (EditText) findViewById(R.id.edit_friend_info_et);
         mResetBtn = (ImageButton) findViewById(R.id.delete_iv);
@@ -88,7 +88,7 @@ public class EditNoteNameActivity extends Activity implements View.OnClickListen
             case R.id.return_btn:
                 finish();
                 break;
-            case R.id.commit_btn:
+            case R.id.jmui_commit_btn:
 
                 break;
             case R.id.delete_iv:

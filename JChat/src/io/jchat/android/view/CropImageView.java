@@ -289,15 +289,14 @@ public class CropImageView extends ImageView {
     protected void checkBounds() {
         int newLeft = mDrawableFloat.left;
         int newTop = mDrawableFloat.top;
-
         boolean isChange = false;
         if (mDrawableFloat.left < getLeft()) {
             newLeft = getLeft();
             isChange = true;
         }
 
-        if (mDrawableFloat.top < getTop()) {
-            newTop = getTop();
+        if (mDrawableFloat.top < 0) {
+            newTop = 0;
             isChange = true;
         }
 
@@ -341,6 +340,7 @@ public class CropImageView extends ImageView {
         if (mDrawableFloat.bottom > tmpBitmap.getHeight()) {
             mDrawableFloat.bottom = tmpBitmap.getHeight();
         }
+
         Bitmap ret = Bitmap.createBitmap(tmpBitmap, mDrawableFloat.left,
                 mDrawableFloat.top, mDrawableFloat.width(),
                 mDrawableFloat.height(), matrix, true);

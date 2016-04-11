@@ -23,7 +23,7 @@ public class CreateGroupView extends LinearLayout {
 	
 	public void initModule() {
 		mReturnBtn = (ImageButton) findViewById(R.id.creat_group_return_btn);
-		mCommitBtn = (Button) findViewById(R.id.commit_btn);
+		mCommitBtn = (Button) findViewById(R.id.jmui_commit_btn);
 		mGroupName = (EditText) findViewById(R.id.input_group_id);
 	}
 	

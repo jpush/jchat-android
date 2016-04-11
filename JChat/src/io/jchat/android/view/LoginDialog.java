@@ -14,7 +14,8 @@ import java.io.File;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.BitmapLoader;
+import io.jchat.android.chatting.CircleImageView;
+import io.jchat.android.chatting.utils.BitmapLoader;
 
 /**
  * Created by Ken on 2015/1/26.

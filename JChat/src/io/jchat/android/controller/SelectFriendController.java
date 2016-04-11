@@ -70,7 +70,7 @@ public class SelectFriendController implements View.OnClickListener,
     @Override
     public void onClick(View v) {
         switch(v.getId()){
-            case R.id.cancel_btn:
+            case R.id.jmui_cancel_btn:
                 mContext.finish();
                 break;
         }

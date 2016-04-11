@@ -22,7 +22,7 @@ import io.jchat.android.activity.MainActivity;
 import io.jchat.android.activity.MeFragment;
 import io.jchat.android.adapter.ViewPagerAdapter;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.view.MainView;
 
 public class MainController implements OnClickListener, OnPageChangeListener {
@@ -103,7 +103,7 @@ public class MainController implements OnClickListener, OnPageChangeListener {
 
     public void uploadUserAvatar(final String path) {
         mDialog = new ProgressDialog(mContext);
-        mDialog.setCancelable(false);
+        mDialog.setCanceledOnTouchOutside(false);
         mDialog.setMessage(mContext.getString(R.string.updating_avatar_hint));
         mDialog.show();
         JMessageClient.updateUserAvatar(new File(path), new BasicCallback() {

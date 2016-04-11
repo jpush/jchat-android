@@ -55,12 +55,12 @@ public class Event {
     public static class DraftEvent {
         private String mTargetId;
         private long mGroupId;
-        private String mAppKey;
+        private String mTargetAppKey;
         private String mDraft;
 
         public DraftEvent(String targetId, String appKey, String draft) {
             this.mTargetId = targetId;
-            this.mAppKey = appKey;
+            this.mTargetAppKey = appKey;
             this.mDraft = draft;
         }
 
@@ -73,12 +73,13 @@ public class Event {
             return mTargetId;
         }
 
-        public String getAppKey() {
-            return mAppKey;
-        }
 
         public long getGroupId() {
             return mGroupId;
+        }
+
+        public String getTargetAppKey() {
+            return mTargetAppKey;
         }
 
         public String getDraft() {

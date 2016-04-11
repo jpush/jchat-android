@@ -11,6 +11,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,7 +34,7 @@ import io.jchat.android.R;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
 import io.jchat.android.entity.Event;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.view.ConversationListView;
 import io.jchat.android.view.MenuItemView;
 
@@ -50,6 +53,9 @@ public class ConversationListFragment extends BaseFragment {
     private MenuItemController mMenuController;
     private NetworkReceiver mReceiver;
     private Activity mContext;
+    private BackgroundHandler mBackgroundHandler;
+    private HandlerThread mThread;
+    private static final int REFRESH_CONVERSATION_LIST = 0x3000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,6 +68,10 @@ public class ConversationListFragment extends BaseFragment {
                 (ViewGroup) getActivity().findViewById(R.id.main_view), false);
         mConvListView = new ConversationListView(mRootView, this.getActivity());
         mConvListView.initModule();
+
+        mThread = new HandlerThread("Work on MainActivity");
+        mThread.start();
+        mBackgroundHandler = new BackgroundHandler(mThread.getLooper());
         mMenuView = getActivity().getLayoutInflater().inflate(R.layout.drop_down_menu, null);
         mConvListController = new ConversationListController(mConvListView, this, mDensityDpi, mWidth);
         mConvListView.setListener(mConvListController);
@@ -116,11 +126,6 @@ public class ConversationListFragment extends BaseFragment {
 
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
     //显示下拉菜单
     public void showMenuPopWindow() {
         mMenuPopWindow.setTouchable(true);
@@ -146,20 +151,20 @@ public class ConversationListFragment extends BaseFragment {
             long groupID = ((GroupInfo) msg.getTargetInfo()).getGroupID();
             Conversation conv = JMessageClient.getGroupConversation(groupID);
             if (conv != null && mConvListController != null) {
-                mConvListController.refreshConvList(conv);
+                mBackgroundHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+                mBackgroundHandler.sendMessageDelayed(mBackgroundHandler
+                        .obtainMessage(REFRESH_CONVERSATION_LIST, conv), 200);
             }
         } else {
             final UserInfo userInfo = (UserInfo) msg.getTargetInfo();
             final String targetID = userInfo.getUserName();
-            String appKey = userInfo.getAppKey();
-            //使用带appKey的接口适配跨应用
-            final Conversation conv = JMessageClient.getSingleConversation(targetID, appKey);
+            final Conversation conv = JMessageClient.getSingleConversation(targetID, userInfo.getAppKey());
             if (conv != null && mConvListController != null) {
                 mContext.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //如果设置了头像
-                        if (!TextUtils.isEmpty(userInfo.getAvatar())){
+                        if (!TextUtils.isEmpty(userInfo.getAvatar())) {
                             //如果本地不存在头像
                             userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
                                 @Override
@@ -174,7 +179,26 @@ public class ConversationListFragment extends BaseFragment {
                         }
                     }
                 });
-                mConvListController.refreshConvList(conv);
+                mBackgroundHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+                mBackgroundHandler.sendMessageDelayed(mBackgroundHandler
+                        .obtainMessage(REFRESH_CONVERSATION_LIST, conv),200);
+            }
+        }
+    }
+
+    private class BackgroundHandler extends Handler {
+        public BackgroundHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case REFRESH_CONVERSATION_LIST:
+                    Conversation conv = (Conversation) msg.obj;
+                    mConvListController.getAdapter().setToTop(conv);
+                    break;
             }
         }
     }
@@ -216,10 +240,10 @@ public class ConversationListFragment extends BaseFragment {
     public void onEventMainThread(Event.DraftEvent event) {
         String draft = event.getDraft();
         String targetId = event.getTargetId();
-        String appKey = event.getAppKey();
+        String targetAppKey = event.getTargetAppKey();
         Conversation conv;
         if (targetId != null) {
-            conv = JMessageClient.getSingleConversation(targetId, appKey);
+            conv = JMessageClient.getSingleConversation(targetId, targetAppKey);
         } else {
             long groupId = event.getGroupId();
             conv = JMessageClient.getGroupConversation(groupId);
@@ -262,6 +286,8 @@ public class ConversationListFragment extends BaseFragment {
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
         mContext.unregisterReceiver(mReceiver);
+        mBackgroundHandler.removeCallbacksAndMessages(null);
+        mThread.getLooper().quit();
         super.onDestroy();
     }
 

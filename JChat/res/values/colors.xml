@@ -24,7 +24,7 @@
     <color name="actionbar_pres_color">#3f80dc</color>
     <color name="menu_item_back_pres_color">#3773cb</color>
     <color name="actionbar_def_color">#3C3C3C</color>
-    <color name="jpush_blue">#3f80dc</color>
+    <color name="jmui_jpush_blue">#3f80dc</color>
     <color name="main_view_split_line_color">#C8C8C8</color>
     <color name="conv_list_split_line_color">#d6d6d6</color>
     <color name="contacts_pinner_bg">#F2F8F8F8</color>
@@ -37,14 +37,14 @@
     <color name="chat_text_color">#373334</color>
     <color name="chat_detail_hit_color">#3C3C3C</color>
     <color name="chat_detail_item_hit_color">#555555</color>
-    <color name="chat_detail_split_line_color">#d3d3d3</color>
+    <color name="jmui_chat_detail_split_line_color">#d3d3d3</color>
     <color name="dialog_select_color">#d4d4d4</color>
     <color name="finish_btn_unclickable_color">#b9ebb8</color>
     <color name="finish_btn_clickable_color">#6fd66b</color>
     <color name="default_cursor_color">#8db4eb</color>
     <color name="menu_item_click_color">#346fc3</color>
     <color name="me_no_picture_color">#e1e1e1</color>
-    <color name="reset_password_title_color">#4e4e4e</color>
+    <color name="jmui_reset_password_title_color">#4e4e4e</color>
     <color name="translucent_background">#60000000</color>
     <color name="header_normal">#ffe74c3c</color>
     <color name="header_pressed">#ffc0392b</color>

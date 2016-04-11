@@ -1,17 +1,23 @@
 package io.jchat.android.activity;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -19,7 +25,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
@@ -31,9 +40,9 @@ import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.adapter.AllMembersAdapter;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.HanziToPinyin;
+import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.tools.HanyuPinyin;
 
 /**
  * Created by Ken on 2015/11/25.
@@ -47,11 +56,23 @@ public class MembersInChatActivity extends BaseActivity {
     private TextView mTitle;
     private Button mRightBtn;
     private EditText mSearchEt;
-    private List<UserInfo> mMemberInfoList = new ArrayList<UserInfo>();
+    private List<UserInfo> mMemberInfoList = new ArrayList<>();
+    private List<ItemModel> mShowUserList = new ArrayList<>();
+    private List<String> mPinyinList = new ArrayList<>();
+    private UIHandler mUIHandler = new UIHandler(this);
+    private BackgroundHandler mBackgroundHandler;
+    private HandlerThread mBackgroundThread;
+    private static final int PROCESS_USER_INFO_TO_BEANS = 0x1000;
+    private static final int SEARCH_MEMBER = 0x1001;
+    private static final int SEARCH_MEMBER_SUCCESS = 0x1002;
+    private static final int INIT_ADAPTER = 0x1003;
+    private static final int ADD_ALL_MEMBER = 0x1004;
     private AllMembersAdapter mAdapter;
     private Dialog mLoadingDialog;
     private long mGroupId;
     private boolean mIsDeleteMode;
+    private boolean mIsCreator;
+    private String mSearchText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +85,9 @@ public class MembersInChatActivity extends BaseActivity {
         mRightBtn = (Button) findViewById(R.id.right_btn);
         mSearchEt = (EditText) findViewById(R.id.search_et);
 
+        mBackgroundThread = new HandlerThread("Work on MembersInChatActivity");
+        mBackgroundThread.start();
+        mBackgroundHandler = new BackgroundHandler(mBackgroundThread.getLooper());
         mGroupId = getIntent().getLongExtra(JChatDemoApplication.GROUP_ID, 0);
         mIsDeleteMode = getIntent().getBooleanExtra(JChatDemoApplication.DELETE_MODE, false);
         final Conversation conv = JMessageClient.getGroupConversation(mGroupId);
@@ -71,15 +95,14 @@ public class MembersInChatActivity extends BaseActivity {
         mMemberInfoList = groupInfo.getGroupMembers();
         String groupOwnerId = groupInfo.getGroupOwner();
         final UserInfo myInfo = JMessageClient.getMyInfo();
-        final boolean isCreator = groupOwnerId != null && groupOwnerId.equals(myInfo.getUserName());
-        mAdapter = new AllMembersAdapter(this, mMemberInfoList, mIsDeleteMode, isCreator, mGroupId, mWidth);
-        mListView.setAdapter(mAdapter);
-        mListView.requestFocus();
+        mIsCreator = groupOwnerId != null && groupOwnerId.equals(myInfo.getUserName());
+
+        mBackgroundHandler.sendEmptyMessage(PROCESS_USER_INFO_TO_BEANS);
 
         String title = this.getString(R.string.combine_title);
         mTitle.setText(String.format(title, mMemberInfoList.size()));
         if (mIsDeleteMode) {
-            mRightBtn.setText(this.getString(R.string.delete));
+            mRightBtn.setText(this.getString(R.string.jmui_delete));
         } else {
             mRightBtn.setText(this.getString(R.string.add));
         }
@@ -87,12 +110,6 @@ public class MembersInChatActivity extends BaseActivity {
         mReturnBtn.setOnClickListener(listener);
         mRightBtn.setOnClickListener(listener);
         mSearchEt.addTextChangedListener(watcher);
-
-        //单击ListView item，跳转到个人详情界面
-        mListView.setOnItemClickListener(mAdapter);
-
-        //如果是群主，长按ListView item可以删除群成员
-        mListView.setOnItemLongClickListener(mAdapter);
     }
 
     View.OnClickListener listener = new View.OnClickListener() {
@@ -127,7 +144,9 @@ public class MembersInChatActivity extends BaseActivity {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            filterData(s.toString());
+            mSearchText = s.toString().trim();
+            mBackgroundHandler.removeMessages(SEARCH_MEMBER);
+            mBackgroundHandler.sendMessageDelayed(mBackgroundHandler.obtainMessage(SEARCH_MEMBER), 200);
         }
 
         @Override
@@ -142,10 +161,10 @@ public class MembersInChatActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
-                    case R.id.cancel_btn:
+                    case R.id.jmui_cancel_btn:
                         mDialog.dismiss();
                         break;
-                    case R.id.commit_btn:
+                    case R.id.jmui_commit_btn:
                         mDialog.dismiss();
                         mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
                                 mContext.getString(R.string.deleting_hint));
@@ -175,7 +194,7 @@ public class MembersInChatActivity extends BaseActivity {
 
     //点击添加按钮触发事件
     private void addMemberToGroup() {
-        final Dialog dialog = new Dialog(this, R.style.default_dialog_style);
+        final Dialog dialog = new Dialog(this, R.style.jmui_default_dialog_style);
         final View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.dialog_add_friend_to_conv_list, null);
         dialog.setContentView(view);
@@ -184,20 +203,19 @@ public class MembersInChatActivity extends BaseActivity {
         TextView title = (TextView) view.findViewById(R.id.dialog_name);
         title.setText(mContext.getString(R.string.add_friend_to_group_title));
         final EditText userNameEt = (EditText) view.findViewById(R.id.user_name_et);
-        final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
-        final Button commit = (Button) view.findViewById(R.id.commit_btn);
+        final Button cancel = (Button) view.findViewById(R.id.jmui_cancel_btn);
+        final Button commit = (Button) view.findViewById(R.id.jmui_commit_btn);
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (view.getId()) {
-                    case R.id.cancel_btn:
+                    case R.id.jmui_cancel_btn:
                         dialog.cancel();
                         break;
-                    case R.id.commit_btn:
+                    case R.id.jmui_commit_btn:
                         final String targetId = userNameEt.getText().toString().trim();
                         if (TextUtils.isEmpty(targetId)) {
-                            Toast.makeText(mContext, mContext.getString(R.string.username_not_null_toast),
-                                    Toast.LENGTH_SHORT).show();
+                            HandleResponseCode.onHandle(mContext, 801001, true);
                             break;
                             //检查群组中是否包含该用户
                         } else if (checkIfNotContainUser(targetId)) {
@@ -206,9 +224,7 @@ public class MembersInChatActivity extends BaseActivity {
                             mLoadingDialog.show();
                             getUserInfo(targetId, dialog);
                         } else {
-                            dialog.cancel();
-                            Toast.makeText(mContext, mContext.getString(R.string.user_already_exist_toast),
-                                    Toast.LENGTH_SHORT).show();
+                            HandleResponseCode.onHandle(mContext, 1002, true);
                         }
                         break;
                 }
@@ -269,7 +285,7 @@ public class MembersInChatActivity extends BaseActivity {
                 if (status == 0) {
                     // 添加群成员
                     refreshMemberList();
-                    mListView.setSelection(mListView.getBottom());
+                    Toast.makeText(mContext, mContext.getString(R.string.added), Toast.LENGTH_SHORT).show();
                 } else {
                     HandleResponseCode.onHandle(mContext, status, true);
                 }
@@ -279,64 +295,175 @@ public class MembersInChatActivity extends BaseActivity {
 
     //添加或者删除成员后重新获得MemberInfoList
     public void refreshMemberList() {
+        mSearchText = "";
+        mSearchEt.setText(mSearchText);
         Conversation conv = JMessageClient.getGroupConversation(mGroupId);
         GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
         mMemberInfoList = groupInfo.getGroupMembers();
-        mAdapter.refreshMemberList(mMemberInfoList);
+//        addAll(true);
         mTitle.setText(String.format(mContext.getString(R.string.combine_title), mMemberInfoList.size()));
+        mBackgroundHandler.sendEmptyMessage(ADD_ALL_MEMBER);
     }
 
     /**
      * 根据输入框输入的字符过滤群成员
-     * @param data
      */
-    private void filterData(String data) {
-        List<UserInfo> filterList = new ArrayList<UserInfo>();
-        if (TextUtils.isEmpty(data)) {
-            filterList = mMemberInfoList;
+    private void filterData() {
+        if (TextUtils.isEmpty(mSearchText)) {
+            addAll();
         } else {
-            filterList.clear();
-            for (UserInfo userInfo : mMemberInfoList) {
-                String displayName;
-                if (TextUtils.isEmpty(userInfo.getNickname())) {
-                    displayName = userInfo.getUserName();
-                } else {
-                    displayName = userInfo.getNickname();
+            String nickname, pinyin;
+            int sort;
+            SpannableString result;
+            ItemModel model;
+            UserInfo userInfo;
+            for (int i = 0; i < mPinyinList.size(); i++) {
+                sort = 0;
+                userInfo = mMemberInfoList.get(i);
+                nickname = userInfo.getNickname();
+                if (TextUtils.isEmpty(nickname)) {
+                    nickname = userInfo.getUserName();
                 }
-                ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance().get(displayName);
-                StringBuilder sb = new StringBuilder();
-                if (tokens != null && tokens.size() > 0) {
-                    for (HanziToPinyin.Token token : tokens) {
-                        if (token.type == HanziToPinyin.Token.PINYIN) {
-                            sb.append(token.target);
-                        } else {
-                            sb.append(token.source);
-                        }
-                    }
-                }
-
-                if (!TextUtils.isEmpty(sb)) {
-                    String sortString = sb.toString().toUpperCase();
-                    if (sortString.equals(data.toUpperCase()) || sortString.contains(data.toUpperCase())) {
-                        filterList.add(userInfo);
+                result = new SpannableString(nickname);
+                //先进行拼音匹配
+                pinyin = mPinyinList.get(i).toLowerCase();
+                int offset = pinyin.indexOf(mSearchText.toLowerCase());
+                if (offset != -1) {
+                    model = new ItemModel();
+                    sort += mSearchText.length();
+                    result.setSpan(new ForegroundColorSpan(Color.RED), offset,
+                            offset + mSearchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    //进行直接匹配
+                    int index = nickname.indexOf(mSearchText);
+                    if (index != -1) {
+                        sort += mSearchText.length();
+                        result.setSpan(new ForegroundColorSpan(Color.RED), index,
+                                index + mSearchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        model.data = userInfo;
+                        model.highlight = result;
+                        model.sortIndex = sort;
+                        mShowUserList.add(model);
                         continue;
                     }
+                    model.data = userInfo;
+                    model.highlight = result;
+                    model.sortIndex = sort;
+                    mShowUserList.add(model);
+                    //进行直接匹配
+                } else {
+                    int index = nickname.indexOf(mSearchText);
+                    if (index != -1) {
+                        sort += mSearchText.length();
+                        result.setSpan(new ForegroundColorSpan(Color.RED), index,
+                                index + mSearchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        model = new ItemModel();
+                        model.data = userInfo;
+                        model.highlight = result;
+                        model.sortIndex = sort;
+                        mShowUserList.add(model);
+                    }
                 }
+            }
+            Collections.sort(mShowUserList, searchComparator);
 
-                if (displayName.equals(data)) {
-                    filterList.add(0, userInfo);
-                    mAdapter.updateListView(filterList);
-                    return;
-                }
+        }
 
-                if (displayName.contains(data) || displayName.startsWith(data)) {
-                    filterList.add(userInfo);
+        mUIHandler.sendEmptyMessage(SEARCH_MEMBER_SUCCESS);
+    }
+
+    static class UIHandler extends Handler {
+
+        private final WeakReference<MembersInChatActivity> mActivity;
+
+        public UIHandler(MembersInChatActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            MembersInChatActivity activity = mActivity.get();
+            if (activity != null) {
+                switch (msg.what) {
+                    case INIT_ADAPTER:
+                        activity.mAdapter = new AllMembersAdapter(activity, activity.mShowUserList,
+                                activity.mIsDeleteMode, activity.mIsCreator, activity.mGroupId, activity.mWidth);
+                        activity.mListView.setAdapter(activity.mAdapter);
+                        activity.mListView.requestFocus();
+                        //单击ListView item，跳转到个人详情界面
+                        activity.mListView.setOnItemClickListener(activity.mAdapter);
+
+                        //如果是群主，长按ListView item可以删除群成员
+                        activity.mListView.setOnItemLongClickListener(activity.mAdapter);
+                        break;
+                    case SEARCH_MEMBER_SUCCESS:
+                        if (activity.mAdapter != null) {
+                            activity.mAdapter.updateListView(activity.mShowUserList);
+                        }
+                        break;
                 }
             }
         }
-
-        mAdapter.updateListView(filterList);
     }
+
+    private class BackgroundHandler extends Handler {
+        public BackgroundHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case SEARCH_MEMBER:
+                    if (mShowUserList != null) {
+                        mShowUserList.clear();
+                    }
+                    filterData();
+                    break;
+                case PROCESS_USER_INFO_TO_BEANS:
+                    addAll();
+                    mUIHandler.sendEmptyMessage(INIT_ADAPTER);
+                    break;
+                case ADD_ALL_MEMBER:
+                    addAll();
+                    break;
+            }
+        }
+    }
+
+    private void addAll() {
+        String nickname, pinyin;
+        ItemModel itemModel;
+        mPinyinList.clear();
+        mShowUserList.clear();
+        for (UserInfo userInfo: mMemberInfoList) {
+            itemModel = new ItemModel();
+            itemModel.data = userInfo;
+            nickname = userInfo.getNickname();
+            if (TextUtils.isEmpty(nickname)) {
+                nickname = userInfo.getUserName();
+            }
+            pinyin = HanyuPinyin.getInstance().getStringPinYin(nickname);
+            mPinyinList.add(pinyin);
+            itemModel.highlight = new SpannableString(nickname);
+            mShowUserList.add(itemModel);
+        }
+        mUIHandler.sendEmptyMessage(SEARCH_MEMBER_SUCCESS);
+    }
+
+    public class ItemModel {
+        public UserInfo data;
+        public SpannableString highlight;
+        public int sortIndex;
+    }
+
+    Comparator<ItemModel> searchComparator = new Comparator<ItemModel>() {
+        @Override
+        public int compare(ItemModel m1, ItemModel m2) {
+            return m2.sortIndex - m1.sortIndex;
+        }
+    };
 
     @Override
     public void onBackPressed() {
@@ -344,5 +471,13 @@ public class MembersInChatActivity extends BaseActivity {
         setResult(JChatDemoApplication.RESULT_CODE_ALL_MEMBER, intent);
         finish();
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mUIHandler.removeCallbacksAndMessages(null);
+        mBackgroundHandler.removeCallbacksAndMessages(null);
+        mBackgroundThread.getLooper().quit();
     }
 }

@@ -10,11 +10,11 @@
         android:layout_width="50dp"
         android:layout_height="wrap_content" >
 
-        <io.jchat.android.view.CircleImageView
+        <io.jchat.android.chatting.CircleImageView
             android:id="@+id/grid_avatar"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/head_icon"
+            android:src="@drawable/jmui_head_icon"
             android:scaleType="centerCrop"
             android:visibility="visible" />
 

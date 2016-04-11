@@ -15,13 +15,11 @@ import java.io.File;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.event.LoginStateChangeEvent;
-import cn.jpush.im.android.api.event.UserDeletedEvent;
-import cn.jpush.im.android.api.event.UserLogoutEvent;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.FileHelper;
-import io.jchat.android.tools.SharePreferenceManager;
+import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.FileHelper;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,23 +67,15 @@ public class BaseFragment extends Fragment {
             dialog.dismiss();
             Intent intent = new Intent();
             if (null != myInfo) {
-                String path;
-                File avatar = myInfo.getAvatarFile();
-                if (avatar != null && avatar.exists()) {
-                    path = avatar.getAbsolutePath();
-                } else {
-                    path = FileHelper.getUserAvatarPath(myInfo.getUserName());
-                }
-                Log.i(TAG, "userName " + myInfo.getUserName());
-                SharePreferenceManager.setCachedUsername(myInfo.getUserName());
-                SharePreferenceManager.setCachedAvatarPath(path);
-                JMessageClient.logout();
-                intent.setClass(BaseFragment.this.getActivity(), ReloginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.setClass(getActivity(), ReloginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                BaseFragment.this.getActivity().finish();
+                getActivity().finish();
             } else {
-                Log.d(TAG, "user info is null!");
+                Log.d(TAG, "user info is null! Jump to Login activity");
+                intent.setClass(getActivity(), LoginActivity.class);
+                startActivity(intent);
+                getActivity().finish();
             }
         }
     };
@@ -97,6 +87,19 @@ public class BaseFragment extends Fragment {
     public void onEventMainThread(LoginStateChangeEvent event) {
         LoginStateChangeEvent.Reason reason = event.getReason();
         myInfo = event.getMyInfo();
+        if (null != myInfo) {
+            String path;
+            File avatar = myInfo.getAvatarFile();
+            if (avatar != null && avatar.exists()) {
+                path = avatar.getAbsolutePath();
+            } else {
+                path = FileHelper.getUserAvatarPath(myInfo.getUserName());
+            }
+            Log.i(TAG, "userName " + myInfo.getUserName());
+            SharePreferenceManager.setCachedUsername(myInfo.getUserName());
+            SharePreferenceManager.setCachedAvatarPath(path);
+            JMessageClient.logout();
+        }
         switch (reason) {
             case user_password_change:
                 String title = mContext.getString(R.string.change_password);

@@ -14,10 +14,11 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.controller.FriendInfoController;
 import io.jchat.android.entity.Event;
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.FriendInfoView;
 
@@ -62,7 +63,7 @@ public class FriendInfoActivity extends BaseActivity {
         mFriendInfoView.setOnChangeListener(mFriendInfoController);
         //更新一次UserInfo
         final Dialog dialog = DialogCreator.createLoadingDialog(FriendInfoActivity.this,
-                FriendInfoActivity.this.getString(R.string.loading));
+                FriendInfoActivity.this.getString(R.string.jmui_loading));
         dialog.show();
         JMessageClient.getUserInfo(mTargetId, mTargetAppKey, new GetUserInfoCallback() {
             @Override
@@ -134,7 +135,7 @@ public class FriendInfoActivity extends BaseActivity {
                     startActivity(intent);
                 }
             } else {
-                final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.loading));
+                final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.jmui_loading));
                 dialog.show();
                 mUserInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
                     @Override

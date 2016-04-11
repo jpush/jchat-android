@@ -9,15 +9,15 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/title_bar_height"
-        android:background="@color/jpush_blue">
+        android:background="@color/jmui_jpush_blue">
 
         <ImageButton
             android:id="@+id/return_btn"
             android:layout_width="@dimen/title_bar_height"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/back_btn"
-            android:background="@drawable/back_btn_bg"
+            android:src="@drawable/jmui_back_btn"
+            android:background="@drawable/jmui_back_btn_bg"
             />
 
         <TextView
@@ -50,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/text_cursor_bg"
+            android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
             android:layout_centerVertical="true"
             android:layout_marginLeft="11dp"
             android:layout_toRightOf="@id/iv_username"
@@ -88,7 +88,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/text_cursor_bg"
+            android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
             android:layout_centerVertical="true"
             android:layout_marginLeft="11dp"
             android:layout_toRightOf="@id/iv_password"
@@ -114,7 +114,7 @@
         android:layout_marginLeft="28dp"
         android:layout_marginRight="28dp"
         android:layout_marginTop="25dp"
-        android:background="@drawable/register_btn_bg"
+        android:background="@drawable/jmui_register_btn_bg"
         android:gravity="center"
         android:text="注册"
         android:textColor="@android:color/white"

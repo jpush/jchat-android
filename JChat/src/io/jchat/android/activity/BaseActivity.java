@@ -18,9 +18,9 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.event.LoginStateChangeEvent;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.FileHelper;
-import io.jchat.android.tools.SharePreferenceManager;
+import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.FileHelper;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
 
 /**
  * Created by Ken on 2015/3/13.
@@ -28,7 +28,6 @@ import io.jchat.android.tools.SharePreferenceManager;
 public class BaseActivity extends Activity {
     private static final String TAG = "BaseActivity";
 
-    protected BaseHandler mHandler;
     protected float mDensity;
     protected int mDensityDpi;
     protected int mAvatarSize;
@@ -41,7 +40,6 @@ public class BaseActivity extends Activity {
         super.onCreate(savedInstanceState);
         mContext = this;
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        mHandler = new BaseHandler();
         //订阅接收消息,子类只要重写onEvent就能收到
         JMessageClient.registerEventReceiver(this);
         DisplayMetrics dm = new DisplayMetrics();
@@ -63,23 +61,15 @@ public class BaseActivity extends Activity {
             dialog.dismiss();
             Intent intent = new Intent();
             if (null != myInfo) {
-                String path;
-                File avatar = myInfo.getAvatarFile();
-                if (avatar != null && avatar.exists()) {
-                    path = avatar.getAbsolutePath();
-                } else {
-                    path = FileHelper.getUserAvatarPath(myInfo.getUserName());
-                }
-                Log.i(TAG, "userName " + myInfo.getUserName());
-                SharePreferenceManager.setCachedUsername(myInfo.getUserName());
-                SharePreferenceManager.setCachedAvatarPath(path);
-                JMessageClient.logout();
                 intent.setClass(BaseActivity.this, ReloginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 BaseActivity.this.finish();
             } else {
-                Log.d(TAG, "user info is null!");
+                Log.d(TAG, "user info is null! Jump to Login activity");
+                intent.setClass(BaseActivity.this, LoginActivity.class);
+                startActivity(intent);
+                BaseActivity.this.finish();
             }
         }
     };
@@ -91,6 +81,19 @@ public class BaseActivity extends Activity {
     public void onEventMainThread(LoginStateChangeEvent event) {
         LoginStateChangeEvent.Reason reason = event.getReason();
         myInfo = event.getMyInfo();
+        if (null != myInfo) {
+            String path;
+            File avatar = myInfo.getAvatarFile();
+            if (avatar != null && avatar.exists()) {
+                path = avatar.getAbsolutePath();
+            } else {
+                path = FileHelper.getUserAvatarPath(myInfo.getUserName());
+            }
+            Log.i(TAG, "userName " + myInfo.getUserName());
+            SharePreferenceManager.setCachedUsername(myInfo.getUserName());
+            SharePreferenceManager.setCachedAvatarPath(path);
+            JMessageClient.logout();
+        }
         switch (reason) {
             case user_password_change:
                 String title = mContext.getString(R.string.change_password);
@@ -130,17 +133,6 @@ public class BaseActivity extends Activity {
             dialog.dismiss();
         }
         super.onDestroy();
-    }
-
-    public class BaseHandler extends Handler {
-
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            handleMsg(msg);
-        }
-    }
-
-    public void handleMsg(Message message) {
     }
 
 }

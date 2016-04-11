@@ -18,7 +18,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 
 
 /**
@@ -38,8 +38,8 @@ public class SelectAreaActivity extends BaseActivity {
         setContentView(R.layout.activity_select_area);
         mContext = this;
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
-        mTitle = (TextView) findViewById(R.id.title_tv);
-        mCommitBtn = (Button) findViewById(R.id.commit_btn);
+        mTitle = (TextView) findViewById(R.id.jmui_title_tv);
+        mCommitBtn = (Button) findViewById(R.id.jmui_commit_btn);
         mEditAreaEt = (EditText) findViewById(R.id.edit_area_et);
         mEditAreaEt.setHint(getIntent().getStringExtra("OldRegion"));
         mTitle.setText(this.getString(R.string.input_location_title));

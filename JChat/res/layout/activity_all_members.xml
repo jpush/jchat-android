@@ -9,15 +9,15 @@
         android:id="@+id/title_bar_rl"
         android:layout_width="match_parent"
         android:layout_height="@dimen/title_bar_height"
-        android:background="@color/jpush_blue" >
+        android:background="@color/jmui_jpush_blue" >
 
         <ImageButton
             android:id="@+id/return_btn"
             android:layout_width="@dimen/title_bar_height"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/back_btn"
-            android:background="@drawable/back_btn_bg" />
+            android:src="@drawable/jmui_back_btn"
+            android:background="@drawable/jmui_back_btn_bg" />
 
         <TextView
             android:id="@+id/members_in_chat"
@@ -43,10 +43,12 @@
             android:id="@+id/right_btn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:padding="5dp"
+            android:padding="10dp"
             android:layout_alignParentRight="true"
             android:background="@drawable/send_picture_btn_bg"
-            android:text="@string/add"/>
+            android:text="@string/add"
+            android:textSize="@dimen/text_medium_size"
+            android:textColor="@color/white"/>
     </RelativeLayout>
 
     <LinearLayout
@@ -64,7 +66,7 @@
             android:id="@+id/search_et"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:textCursorDrawable="@drawable/text_cursor_bg"
+            android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
             android:textColorHint="@color/gray"
             android:layout_weight="1"
             android:paddingLeft="5dp"
@@ -77,7 +79,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="@color/chat_detail_split_line_color" />
+        android:background="@color/jmui_chat_detail_split_line_color" />
 
     <ListView
         android:id="@+id/members_list_view"

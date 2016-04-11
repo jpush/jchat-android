@@ -11,6 +11,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import io.jchat.android.R;
+import io.jchat.android.chatting.CircleImageView;
 
 public class ReloginView extends LinearLayout {
 

@@ -20,7 +20,7 @@
         android:textColorHint="#2c2c2c"
         android:textColor="#2c2c2c"
         android:textSize="20sp"
-        android:textCursorDrawable="@drawable/text_cursor_bg"
+        android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
         android:background="@drawable/note_name_edit_bg"/>
 
     <TextView
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/text_cursor_bg"
+            android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
             android:maxEms="200"
             android:textColorHint="@color/gray"
             android:paddingLeft="20dp"

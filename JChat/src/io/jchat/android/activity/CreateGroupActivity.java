@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.controller.CreateGroupController;
 import io.jchat.android.view.CreateGroupView;
 
@@ -30,11 +31,11 @@ public class CreateGroupActivity extends BaseActivity{
 
 	public void startChatActivity(long groupId, String groupName) {
 		Intent intent = new Intent();
-		intent.putExtra(JChatDemoApplication.IS_GROUP, true);
 		//设置跳转标志
 		intent.putExtra("fromGroup", true);
 		intent.putExtra(JChatDemoApplication.GROUP_ID, groupId);
 		intent.putExtra(JChatDemoApplication.GROUP_NAME, groupName);
+		intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, 1);
 		intent.setClass(this, ChatActivity.class);
 		startActivity(intent);
 		finish();

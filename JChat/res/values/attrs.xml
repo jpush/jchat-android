@@ -33,23 +33,23 @@
         <enum name="round" value="2" />
     </attr>
     <declare-styleable name="ShaderImageView">
-        <attr name="siSquare" format="boolean" />
-        <attr name="siBorderColor" format="color" />
-        <attr name="siBorderWidth" format="dimension" />
+        <attr name="siArrowPosition" />
         <attr name="siBorderAlpha" format="float" />
+        <attr name="siBorderColor" format="color" />
+        <!-- ShaderImageView-->
+        <attr name="siBorderType" />
+        <attr name="siBorderWidth" format="dimension" />
         <attr name="siForeground" format="integer|reference" />
         <!--  Rounded Image View-->
         <attr name="siRadius" format="dimension" />
-        <!-- BubbleImageView-->
-        <attr name="siArrowPosition" />
-        <attr name="siTriangleHeight" format="dimension" />
         <!-- PorterImageView-->
         <attr name="siShape" format="integer|reference" />
-        <!-- ShaderImageView-->
-        <attr name="siBorderType" />
+        <attr name="siSquare" format="boolean" />
         <attr name="siStrokeCap" />
         <attr name="siStrokeJoin" />
         <attr name="siStrokeMiter" format="dimension" />
+        <!-- BubbleImageView-->
+        <attr name="siTriangleHeight" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="StickyListHeadersListView">

@@ -1,8 +1,6 @@
 package io.jchat.android.adapter;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
@@ -25,8 +23,6 @@ import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
-import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
@@ -34,9 +30,10 @@ import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.activity.MembersInChatActivity;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.CircleImageView;
+import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.chatting.CircleImageView;
+import io.jchat.android.activity.MembersInChatActivity.ItemModel;
 
 /**
  * Created by Ken on 2015/11/25.
@@ -45,7 +42,7 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         AdapterView.OnItemLongClickListener {
 
     private MembersInChatActivity mContext;
-    private List<UserInfo> mMemberList = new ArrayList<UserInfo>();
+    private List<ItemModel> mMemberList = new ArrayList<>();
     private boolean mIsDeleteMode;
     private List<String> mSelectedList = new ArrayList<String>();
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
@@ -55,7 +52,7 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
     private long mGroupId;
     private int mWidth;
 
-    public AllMembersAdapter(MembersInChatActivity context, List<UserInfo> memberList, boolean isDeleteMode,
+    public AllMembersAdapter(MembersInChatActivity context, List<ItemModel> memberList, boolean isDeleteMode,
                              boolean isCreator, long groupId, int width) {
         this.mContext = context;
         this.mMemberList = memberList;
@@ -63,12 +60,6 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         this.mIsCreator = isCreator;
         this.mGroupId = groupId;
         this.mWidth = width;
-    }
-
-    public void refreshMemberList(List<UserInfo> memberList){
-        mMemberList = memberList;
-        mSelectMap.clear();
-        notifyDataSetChanged();
     }
 
     @Override
@@ -100,7 +91,8 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
             viewHolder = (ViewHolder)convertView.getTag();
         }
 
-        final UserInfo userInfo = mMemberList.get(position);
+        final ItemModel itemModel = mMemberList.get(position);
+        final UserInfo userInfo = itemModel.data;
         if (mIsDeleteMode) {
             if (position > 0) {
                 viewHolder.checkBox.setVisibility(View.VISIBLE);
@@ -133,21 +125,15 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
                     if (status == 0) {
                         viewHolder.icon.setImageBitmap(bitmap);
                     } else {
-                        viewHolder.icon.setImageResource(R.drawable.head_icon);
+                        viewHolder.icon.setImageResource(R.drawable.jmui_head_icon);
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
             });
         } else {
-            viewHolder.icon.setImageResource(R.drawable.head_icon);
+            viewHolder.icon.setImageResource(R.drawable.jmui_head_icon);
         }
-        String displayName = userInfo.getNickname();
-        if (TextUtils.isEmpty(displayName)) {
-            viewHolder.displayName.setText(userInfo.getUserName());
-        } else {
-            viewHolder.displayName.setText(displayName);
-        }
-
+        viewHolder.displayName.setText(itemModel.highlight);
         return convertView;
     }
 
@@ -169,7 +155,7 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
     }
 
     public void setOnCheck(int position) {
-        UserInfo userInfo = mMemberList.get(position);
+        UserInfo userInfo = mMemberList.get(position).data;
         if (mSelectedList.contains(userInfo.getUserName())) {
 //            View view = getView(position, null, null);
 //            CheckBox checkBox = (CheckBox) view.findViewById(R.id.check_box_cb);
@@ -183,14 +169,15 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         notifyDataSetChanged();
     }
 
-    public void updateListView(List<UserInfo> filterList) {
+    public void updateListView(List<ItemModel> filterList) {
+        mSelectMap.clear();
         mMemberList = filterList;
         notifyDataSetChanged();
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        UserInfo userInfo = mMemberList.get(position);
+        UserInfo userInfo = mMemberList.get(position).data;
         String userName = userInfo.getUserName();
         Intent intent = new Intent();
         if (userName.equals(JMessageClient.getMyInfo().getUserName())) {
@@ -212,16 +199,16 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
                 @Override
                 public void onClick(View v) {
                     switch (v.getId()) {
-                        case R.id.cancel_btn:
+                        case R.id.jmui_cancel_btn:
                             mDialog.dismiss();
                             break;
-                        case R.id.commit_btn:
+                        case R.id.jmui_commit_btn:
                             mDialog.dismiss();
                             mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
                                     mContext.getString(R.string.deleting_hint));
                             mLoadingDialog.show();
                             List<String> list = new ArrayList<String>();
-                            list.add(mMemberList.get(position).getUserName());
+                            list.add(mMemberList.get(position).data.getUserName());
                             JMessageClient.removeGroupMembers(mGroupId, list, new BasicCallback() {
                                 @Override
                                 public void gotResult(int status, String desc) {

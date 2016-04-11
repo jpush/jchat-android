@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -38,11 +40,11 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.BitmapLoader;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.ImgBrowserViewPager;
-import io.jchat.android.view.photoview.PhotoView;
+import io.jchat.android.chatting.photoview.PhotoView;
 
 //用于浏览图片
 public class BrowserViewPagerActivity extends BaseActivity {
@@ -52,7 +54,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private ImgBrowserViewPager mViewPager;
     private ProgressDialog mProgressDialog;
     //存放所有图片的路径
-    private List<String> mPathList = new ArrayList<String>();
+    private List<String> mPathList = new ArrayList <String>();
     //存放图片消息的ID
     private List<Integer> mMsgIdList = new ArrayList<Integer>();
     private TextView mNumberTv;
@@ -64,24 +66,27 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private int mPosition;
     private Conversation mConv;
     private Message mMsg;
-    private String mTargetId;
     private boolean mFromChatActivity = true;
     //当前消息数
     private int mStart;
     private int mOffset = 18;
     private Context mContext;
     private boolean mDownloading = false;
-    private Long mGroupId;
+    private int mMessageId;
     private int[] mMsgIds;
     private int mIndex = 0;
-    private final MyHandler myHandler = new MyHandler(this);
+    private final UIHandler mUIHandler = new UIHandler(this);
+    private BackgroundHandler mBackgroundHandler;
     private final static int DOWNLOAD_ORIGIN_IMAGE_SUCCEED = 1;
     private final static int DOWNLOAD_PROGRESS = 2;
     private final static int DOWNLOAD_COMPLETED = 3;
     private final static int SEND_PICTURE = 5;
     private final static int DOWNLOAD_ORIGIN_PROGRESS = 6;
     private final static int DOWNLOAD_ORIGIN_COMPLETED = 7;
-    private String mTargetAppKey;
+    private final static int INITIAL_PICTURE_LIST = 0x2000;
+    private final static int INIT_ADAPTER = 0x2001;
+    private final static int GET_NEXT_PAGE_OF_PICTURE = 0x2002;
+    private final static int SET_CURRENT_POSITION = 0x2003;
 
     /**
      * 用来存储图片的选中情况
@@ -107,15 +112,19 @@ public class BrowserViewPagerActivity extends BaseActivity {
         mPictureSelectedCb = (CheckBox) findViewById(R.id.picture_selected_cb);
         mLoadBtn = (Button) findViewById(R.id.load_image_btn);
 
+        HandlerThread backgroundThread = new HandlerThread("Work on BrowserActivity");
+        backgroundThread.start();
+        mBackgroundHandler = new BackgroundHandler(backgroundThread.getLooper());
         final Intent intent = this.getIntent();
-        mGroupId = intent.getLongExtra(JChatDemoApplication.GROUP_ID, 0);
-        mTargetAppKey = intent.getStringExtra(JChatDemoApplication.TARGET_APP_KEY);
-        if (mGroupId != 0) {
-            mConv = JMessageClient.getGroupConversation(mGroupId);
+        long groupId = intent.getLongExtra(JChatDemoApplication.GROUP_ID, 0);
+        String targetAppKey = intent.getStringExtra(JChatDemoApplication.TARGET_APP_KEY);
+        mMessageId = intent.getIntExtra("msgId", 0);
+        if (groupId != 0) {
+            mConv = JMessageClient.getGroupConversation(groupId);
         } else {
-            mTargetId = intent.getStringExtra(JChatDemoApplication.TARGET_ID);
-            if (mTargetId != null) {
-                mConv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
+            String targetId = intent.getStringExtra(JChatDemoApplication.TARGET_ID);
+            if (targetId != null) {
+                mConv = JMessageClient.getSingleConversation(targetId, targetAppKey);
             }
         }
         mStart = intent.getIntExtra("msgCount", 0);
@@ -123,78 +132,12 @@ public class BrowserViewPagerActivity extends BaseActivity {
         mFromChatActivity = intent.getBooleanExtra("fromChatActivity", true);
         boolean browserAvatar = intent.getBooleanExtra("browserAvatar", false);
 
-        PagerAdapter pagerAdapter = new PagerAdapter() {
-
-            @Override
-            public int getCount() {
-                return mPathList.size();
-            }
-
-            /**
-             * 点击某张图片预览时，系统自动调用此方法加载这张图片左右视图（如果有的话）
-             */
-            @Override
-            public View instantiateItem(ViewGroup container, int position) {
-                photoView = new PhotoView(mFromChatActivity, container.getContext());
-                photoView.setTag(position);
-                String path = mPathList.get(position);
-                if (path != null) {
-                    File file = new File(path);
-                    if (file.exists()) {
-                        Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
-                        if (bitmap != null) {
-                            photoView.setImageBitmap(bitmap);
-                        } else {
-                            photoView.setImageResource(R.drawable.picture_not_found);
-                        }
-                    } else {
-                        Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(path);
-                        if (bitmap != null) {
-                            photoView.setImageBitmap(bitmap);
-                        } else {
-                            photoView.setImageResource(R.drawable.picture_not_found);
-                        }
-                    }
-                } else {
-                    photoView.setImageResource(R.drawable.picture_not_found);
-                }
-                container.addView(photoView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-                return photoView;
-            }
-
-            @Override
-            public int getItemPosition(Object object) {
-                View view = (View) object;
-                int currentPage = mViewPager.getCurrentItem();
-                if (currentPage == (Integer) view.getTag()) {
-                    return POSITION_NONE;
-                } else {
-                    return POSITION_UNCHANGED;
-                }
-            }
-
-            @Override
-            public void destroyItem(ViewGroup container, int position, Object object) {
-                container.removeView((View) object);
-            }
-
-            @Override
-            public boolean isViewFromObject(View view, Object object) {
-                return view == object;
-            }
-
-        };
-        mViewPager.setAdapter(pagerAdapter);
-        mViewPager.setOnPageChangeListener(onPageChangeListener);
         returnBtn.setOnClickListener(listener);
         mSendBtn.setOnClickListener(listener);
         mLoadBtn.setOnClickListener(listener);
 
         // 在聊天界面中点击图片
         if (mFromChatActivity) {
-            if(mViewPager != null && mViewPager.getAdapter() != null) {
-                mViewPager.getAdapter().notifyDataSetChanged();
-            }
             titleBarRl.setVisibility(View.GONE);
             checkBoxRl.setVisibility(View.GONE);
             //预览头像
@@ -205,53 +148,26 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 try {
                     File file = new File(path);
                     mPathList.add(path);
+                    mViewPager.setAdapter(pagerAdapter);
+                    mViewPager.addOnPageChangeListener(onPageChangeListener);
                     if (file.exists()) {
                         Picasso.with(mContext).load(file).into(photoView);
                     } else {
                         photoView.setImageBitmap(NativeImageLoader.getInstance().getBitmapFromMemCache(path));
                     }
                 } catch (Exception e) {
-                    photoView.setImageResource(R.drawable.picture_not_found);
+                    photoView.setImageResource(R.drawable.jmui_picture_not_found);
                     HandleResponseCode.onHandle(mContext, 1001, false);
                 }
             //预览聊天界面中的图片
             } else {
-                initImgPathList();
-                if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                    Toast.makeText(this, this.getString(R.string.local_picture_not_found_toast), Toast.LENGTH_SHORT).show();
-                }
-                mMsg = mConv.getMessage(intent.getIntExtra("msgId", 0));
-                photoView = new PhotoView(mFromChatActivity, this);
-                int currentItem = mMsgIdList.indexOf(mMsg.getId());
-                try {
-                    ImageContent ic = (ImageContent) mMsg.getContent();
-                    //如果点击的是第一张图片并且图片未下载过，则显示大图
-                    if (ic.getLocalPath() == null && mMsgIdList.indexOf(mMsg.getId()) == 0) {
-                        downloadImage();
-                    }
-                    String path = mPathList.get(mMsgIdList.indexOf(mMsg.getId()));
-                    //如果发送方上传了原图
-                    if (ic.getBooleanExtra("originalPicture") != null && ic.getBooleanExtra("originalPicture")) {
-                        mLoadBtn.setVisibility(View.GONE);
-                        setLoadBtnText(ic);
-                        photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(path, mWidth, mHeight));
-                    } else {
-                        Picasso.with(mContext).load(new File(path)).into(photoView);
-                    }
-
-                    mViewPager.setCurrentItem(currentItem);
-                } catch (NullPointerException e) {
-                    photoView.setImageResource(R.drawable.picture_not_found);
-                    mViewPager.setCurrentItem(currentItem);
-                } finally {
-                    if (currentItem == 0) {
-                        getImgMsg();
-                    }
-                }
+                mBackgroundHandler.sendEmptyMessage(INITIAL_PICTURE_LIST);
             }
-            // 在选择图片时点击预览图片
+            //浏览本地相册 在选择图片时点击预览图片
         } else {
             mPathList = intent.getStringArrayListExtra("pathList");
+            mViewPager.setAdapter(pagerAdapter);
+            mViewPager.addOnPageChangeListener(onPageChangeListener);
             int[] pathArray = intent.getIntArrayExtra("pathArray");
             //初始化选中了多少张图片
             for (int i = 0; i < pathArray.length; i++) {
@@ -272,6 +188,68 @@ public class BrowserViewPagerActivity extends BaseActivity {
             showTotalSize();
         }
     }
+
+    PagerAdapter pagerAdapter = new PagerAdapter() {
+
+        @Override
+        public int getCount() {
+            return mPathList.size();
+        }
+
+        /**
+         * 点击某张图片预览时，系统自动调用此方法加载这张图片左右视图（如果有的话）
+         */
+        @Override
+        public View instantiateItem(ViewGroup container, int position) {
+            photoView = new PhotoView(mFromChatActivity, container.getContext());
+            photoView.setTag(position);
+            String path = mPathList.get(position);
+            if (path != null) {
+                File file = new File(path);
+                if (file.exists()) {
+                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
+                    if (bitmap != null) {
+                        photoView.setImageBitmap(bitmap);
+                    } else {
+                        photoView.setImageResource(R.drawable.jmui_picture_not_found);
+                    }
+                } else {
+                    Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(path);
+                    if (bitmap != null) {
+                        photoView.setImageBitmap(bitmap);
+                    } else {
+                        photoView.setImageResource(R.drawable.jmui_picture_not_found);
+                    }
+                }
+            } else {
+                photoView.setImageResource(R.drawable.jmui_picture_not_found);
+            }
+            container.addView(photoView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            return photoView;
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            View view = (View) object;
+            int currentPage = mViewPager.getCurrentItem();
+            if (currentPage == (Integer) view.getTag()) {
+                return POSITION_NONE;
+            } else {
+                return POSITION_UNCHANGED;
+            }
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View) object);
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+    };
 
     private void setLoadBtnText(ImageContent ic) {
         NumberFormat ddf1 = NumberFormat.getNumberInstance();
@@ -347,10 +325,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
     //显示选中了多少张图片
     private void showSelectedNum() {
         if (mSelectMap.size() > 0) {
-            String sendText = mContext.getString(R.string.send) + "(" + mSelectMap.size() + "/" + "9)";
+            String sendText = mContext.getString(R.string.jmui_send) + "(" + mSelectMap.size() + "/" + "9)";
             mSendBtn.setText(sendText);
         } else {
-            mSendBtn.setText(mContext.getString(R.string.send));
+            mSendBtn.setText(mContext.getString(R.string.jmui_send));
         }
     }
 
@@ -396,46 +374,34 @@ public class BrowserViewPagerActivity extends BaseActivity {
     };
 
     /**
-     * 滑动到第一张时，加载上一页消息中的图片
+     * 滑动到当前页图片的第一张时，加载上一页消息中的图片
      */
     private void getImgMsg() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ImageContent ic;
-                final int msgSize = mMsgIdList.size();
-                List<Message> msgList = mConv.getMessagesFromNewest(mStart, mOffset);
-                mOffset = msgList.size();
-                if (mOffset > 0) {
-                    for (Message msg : msgList) {
-                        if (msg.getContentType().equals(ContentType.image)) {
-                            mMsgIdList.add(0, msg.getId());
-                            ic = (ImageContent) msg.getContent();
-                            if (!TextUtils.isEmpty(ic.getLocalPath())) {
-                                mPathList.add(0, ic.getLocalPath());
-                            } else {
-                                mPathList.add(0, ic.getLocalThumbnailPath());
-                            }
-                        }
-                    }
-                    mStart += mOffset;
-                    if (msgSize == mMsgIdList.size()) {
-                        getImgMsg();
+        ImageContent ic;
+        final int msgSize = mMsgIdList.size();
+        List<Message> msgList = mConv.getMessagesFromNewest(mStart, mOffset);
+        mOffset = msgList.size();
+        if (mOffset > 0) {
+            for (Message msg : msgList) {
+                if (msg.getContentType().equals(ContentType.image)) {
+                    mMsgIdList.add(0, msg.getId());
+                    ic = (ImageContent) msg.getContent();
+                    if (!TextUtils.isEmpty(ic.getLocalPath())) {
+                        mPathList.add(0, ic.getLocalPath());
                     } else {
-                        //加载完上一页图片后，设置当前图片仍为加载前的那一张图片
-                        BrowserViewPagerActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mPosition = mMsgIdList.size() - msgSize;
-                                mViewPager.setCurrentItem(mPosition);
-                                mViewPager.getAdapter().notifyDataSetChanged();
-                            }
-                        });
+                        mPathList.add(0, ic.getLocalThumbnailPath());
                     }
                 }
             }
-        });
-        thread.start();
+            mStart += mOffset;
+            if (msgSize == mMsgIdList.size()) {
+                getImgMsg();
+            } else {
+                //加载完上一页图片后，设置当前图片仍为加载前的那一张图片
+                mPosition = mMsgIdList.size() - msgSize;
+                mUIHandler.sendMessage(mUIHandler.obtainMessage(SET_CURRENT_POSITION, mPosition));
+            }
+        }
     }
 
     /**
@@ -454,6 +420,43 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 } else {
                     mPathList.add(ic.getLocalThumbnailPath());
                 }
+            }
+        }
+    }
+
+    /**
+     * 初始化当前在聊天界面点击的图片
+     */
+    private void initCurrentItem() {
+        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            Toast.makeText(this, this.getString(R.string.jmui_local_picture_not_found_toast), Toast.LENGTH_SHORT).show();
+        }
+        mMsg = mConv.getMessage(mMessageId);
+        photoView = new PhotoView(mFromChatActivity, this);
+        int currentItem = mMsgIdList.indexOf(mMsg.getId());
+        try {
+            ImageContent ic = (ImageContent) mMsg.getContent();
+            //如果点击的是第一张图片并且图片未下载过，则显示大图
+            if (ic.getLocalPath() == null && mMsgIdList.indexOf(mMsg.getId()) == 0) {
+                downloadImage();
+            }
+            String path = mPathList.get(mMsgIdList.indexOf(mMsg.getId()));
+            //如果发送方上传了原图
+            if (ic.getBooleanExtra("originalPicture") != null && ic.getBooleanExtra("originalPicture")) {
+                mLoadBtn.setVisibility(View.GONE);
+                setLoadBtnText(ic);
+                photoView.setImageBitmap(BitmapLoader.getBitmapFromFile(path, mWidth, mHeight));
+            } else {
+                Picasso.with(mContext).load(new File(path)).into(photoView);
+            }
+
+            mViewPager.setCurrentItem(currentItem);
+        } catch (NullPointerException e) {
+            photoView.setImageResource(R.drawable.jmui_picture_not_found);
+            mViewPager.setCurrentItem(currentItem);
+        } finally {
+            if (currentItem == 0) {
+                mBackgroundHandler.sendEmptyMessage(GET_NEXT_PAGE_OF_PICTURE);
             }
         }
     }
@@ -505,7 +508,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
             mMsg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
                 @Override
                 public void onProgressUpdate(double progress) {
-                    android.os.Message msg = myHandler.obtainMessage();
+                    android.os.Message msg = mUIHandler.obtainMessage();
                     Bundle bundle = new Bundle();
                     if (progress < 1.0) {
                         msg.what = DOWNLOAD_ORIGIN_PROGRESS;
@@ -591,7 +594,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }
                     mIndex++;
                     if (mIndex >= mSelectMap.size()) {
-                        myHandler.sendEmptyMessage(SEND_PICTURE);
+                        mUIHandler.sendEmptyMessage(SEND_PICTURE);
                     }
                 }
             });
@@ -609,7 +612,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }
                     mIndex++;
                     if (mIndex >= mSelectMap.size()) {
-                        myHandler.sendEmptyMessage(SEND_PICTURE);
+                        mUIHandler.sendEmptyMessage(SEND_PICTURE);
                     }
                 }
             });
@@ -662,7 +665,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
                     @Override
                     public void onProgressUpdate(double progress) {
-                        android.os.Message msg = myHandler.obtainMessage();
+                        android.os.Message msg = mUIHandler.obtainMessage();
                         Bundle bundle = new Bundle();
                         if (progress < 1.0) {
                             msg.what = DOWNLOAD_PROGRESS;
@@ -681,7 +684,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     public void onComplete(int status, String desc, File file) {
                         mDownloading = false;
                         if (status == 0) {
-                            android.os.Message msg = myHandler.obtainMessage();
+                            android.os.Message msg = mUIHandler.obtainMessage();
                             msg.what = DOWNLOAD_ORIGIN_IMAGE_SUCCEED;
                             Bundle bundle = new Bundle();
                             bundle.putString("path", file.getAbsolutePath());
@@ -700,10 +703,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
     }
 
-    private static class MyHandler extends Handler{
+    private static class UIHandler extends Handler{
         private final WeakReference<BrowserViewPagerActivity> mActivity;
 
-        public MyHandler(BrowserViewPagerActivity activity){
+        public UIHandler(BrowserViewPagerActivity activity){
             mActivity = new WeakReference<BrowserViewPagerActivity>(activity);
         }
 
@@ -741,7 +744,39 @@ public class BrowserViewPagerActivity extends BaseActivity {
                         activity.mLoadBtn.setText(activity.getString(R.string.download_completed_toast));
                         activity.mLoadBtn.setVisibility(View.GONE);
                         break;
+                    case INIT_ADAPTER:
+                        activity.mViewPager.setAdapter(activity.pagerAdapter);
+                        activity.mViewPager.addOnPageChangeListener(activity.onPageChangeListener);
+                        activity.initCurrentItem();
+                        break;
+                    case SET_CURRENT_POSITION:
+                        if (activity.mViewPager != null && activity.mViewPager.getAdapter() != null) {
+                            activity.mViewPager.getAdapter().notifyDataSetChanged();
+                            int position = (int) msg.obj;
+                            activity.mViewPager.setCurrentItem(position);
+                        }
+                        break;
                 }
+            }
+        }
+    }
+
+    private class BackgroundHandler extends Handler {
+        public BackgroundHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case INITIAL_PICTURE_LIST:
+                    initImgPathList();
+                    mUIHandler.sendEmptyMessage(INIT_ADAPTER);
+                    break;
+                case GET_NEXT_PAGE_OF_PICTURE:
+                    getImgMsg();
+                    break;
             }
         }
     }

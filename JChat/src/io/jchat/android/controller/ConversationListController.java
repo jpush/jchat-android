@@ -15,20 +15,16 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.eventbus.EventBus;
 import io.jchat.android.R;
-import io.jchat.android.activity.ChatActivity;
+import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.adapter.ConversationListAdapter;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.entity.Event;
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.view.ConversationListView;
 
@@ -85,7 +81,6 @@ public class ConversationListController implements OnClickListener,
                 // 当前点击的会话是否为群组
                 if (conv.getType() == ConversationType.group) {
                     long groupId = ((GroupInfo) conv.getTargetInfo()).getGroupID();
-                    intent.putExtra(JChatDemoApplication.IS_GROUP, true);
                     intent.putExtra(JChatDemoApplication.GROUP_ID, groupId);
                     intent.putExtra(JChatDemoApplication.DRAFT, getAdapter().getDraft(conv.getId()));
                     intent.setClass(mContext.getActivity(), ChatActivity.class);
@@ -96,22 +91,12 @@ public class ConversationListController implements OnClickListener,
                     intent.putExtra(JChatDemoApplication.TARGET_ID, targetId);
                     intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, conv.getTargetAppKey());
                     Log.d("ConversationList", "Target app key from conversation: " + conv.getTargetAppKey());
-                    intent.putExtra(JChatDemoApplication.IS_GROUP, false);
                     intent.putExtra(JChatDemoApplication.DRAFT, getAdapter().getDraft(conv.getId()));
                 }
                 intent.setClass(mContext.getActivity(), ChatActivity.class);
                 mContext.getActivity().startActivity(intent);
             }
         }
-    }
-
-    /**
-     * 在会话列表界面收到消息或者新建会话，将该会话置顶
-     *
-     * @param conv 收到消息的Conversation
-     */
-    public void refreshConvList(final Conversation conv) {
-        mListAdapter.setToTop(conv);
     }
 
     @Override

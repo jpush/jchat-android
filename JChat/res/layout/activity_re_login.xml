@@ -36,12 +36,12 @@
                 android:layout_gravity="center_horizontal"
                 android:orientation="vertical">
 
-                <io.jchat.android.view.CircleImageView
+                <io.jchat.android.chatting.CircleImageView
                     android:id="@+id/relogin_head_icon"
                     android:layout_width="@dimen/login_regist_head_icon_size"
                     android:layout_height="@dimen/login_regist_head_icon_size"
                     android:layout_gravity="center_horizontal"
-                    android:src="@drawable/head_icon" />
+                    android:src="@drawable/jmui_head_icon" />
 
                 <TextView
                     android:id="@+id/username_tv"
@@ -97,7 +97,7 @@
                     android:singleLine="true"
                     android:textColor="@color/black"
                     android:textColorHint="@color/gray"
-                    android:textCursorDrawable="@drawable/text_cursor_bg"
+                    android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
                     android:textSize="18sp" />
 
                 <View
@@ -115,6 +115,7 @@
                 android:background="@drawable/login_btn_bg"
                 android:focusable="true"
                 android:text="@string/login"
+                android:padding="10dp"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
 

@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:layout_marginTop="5dp"
-                android:background="@color/chat_detail_split_line_color" />
+                android:background="@color/jmui_chat_detail_split_line_color" />
 
             <LinearLayout
                 android:id="@+id/all_member_ll"
@@ -58,7 +58,7 @@
                 android:id="@+id/all_member_split_line2"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/chat_detail_split_line_color" />
+                android:background="@color/jmui_chat_detail_split_line_color" />
 
 
             <LinearLayout
@@ -81,7 +81,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/chat_detail_split_line_color" />
+                android:background="@color/jmui_chat_detail_split_line_color" />
 
             <RelativeLayout
                 android:id="@+id/no_disturb_rl"
@@ -105,7 +105,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/chat_detail_split_line_color" />
+                android:background="@color/jmui_chat_detail_split_line_color" />
 
             <LinearLayout
                 android:id="@+id/group_num_ll"
@@ -126,7 +126,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/chat_detail_split_line_color"
+                android:background="@color/jmui_chat_detail_split_line_color"
                 android:visibility="gone" />
 
             <LinearLayout
@@ -148,7 +148,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/chat_detail_split_line_color"
+                android:background="@color/jmui_chat_detail_split_line_color"
                 android:visibility="gone" />
 
             <LinearLayout
@@ -181,7 +181,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/chat_detail_split_line_color" />
+                android:background="@color/jmui_chat_detail_split_line_color" />
 
             <LinearLayout
                 android:layout_width="match_parent"
