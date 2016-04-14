@@ -22,7 +22,6 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
 
     <!-- JMessage Demo required for record audio-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -34,8 +33,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
-
-    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
 
     <application
         android:name="io.jchat.android.application.JChatDemoApplication"
