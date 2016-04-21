@@ -252,12 +252,15 @@ JPushInterface.onResume(this);
 #####[Android JMessage-sdk-doc文档](http://docs.jpush.io/client/im_android_api_docs/)
 
 - 会话Conversation
+
 会话在JChat中是聊天的载体，发消息需要先用会话创建消息，收消息sdk会将消息放入相应的会话，如果本地没有会话，则会新建一个会话，并将之加到会话，所以上层只需要刷新会话列表。以下是得到会话的两种方式：
+
 1. 得到会话列表：
 ```
     //此方法得到本地保存的历史会话列表
     List<Conversation> mDatas = JMessageClient.getConversationList();
 ```
+
 2.  创建会话：
 ```
     //创建单聊
@@ -265,11 +268,13 @@ JPushInterface.onResume(this);
     //创建群聊
     Conversation conv = Conversation.createGroupConversation(groupId);
 ```
+
 使用Conversation得到TargetInfo，如果该Conversation为单聊，则得到UserInfo，如果为群聊则得到GroupInfo：
 ```
     UserInfo userInfo = (UserInfo) conv.getTargetInfo();
     GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
 ```
+
 使用Conversation得到历史消息：
 ```
     //得到所有消息
@@ -362,6 +367,7 @@ JPushInterface.onResume(this);
         case receive_going:
     }
 ```
+
 - 发送消息
 
   发送文本消息：
@@ -433,6 +439,7 @@ JPushInterface.onResume(this);
             });
 
 ```
+
 - UserInfo相关接口用法：
 得到用户头像(分为拿大头像和小头像两个接口)
 ```
@@ -465,11 +472,13 @@ JPushInterface.onResume(this);
         });
     }
 ```
+
 用userInfo判断是否加入了黑名单：
 ```
     //等于1表示加入了黑名单
     if (1 == userInfo.getBlacklist()) {}
 ```
+
 另外可以从userInfo得到username、nickname等属性，此处不再一一赘述。
 
 - GroupInfo相关接口用法：
@@ -480,6 +489,7 @@ JPushInterface.onResume(this);
     List<UserInfo> membersInfo = groupInfo.getGroupMembers();
     String groupName  = groupInfo.getGroupName();
 ```
+
 - 创建群聊
 ```
     JMessageClient.createGroup("", "", new CreateGroupCallback() {
@@ -488,6 +498,7 @@ JPushInterface.onResume(this);
         }
     });
 ```
+
 ---
 ####JChat中所使用的开源项目简介
 
