@@ -255,13 +255,13 @@ JPushInterface.onResume(this);
 
 会话在JChat中是聊天的载体，发消息需要先用会话创建消息，收消息sdk会将消息放入相应的会话，如果本地没有会话，则会新建一个会话，并将之加到会话，所以上层只需要刷新会话列表。以下是得到会话的两种方式：
 
-1. 得到会话列表：
+得到会话列表：
 ```
     //此方法得到本地保存的历史会话列表
     List<Conversation> mDatas = JMessageClient.getConversationList();
 ```
 
-2.  创建会话：
+创建会话：
 ```
     //创建单聊
     Conversation conv = Conversation.createSingleConversation(username);
