@@ -441,6 +441,21 @@ JPushInterface.onResume(this);
 ```
 
 - UserInfo相关接口用法：
+
+得到UserInfo：
+```
+JMessageClient.getUserInfo(targetId, new GetUserInfoCallback() {
+   @Override
+   public void gotResult(final int status, String desc, final UserInfo userInfo) {
+      if (status == 0) {
+        //do something
+      } else {
+        //get userInfo failed
+      }      
+   }
+ }
+```
+
 得到用户头像(分为拿大头像和小头像两个接口)
 ```
     //拿头像之前先判断userInfo是否为空，并且要判断该用户是否设置了头像
@@ -473,10 +488,64 @@ JPushInterface.onResume(this);
     }
 ```
 
-用userInfo判断是否加入了黑名单：
+用UserInfo判断是否加入了黑名单：
 ```
     //等于1表示加入了黑名单
     if (1 == userInfo.getBlacklist()) {}
+```
+
+用UserInfo或者GroupInfo设置免打扰：
+```
+        //设置免打扰,1为将当前用户或群聊设为免打扰,0为移除免打扰
+        if (mIsGroup) {
+            mGroupInfo.setNoDisturb(checked ? 1 : 0, new BasicCallback() {
+                @Override
+                public void gotResult(int status, String desc) {
+                    dialog.dismiss();
+                    if (status == 0) {
+                        if (checked) {
+                            Toast.makeText(mContext, mContext.getString(R.string.set_do_not_disturb_success_hint),
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(mContext, mContext.getString(R.string.remove_from_no_disturb_list_hint),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    //设置失败,恢复为原来的状态
+                    } else {
+                        if (checked) {
+                            mChatDetailView.setNoDisturbChecked(false);
+                        } else {
+                            mChatDetailView.setNoDisturbChecked(true);
+                        }
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                }
+            });
+        } else {
+            mUserInfo.setNoDisturb(checked ? 1 : 0, new BasicCallback() {
+                @Override
+                public void gotResult(int status, String desc) {
+                    dialog.dismiss();
+                    if (status == 0) {
+                        if (checked) {
+                            Toast.makeText(mContext, mContext.getString(R.string.set_do_not_disturb_success_hint),
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(mContext, mContext.getString(R.string.remove_from_no_disturb_list_hint),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        //设置失败,恢复为原来的状态
+                    } else {
+                        if (checked) {
+                            mChatDetailView.setNoDisturbChecked(false);
+                        } else {
+                            mChatDetailView.setNoDisturbChecked(true);
+                        }
+                        HandleResponseCode.onHandle(mContext, status, false);
+                    }
+                }
+            });
+        }
 ```
 
 另外可以从userInfo得到username、nickname等属性，此处不再一一赘述。
