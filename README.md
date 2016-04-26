@@ -5,7 +5,9 @@ Android JChat App
 
 [JChat Web](https://github.com/jpush/jchat-web)
 
-####在Android Studio中导入JChat demo [参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E5%9C%A8Android%20Studio%E4%B8%AD%E8%BF%90%E8%A1%8CJChat%20Demo.md)
+#####在你的项目中集成jmessage-sdk，[参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E9%9B%86%E6%88%90jmessage-sdk.md)
+
+#####在Android Studio中导入JChat demo [参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E5%9C%A8Android%20Studio%E4%B8%AD%E8%BF%90%E8%A1%8CJChat%20Demo.md)
 
 ####JChat的工程结构
 
@@ -25,7 +27,6 @@ JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener�
 
 - tools包 工具类的集合
 
-####在你的项目中集成jmessage-sdk，[参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E9%9B%86%E6%88%90jmessage-sdk.md)
 
 ####jmessage－sdk接口相关文档
 - [Demo用法参考](https://github.com/KenChoi1992/SomeArticles/blob/master/jmessage-sdk%E9%83%A8%E5%88%86%E6%8E%A5%E5%8F%A3%E7%94%A8%E6%B3%95.md)
