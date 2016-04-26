@@ -7,9 +7,9 @@ Android JChat App
 
 ####在Android Studio中导入JChat demo [参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E5%9C%A8Android%20Studio%E4%B8%AD%E8%BF%90%E8%A1%8CJChat%20Demo.md)
 
-#####JChat的工程结构
+####JChat的工程结构
 
-JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener模块)，有兴趣的可以参考[这里](http://pan.baidu.com/s/1mhoms4o)。
+JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener模块)，有兴趣的可以[参考这里](http://pan.baidu.com/s/1mhoms4o)。
 
 - Application 主要作用是jmessage－sdk的初始化以及Notification的相关设置
 
