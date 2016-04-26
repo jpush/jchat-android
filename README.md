@@ -25,9 +25,6 @@ JChat的架构模型参考了Android Passive MVC架构(但是去掉了Listener�
 
 - tools包 工具类的集合
 
- 
----
-
 ####在你的项目中集成jmessage-sdk，[参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E9%9B%86%E6%88%90jmessage-sdk.md)
 
 ####jmessage－sdk接口相关文档
