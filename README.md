@@ -5,7 +5,7 @@ Android JChat App
 
 [JChat Web](https://github.com/jpush/jchat-web)
 
-####在Android Studio中导入JChat demo [参考这个步骤](https://github.com/KenChoi1992/SomeArticles/edit/master/%E5%9C%A8Android%20Studio%E4%B8%AD%E8%BF%90%E8%A1%8CJChat%20Demo.md)
+####在Android Studio中导入JChat demo [参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E5%9C%A8Android%20Studio%E4%B8%AD%E8%BF%90%E8%A1%8CJChat%20Demo.md)
 
 #####JChat的工程结构
 
