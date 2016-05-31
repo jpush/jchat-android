@@ -1,5 +1,5 @@
 
-Android JChat App
+##Android JChat App
 
 [JChat iOS](https://github.com/jpush/jchat-ios)
 
@@ -19,7 +19,7 @@ JChat 的架构模型参考了 Android Passive MVC 架构(但是去掉了 Listen
 
 - chatting —— 聊天界面相关类，如果开发者只要聊天界面可以只拷贝此文件夹下的文件，而资源文件可以从 [JChat-UIKit-Chatting](https://github.com/jpush/jmessage-android-uikit/tree/master/Chatting) 中拷贝；
 
-- activity 包 —— JChat 的 Activity的集合，主要负责绑定 Controller 和 View，以及界面的跳转；
+- activity 包 —— JChat 的 Activity 的集合，主要负责绑定 Controller 和 View，以及界面的跳转；
 
 - controller 包 —— 主要负责事件的点击、数据处理等，是 Activity 和 View 的中间层；
 
