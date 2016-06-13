@@ -42,7 +42,7 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         AdapterView.OnItemLongClickListener {
 
     private MembersInChatActivity mContext;
-    private List<ItemModel> mMemberList = new ArrayList<>();
+    private List<ItemModel> mMemberList = new ArrayList<ItemModel>();
     private boolean mIsDeleteMode;
     private List<String> mSelectedList = new ArrayList<String>();
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
@@ -194,7 +194,7 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-        if (mIsCreator && !mIsDeleteMode) {
+        if (mIsCreator && !mIsDeleteMode && position != 0) {
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

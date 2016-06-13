@@ -1,5 +1,6 @@
 package io.jchat.android.chatting;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -53,8 +54,8 @@ import io.jchat.android.chatting.utils.FileHelper;
 /*
  * 对话界面,合并了ChatController,整个chatting文件夹下的文件都使用反射机制获取相关资源文件,
  * 主要是为了实现插件式的聊天界面,让开发者可以即拿即用,会与UIKit的Chatting模块保持同步,如果只要聊天界面,
- * 推荐从github下载相关资源文件,省去手动筛选复制相关资源的麻烦.
- * UIKit github地址:https://github.com/jpush/jmessage-android-uikit
+ * 拷贝chatting文件夹下的所有文件,并且从github下载相关资源文件,省去手动筛选复制相关资源的麻烦.
+ * UIKit github地址:https://github.com/jpush/jmessage-android-uikit/tree/master/Chatting
  */
 public class ChatActivity extends BaseActivity implements View.OnClickListener, View.OnTouchListener,
         ChatView.OnSizeChangedListener, ChatView.OnKeyBoardChangeListener {
@@ -65,7 +66,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private static final String DRAFT = "draft";
     private static final String MsgIDs = "msgIDs";
     private static final String NAME = "name";
-    public static final String NICKNAME = "nickname";
+    private static final String NICKNAME = "nickname";
     private static final String TARGET_ID = "targetId";
     private static final String TARGET_APP_KEY = "targetAppKey";
     private static final String GROUP_ID = "groupId";
@@ -577,7 +578,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         private final WeakReference<ChatActivity> mActivity;
 
         public UIHandler(ChatActivity activity) {
-            mActivity = new WeakReference<>(activity);
+            mActivity = new WeakReference<ChatActivity>(activity);
         }
 
         @Override
@@ -801,6 +802,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 String name = userInfo.getNickname();
                 View.OnClickListener listener = new View.OnClickListener() {
 
+                    @SuppressLint("NewApi")
                     @Override
                     public void onClick(View v) {
                         if (v.getId() == IdHelper.getViewID(mContext, "jmui_copy_msg_btn")) {
@@ -812,11 +814,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                                     ClipData clip = ClipData.newPlainText("Simple text", content);
                                     clipboard.setPrimaryClip(clip);
                                 } else {
-                                    ClipboardManager clipboard = (ClipboardManager) mContext
+                                    android.text.ClipboardManager clip = (android.text.ClipboardManager)mContext
                                             .getSystemService(Context.CLIPBOARD_SERVICE);
-                                    clipboard.getText();// 设置Clipboard 的内容
-                                    if (clipboard.hasText()) {
-                                        clipboard.getText();
+                                    if (clip.hasText()) {
+                                        clip.getText();
                                     }
                                 }
 

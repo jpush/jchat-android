@@ -319,6 +319,18 @@ public class RecordVoiceButton extends Button {
 
         } catch (IOException e) {
             e.printStackTrace();
+            HandleResponseCode.onHandle(mContext, 1003, false);
+            cancelTimer();
+            dismissDialog();
+            if (mThread != null) {
+                mThread.exit();
+                mThread = null;
+            }
+            if (myRecAudioFile != null) {
+                myRecAudioFile.delete();
+            }
+            recorder.release();
+            recorder = null;
         } catch (RuntimeException e) {
             HandleResponseCode.onHandle(mContext, RECORD_DENIED_STATUS, false);
             cancelTimer();
@@ -421,7 +433,7 @@ public class RecordVoiceButton extends Button {
         private final WeakReference<RecordVoiceButton> lButton;
 
         public ShowVolumeHandler(RecordVoiceButton button) {
-            lButton = new WeakReference<>(button);
+            lButton = new WeakReference<RecordVoiceButton>(button);
         }
 
         @Override
@@ -478,7 +490,7 @@ public class RecordVoiceButton extends Button {
         private final WeakReference<RecordVoiceButton> lButton;
 
         public MyHandler(RecordVoiceButton button) {
-            lButton = new WeakReference<>(button);
+            lButton = new WeakReference<RecordVoiceButton>(button);
         }
 
         @Override

@@ -31,6 +31,9 @@ public class HandleResponseCode {
             case 1002:
                 content.setText(IdHelper.getString(context, "jmui_user_already_exist_toast"));
                 break;
+            case 1003:
+                content.setText(IdHelper.getString(context, "jmui_illegal_state_toast"));
+                break;
             case 800002:
                 content.setText(IdHelper.getString(context, "jmui_server_800002"));
                 break;
@@ -54,6 +57,9 @@ public class HandleResponseCode {
                 Intent intent = new Intent();
                 intent.setClass(context, LoginActivity.class);
                 context.startActivity(intent);
+                break;
+            case 800014:
+                content.setText(IdHelper.getString(context, "jmui_server_800014"));
                 break;
             case 801001:
             case 802001:

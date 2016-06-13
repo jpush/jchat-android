@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="noTitle" parent="Theme.AppCompat">
+    <style name="noTitle" parent="android:Theme.NoTitleBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFrame">@null</item>
         <item name="android:windowAnimationStyle">@style/AnimFade</item>
@@ -384,12 +384,6 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:radius">5dp</item>
     </style>
-
-    <declare-styleable name="drop_down_list_attr">
-    <attr name="isDropDownStyle" format="boolean" />
-    <attr name="isOnBottomStyle" format="boolean" />
-    <attr name="isAutoLoadOnBottom" format="boolean" />
-    </declare-styleable>
 
     <style name="jmui_drop_down_list_header_progress_bar_style">
     <item name="android:minHeight">@dimen/drop_down_list_header_progress_bar_height</item>

@@ -399,7 +399,12 @@ public class BrowserViewPagerActivity extends BaseActivity {
             } else {
                 //加载完上一页图片后，设置当前图片仍为加载前的那一张图片
                 mPosition = mMsgIdList.size() - msgSize;
-                mUIHandler.sendMessage(mUIHandler.obtainMessage(SET_CURRENT_POSITION, mPosition));
+                android.os.Message handleMessage = mUIHandler.obtainMessage();
+                handleMessage.what = SET_CURRENT_POSITION;
+                Bundle bundle = new Bundle();
+                bundle.putInt("currentPosition", mPosition);
+                handleMessage.setData(bundle);
+                handleMessage.sendToTarget();
             }
         }
     }
@@ -752,7 +757,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     case SET_CURRENT_POSITION:
                         if (activity.mViewPager != null && activity.mViewPager.getAdapter() != null) {
                             activity.mViewPager.getAdapter().notifyDataSetChanged();
-                            int position = (int) msg.obj;
+                            int position = msg.getData().getInt("currentPosition");
                             activity.mViewPager.setCurrentItem(position);
                         }
                         break;

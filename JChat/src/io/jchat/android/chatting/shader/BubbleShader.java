@@ -14,7 +14,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import io.jchat.android.R;
+
+import io.jchat.android.chatting.utils.IdHelper;
 
 
 public class BubbleShader extends ShaderHelper {
@@ -40,12 +41,16 @@ public class BubbleShader extends ShaderHelper {
         super.init(context, attrs, defStyle);
         borderWidth = 0;
         if (attrs != null) {
-            TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ShaderImageView, defStyle, 0);
-            triangleHeightPx = typedArray.getDimensionPixelSize(R.styleable.ShaderImageView_siTriangleHeight, 0);
-            int arrowPositionInt = typedArray.getInt(R.styleable.ShaderImageView_siArrowPosition, ArrowPosition.LEFT.ordinal());
-            arrowPosition = ArrowPosition.values()[arrowPositionInt];
-            radius = typedArray.getDimensionPixelSize(R.styleable.ShaderImageView_siRadius, radius);
-            typedArray.recycle();
+            int[] declareStyleableArray = IdHelper.getResourceDeclareStyleableIntArray(context, "ShaderImageView");
+            if (declareStyleableArray != null) {
+                TypedArray typedArray = context.obtainStyledAttributes(attrs, declareStyleableArray, defStyle, 0);
+                //第一个参数是该属性在R文件中生成的数组的下标(按照字母顺序排列),而不是在attrs文件中声明的顺序.下同
+                triangleHeightPx = typedArray.getDimensionPixelSize(7, 0);
+                int arrowPositionInt = typedArray.getInt(0, ArrowPosition.LEFT.ordinal());
+                arrowPosition = ArrowPosition.values()[arrowPositionInt];
+                radius = typedArray.getDimensionPixelSize(6, radius);
+                typedArray.recycle();
+            }
         }
 
         if (triangleHeightPx == 0) {

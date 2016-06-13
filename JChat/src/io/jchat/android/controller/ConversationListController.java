@@ -35,15 +35,13 @@ public class ConversationListController implements OnClickListener,
     private ConversationListFragment mContext;
     private List<Conversation> mDatas = new ArrayList<Conversation>();
     private ConversationListAdapter mListAdapter;
-    private int mDensityDpi;
     private int mWidth;
     private Dialog mDialog;
 
     public ConversationListController(ConversationListView listView, ConversationListFragment context,
-                                      int densityDpi, int width) {
+                                      int width) {
         this.mConvListView = listView;
         this.mContext = context;
-        this.mDensityDpi = densityDpi;
         this.mWidth = width;
         initConvListAdapter();
     }
@@ -57,7 +55,7 @@ public class ConversationListController implements OnClickListener,
             Collections.sort(mDatas, sortList);
         }
 
-        mListAdapter = new ConversationListAdapter(mContext.getActivity(), mDatas, mDensityDpi);
+        mListAdapter = new ConversationListAdapter(mContext.getActivity(), mDatas);
         mConvListView.setConvListAdapter(mListAdapter);
     }
 

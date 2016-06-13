@@ -654,7 +654,7 @@ public class MsgListAdapter extends BaseAdapter {
         CustomContent content = (CustomContent) msg.getContent();
         Boolean isBlackListHint = content.getBooleanValue("blackList");
         if (isBlackListHint != null && isBlackListHint) {
-            holder.groupChange.setText(IdHelper.getString(mContext, "server_803008"));
+            holder.groupChange.setText(IdHelper.getString(mContext, "jmui_server_803008"));
         } else {
             holder.groupChange.setVisibility(View.GONE);
         }
@@ -1164,13 +1164,23 @@ public class MsgListAdapter extends BaseAdapter {
                     }
                 }
             });
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             Toast.makeText(mContext, IdHelper.getString(mContext, "jmui_file_not_found_toast"),
                     Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Toast.makeText(mContext, IdHelper.getString(mContext, "jmui_file_not_found_toast"),
-                    Toast.LENGTH_SHORT).show();
-        } finally {
+            VoiceContent vc = (VoiceContent)msg.getContent();
+            vc.downloadVoiceFile(msg, new DownloadCompletionCallback() {
+                @Override
+                public void onComplete(int status, String desc, File file) {
+                    if (status == 0) {
+                        Toast.makeText(mContext, IdHelper.getString(mContext, "download_completed_toast"),
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(mContext, IdHelper.getString(mContext, "file_fetch_failed"),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }  finally {
             try {
                 if (mFIS != null) {
                     mFIS.close();

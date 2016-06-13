@@ -319,7 +319,7 @@ public class ChatDetailActivity extends BaseActivity {
         private WeakReference<ChatDetailActivity> mActivity;
 
         public UIHandler(ChatDetailActivity activity) {
-            mActivity = new WeakReference<>(activity);
+            mActivity = new WeakReference<ChatDetailActivity>(activity);
         }
 
         @Override

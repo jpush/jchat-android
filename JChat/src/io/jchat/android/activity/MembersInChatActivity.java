@@ -56,9 +56,9 @@ public class MembersInChatActivity extends BaseActivity {
     private TextView mTitle;
     private Button mRightBtn;
     private EditText mSearchEt;
-    private List<UserInfo> mMemberInfoList = new ArrayList<>();
-    private List<ItemModel> mShowUserList = new ArrayList<>();
-    private List<String> mPinyinList = new ArrayList<>();
+    private List<UserInfo> mMemberInfoList = new ArrayList<UserInfo>();
+    private List<ItemModel> mShowUserList = new ArrayList<ItemModel>();
+    private List<String> mPinyinList = new ArrayList<String>();
     private UIHandler mUIHandler = new UIHandler(this);
     private BackgroundHandler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
@@ -100,7 +100,7 @@ public class MembersInChatActivity extends BaseActivity {
         mBackgroundHandler.sendEmptyMessage(PROCESS_USER_INFO_TO_BEANS);
 
         String title = this.getString(R.string.combine_title);
-        mTitle.setText(String.format(title, mMemberInfoList.size()));
+        mTitle.setText(String.format(title, mMemberInfoList.size() + ""));
         if (mIsDeleteMode) {
             mRightBtn.setText(this.getString(R.string.jmui_delete));
         } else {
@@ -301,7 +301,7 @@ public class MembersInChatActivity extends BaseActivity {
         GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
         mMemberInfoList = groupInfo.getGroupMembers();
 //        addAll(true);
-        mTitle.setText(String.format(mContext.getString(R.string.combine_title), mMemberInfoList.size()));
+        mTitle.setText(String.format(mContext.getString(R.string.combine_title), mMemberInfoList.size() + ""));
         mBackgroundHandler.sendEmptyMessage(ADD_ALL_MEMBER);
     }
 
@@ -376,7 +376,7 @@ public class MembersInChatActivity extends BaseActivity {
         private final WeakReference<MembersInChatActivity> mActivity;
 
         public UIHandler(MembersInChatActivity activity) {
-            mActivity = new WeakReference<>(activity);
+            mActivity = new WeakReference<MembersInChatActivity>(activity);
         }
 
         @Override

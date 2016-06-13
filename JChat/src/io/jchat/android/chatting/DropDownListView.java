@@ -63,6 +63,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
 
     private float actionMovePointY;
     private int mOffset = PAGE_MESSAGE_COUNT;
+    private int mDefStyle = 0;
 
     public DropDownListView(Context context) {
         super(context);
@@ -78,6 +79,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
     public DropDownListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         getAttrs(context, attrs);
+        mDefStyle = defStyle;
         init(context);
     }
 
@@ -363,8 +365,8 @@ public class DropDownListView extends ListView implements OnScrollListener {
     private void getAttrs(Context context, AttributeSet attrs) {
         int[] dropDownAttrArray = IdHelper.getResourceDeclareStyleableIntArray(context, "drop_down_list_attr");
         if (dropDownAttrArray != null) {
-            TypedArray ta = context.obtainStyledAttributes(attrs, dropDownAttrArray);
-            isDropDownStyle = ta.getBoolean(1, true);
+            TypedArray ta = context.obtainStyledAttributes(attrs, dropDownAttrArray, mDefStyle, 0);
+            isDropDownStyle = true;
             ta.recycle();
         }
     }
