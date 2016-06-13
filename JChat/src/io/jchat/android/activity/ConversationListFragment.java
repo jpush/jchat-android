@@ -73,7 +73,7 @@ public class ConversationListFragment extends BaseFragment {
         mThread.start();
         mBackgroundHandler = new BackgroundHandler(mThread.getLooper());
         mMenuView = getActivity().getLayoutInflater().inflate(R.layout.drop_down_menu, null);
-        mConvListController = new ConversationListController(mConvListView, this, mDensityDpi, mWidth);
+        mConvListController = new ConversationListController(mConvListView, this, mWidth);
         mConvListView.setListener(mConvListController);
         mConvListView.setItemListeners(mConvListController);
         mConvListView.setLongClickListener(mConvListController);
@@ -151,9 +151,8 @@ public class ConversationListFragment extends BaseFragment {
             long groupID = ((GroupInfo) msg.getTargetInfo()).getGroupID();
             Conversation conv = JMessageClient.getGroupConversation(groupID);
             if (conv != null && mConvListController != null) {
-                mBackgroundHandler.removeMessages(REFRESH_CONVERSATION_LIST);
-                mBackgroundHandler.sendMessageDelayed(mBackgroundHandler
-                        .obtainMessage(REFRESH_CONVERSATION_LIST, conv), 200);
+                mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST,
+                        conv));
             }
         } else {
             final UserInfo userInfo = (UserInfo) msg.getTargetInfo();
@@ -179,9 +178,8 @@ public class ConversationListFragment extends BaseFragment {
                         }
                     }
                 });
-                mBackgroundHandler.removeMessages(REFRESH_CONVERSATION_LIST);
-                mBackgroundHandler.sendMessageDelayed(mBackgroundHandler
-                        .obtainMessage(REFRESH_CONVERSATION_LIST, conv),200);
+                mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST,
+                        conv));
             }
         }
     }

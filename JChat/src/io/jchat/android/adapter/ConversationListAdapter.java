@@ -3,6 +3,7 @@ package io.jchat.android.adapter;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -13,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,13 +37,13 @@ public class ConversationListAdapter extends BaseAdapter {
 
     List<Conversation> mDatas;
     private Activity mContext;
-    private int mDensityDpi;
     private Map<String, String> mDraftMap = new HashMap<String, String>();
+    private UIHandler mUIHandler = new UIHandler(this);
+    private static final int REFRESH_CONVERSATION_LIST = 0x3001;
 
-    public ConversationListAdapter(Activity context, List<Conversation> data, int densityDpi) {
+    public ConversationListAdapter(Activity context, List<Conversation> data) {
         this.mContext = context;
         this.mDatas = data;
-        this.mDensityDpi = densityDpi;
     }
 
     /**
@@ -53,23 +56,15 @@ public class ConversationListAdapter extends BaseAdapter {
             if (conv.getId().equals(conversation.getId())) {
                 mDatas.remove(conversation);
                 mDatas.add(0, conv);
-                mContext.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyDataSetChanged();
-                    }
-                });
+                mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+                mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
                 return;
             }
         }
         //如果是新的会话
         mDatas.add(0, conv);
-        mContext.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                notifyDataSetChanged();
-            }
-        });
+        mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+        mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
     }
 
     public void sortConvList() {
@@ -139,13 +134,6 @@ public class ConversationListAdapter extends BaseAdapter {
                     .findViewById(R.id.msg_item_head_icon);
             viewHolder.convName = (TextView) convertView
                     .findViewById(R.id.conv_item_name);
-            if (mDensityDpi <= 160) {
-                viewHolder.convName.setEms(6);
-            }else if (mDensityDpi <= 240) {
-                viewHolder.convName.setEms(8);
-            }else {
-                viewHolder.convName.setEms(10);
-            }
             viewHolder.content = (TextView) convertView
                     .findViewById(R.id.msg_item_content);
             viewHolder.datetime = (TextView) convertView
@@ -234,13 +222,35 @@ public class ConversationListAdapter extends BaseAdapter {
                 viewHolder.newMsgNumber.setText(String.valueOf(convItem.getUnReadMsgCnt()));
             }
             else {
-                viewHolder.newMsgNumber.setText("99");
+                viewHolder.newMsgNumber.setText(mContext.getString(R.string.hundreds_of_unread_msgs));
             }
         } else {
             viewHolder.newMsgNumber.setVisibility(View.GONE);
         }
 
         return convertView;
+    }
+
+    static class UIHandler extends Handler {
+
+        private final WeakReference<ConversationListAdapter> mAdapter;
+
+        public UIHandler(ConversationListAdapter adapter) {
+            mAdapter = new WeakReference<ConversationListAdapter>(adapter);
+        }
+
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            ConversationListAdapter adapter = mAdapter.get();
+            if (adapter != null) {
+                switch (msg.what) {
+                    case REFRESH_CONVERSATION_LIST:
+                        adapter.notifyDataSetChanged();
+                        break;
+                }
+            }
+        }
     }
 
     private class ViewHolder {
