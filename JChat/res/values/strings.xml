@@ -151,7 +151,7 @@
     <string name="about">关于</string>
     <string name="demo_version_name">demo版本号:%s</string>
     <string name="sdk_version">\nsdk版本号:</string>
-    <string name="about_date">\n6月3日</string>
+    <string name="about_date">\n6月28日</string>
     <string name="add_to_friend">加为好友</string>
     <string name="setting_username_hit">昵称</string>
     <string name="setting_username_big_hit">更改名字</string>
@@ -195,7 +195,9 @@
     <string name="receive_new_msg_vibration_hit">震动</string>
     <string name="receive_new_msg_voice_hit">声音</string>
     <string name="background_msg_remind_time">后台消息免打扰时段</string>
-    <string name="dnd_sub_hit">勿扰模式</string>
+    <string name="no_disturb_global_hit">全局免打扰</string>
+    <string name="set_no_disturb_global_succeed">全局免打扰设置成功</string>
+    <string name="remove_no_disturb_global_succeed">已移除全局免打扰</string>
     <string name="all_day_remind_hit">全天提醒</string>
     <string name="close_all_day_remind">关闭全天提醒后，消息只在设定时间内提醒</string>
     <string name="disturb_description">开启后，在设定时间段内收到新消息将不会响铃或震动</string>

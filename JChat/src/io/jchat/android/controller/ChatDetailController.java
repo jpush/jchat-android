@@ -272,9 +272,9 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 if (mMemberInfoList.get(position).getUserName().equals(mMyUsername)) {
                     intent.setClass(mContext, MeInfoActivity.class);
                 } else {
-                    intent.putExtra(JChatDemoApplication.TARGET_ID,
-                            mMemberInfoList.get(position).getUserName());
-                    intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
+                    UserInfo userInfo = mMemberInfoList.get(position);
+                    intent.putExtra(JChatDemoApplication.TARGET_ID, userInfo.getUserName());
+                    intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, userInfo.getAppKey());
                     intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
                     intent.setClass(mContext, FriendInfoActivity.class);
                 }

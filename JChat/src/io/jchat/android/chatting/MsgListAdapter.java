@@ -582,9 +582,7 @@ public class MsgListAdapter extends BaseAdapter {
                     } else {
                         String targetID = userInfo.getUserName();
                         intent.putExtra(JChatDemoApplication.TARGET_ID, targetID);
-                        if (!mIsGroup) {
-                            intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
-                        }
+                        intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, userInfo.getAppKey());
                         intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
                         intent.setClass(mContext, FriendInfoActivity.class);
                         ((Activity) mContext).startActivityForResult(intent,

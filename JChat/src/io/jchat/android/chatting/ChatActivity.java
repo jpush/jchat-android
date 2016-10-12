@@ -94,6 +94,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private long mGroupId;
     private String mGroupName;
     private GroupInfo mGroupInfo;
+    private UserInfo mMyInfo;
     private String mTargetId;
     private String mTargetAppKey;
     private String mPhotoPath = null;
@@ -119,6 +120,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         Intent intent = getIntent();
         mTargetId = intent.getStringExtra(TARGET_ID);
         mTargetAppKey = intent.getStringExtra(TARGET_APP_KEY);
+        mMyInfo = JMessageClient.getMyInfo();
         if (!TextUtils.isEmpty(mTargetId)) {
             mIsSingle = true;
             mConv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
@@ -155,7 +157,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 if (mConv != null) {
                     GroupInfo groupInfo = (GroupInfo)mConv.getTargetInfo();
                     Log.d(TAG, "GroupInfo: " + groupInfo.toString());
-                    UserInfo userInfo = groupInfo.getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
+                    UserInfo userInfo = groupInfo.getGroupMemberInfo(mMyInfo.getUserName(), mMyInfo.getAppKey());
                     //如果自己在群聊中，聊天标题显示群人数
                     if (userInfo != null) {
                         if (!TextUtils.isEmpty(groupInfo.getGroupName())) {
@@ -490,7 +492,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         } else if (resultCode == RESULT_CODE_CHAT_DETAIL) {
             if (!mIsSingle) {
                 GroupInfo groupInfo = (GroupInfo) mConv.getTargetInfo();
-                UserInfo userInfo = groupInfo.getGroupMemberInfo(JMessageClient.getMyInfo().getUserName());
+                UserInfo userInfo = groupInfo.getGroupMemberInfo(mMyInfo.getUserName(), mMyInfo.getAppKey());
                 //如果自己在群聊中，同时显示群人数
                 if (userInfo != null) {
                     if (TextUtils.isEmpty(data.getStringExtra(NAME))) {
@@ -620,8 +622,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     case REFRESH_CHAT_TITLE:
                         if (activity.mGroupInfo != null) {
                             //检查自己是否在群组中
-                            UserInfo info = activity.mGroupInfo.getGroupMemberInfo(JMessageClient
-                                    .getMyInfo().getUserName());
+                            UserInfo info = activity.mGroupInfo.getGroupMemberInfo(activity.mMyInfo.getUserName(),
+                                    activity.mMyInfo.getAppKey());
                             if (!TextUtils.isEmpty(activity.mGroupInfo.getGroupName())){
                                 activity.mGroupName = activity.mGroupInfo.getGroupName();
                                 if (info != null){
@@ -687,7 +689,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         if (msg.getContentType() == ContentType.eventNotification) {
             GroupInfo groupInfo = (GroupInfo) msg.getTargetInfo();
             long groupId = groupInfo.getGroupID();
-            UserInfo myInfo = JMessageClient.getMyInfo();
             EventNotificationContent.EventNotificationType type = ((EventNotificationContent) msg
                     .getContent()).getEventNotificationType();
             if (groupId == mGroupId) {
@@ -697,7 +698,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                         List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
                         //群主把当前用户添加到群聊，则显示聊天详情按钮
                         refreshGroupNum();
-                        if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())) {
+                        if (userNames.contains(mMyInfo.getNickname()) || userNames.contains(mMyInfo.getUserName())) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -711,7 +712,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                         //删除群成员事件
                         userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
                         //群主删除了当前用户，则隐藏聊天详情按钮
-                        if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())) {
+                        if (userNames.contains(mMyInfo.getNickname()) || userNames.contains(mMyInfo.getUserName())) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

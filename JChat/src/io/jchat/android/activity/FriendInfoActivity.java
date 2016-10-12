@@ -52,7 +52,7 @@ public class FriendInfoActivity extends BaseActivity {
         } else {
             conv = JMessageClient.getGroupConversation(mGroupId);
             GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
-            mUserInfo = groupInfo.getGroupMemberInfo(mTargetId);
+            mUserInfo = groupInfo.getGroupMemberInfo(mTargetId, mTargetAppKey);
         }
 
         mFriendInfoView.initModule();
@@ -118,6 +118,10 @@ public class FriendInfoActivity extends BaseActivity {
 
     public String getUserName() {
         return mUserInfo.getUserName();
+    }
+
+    public String getTargetAppKey() {
+        return mTargetAppKey;
     }
 
 

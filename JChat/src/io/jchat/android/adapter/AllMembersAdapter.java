@@ -185,6 +185,7 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
             mContext.startActivity(intent);
         } else {
             intent.setClass(mContext, FriendInfoActivity.class);
+            intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, userInfo.getAppKey());
             intent.putExtra(JChatDemoApplication.TARGET_ID,
                     userInfo.getUserName());
             intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);

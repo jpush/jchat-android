@@ -28,7 +28,7 @@ public class TimeFormat {
     //用于显示会话时间
     public String getTime() {
         long currentTime = Configs.getReportTime();
-        Date date1 = new Date(currentTime);
+        Date date1 = new Date(currentTime * 1000);
         Date date2 = new Date(mTimeStamp);
         SimpleDateFormat format = new SimpleDateFormat(mContext.getString(IdHelper.getString(mContext,
                 "jmui_time_format_hours")), Locale.CHINA);
@@ -78,7 +78,7 @@ public class TimeFormat {
     //用于显示消息具体时间
     public String getDetailTime() {
         long currentTime = Configs.getReportTime();
-        Date date1 = new Date(currentTime);
+        Date date1 = new Date(currentTime * 1000);
         Date date2 = new Date(mTimeStamp);
         SimpleDateFormat format = new SimpleDateFormat(mContext.getString(IdHelper.getString(mContext,
                 "jmui_time_format_hours")), Locale.CHINA);

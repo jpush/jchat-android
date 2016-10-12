@@ -52,7 +52,7 @@ public class DisturbSettingActivity extends BaseActivity implements SlipButton.O
                 finish();
             }
         });
-        mTitle.setText(mContext.getString(R.string.dnd_sub_hit));
+        mTitle.setText(mContext.getString(R.string.no_disturb_global_hit));
         mMenuBtn.setVisibility(View.GONE);
         mDisturbSwitchBtn.setOnChangedListener(R.id.disturb_mode_switch, this);
         mDisturbSwitchBtn.setChecked(false);

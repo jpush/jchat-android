@@ -73,7 +73,7 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
                 list.add(mContext.getUserName());
                 dialog.show();
                 if (flag) {
-                    JMessageClient.addUsersToBlacklist(list, new BasicCallback() {
+                    JMessageClient.addUsersToBlacklist(list, mContext.getTargetAppKey(), new BasicCallback() {
                         @Override
                         public void gotResult(int status, String desc) {
                             dialog.dismiss();
@@ -89,7 +89,7 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
                         }
                     });
                 } else {
-                    JMessageClient.delUsersFromBlacklist(list, new BasicCallback() {
+                    JMessageClient.delUsersFromBlacklist(list, mContext.getTargetAppKey(), new BasicCallback() {
                         @Override
                         public void gotResult(int status, String desc) {
                             dialog.dismiss();
