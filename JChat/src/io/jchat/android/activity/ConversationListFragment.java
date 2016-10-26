@@ -2,10 +2,18 @@ package io.jchat.android.activity;
 
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,7 +34,7 @@ import io.jchat.android.R;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
 import io.jchat.android.entity.Event;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.view.ConversationListView;
 import io.jchat.android.view.MenuItemView;
 
@@ -43,22 +51,29 @@ public class ConversationListFragment extends BaseFragment {
     private View mMenuView;
     private MenuItemView mMenuItemView;
     private MenuItemController mMenuController;
+    private NetworkReceiver mReceiver;
     private Activity mContext;
+    private BackgroundHandler mBackgroundHandler;
+    private HandlerThread mThread;
+    private static final int REFRESH_CONVERSATION_LIST = 0x3000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         mContext = this.getActivity();
-        JMessageClient.registerEventReceiver(this);
         EventBus.getDefault().register(this);
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mRootView = layoutInflater.inflate(R.layout.fragment_conv_list,
                 (ViewGroup) getActivity().findViewById(R.id.main_view), false);
         mConvListView = new ConversationListView(mRootView, this.getActivity());
         mConvListView.initModule();
+
+        mThread = new HandlerThread("Work on MainActivity");
+        mThread.start();
+        mBackgroundHandler = new BackgroundHandler(mThread.getLooper());
         mMenuView = getActivity().getLayoutInflater().inflate(R.layout.drop_down_menu, null);
-        mConvListController = new ConversationListController(mConvListView, this, mDensityDpi, mWidth);
+        mConvListController = new ConversationListController(mConvListView, this, mWidth);
         mConvListView.setListener(mConvListController);
         mConvListView.setItemListeners(mConvListController);
         mConvListView.setLongClickListener(mConvListController);
@@ -66,9 +81,41 @@ public class ConversationListFragment extends BaseFragment {
                 WindowManager.LayoutParams.WRAP_CONTENT, true);
         mMenuItemView = new MenuItemView(mMenuView);
         mMenuItemView.initModule();
-        mMenuController = new MenuItemController(mMenuItemView, this, mConvListController);
+        mMenuController = new MenuItemController(mMenuItemView, this, mConvListController, mWidth);
         mMenuItemView.setListeners(mMenuController);
+        ConnectivityManager manager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeInfo = manager.getActiveNetworkInfo();
+        if (null == activeInfo) {
+            mConvListView.showHeaderView();
+        } else {
+            mConvListView.dismissHeaderView();
+        }
+        initReceiver();
 
+    }
+
+    private void initReceiver() {
+        mReceiver = new NetworkReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        mContext.registerReceiver(mReceiver, filter);
+    }
+
+    //监听网络状态的广播
+    private class NetworkReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")) {
+                ConnectivityManager manager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeInfo = manager.getActiveNetworkInfo();
+                if (null == activeInfo) {
+                    mConvListView.showHeaderView();
+                } else {
+                    mConvListView.dismissHeaderView();
+                }
+            }
+        }
 
     }
 
@@ -77,11 +124,6 @@ public class ConversationListFragment extends BaseFragment {
         // TODO Auto-generated method stub
         super.onActivityCreated(savedInstanceState);
 
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
     }
 
     //显示下拉菜单
@@ -103,24 +145,25 @@ public class ConversationListFragment extends BaseFragment {
      */
     public void onEvent(MessageEvent event) {
         Message msg = event.getMessage();
-        Log.d("JMessage", "收到消息：msg = " + msg.toString());
+        Log.d(TAG, "收到消息：msg = " + msg.toString());
         ConversationType convType = msg.getTargetType();
         if (convType == ConversationType.group) {
             long groupID = ((GroupInfo) msg.getTargetInfo()).getGroupID();
             Conversation conv = JMessageClient.getGroupConversation(groupID);
             if (conv != null && mConvListController != null) {
-                mConvListController.refreshConvList(conv);
+                mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST,
+                        conv));
             }
         } else {
             final UserInfo userInfo = (UserInfo) msg.getTargetInfo();
             final String targetID = userInfo.getUserName();
-            final Conversation conv = JMessageClient.getSingleConversation(targetID);
+            final Conversation conv = JMessageClient.getSingleConversation(targetID, userInfo.getAppKey());
             if (conv != null && mConvListController != null) {
                 mContext.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //如果设置了头像
-                        if (!TextUtils.isEmpty(userInfo.getAvatar())){
+                        if (!TextUtils.isEmpty(userInfo.getAvatar())) {
                             //如果本地不存在头像
                             userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
                                 @Override
@@ -135,7 +178,25 @@ public class ConversationListFragment extends BaseFragment {
                         }
                     }
                 });
-                mConvListController.refreshConvList(conv);
+                mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST,
+                        conv));
+            }
+        }
+    }
+
+    private class BackgroundHandler extends Handler {
+        public BackgroundHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case REFRESH_CONVERSATION_LIST:
+                    Conversation conv = (Conversation) msg.obj;
+                    mConvListController.getAdapter().setToTop(conv);
+                    break;
             }
         }
     }
@@ -148,22 +209,58 @@ public class ConversationListFragment extends BaseFragment {
     public void onEventMainThread(Event.StringEvent event) {
         Log.d(TAG, "StringEvent execute");
         String targetId = event.getTargetId();
+<<<<<<< HEAD
         Conversation conv = JMessageClient.getSingleConversation(targetId);
+=======
+        String appKey = event.getAppKey();
+        Conversation conv = JMessageClient.getSingleConversation(targetId, appKey);
+>>>>>>> master
         if (conv != null) {
             mConvListController.getAdapter().addNewConversation(conv);
         }
     }
 
     /**
-     * 收到创建群聊的消息
+     * 收到创建或者删除群聊的消息
      *
-     * @param event 从event中得到groupID
+     * @param event 从event中得到groupID以及flag
      */
     public void onEventMainThread(Event.LongEvent event) {
         long groupId = event.getGroupId();
         Conversation conv = JMessageClient.getGroupConversation(groupId);
+<<<<<<< HEAD
         if (conv != null) {
+=======
+        if (conv != null && event.getFlag()) {
+>>>>>>> master
             mConvListController.getAdapter().addNewConversation(conv);
+        } else {
+            mConvListController.getAdapter().deleteConversation(groupId);
+        }
+    }
+
+    /**
+     * 收到保存为草稿事件
+     * @param event 从event中得到Conversation Id及草稿内容
+     */
+    public void onEventMainThread(Event.DraftEvent event) {
+        String draft = event.getDraft();
+        String targetId = event.getTargetId();
+        String targetAppKey = event.getTargetAppKey();
+        Conversation conv;
+        if (targetId != null) {
+            conv = JMessageClient.getSingleConversation(targetId, targetAppKey);
+        } else {
+            long groupId = event.getGroupId();
+            conv = JMessageClient.getGroupConversation(groupId);
+        }
+        //如果草稿内容不为空，保存，并且置顶该会话
+        if (!TextUtils.isEmpty(draft)) {
+            mConvListController.getAdapter().putDraftToMap(conv.getId(), draft);
+            mConvListController.getAdapter().setToTop(conv);
+        //否则删除
+        } else {
+            mConvListController.getAdapter().delDraftFromMap(conv.getId());
         }
     }
 
@@ -217,8 +314,10 @@ public class ConversationListFragment extends BaseFragment {
 
     @Override
     public void onDestroy() {
-        JMessageClient.unRegisterEventReceiver(this);
         EventBus.getDefault().unregister(this);
+        mContext.unregisterReceiver(mReceiver);
+        mBackgroundHandler.removeCallbacksAndMessages(null);
+        mThread.getLooper().quit();
         super.onDestroy();
     }
 

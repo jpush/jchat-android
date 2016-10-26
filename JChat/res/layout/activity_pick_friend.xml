@@ -8,7 +8,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/title_bar_height"
-        android:background="@color/jpush_blue" >
+        android:background="@color/jmui_jpush_blue" >
 
         <ImageButton
             android:id="@+id/friend_info_return_btn"
@@ -16,10 +16,10 @@
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:src="@drawable/cancel_btn"
-            android:background="@drawable/back_btn_bg" />
+            android:background="@drawable/jmui_back_btn_bg" />
 
         <TextView
-            android:id="@+id/title_tv"
+            android:id="@+id/jmui_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/title_tv"
+            android:layout_below="@+id/jmui_title_tv"
             android:textSize="12sp"
             android:textColor="@color/white"
             android:text="(2/193)"/>

@@ -3,8 +3,7 @@
     android:id="@+id/chat_detail_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
-    >
+    android:background="@android:color/white">
 
     <ScrollView
         android:id="@+id/chat_detail_sv"
@@ -12,183 +11,195 @@
         android:layout_height="match_parent"
         android:fadingEdge="vertical"
         android:scrollbars="vertical">
-        
-    <LinearLayout 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-        
-        <include layout="@layout/menu_title_bar"/>
-
-        <io.jchat.android.view.GroupGridView
-            android:id="@+id/chat_detail_group_gv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="20dp"
-            android:horizontalSpacing="10dp"
-            android:numColumns="4"
-            android:stretchMode="columnWidth"
-            android:verticalSpacing="10dp">
-        </io.jchat.android.view.GroupGridView>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginTop="5dp"
-            android:background="@color/chat_detail_split_line_color" />
 
         <LinearLayout
-            android:id="@+id/all_member_ll"
-            style="@style/ChatDetailItem">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/members_num"
-                android:layout_width="wrap_content"
+            <include layout="@layout/menu_title_bar" />
+
+            <io.jchat.android.view.GroupGridView
+                android:id="@+id/chat_detail_group_gv"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/selected_num"
-                android:textColor="@color/chat_detail_item_hit_color"
-                android:textSize="@dimen/text_medium_size" />
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:horizontalSpacing="10dp"
+                android:numColumns="4"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="10dp"/>
 
+            <View
+                android:id="@+id/all_member_split_line1"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/jmui_chat_detail_split_line_color" />
+
+            <LinearLayout
+                android:id="@+id/all_member_ll"
+                style="@style/ChatDetailItem">
+
+                <TextView
+                    android:id="@+id/members_num"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:text="@string/selected_num"
+                    android:textColor="@color/chat_detail_item_hit_color"
+                    android:textSize="@dimen/text_medium_size" />
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/all_member_split_line2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/jmui_chat_detail_split_line_color" />
+
+
+            <LinearLayout
+                android:id="@+id/group_name_ll"
+                style="@style/ChatDetailItem">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="@string/group_name_hit" />
+
+                <TextView
+                    android:id="@+id/chat_detail_group_name"
+                    style="@style/ChatDetailItemContent" />
+
+                <ImageView
+                    android:id="@+id/arrow_iv"
+                    style="@style/ChatDetailArrow" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/jmui_chat_detail_split_line_color" />
+
+            <RelativeLayout
+                android:id="@+id/no_disturb_rl"
+                style="@style/ChatDetailItem">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="@string/set_do_not_disturb" />
+
+                <io.jchat.android.view.SlipButton
+                    android:id="@+id/no_disturb_slip_btn"
+                    android:layout_width="70dp"
+                    android:layout_height="35dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    />
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/jmui_chat_detail_split_line_color" />
+
+            <LinearLayout
+                android:id="@+id/group_num_ll"
+                style="@style/ChatDetailItem"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="@string/group_people_num_hit" />
+
+                <TextView
+                    android:id="@+id/chat_detail_group_num"
+                    style="@style/ChatDetailItemContent" />
+
+                <ImageView style="@style/ChatDetailArrow" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/jmui_chat_detail_split_line_color"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/group_my_name_ll"
+                style="@style/ChatDetailItem"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="@string/group_my_name_hit" />
+
+                <TextView
+                    android:id="@+id/chat_detail_my_name"
+                    style="@style/ChatDetailItemContent"/>
+
+                <ImageView style="@style/ChatDetailArrow" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/jmui_chat_detail_split_line_color"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/group_chat_record_ll"
+                style="@style/ChatDetailItem"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="@string/group_chat_history_hit" />
+
+                <TextView style="@style/ChatDetailItemContent" />
+
+                <ImageView style="@style/ChatDetailArrow" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/group_chat_del_ll"
+                style="@style/ChatDetailItem">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="@string/group_clear_history_hit" />
+
+                <TextView style="@style/ChatDetailItemContent" />
+
+                <ImageView style="@style/ChatDetailArrow" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/jmui_chat_detail_split_line_color" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:layout_marginTop="40dp">
+
+                <Button
+                    android:id="@+id/chat_detail_del_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:background="@drawable/chat_detail_btn_bg"
+                    android:text="@string/group_exit_btn"
+                    android:textColor="@color/white"
+                    android:textSize="18sp" />
+            </LinearLayout>
         </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/chat_detail_split_line_color" />
-
-
-        <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="20dp"
-        android:background="@color/chat_detail_split_line_color" />
-
-    <LinearLayout
-        android:id="@+id/group_name_ll"
-        style="@style/ChatDetailItem" >
-
-        <TextView
-            style="@style/ChatDetailItemHit"
-            android:text="@string/group_name_hit" />
-
-        <TextView
-            android:id="@+id/chat_detail_group_name"
-            style="@style/ChatDetailItemContent"/>
-
-        <ImageView
-            android:id="@+id/arrow_iv"
-            style="@style/ChatDetailArrow"/>
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:visibility="gone"
-        android:background="@color/chat_detail_split_line_color" />
-
-    <LinearLayout
-        android:id="@+id/group_num_ll"
-        style="@style/ChatDetailItem"
-        android:visibility="gone">
-
-        <TextView
-            style="@style/ChatDetailItemHit"
-            android:text="@string/group_people_num_hit" />
-
-        <TextView
-            android:id="@+id/chat_detail_group_num"
-            style="@style/ChatDetailItemContent"
-            android:text="40人" />
-
-        <ImageView style="@style/ChatDetailArrow" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:visibility="gone"
-        android:background="@color/chat_detail_split_line_color" />
-
-    <LinearLayout 
-        android:id="@+id/group_my_name_ll"
-        style="@style/ChatDetailItem"
-        android:visibility="gone">
-
-        <TextView
-            style="@style/ChatDetailItemHit"
-            android:text="@string/group_my_name_hit" />
-
-        <TextView
-            android:id="@+id/chat_detail_my_name"
-            style="@style/ChatDetailItemContent"
-            android:text="minsd" />
-
-        <ImageView style="@style/ChatDetailArrow" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/chat_detail_split_line_color"
-        android:visibility="gone"/>
-
-    <LinearLayout 
-        android:id="@+id/group_chat_record_ll"
-        style="@style/ChatDetailItem"
-        android:visibility="gone">
-
-        <TextView
-            style="@style/ChatDetailItemHit"
-            android:text="@string/group_chat_history_hit" />
-
-        <TextView style="@style/ChatDetailItemContent" />
-
-        <ImageView style="@style/ChatDetailArrow" />
-    </LinearLayout>
-
-    <View
-        android:id="@+id/group_num_dividing_line"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/chat_detail_split_line_color" />
-
-    <LinearLayout
-        android:id="@+id/group_chat_del_ll"
-        style="@style/ChatDetailItem" >
-
-        <TextView
-            style="@style/ChatDetailItemHit"
-            android:text="@string/group_clear_history_hit" />
-
-        <TextView style="@style/ChatDetailItemContent" />
-
-        <ImageView style="@style/ChatDetailArrow"/>
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/chat_detail_split_line_color" />
-
-    <LinearLayout 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="40dp">
-
-        <Button
-            android:id="@+id/chat_detail_del_group"
-            android:layout_width="match_parent"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_height="50dp"
-            android:background="@drawable/chat_detail_btn_bg"
-            android:textSize="18sp"
-            android:text="@string/group_exit_btn"
-            android:textColor="@color/white" />
-    </LinearLayout>
-    </LinearLayout>
     </ScrollView>
 </io.jchat.android.view.ChatDetailView>

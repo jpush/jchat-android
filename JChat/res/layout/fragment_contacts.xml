@@ -3,7 +3,8 @@
     android:id="@+id/contacts_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#ffffff">
 
     <include layout="@layout/base_title_bar" />
 
@@ -19,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="10"
             android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/text_cursor_bg"
+            android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
             android:hint="搜索..."
             android:padding="10dp"
             android:textColor="#808080"
@@ -49,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:textColor="@color/chat_detail_item_content_color"
+            android:textColor="@color/gray"
             android:textSize="24sp"
             android:text="敬请期待！"/>
 
@@ -105,7 +106,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/recommend_icon"
                     android:text="朋友推荐消息"
-                    android:textColor="@color/jpush_blue"
+                    android:textColor="@color/jmui_jpush_blue"
                     android:textSize="20sp" />
 
             </RelativeLayout>
@@ -138,7 +139,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/group_icon"
                     android:text="群聊"
-                    android:textColor="@color/jpush_blue"
+                    android:textColor="@color/jmui_jpush_blue"
                     android:textSize="20sp" />
 
             </RelativeLayout>

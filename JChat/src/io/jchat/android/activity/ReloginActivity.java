@@ -6,8 +6,8 @@ import android.os.Bundle;
 
 import io.jchat.android.R;
 import io.jchat.android.controller.ReloginController;
-import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.SharePreferenceManager;
+import io.jchat.android.chatting.utils.BitmapLoader;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.view.ReloginView;
 
 public class ReloginActivity extends BaseActivity {

@@ -2,51 +2,45 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white">
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp">
 
-        <!-- 联系人信息 -->
-        <io.jchat.android.view.CircleImageView
-            android:id="@+id/icon_iv"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="5dp"
-            android:src="@drawable/head_icon" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="5dp"
-            android:layout_toRightOf="@+id/icon_iv"
-            android:layout_toLeftOf="@+id/check_box_cb">
-
-            <TextView
-                android:id="@+id/name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:singleLine="true"
-                android:text="text"
-                android:textSize="20sp"
-                android:textColor="#000000" />
-
-        </LinearLayout>
-
         <CheckBox
             android:id="@+id/check_box_cb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="10dp"
-            android:focusable="false"/>
+            android:focusable="false"
+            android:background="@drawable/pictures_select_icon"
+            android:button="@null"/>
+
+        <!-- 联系人信息 -->
+        <io.jchat.android.chatting.CircleImageView
+            android:id="@+id/icon_iv"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_toRightOf="@+id/check_box_cb"
+            android:layout_marginLeft="5dp"
+            android:src="@drawable/jmui_head_icon" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/icon_iv"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_centerVertical="true"
+            android:singleLine="true"
+            android:textSize="20sp"
+            android:textColor="#000000" />
+
+
 
     </RelativeLayout>
 

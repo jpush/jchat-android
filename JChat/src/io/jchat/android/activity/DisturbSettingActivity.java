@@ -12,13 +12,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import io.jchat.android.R;
-import io.jchat.android.Listener.OnChangedListener;
 import io.jchat.android.view.SlipButton;
 
 /*
 勿扰模式界面
  */
-public class DisturbSettingActivity extends BaseActivity implements OnChangedListener{
+public class DisturbSettingActivity extends BaseActivity implements SlipButton.OnChangedListener{
 
     private ImageButton mReturnBtn;
     private TextView mTitle;
@@ -53,7 +52,7 @@ public class DisturbSettingActivity extends BaseActivity implements OnChangedLis
                 finish();
             }
         });
-        mTitle.setText(mContext.getString(R.string.dnd_sub_hit));
+        mTitle.setText(mContext.getString(R.string.no_disturb_global_hit));
         mMenuBtn.setVisibility(View.GONE);
         mDisturbSwitchBtn.setOnChangedListener(R.id.disturb_mode_switch, this);
         mDisturbSwitchBtn.setChecked(false);
@@ -68,7 +67,7 @@ public class DisturbSettingActivity extends BaseActivity implements OnChangedLis
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
             View view = View.inflate(mContext, R.layout.dialog_time_picker, null);
             final TimePicker timePicker = (TimePicker) view.findViewById(R.id.time_picker);
-            final Button commit = (Button) view.findViewById(R.id.commit_btn);
+            final Button commit = (Button) view.findViewById(R.id.jmui_commit_btn);
             builder.setView(view);
             timePicker.setIs24HourView(false);
             switch (v.getId()) {
@@ -82,11 +81,11 @@ public class DisturbSettingActivity extends BaseActivity implements OnChangedLis
                         public void onClick(View view) {
                             StringBuffer sb = new StringBuffer();
                             if (timePicker.getCurrentHour() < 12) {
-                                sb.append(mContext.getString(R.string.morning) + " ");
+                                sb.append(mContext.getString(R.string.jmui_morning) + " ");
                             } else if (timePicker.getCurrentHour() < 18) {
-                                sb.append(mContext.getString(R.string.afternoon) + " ");
+                                sb.append(mContext.getString(R.string.jmui_afternoon) + " ");
                             } else {
-                                sb.append(mContext.getString(R.string.night) + " ");
+                                sb.append(mContext.getString(R.string.jmui_night) + " ");
                             }
                             if (timePicker.getCurrentHour() < 10) {
                                 sb.append("0");
@@ -112,11 +111,11 @@ public class DisturbSettingActivity extends BaseActivity implements OnChangedLis
                         public void onClick(View view) {
                             StringBuffer sb = new StringBuffer();
                             if(timePicker.getCurrentHour() < 12) {
-                                sb.append(mContext.getString(R.string.morning) + " ");
+                                sb.append(mContext.getString(R.string.jmui_morning) + " ");
                             } else if (timePicker.getCurrentHour() < 18) {
-                                sb.append(mContext.getString(R.string.afternoon) + " ");
+                                sb.append(mContext.getString(R.string.jmui_afternoon) + " ");
                             } else {
-                                sb.append(mContext.getString(R.string.night) + " ");
+                                sb.append(mContext.getString(R.string.jmui_night) + " ");
                             }
                             if (timePicker.getCurrentHour() < 10) {
                                 sb.append("0");
@@ -136,7 +135,7 @@ public class DisturbSettingActivity extends BaseActivity implements OnChangedLis
     };
 
     @Override
-    public void OnChanged(int id, boolean flag) {
+    public void onChanged(int id, boolean flag) {
         if (flag) {
             mTimeSettingLl.setVisibility(View.VISIBLE);
         }else

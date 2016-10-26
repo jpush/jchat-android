@@ -10,15 +10,15 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/title_bar_height"
-        android:background="@color/jpush_blue">
+        android:background="@color/jmui_jpush_blue">
 
         <ImageButton
             android:id="@+id/return_btn"
             android:layout_width="@dimen/title_bar_height"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/back_btn"
-            android:background="@drawable/back_btn_bg"
+            android:src="@drawable/jmui_back_btn"
+            android:background="@drawable/jmui_back_btn_bg"
             android:visibility="invisible"
             />
 
@@ -56,9 +56,9 @@
             android:layout_toRightOf="@id/iv_username"
             android:background="@null"
             android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/text_cursor_bg"
+            android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
             android:hint="@string/username_hit"
-            android:textColorHint="@color/chat_detail_item_content_color"
+            android:textColorHint="@color/gray"
             android:singleLine="true"
             android:textSize="@dimen/text_medium_size"
             android:textColor="@color/black" >
@@ -96,9 +96,9 @@
             android:layout_toRightOf="@id/iv_password"
             android:background="@null"
             android:hint="@string/password_hit"
-            android:textColorHint="@color/chat_detail_item_content_color"
+            android:textColorHint="@color/gray"
             android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/text_cursor_bg"
+            android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
             android:inputType="textPassword"
             android:singleLine="true"
             android:textSize="@dimen/text_medium_size"
@@ -120,7 +120,8 @@
         android:layout_marginTop="25dp"
         android:background="@drawable/login_btn_bg"
         android:gravity="center"
-        android:text="登录"
+        android:text="@string/login"
+        android:padding="10dp"
         android:textColor="#FFFFFF"
         android:textSize="@dimen/text_medium_size" />
 

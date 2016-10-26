@@ -17,8 +17,8 @@ import android.widget.Toast;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.chatting.utils.DialogCreator;
 import cn.jpush.im.api.BasicCallback;
 
 /**
@@ -39,8 +39,8 @@ public class ResetNickNameActivity extends BaseActivity {
         setContentView(R.layout.activity_reset_nick_name);
         mContext = this;
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
-        mTitleTv = (TextView) findViewById(R.id.title_tv);
-        mCommitBtn = (Button) findViewById(R.id.commit_btn);
+        mTitleTv = (TextView) findViewById(R.id.jmui_title_tv);
+        mCommitBtn = (Button) findViewById(R.id.jmui_commit_btn);
         mNickNameEt = (EditText) findViewById(R.id.nick_name_et);
 
         mTitleTv.setText(this.getString(R.string.setting_username_big_hit));

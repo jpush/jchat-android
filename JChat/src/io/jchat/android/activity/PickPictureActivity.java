@@ -23,8 +23,8 @@ import cn.jpush.im.android.api.model.Message;
 import io.jchat.android.R;
 import io.jchat.android.adapter.PickPictureAdapter;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.BitmapLoader;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 
 public class PickPictureActivity extends BaseActivity {
 
@@ -35,9 +35,10 @@ public class PickPictureActivity extends BaseActivity {
     private List<String> mPickedList;
     private Button mSendPictureBtn;
     private ImageButton mReturnBtn;
-    private boolean mIsGroup;
+    private boolean mIsGroup = false;
     private PickPictureAdapter mAdapter;
     private String mTargetId;
+    private String mTargetAppKey;
     private Conversation mConv;
     private ProgressDialog mDialog;
     private long mGroupId;
@@ -51,17 +52,18 @@ public class PickPictureActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pick_picture_detail);
         mSendPictureBtn = (Button) findViewById(R.id.pick_picture_send_btn);
-        mReturnBtn = (ImageButton) findViewById(R.id.pick_picture_detail_return_btn);
+        mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
         mGridView = (GridView) findViewById(R.id.child_grid);
 
         Intent intent = this.getIntent();
-        mIsGroup = intent.getBooleanExtra(JChatDemoApplication.IS_GROUP, false);
-        if (mIsGroup) {
-            mGroupId = intent.getLongExtra(JChatDemoApplication.GROUP_ID, 0);
+        mGroupId = intent.getLongExtra(JChatDemoApplication.GROUP_ID, 0);
+        if (mGroupId != 0) {
+            mIsGroup = true;
             mConv = JMessageClient.getGroupConversation(mGroupId);
         } else {
             mTargetId = intent.getStringExtra(JChatDemoApplication.TARGET_ID);
-            mConv = JMessageClient.getSingleConversation(mTargetId);
+            mTargetAppKey = intent.getStringExtra(JChatDemoApplication.TARGET_APP_KEY);
+            mConv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
         }
         mList = intent.getStringArrayListExtra("data");
         mAdapter = new PickPictureAdapter(this, mList, mGridView, mDensity);
@@ -80,10 +82,10 @@ public class PickPictureActivity extends BaseActivity {
                 intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
             } else {
                 intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
+                intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
             }
             intent.putStringArrayListExtra("pathList", (ArrayList<String>) mList);
             intent.putExtra(JChatDemoApplication.POSITION, position);
-            intent.putExtra(JChatDemoApplication.IS_GROUP, mIsGroup);
             intent.putExtra("pathArray", mAdapter.getSelectedArray());
             intent.setClass(PickPictureActivity.this, BrowserViewPagerActivity.class);
             startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_BROWSER_PICTURE);
@@ -117,7 +119,7 @@ public class PickPictureActivity extends BaseActivity {
                         getThumbnailPictures();
                     }
                     break;
-                case R.id.pick_picture_detail_return_btn:
+                case R.id.return_btn:
                     finish();
                     break;
             }
@@ -184,10 +186,10 @@ public class PickPictureActivity extends BaseActivity {
                     }
                 }
                 if (sum > 0) {
-                    String sendText = PickPictureActivity.this.getString(R.string.send) + "(" + sum + "/" + "9)";
+                    String sendText = PickPictureActivity.this.getString(R.string.jmui_send) + "(" + sum + "/" + "9)";
                     mSendPictureBtn.setText(sendText);
                 } else {
-                    mSendPictureBtn.setText(PickPictureActivity.this.getString(R.string.send));
+                    mSendPictureBtn.setText(PickPictureActivity.this.getString(R.string.jmui_send));
                 }
                 mAdapter.refresh(selectedArray);
             }
@@ -213,8 +215,6 @@ public class PickPictureActivity extends BaseActivity {
                 switch (msg.what) {
                     case SEND_PICTURE:
                         Intent intent = new Intent();
-                        intent.putExtra(JChatDemoApplication.TARGET_ID, activity.mTargetId);
-                        intent.putExtra(JChatDemoApplication.GROUP_ID, activity.mGroupId);
                         intent.putExtra(JChatDemoApplication.MsgIDs, activity.mMsgIds);
                         activity.setResult(JChatDemoApplication.RESULT_CODE_SELECT_ALBUM, intent);
                         if (activity.mDialog != null) {

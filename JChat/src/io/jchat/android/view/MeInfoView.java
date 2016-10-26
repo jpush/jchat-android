@@ -18,7 +18,8 @@ import android.widget.TextView;
 import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
-import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.chatting.CircleImageView;
+import io.jchat.android.chatting.utils.DialogCreator;
 
 
 public class MeInfoView extends LinearLayout {

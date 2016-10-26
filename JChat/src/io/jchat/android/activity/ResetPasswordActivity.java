@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import io.jchat.android.R;
 import cn.jpush.im.android.api.JMessageClient;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import cn.jpush.im.api.BasicCallback;
 
 public class ResetPasswordActivity extends BaseActivity {
@@ -36,7 +36,7 @@ public class ResetPasswordActivity extends BaseActivity {
         mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
         mNewPwdEt = (EditText) findViewById(R.id.new_password_et);
         mConfirmPwdEt = (EditText) findViewById(R.id.confirm_password_et);
-        mCommit = (Button) findViewById(R.id.commit_btn);
+        mCommit = (Button) findViewById(R.id.jmui_commit_btn);
 
         mTitle.setText(this.getString(R.string.change_password));
         mMenuBtn.setVisibility(View.GONE);
@@ -51,7 +51,7 @@ public class ResetPasswordActivity extends BaseActivity {
                 case R.id.return_btn:
                     finish();
                     break;
-                case R.id.commit_btn:
+                case R.id.jmui_commit_btn:
                     String newPwd = mNewPwdEt.getText().toString().trim();
                     String confirmPwd = mConfirmPwdEt.getText().toString().trim();
                     if (TextUtils.isEmpty(newPwd) || TextUtils.isEmpty(confirmPwd)) {

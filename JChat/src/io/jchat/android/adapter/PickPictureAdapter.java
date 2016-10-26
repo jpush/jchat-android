@@ -76,7 +76,7 @@ public class PickPictureAdapter extends BaseAdapter {
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
-            viewHolder.mImageView.setImageResource(R.drawable.picture_not_found);
+            viewHolder.mImageView.setImageResource(R.drawable.jmui_picture_not_found);
         }
         viewHolder.mImageView.setTag(path);
         //增加选中checkbox面积
@@ -103,9 +103,9 @@ public class PickPictureAdapter extends BaseAdapter {
 
                 if (mSelectMap.size() > 0) {
                     mSendBtn.setClickable(true);
-                    mSendBtn.setText(mContext.getString(R.string.send) + "(" + mSelectMap.size() + "/" + "9)");
+                    mSendBtn.setText(mContext.getString(R.string.jmui_send) + "(" + mSelectMap.size() + "/" + "9)");
                 } else {
-                    mSendBtn.setText(mContext.getString(R.string.send));
+                    mSendBtn.setText(mContext.getString(R.string.jmui_send));
                     mSendBtn.setClickable(false);
                 }
             }
@@ -131,9 +131,9 @@ public class PickPictureAdapter extends BaseAdapter {
 
                 if (mSelectMap.size() > 0) {
                     mSendBtn.setClickable(true);
-                    mSendBtn.setText(mContext.getString(R.string.send) + "(" + mSelectMap.size() + "/" + "9)");
+                    mSendBtn.setText(mContext.getString(R.string.jmui_send) + "(" + mSelectMap.size() + "/" + "9)");
                 } else {
-                    mSendBtn.setText(mContext.getString(R.string.send));
+                    mSendBtn.setText(mContext.getString(R.string.jmui_send));
                     mSendBtn.setClickable(false);
                 }
             }
@@ -157,7 +157,7 @@ public class PickPictureAdapter extends BaseAdapter {
         if (bitmap != null) {
             viewHolder.mImageView.setImageBitmap(bitmap);
         } else {
-            viewHolder.mImageView.setImageResource(R.drawable.picture_not_found);
+            viewHolder.mImageView.setImageResource(R.drawable.jmui_picture_not_found);
         }
 
         return convertView;

@@ -8,7 +8,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/title_bar_height"
-        android:background="@color/jpush_blue">
+        android:background="@color/jmui_jpush_blue">
 
         <TextView
             android:layout_width="wrap_content"
@@ -34,24 +34,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="45dp"
-            android:layout_toLeftOf="@+id/avatar_iv"
+            android:layout_toLeftOf="@+id/jmui_avatar_iv"
             android:background="@null"
             android:hint="输入您的昵称"
             android:textColor="@color/login_txt_hint_color"
-            android:textColorHint="@color/chat_detail_item_content_color"
-            android:textCursorDrawable="@drawable/text_cursor_bg"
+            android:textColorHint="@color/gray"
+            android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
             android:inputType="textMultiLine"
             android:focusable="true"/>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_below="@+id/avatar_iv"
-            android:layout_toLeftOf="@+id/avatar_iv"
+            android:layout_below="@+id/jmui_avatar_iv"
+            android:layout_toLeftOf="@+id/jmui_avatar_iv"
             android:background="#c1d2ec" />
 
-        <io.jchat.android.view.CircleImageView
-            android:id="@+id/avatar_iv"
+        <io.jchat.android.chatting.CircleImageView
+            android:id="@+id/jmui_avatar_iv"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_alignParentRight="true"

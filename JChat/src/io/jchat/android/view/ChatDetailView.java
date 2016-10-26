@@ -18,6 +18,11 @@ import io.jchat.android.adapter.GroupMemberGridAdapter;
 public class ChatDetailView extends LinearLayout{
 
 	private LinearLayout mAllGroupMemberLL;
+<<<<<<< HEAD
+=======
+	private View mSplitLine1;
+	private View mSplitLine2;
+>>>>>>> master
 	private LinearLayout mGroupNameLL;
 	private LinearLayout mMyNameLL;
 	private LinearLayout mGroupNumLL;
@@ -32,8 +37,8 @@ public class ChatDetailView extends LinearLayout{
 	private TextView mGroupNum;
 	private TextView mMyName;
 	private GroupGridView mGridView;
+	private SlipButton mNoDisturbBtn;
     private Context mContext;
-	private View mDividingLine;
 
 	public ChatDetailView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -43,6 +48,11 @@ public class ChatDetailView extends LinearLayout{
 	
 	public void initModule(){
         mAllGroupMemberLL = (LinearLayout) findViewById(R.id.all_member_ll);
+<<<<<<< HEAD
+=======
+		mSplitLine1 = findViewById(R.id.all_member_split_line1);
+        mSplitLine2 = findViewById(R.id.all_member_split_line2);
+>>>>>>> master
 		mGroupNameLL = (LinearLayout) findViewById(R.id.group_name_ll);
 		mMyNameLL = (LinearLayout) findViewById(R.id.group_my_name_ll);
 		mGroupNumLL = (LinearLayout) findViewById(R.id.group_num_ll);
@@ -55,9 +65,9 @@ public class ChatDetailView extends LinearLayout{
 		mDelGroupBtn = (Button) findViewById(R.id.chat_detail_del_group);
 		mGroupName = (TextView) findViewById(R.id.chat_detail_group_name);
 		mGroupNum = (TextView) findViewById(R.id.chat_detail_group_num);
-		mDividingLine = findViewById(R.id.group_num_dividing_line);
 		mMyName = (TextView) findViewById(R.id.chat_detail_my_name);
 		mGridView = (GroupGridView) findViewById(R.id.chat_detail_group_gv);
+		mNoDisturbBtn = (SlipButton) findViewById(R.id.no_disturb_slip_btn);
 
 		mTitle.setText(mContext.getString(R.string.chat_detail_title));
 		mMenuBtn.setVisibility(View.GONE);
@@ -75,6 +85,10 @@ public class ChatDetailView extends LinearLayout{
 	    mReturnBtn.setOnClickListener(onClickListener);
 		mDelGroupBtn.setOnClickListener(onClickListener);
 	}
+
+    public void setOnChangeListener(SlipButton.OnChangedListener listener) {
+        mNoDisturbBtn.setOnChangedListener(R.id.no_disturb_slip_btn, listener);
+    }
 	
 	public void setItemListener(OnItemClickListener listener) {
 		mGridView.setOnItemClickListener(listener);
@@ -99,7 +113,6 @@ public class ChatDetailView extends LinearLayout{
 	public void setSingleView() {
 		mGroupNameLL.setVisibility(View.GONE);
 		mGroupNumLL.setVisibility(View.GONE);
-		mDividingLine.setVisibility(View.GONE);
 		mMyNameLL.setVisibility(View.GONE);
 		mDelGroupBtn.setVisibility(View.GONE);
 	}
@@ -123,4 +136,21 @@ public class ChatDetailView extends LinearLayout{
                 + mContext.getString(R.string.combine_title);
         mMembersNum.setText(String.format(text, size));
     }
+<<<<<<< HEAD
+=======
+
+	public void dismissAllMembersBtn() {
+        mSplitLine1.setVisibility(View.GONE);
+        mSplitLine2.setVisibility(View.GONE);
+		mAllGroupMemberLL.setVisibility(View.GONE);
+	}
+
+    public void initNoDisturb(int status) {
+        mNoDisturbBtn.setChecked(status == 1);
+    }
+
+	public void setNoDisturbChecked(boolean flag) {
+        mNoDisturbBtn.setChecked(flag);
+    }
+>>>>>>> master
 }

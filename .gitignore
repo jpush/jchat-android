@@ -22,6 +22,7 @@ build-res/
 /*/build/
 *.iml
 .idea
+.DS_Store
 
 # Local configuration file (sdk path, etc)
 local.properties

@@ -27,7 +27,7 @@
         android:layout_height="50dp"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="5dp"
-        android:src="@drawable/head_icon" />
+        android:src="@drawable/jmui_head_icon" />
 
     <TextView
         android:id="@+id/name"

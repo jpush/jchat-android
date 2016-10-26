@@ -3,6 +3,10 @@ package io.jchat.android.adapter;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+<<<<<<< HEAD
+=======
+import android.os.Handler;
+>>>>>>> master
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -13,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,22 +31,27 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.tools.SortConvList;
-import io.jchat.android.tools.TimeFormat;
-import io.jchat.android.view.CircleImageView;
+import io.jchat.android.chatting.utils.TimeFormat;
+import io.jchat.android.chatting.CircleImageView;
 
 public class ConversationListAdapter extends BaseAdapter {
 
     List<Conversation> mDatas;
     private Activity mContext;
+<<<<<<< HEAD
     private int mDensityDpi;
     private Map<String, String> mDraftMap = new HashMap<String, String>();
+=======
+    private Map<String, String> mDraftMap = new HashMap<String, String>();
+    private UIHandler mUIHandler = new UIHandler(this);
+    private static final int REFRESH_CONVERSATION_LIST = 0x3001;
+>>>>>>> master
 
-    public ConversationListAdapter(Activity context, List<Conversation> data, int densityDpi) {
+    public ConversationListAdapter(Activity context, List<Conversation> data) {
         this.mContext = context;
         this.mDatas = data;
-        this.mDensityDpi = densityDpi;
     }
 
     /**
@@ -53,23 +64,15 @@ public class ConversationListAdapter extends BaseAdapter {
             if (conv.getId().equals(conversation.getId())) {
                 mDatas.remove(conversation);
                 mDatas.add(0, conv);
-                mContext.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyDataSetChanged();
-                    }
-                });
+                mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+                mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
                 return;
             }
         }
         //如果是新的会话
         mDatas.add(0, conv);
-        mContext.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                notifyDataSetChanged();
-            }
-        });
+        mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+        mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
     }
 
     public void sortConvList() {
@@ -83,6 +86,19 @@ public class ConversationListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+<<<<<<< HEAD
+=======
+    public void deleteConversation(long groupId) {
+        for (Conversation conv : mDatas) {
+            if (conv.getType() == ConversationType.group
+                    && Long.parseLong(conv.getTargetId()) == groupId) {
+                mDatas.remove(conv);
+                return;
+            }
+        }
+    }
+
+>>>>>>> master
     public void putDraftToMap(String convId, String draft) {
         mDraftMap.put(convId, draft);
     }
@@ -129,13 +145,6 @@ public class ConversationListAdapter extends BaseAdapter {
                     .findViewById(R.id.msg_item_head_icon);
             viewHolder.convName = (TextView) convertView
                     .findViewById(R.id.conv_item_name);
-            if (mDensityDpi <= 160) {
-                viewHolder.convName.setEms(6);
-            }else if (mDensityDpi <= 240) {
-                viewHolder.convName.setEms(8);
-            }else {
-                viewHolder.convName.setEms(10);
-            }
             viewHolder.content = (TextView) convertView
                     .findViewById(R.id.msg_item_content);
             viewHolder.datetime = (TextView) convertView
@@ -172,7 +181,11 @@ public class ConversationListAdapter extends BaseAdapter {
                         CustomContent content = (CustomContent) lastMsg.getContent();
                         Boolean isBlackListHint = content.getBooleanValue("blackList");
                         if (isBlackListHint != null && isBlackListHint) {
+<<<<<<< HEAD
                             viewHolder.content.setText(mContext.getString(R.string.server_803008));
+=======
+                            viewHolder.content.setText(mContext.getString(R.string.jmui_server_803008));
+>>>>>>> master
                         } else {
                             viewHolder.content.setText(mContext.getString(R.string.type_custom));
                         }
@@ -203,17 +216,15 @@ public class ConversationListAdapter extends BaseAdapter {
                         if (status == 0) {
                             viewHolder.headIcon.setImageBitmap(bitmap);
                         }else {
-                            viewHolder.headIcon.setImageResource(R.drawable.head_icon);
+                            viewHolder.headIcon.setImageResource(R.drawable.jmui_head_icon);
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });
             }else {
-                viewHolder.headIcon.setImageResource(R.drawable.head_icon);
+                viewHolder.headIcon.setImageResource(R.drawable.jmui_head_icon);
             }
-        }
-        // 群聊
-        else {
+        } else {
             viewHolder.headIcon.setImageResource(R.drawable.group);
             viewHolder.convName.setText(convItem.getTitle());
             Log.d("ConversationListAdapter", "Conversation title: " + convItem.getTitle());
@@ -226,13 +237,35 @@ public class ConversationListAdapter extends BaseAdapter {
                 viewHolder.newMsgNumber.setText(String.valueOf(convItem.getUnReadMsgCnt()));
             }
             else {
-                viewHolder.newMsgNumber.setText("99");
+                viewHolder.newMsgNumber.setText(mContext.getString(R.string.hundreds_of_unread_msgs));
             }
         } else {
             viewHolder.newMsgNumber.setVisibility(View.GONE);
         }
 
         return convertView;
+    }
+
+    static class UIHandler extends Handler {
+
+        private final WeakReference<ConversationListAdapter> mAdapter;
+
+        public UIHandler(ConversationListAdapter adapter) {
+            mAdapter = new WeakReference<ConversationListAdapter>(adapter);
+        }
+
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            ConversationListAdapter adapter = mAdapter.get();
+            if (adapter != null) {
+                switch (msg.what) {
+                    case REFRESH_CONVERSATION_LIST:
+                        adapter.notifyDataSetChanged();
+                        break;
+                }
+            }
+        }
     }
 
     private class ViewHolder {

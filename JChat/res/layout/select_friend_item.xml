@@ -24,17 +24,17 @@
             android:background="@drawable/pictures_select_icon"
             android:button="@null" />
 
-        <io.jchat.android.view.CircleImageView
-            android:id="@+id/avatar_iv"
+        <io.jchat.android.chatting.CircleImageView
+            android:id="@+id/jmui_avatar_iv"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginLeft="15dp"
-            android:src="@drawable/head_icon">
+            android:src="@drawable/jmui_head_icon">
 
-        </io.jchat.android.view.CircleImageView>
+        </io.jchat.android.chatting.CircleImageView>
 
         <TextView
-            android:id="@+id/display_name_tv"
+            android:id="@+id/jmui_display_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

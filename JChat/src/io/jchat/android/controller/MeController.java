@@ -7,7 +7,7 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import io.jchat.android.R;
 import io.jchat.android.activity.MeFragment;
-import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.MeView;
 
@@ -36,11 +36,11 @@ public class MeController implements OnClickListener {
                     @Override
                     public void onClick(View v) {
                         switch (v.getId()) {
-                            case R.id.take_photo_btn:
+                            case R.id.jmui_take_photo_btn:
                                 mDialog.cancel();
                                 mContext.takePhoto();
                                 break;
-                            case R.id.pick_picture_btn:
+                            case R.id.jmui_pick_picture_btn:
                                 mDialog.cancel();
                                 mContext.selectImageFromLocal();
                                 break;
@@ -63,10 +63,10 @@ public class MeController implements OnClickListener {
                     @Override
                     public void onClick(View view) {
                         switch (view.getId()) {
-                            case R.id.cancel_btn:
+                            case R.id.jmui_cancel_btn:
                                 mDialog.cancel();
                                 break;
-                            case R.id.commit_btn:
+                            case R.id.jmui_commit_btn:
                                 mContext.Logout();
                                 mContext.cancelNotification();
                                 NativeImageLoader.getInstance().releaseCache();
@@ -77,6 +77,7 @@ public class MeController implements OnClickListener {
                     }
                 };
                 mDialog = DialogCreator.createLogoutDialog(mContext.getActivity(), listener);
+                mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 mDialog.show();
                 break;
 //		case R.id.birthday:

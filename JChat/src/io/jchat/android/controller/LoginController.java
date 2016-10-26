@@ -14,9 +14,9 @@ import java.lang.reflect.Method;
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.R;
 import io.jchat.android.activity.LoginActivity;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.SharePreferenceManager;
-import io.jchat.android.tools.DialogCreator;
+import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
+import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.view.LoginView;
 import cn.jpush.im.api.BasicCallback;
 

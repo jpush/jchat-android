@@ -3,7 +3,6 @@
     android:id="@+id/me_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:orientation="vertical">
 
     <include layout="@layout/base_title_bar" />
@@ -26,7 +25,7 @@
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
-            <io.jchat.android.view.CircleImageView
+            <io.jchat.android.chatting.CircleImageView
                 android:id="@+id/take_photo_iv"
                 android:layout_width="@dimen/me_head_icon_size"
                 android:layout_height="@dimen/me_head_icon_size"
@@ -70,7 +69,7 @@
                     style="@style/SettingItemStyle">
 
                     <ImageView
-                        android:id="@+id/avatar_iv"
+                        android:id="@+id/jmui_avatar_iv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
@@ -80,7 +79,7 @@
                     <TextView
                         android:id="@+id/user_name_tv"
                         style="@style/info_left_txt_style"
-                        android:layout_toRightOf="@id/avatar_iv"
+                        android:layout_toRightOf="@id/jmui_avatar_iv"
                         android:text="Minion" />
 
                     <ImageView

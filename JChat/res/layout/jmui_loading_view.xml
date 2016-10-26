@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/jmui_dialog_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <ImageView
+        android:id="@+id/jmui_loading_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/jmui_loading" />
+
+    <TextView
+        android:id="@+id/jmui_loading_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/jmui_loading_img"
+        android:layout_centerHorizontal="true"
+        android:text="@string/jmui_loading"
+        android:textColor="#808080" />
+
+</RelativeLayout>

@@ -1,13 +1,13 @@
 package io.jchat.android.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.InputType;
@@ -21,6 +21,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.lang.ref.WeakReference;
 import java.util.List;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
@@ -32,8 +34,9 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.controller.ChatDetailController;
-import io.jchat.android.tools.HandleResponseCode;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.view.ChatDetailView;
 
 /*
@@ -45,6 +48,7 @@ public class ChatDetailActivity extends BaseActivity {
 
     private ChatDetailView mChatDetailView;
     private ChatDetailController mChatDetailController;
+    private UIHandler mUIHandler = new UIHandler(this);
     public final static String START_FOR_WHICH = "which";
     private final static int GROUP_NAME_REQUEST_CODE = 1;
     private final static int MY_NAME_REQUEST_CODE = 2;
@@ -56,25 +60,25 @@ public class ChatDetailActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-        JMessageClient.registerEventReceiver(this);
         setContentView(R.layout.activity_chat_detail);
         mContext = this;
         mChatDetailView = (ChatDetailView) findViewById(R.id.chat_detail_view);
         mChatDetailView.initModule();
-        mChatDetailController = new ChatDetailController(mChatDetailView, this, mAvatarSize);
+        mChatDetailController = new ChatDetailController(mChatDetailView, this, mAvatarSize, mWidth);
         mChatDetailView.setListeners(mChatDetailController);
+        mChatDetailView.setOnChangeListener(mChatDetailController);
         mChatDetailView.setItemListener(mChatDetailController);
     }
 
     //设置群聊名称
     public void showGroupNameSettingDialog(int which, final long groupID, String groupName) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_reset_password, null);
-        builder.setView(view);
+        final Dialog dialog = new Dialog(this, R.style.jmui_default_dialog_style);
+        View view = LayoutInflater.from(this).inflate(R.layout.jmui_dialog_reset_password, null);
+        dialog.setContentView(view);
         if (which == 1) {
-            TextView title = (TextView) view.findViewById(R.id.title_tv);
+            TextView title = (TextView) view.findViewById(R.id.jmui_title_tv);
             title.setText(mContext.getString(R.string.group_name_hit));
-            final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
+            final EditText pwdEt = (EditText) view.findViewById(R.id.jmui_password_et);
             pwdEt.addTextChangedListener(new TextWatcher() {
                 private CharSequence temp = "";
                 private int editStart;
@@ -104,19 +108,19 @@ public class ChatDetailActivity extends BaseActivity {
             });
             pwdEt.setInputType(InputType.TYPE_CLASS_TEXT);
             pwdEt.setHint(groupName);
-            pwdEt.setHintTextColor(getResources().getColor(R.color.chat_detail_item_content_color));
-            final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
-            final Button commit = (Button) view.findViewById(R.id.commit_btn);
-            final Dialog dialog = builder.create();
+            pwdEt.setHintTextColor(getResources().getColor(R.color.gray));
+            final Button cancel = (Button) view.findViewById(R.id.jmui_cancel_btn);
+            final Button commit = (Button) view.findViewById(R.id.jmui_commit_btn);
+            dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
             dialog.show();
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     switch (view.getId()) {
-                        case R.id.cancel_btn:
+                        case R.id.jmui_cancel_btn:
                             dialog.cancel();
                             break;
-                        case R.id.commit_btn:
+                        case R.id.jmui_commit_btn:
                             final String newName = pwdEt.getText().toString().trim();
                             if (newName.equals("")) {
                                 Toast.makeText(mContext, mContext.getString(R.string.group_name_not_null_toast), Toast.LENGTH_SHORT).show();
@@ -149,23 +153,23 @@ public class ChatDetailActivity extends BaseActivity {
             commit.setOnClickListener(listener);
         }
         if (which == 2) {
-            TextView title = (TextView) view.findViewById(R.id.title_tv);
+            TextView title = (TextView) view.findViewById(R.id.jmui_title_tv);
             title.setText(mContext.getString(R.string.group_my_name_hit));
             title.setTextColor(Color.parseColor("#000000"));
-            final EditText pwdEt = (EditText) view.findViewById(R.id.password_et);
+            final EditText pwdEt = (EditText) view.findViewById(R.id.jmui_password_et);
             pwdEt.setHint(mContext.getString(R.string.change_nickname_hint));
-            final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
-            final Button commit = (Button) view.findViewById(R.id.commit_btn);
-            final Dialog dialog = builder.create();
+            final Button cancel = (Button) view.findViewById(R.id.jmui_cancel_btn);
+            final Button commit = (Button) view.findViewById(R.id.jmui_commit_btn);
+            dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
             dialog.show();
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     switch (view.getId()) {
-                        case R.id.cancel_btn:
+                        case R.id.jmui_cancel_btn:
                             dialog.cancel();
                             break;
-                        case R.id.commit_btn:
+                        case R.id.jmui_commit_btn:
                             dialog.cancel();
                             break;
                     }
@@ -201,16 +205,6 @@ public class ChatDetailActivity extends BaseActivity {
     }
 
     @Override
-    public void handleMsg(Message msg) {
-        switch (msg.what) {
-            case JChatDemoApplication.ON_GROUP_EVENT:
-                mChatDetailController.refresh(msg.getData().getLong(JChatDemoApplication.GROUP_ID, 0));
-                break;
-        }
-    }
-
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // TODO Auto-generated method stub
         super.onActivityResult(requestCode, resultCode, data);
@@ -228,11 +222,15 @@ public class ChatDetailActivity extends BaseActivity {
                 finish();
             }
         } else if (requestCode == JChatDemoApplication.REQUEST_CODE_ALL_MEMBER) {
+<<<<<<< HEAD
             int memberCount = data.getIntExtra(JChatDemoApplication.MEMBERS_COUNT, -1);
             if (memberCount != -1) {
                 mChatDetailView.setTitle(memberCount);
                 mChatDetailView.setMembersNum(memberCount);
             }
+=======
+            mChatDetailController.refreshMemberList();
+>>>>>>> master
         }
     }
 
@@ -246,7 +244,6 @@ public class ChatDetailActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        JMessageClient.unRegisterEventReceiver(this);
         super.onDestroy();
     }
 
@@ -262,9 +259,10 @@ public class ChatDetailActivity extends BaseActivity {
     }
 
 
-    public void StartMainActivity() {
+    public void startMainActivity() {
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.setClass(this, MainActivity.class);
         startActivity(intent);
     }
@@ -272,12 +270,11 @@ public class ChatDetailActivity extends BaseActivity {
     public void startChatActivity(long groupID, String groupName) {
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("isGroup", true);
         //设置跳转标志
         intent.putExtra("fromGroup", true);
-        intent.putExtra("memberCount", 3);
-        intent.putExtra("groupID", groupID);
-        intent.putExtra("groupName", groupName);
+        intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, 3);
+        intent.putExtra(JChatDemoApplication.GROUP_ID, groupID);
+        intent.putExtra(JChatDemoApplication.GROUP_NAME, groupName);
         intent.setClass(this, ChatActivity.class);
         startActivity(intent);
         finish();
@@ -316,12 +313,35 @@ public class ChatDetailActivity extends BaseActivity {
                     break;
             }
             //无论是否添加群成员，刷新界面
-            android.os.Message handleMsg = mHandler.obtainMessage();
+            android.os.Message handleMsg = mUIHandler.obtainMessage();
             handleMsg.what = JChatDemoApplication.ON_GROUP_EVENT;
             Bundle bundle = new Bundle();
-            bundle.putLong("groupID", ((GroupInfo)msg.getTargetInfo()).getGroupID());
+            bundle.putLong(JChatDemoApplication.GROUP_ID, ((GroupInfo)msg.getTargetInfo()).getGroupID());
             handleMsg.setData(bundle);
             handleMsg.sendToTarget();
+        }
+    }
+
+    private static class UIHandler extends Handler {
+
+        private WeakReference<ChatDetailActivity> mActivity;
+
+        public UIHandler(ChatDetailActivity activity) {
+            mActivity = new WeakReference<ChatDetailActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            ChatDetailActivity activity = mActivity.get();
+            if (activity != null) {
+                switch (msg.what) {
+                    case JChatDemoApplication.ON_GROUP_EVENT:
+                        activity.mChatDetailController.refresh(msg.getData()
+                                .getLong(JChatDemoApplication.GROUP_ID, 0));
+                        break;
+                }
+            }
         }
     }
 

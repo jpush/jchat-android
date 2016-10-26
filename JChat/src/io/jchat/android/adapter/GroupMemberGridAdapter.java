@@ -18,12 +18,11 @@ import java.util.List;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.tools.BitmapLoader;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.CircleImageView;
+import io.jchat.android.chatting.utils.BitmapLoader;
+import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.chatting.CircleImageView;
 
 public class GroupMemberGridAdapter extends BaseAdapter {
 
@@ -39,10 +38,12 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private int[] mRestArray = new int[]{2, 1, 0, 3};
     //用群成员项数余4得到，作为下标查找mRestArray，得到空白项
     private int mRestNum;
+    private static final int MAX_GRID_ITEM = 40;
     private boolean mIsGroup;
     private String mTargetId;
     private Context mContext;
     private int mAvatarSize;
+    private String mTargetAppKey;
 
     //群聊
     public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator,
@@ -58,26 +59,41 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     }
 
     //单聊
-    public GroupMemberGridAdapter(Context context, String targetId) {
+    public GroupMemberGridAdapter(Context context, String targetId, String appKey) {
         this.mContext = context;
         mInflater = LayoutInflater.from(context);
         this.mTargetId = targetId;
+        this.mTargetAppKey = appKey;
     }
 
     public void initBlankItem() {
+<<<<<<< HEAD
         if (mMemberList.size() > 40) {
             mCurrentNum = 39;
+=======
+        if (mMemberList.size() > MAX_GRID_ITEM) {
+            mCurrentNum = MAX_GRID_ITEM - 1;
+>>>>>>> master
         } else {
             mCurrentNum = mMemberList.size();
         }
         mRestNum = mRestArray[mCurrentNum % 4];
     }
 
+<<<<<<< HEAD
     public void refreshMemberList(long groupId) {
         Conversation conv = JMessageClient.getGroupConversation(groupId);
         GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
         mMemberList = groupInfo.getGroupMembers();
         mCurrentNum = mMemberList.size();
+=======
+    public void refreshMemberList() {
+        if (mMemberList.size() > MAX_GRID_ITEM) {
+            mCurrentNum = MAX_GRID_ITEM - 1;
+        } else {
+            mCurrentNum = mMemberList.size();
+        }
+>>>>>>> master
         mRestNum = mRestArray[mCurrentNum % 4];
         notifyDataSetChanged();
     }
@@ -136,14 +152,22 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                                 if (status == 0) {
                                     viewTag.icon.setImageBitmap(bitmap);
                                 } else {
+<<<<<<< HEAD
                                     viewTag.icon.setImageResource(R.drawable.head_icon);
+=======
+                                    viewTag.icon.setImageResource(R.drawable.jmui_head_icon);
+>>>>>>> master
                                     HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
                     }
                 } else {
+<<<<<<< HEAD
                     viewTag.icon.setImageResource(R.drawable.head_icon);
+=======
+                    viewTag.icon.setImageResource(R.drawable.jmui_head_icon);
+>>>>>>> master
                 }
 
                 if (TextUtils.isEmpty(userInfo.getNickname())) {
@@ -178,7 +202,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
             }
         } else {
             if (position == 0) {
-                Conversation conv = JMessageClient.getSingleConversation(mTargetId);
+                Conversation conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
                 UserInfo userInfo = (UserInfo) conv.getTargetInfo();
                 if (!TextUtils.isEmpty(userInfo.getAvatar())) {
                     userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {

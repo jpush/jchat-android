@@ -56,26 +56,23 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/me_split_line_color"
-            android:visibility="gone"/>
+            android:background="@color/me_split_line_color"/>
         
         <RelativeLayout
             android:id="@+id/disturb_mode_rl"
-            style="@style/SettingItemStyle"
-            android:clickable="true"
-            android:visibility="gone"
-             >
+            style="@style/SettingItemStyle">
 
             <TextView
                 style="@style/SettingItemTextStyle"
-                android:text="@string/dnd_sub_hit" />
+                android:text="@string/no_disturb_global_hit" />
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <io.jchat.android.view.SlipButton
+                android:id="@+id/global_no_disturb_setting"
+                android:layout_width="70dp"
+                android:layout_height="35dp"
+                android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/arrow"/>
+                />
         </RelativeLayout>
         
         <View

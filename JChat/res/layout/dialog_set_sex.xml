@@ -4,15 +4,15 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center_vertical|center_horizontal"
     android:orientation="vertical"
-    android:background="@drawable/dialog_default_style">
+    android:background="@drawable/jmui_dialog_default_style">
 
     <TextView
-        android:id="@+id/title_tv"
+        android:id="@+id/jmui_title_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:text="性别"
-        android:textColor="@color/jpush_blue"
+        android:textColor="@color/jmui_jpush_blue"
         android:textSize="24sp"/>
 
     <View
@@ -26,7 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:background="@drawable/list_item_bg">
+        android:background="@drawable/jmui_list_item_bg">
 
         <TextView
             android:layout_width="wrap_content"
@@ -35,7 +35,7 @@
             android:paddingBottom="10dp"
             android:paddingLeft="20dp"
             android:text="@string/man"
-            android:textColor="@color/chat_detail_item_content_color"
+            android:textColor="@color/gray"
             android:textSize="18sp"/>
 
         <ImageView
@@ -57,7 +57,7 @@
         android:id="@+id/woman_rl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/dialog_bottom_btn_bg">
+        android:background="@drawable/jmui_dialog_bottom_btn_bg">
 
         <TextView
             android:layout_width="wrap_content"
@@ -65,7 +65,7 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:paddingLeft="20dp"
-            android:textColor="@color/chat_detail_item_content_color"
+            android:textColor="@color/gray"
             android:text="@string/woman"
             android:textSize="18sp"/>
 

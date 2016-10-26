@@ -1,4 +1,13 @@
 package io.jchat.android.tools;
+/**
+ * 本地图片加载器,采用的是异步解析本地图片，单例模式利用getInstance()获取NativeImageLoader实例
+ * 调用loadNativeImage()方法加载本地图片，此类可作为一个加载本地图片的工具类
+ *
+ * @blog http://blog.csdn.net/xiaanming
+ *
+ * @author xiaanming
+ *
+ */
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,10 +18,8 @@ import android.support.v4.util.LruCache;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * 本地图片加载器,采用的是异步解析本地图片，单例模式利用getInstance()获取NativeImageLoader实例
- * 调用loadNativeImage()方法加载本地图片，此类可作为一个加载本地图片的工具类
- */
+import io.jchat.android.chatting.utils.BitmapLoader;
+
 public class NativeImageLoader {
     private LruCache<String, Bitmap> mMemoryCache;
     private static NativeImageLoader mInstance = new NativeImageLoader();
