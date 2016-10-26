@@ -222,15 +222,7 @@ public class ChatDetailActivity extends BaseActivity {
                 finish();
             }
         } else if (requestCode == JChatDemoApplication.REQUEST_CODE_ALL_MEMBER) {
-<<<<<<< HEAD
-            int memberCount = data.getIntExtra(JChatDemoApplication.MEMBERS_COUNT, -1);
-            if (memberCount != -1) {
-                mChatDetailView.setTitle(memberCount);
-                mChatDetailView.setMembersNum(memberCount);
-            }
-=======
             mChatDetailController.refreshMemberList();
->>>>>>> master
         }
     }
 

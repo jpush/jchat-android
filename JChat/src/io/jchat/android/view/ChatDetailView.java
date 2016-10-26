@@ -18,11 +18,8 @@ import io.jchat.android.adapter.GroupMemberGridAdapter;
 public class ChatDetailView extends LinearLayout{
 
 	private LinearLayout mAllGroupMemberLL;
-<<<<<<< HEAD
-=======
 	private View mSplitLine1;
 	private View mSplitLine2;
->>>>>>> master
 	private LinearLayout mGroupNameLL;
 	private LinearLayout mMyNameLL;
 	private LinearLayout mGroupNumLL;
@@ -48,11 +45,8 @@ public class ChatDetailView extends LinearLayout{
 	
 	public void initModule(){
         mAllGroupMemberLL = (LinearLayout) findViewById(R.id.all_member_ll);
-<<<<<<< HEAD
-=======
 		mSplitLine1 = findViewById(R.id.all_member_split_line1);
         mSplitLine2 = findViewById(R.id.all_member_split_line2);
->>>>>>> master
 		mGroupNameLL = (LinearLayout) findViewById(R.id.group_name_ll);
 		mMyNameLL = (LinearLayout) findViewById(R.id.group_my_name_ll);
 		mGroupNumLL = (LinearLayout) findViewById(R.id.group_num_ll);
@@ -136,8 +130,6 @@ public class ChatDetailView extends LinearLayout{
                 + mContext.getString(R.string.combine_title);
         mMembersNum.setText(String.format(text, size));
     }
-<<<<<<< HEAD
-=======
 
 	public void dismissAllMembersBtn() {
         mSplitLine1.setVisibility(View.GONE);
@@ -152,5 +144,4 @@ public class ChatDetailView extends LinearLayout{
 	public void setNoDisturbChecked(boolean flag) {
         mNoDisturbBtn.setChecked(flag);
     }
->>>>>>> master
 }

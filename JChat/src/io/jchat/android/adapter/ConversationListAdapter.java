@@ -3,10 +3,7 @@ package io.jchat.android.adapter;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-<<<<<<< HEAD
-=======
 import android.os.Handler;
->>>>>>> master
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -40,14 +37,9 @@ public class ConversationListAdapter extends BaseAdapter {
 
     List<Conversation> mDatas;
     private Activity mContext;
-<<<<<<< HEAD
-    private int mDensityDpi;
-    private Map<String, String> mDraftMap = new HashMap<String, String>();
-=======
     private Map<String, String> mDraftMap = new HashMap<String, String>();
     private UIHandler mUIHandler = new UIHandler(this);
     private static final int REFRESH_CONVERSATION_LIST = 0x3001;
->>>>>>> master
 
     public ConversationListAdapter(Activity context, List<Conversation> data) {
         this.mContext = context;
@@ -86,8 +78,6 @@ public class ConversationListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-<<<<<<< HEAD
-=======
     public void deleteConversation(long groupId) {
         for (Conversation conv : mDatas) {
             if (conv.getType() == ConversationType.group
@@ -98,7 +88,6 @@ public class ConversationListAdapter extends BaseAdapter {
         }
     }
 
->>>>>>> master
     public void putDraftToMap(String convId, String draft) {
         mDraftMap.put(convId, draft);
     }
@@ -181,11 +170,7 @@ public class ConversationListAdapter extends BaseAdapter {
                         CustomContent content = (CustomContent) lastMsg.getContent();
                         Boolean isBlackListHint = content.getBooleanValue("blackList");
                         if (isBlackListHint != null && isBlackListHint) {
-<<<<<<< HEAD
-                            viewHolder.content.setText(mContext.getString(R.string.server_803008));
-=======
                             viewHolder.content.setText(mContext.getString(R.string.jmui_server_803008));
->>>>>>> master
                         } else {
                             viewHolder.content.setText(mContext.getString(R.string.type_custom));
                         }

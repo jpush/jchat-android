@@ -1,18 +1,5 @@
 package io.jchat.android.activity;
 
-<<<<<<< HEAD
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.AdapterView;
-=======
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +18,6 @@ import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
->>>>>>> master
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -39,14 +25,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-<<<<<<< HEAD
-import java.util.ArrayList;
-=======
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
->>>>>>> master
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
@@ -58,15 +40,9 @@ import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.adapter.AllMembersAdapter;
 import io.jchat.android.application.JChatDemoApplication;
-<<<<<<< HEAD
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.HanziToPinyin;
-=======
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.tools.HanyuPinyin;
->>>>>>> master
 
 /**
  * Created by Ken on 2015/11/25.
@@ -81,8 +57,6 @@ public class MembersInChatActivity extends BaseActivity {
     private Button mRightBtn;
     private EditText mSearchEt;
     private List<UserInfo> mMemberInfoList = new ArrayList<UserInfo>();
-<<<<<<< HEAD
-=======
     private List<ItemModel> mShowUserList = new ArrayList<ItemModel>();
     private List<String> mPinyinList = new ArrayList<String>();
     private UIHandler mUIHandler = new UIHandler(this);
@@ -93,16 +67,12 @@ public class MembersInChatActivity extends BaseActivity {
     private static final int SEARCH_MEMBER_SUCCESS = 0x1002;
     private static final int INIT_ADAPTER = 0x1003;
     private static final int ADD_ALL_MEMBER = 0x1004;
->>>>>>> master
     private AllMembersAdapter mAdapter;
     private Dialog mLoadingDialog;
     private long mGroupId;
     private boolean mIsDeleteMode;
-<<<<<<< HEAD
-=======
     private boolean mIsCreator;
     private String mSearchText;
->>>>>>> master
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,12 +85,9 @@ public class MembersInChatActivity extends BaseActivity {
         mRightBtn = (Button) findViewById(R.id.right_btn);
         mSearchEt = (EditText) findViewById(R.id.search_et);
 
-<<<<<<< HEAD
-=======
         mBackgroundThread = new HandlerThread("Work on MembersInChatActivity");
         mBackgroundThread.start();
         mBackgroundHandler = new BackgroundHandler(mBackgroundThread.getLooper());
->>>>>>> master
         mGroupId = getIntent().getLongExtra(JChatDemoApplication.GROUP_ID, 0);
         mIsDeleteMode = getIntent().getBooleanExtra(JChatDemoApplication.DELETE_MODE, false);
         final Conversation conv = JMessageClient.getGroupConversation(mGroupId);
@@ -128,17 +95,6 @@ public class MembersInChatActivity extends BaseActivity {
         mMemberInfoList = groupInfo.getGroupMembers();
         String groupOwnerId = groupInfo.getGroupOwner();
         final UserInfo myInfo = JMessageClient.getMyInfo();
-<<<<<<< HEAD
-        final boolean isCreator = groupOwnerId != null && groupOwnerId.equals(myInfo.getUserName());
-        mAdapter = new AllMembersAdapter(this, mMemberInfoList, mIsDeleteMode);
-        mListView.setAdapter(mAdapter);
-        mListView.requestFocus();
-
-        String title = this.getString(R.string.combine_title);
-        mTitle.setText(String.format(title, mMemberInfoList.size()));
-        if (mIsDeleteMode) {
-            mRightBtn.setText(this.getString(R.string.delete));
-=======
         mIsCreator = groupOwnerId != null && groupOwnerId.equals(myInfo.getUserName());
 
         mBackgroundHandler.sendEmptyMessage(PROCESS_USER_INFO_TO_BEANS);
@@ -147,7 +103,6 @@ public class MembersInChatActivity extends BaseActivity {
         mTitle.setText(String.format(title, mMemberInfoList.size() + ""));
         if (mIsDeleteMode) {
             mRightBtn.setText(this.getString(R.string.jmui_delete));
->>>>>>> master
         } else {
             mRightBtn.setText(this.getString(R.string.add));
         }
@@ -155,73 +110,6 @@ public class MembersInChatActivity extends BaseActivity {
         mReturnBtn.setOnClickListener(listener);
         mRightBtn.setOnClickListener(listener);
         mSearchEt.addTextChangedListener(watcher);
-<<<<<<< HEAD
-
-        //单机ListView item，跳转到个人详情界面
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                UserInfo userInfo = mMemberInfoList.get(position);
-                String userName = userInfo.getUserName();
-                Intent intent = new Intent();
-                if (userName.equals(myInfo.getUserName())) {
-                    intent.setClass(mContext, MeInfoActivity.class);
-                    startActivity(intent);
-                } else {
-                    intent.setClass(mContext, FriendInfoActivity.class);
-                    intent.putExtra(JChatDemoApplication.TARGET_ID,
-                            userInfo.getUserName());
-                    intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
-                    startActivity(intent);
-                }
-            }
-        });
-
-        //如果是群主，长按ListView item可以删除群成员
-        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                if (isCreator && !mIsDeleteMode) {
-                    View.OnClickListener listener = new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            switch (v.getId()) {
-                                case R.id.cancel_btn:
-                                    mDialog.dismiss();
-                                    break;
-                                case R.id.commit_btn:
-                                    mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
-                                            mContext.getString(R.string.deleting_hint));
-                                    mLoadingDialog.show();
-                                    List<String> list = new ArrayList<String>();
-                                    list.add(mMemberInfoList.get(position).getUserName());
-                                    JMessageClient.removeGroupMembers(mGroupId, list, new BasicCallback() {
-                                        @Override
-                                        public void gotResult(int status, String desc) {
-                                            mLoadingDialog.dismiss();
-                                            mDialog.dismiss();
-                                            if (status == 0) {
-                                                mAdapter.refreshMemberList(mGroupId);
-                                                refreshMemberList();
-                                                mTitle.setText("(" + mMemberInfoList.size() + ")");
-                                            } else {
-                                                HandleResponseCode.onHandle(mContext, status, false);
-                                            }
-                                        }
-                                    });
-                                    break;
-
-                            }
-                        }
-                    };
-                    mDialog = DialogCreator.createDeleteMemberDialog(mContext, listener, true);
-                    mDialog.show();
-                }
-                return true;
-            }
-        });
-=======
->>>>>>> master
     }
 
     View.OnClickListener listener = new View.OnClickListener() {
@@ -230,10 +118,6 @@ public class MembersInChatActivity extends BaseActivity {
             switch (v.getId()) {
                 case R.id.return_btn:
                     Intent intent = new Intent();
-<<<<<<< HEAD
-                    intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, mMemberInfoList.size());
-=======
->>>>>>> master
                     setResult(JChatDemoApplication.RESULT_CODE_ALL_MEMBER, intent);
                     finish();
                     break;
@@ -260,13 +144,9 @@ public class MembersInChatActivity extends BaseActivity {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-<<<<<<< HEAD
-            filterData(s.toString());
-=======
             mSearchText = s.toString().trim();
             mBackgroundHandler.removeMessages(SEARCH_MEMBER);
             mBackgroundHandler.sendMessageDelayed(mBackgroundHandler.obtainMessage(SEARCH_MEMBER), 200);
->>>>>>> master
         }
 
         @Override
@@ -281,18 +161,11 @@ public class MembersInChatActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
-<<<<<<< HEAD
-                    case R.id.cancel_btn:
-                        mDialog.dismiss();
-                        break;
-                    case R.id.commit_btn:
-=======
                     case R.id.jmui_cancel_btn:
                         mDialog.dismiss();
                         break;
                     case R.id.jmui_commit_btn:
                         mDialog.dismiss();
->>>>>>> master
                         mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
                                 mContext.getString(R.string.deleting_hint));
                         mLoadingDialog.show();
@@ -300,16 +173,8 @@ public class MembersInChatActivity extends BaseActivity {
                             @Override
                             public void gotResult(int status, String desc) {
                                 mLoadingDialog.dismiss();
-<<<<<<< HEAD
-                                mDialog.dismiss();
                                 if (status == 0) {
                                     Intent intent = new Intent();
-                                    intent.putExtra(JChatDemoApplication.MEMBERS_COUNT,
-                                            mMemberInfoList.size());
-=======
-                                if (status == 0) {
-                                    Intent intent = new Intent();
->>>>>>> master
                                     setResult(JChatDemoApplication.RESULT_CODE_ALL_MEMBER, intent);
                                     finish();
                                 } else {
@@ -323,53 +188,27 @@ public class MembersInChatActivity extends BaseActivity {
             }
         };
         mDialog = DialogCreator.createDeleteMemberDialog(mContext, listener, false);
-<<<<<<< HEAD
-=======
         mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
->>>>>>> master
         mDialog.show();
     }
 
     //点击添加按钮触发事件
     private void addMemberToGroup() {
-<<<<<<< HEAD
-        final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        final View view = LayoutInflater.from(mContext)
-                .inflate(R.layout.dialog_add_friend_to_conv_list, null);
-        builder.setView(view);
-        final Dialog dialog = builder.create();
-=======
         final Dialog dialog = new Dialog(this, R.style.jmui_default_dialog_style);
         final View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.dialog_add_friend_to_conv_list, null);
         dialog.setContentView(view);
         dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
->>>>>>> master
         dialog.show();
         TextView title = (TextView) view.findViewById(R.id.dialog_name);
         title.setText(mContext.getString(R.string.add_friend_to_group_title));
         final EditText userNameEt = (EditText) view.findViewById(R.id.user_name_et);
-<<<<<<< HEAD
-        final Button cancel = (Button) view.findViewById(R.id.cancel_btn);
-        final Button commit = (Button) view.findViewById(R.id.commit_btn);
-=======
         final Button cancel = (Button) view.findViewById(R.id.jmui_cancel_btn);
         final Button commit = (Button) view.findViewById(R.id.jmui_commit_btn);
->>>>>>> master
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (view.getId()) {
-<<<<<<< HEAD
-                    case R.id.cancel_btn:
-                        dialog.cancel();
-                        break;
-                    case R.id.commit_btn:
-                        final String targetId = userNameEt.getText().toString().trim();
-                        if (TextUtils.isEmpty(targetId)) {
-                            Toast.makeText(mContext, mContext.getString(R.string.username_not_null_toast),
-                                    Toast.LENGTH_SHORT).show();
-=======
                     case R.id.jmui_cancel_btn:
                         dialog.cancel();
                         break;
@@ -377,7 +216,6 @@ public class MembersInChatActivity extends BaseActivity {
                         final String targetId = userNameEt.getText().toString().trim();
                         if (TextUtils.isEmpty(targetId)) {
                             HandleResponseCode.onHandle(mContext, 801001, true);
->>>>>>> master
                             break;
                             //检查群组中是否包含该用户
                         } else if (checkIfNotContainUser(targetId)) {
@@ -386,13 +224,7 @@ public class MembersInChatActivity extends BaseActivity {
                             mLoadingDialog.show();
                             getUserInfo(targetId, dialog);
                         } else {
-<<<<<<< HEAD
-                            dialog.cancel();
-                            Toast.makeText(mContext, mContext.getString(R.string.user_already_exist_toast),
-                                    Toast.LENGTH_SHORT).show();
-=======
                             HandleResponseCode.onHandle(mContext, 1002, true);
->>>>>>> master
                         }
                         break;
                 }
@@ -423,17 +255,10 @@ public class MembersInChatActivity extends BaseActivity {
         JMessageClient.getUserInfo(targetId, new GetUserInfoCallback() {
             @Override
             public void gotResult(int status, String desc, UserInfo userInfo) {
-<<<<<<< HEAD
-                if (status == 0) {
-                    if (mLoadingDialog != null) {
-                        mLoadingDialog.dismiss();
-                    }
-=======
                 if (mLoadingDialog != null) {
                     mLoadingDialog.dismiss();
                 }
                 if (status == 0) {
->>>>>>> master
                     addAMember(userInfo);
                     dialog.cancel();
                 } else {
@@ -447,44 +272,6 @@ public class MembersInChatActivity extends BaseActivity {
      * @param userInfo 要增加的成员的用户名，目前一次只能增加一个
      */
     private void addAMember(final UserInfo userInfo) {
-<<<<<<< HEAD
-        try {
-            mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
-                    mContext.getString(R.string.adding_hint));
-            mLoadingDialog.show();
-            ArrayList<String> list = new ArrayList<String>();
-            list.add(userInfo.getUserName());
-            JMessageClient.addGroupMembers(mGroupId, list, new BasicCallback() {
-
-                @Override
-                public void gotResult(final int status, final String desc) {
-                    if (status == 0) {
-                        // 添加群成员
-                        refreshMemberList();
-                        mAdapter.refreshMemberList(mGroupId);
-                        mListView.setSelection(mListView.getBottom());
-                        mTitle.setText("(" + mMemberInfoList.size() + ")");
-                        mLoadingDialog.dismiss();
-                    } else {
-                        mLoadingDialog.dismiss();
-                        HandleResponseCode.onHandle(mContext, status, true);
-                    }
-                }
-            });
-        } catch (Exception e) {
-            mLoadingDialog.dismiss();
-            e.printStackTrace();
-            Toast.makeText(mContext, mContext.getString(R.string.unknown_error_toast),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    //添加或者删除成员后重新获得MemberInfoList
-    private void refreshMemberList() {
-        Conversation conv = JMessageClient.getGroupConversation(mGroupId);
-        GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
-        mMemberInfoList = groupInfo.getGroupMembers();
-=======
         mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
                 mContext.getString(R.string.adding_hint));
         mLoadingDialog.show();
@@ -516,56 +303,10 @@ public class MembersInChatActivity extends BaseActivity {
 //        addAll(true);
         mTitle.setText(String.format(mContext.getString(R.string.combine_title), mMemberInfoList.size() + ""));
         mBackgroundHandler.sendEmptyMessage(ADD_ALL_MEMBER);
->>>>>>> master
     }
 
     /**
      * 根据输入框输入的字符过滤群成员
-<<<<<<< HEAD
-     * @param data
-     */
-    private void filterData(String data) {
-        List<UserInfo> filterList = new ArrayList<UserInfo>();
-        if (TextUtils.isEmpty(data)) {
-            filterList = mMemberInfoList;
-        } else {
-            filterList.clear();
-            for (UserInfo userInfo : mMemberInfoList) {
-                String displayName;
-                if (TextUtils.isEmpty(userInfo.getNickname())) {
-                    displayName = userInfo.getUserName();
-                } else {
-                    displayName = userInfo.getNickname();
-                }
-                ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance().get(displayName);
-                StringBuilder sb = new StringBuilder();
-                if (tokens != null && tokens.size() > 0) {
-                    for (HanziToPinyin.Token token : tokens) {
-                        if (token.type == HanziToPinyin.Token.PINYIN) {
-                            sb.append(token.target);
-                        } else {
-                            sb.append(token.source);
-                        }
-                    }
-                }
-                if (!TextUtils.isEmpty(sb)) {
-                    String sortString = sb.toString().substring(0, 1).toUpperCase();
-                    if (displayName.contains(data) || displayName.startsWith(data)
-                            || sortString.equals(data.substring(0, 1).toUpperCase())) {
-                        filterList.add(userInfo);
-                    }
-                }
-            }
-        }
-
-        mAdapter.updateListView(filterList);
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent();
-        intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, mMemberInfoList.size());
-=======
      */
     private void filterData() {
         if (TextUtils.isEmpty(mSearchText)) {
@@ -727,13 +468,10 @@ public class MembersInChatActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
->>>>>>> master
         setResult(JChatDemoApplication.RESULT_CODE_ALL_MEMBER, intent);
         finish();
         super.onBackPressed();
     }
-<<<<<<< HEAD
-=======
 
     @Override
     protected void onDestroy() {
@@ -742,5 +480,4 @@ public class MembersInChatActivity extends BaseActivity {
         mBackgroundHandler.removeCallbacksAndMessages(null);
         mBackgroundThread.getLooper().quit();
     }
->>>>>>> master
 }

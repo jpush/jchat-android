@@ -67,33 +67,20 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     }
 
     public void initBlankItem() {
-<<<<<<< HEAD
-        if (mMemberList.size() > 40) {
-            mCurrentNum = 39;
-=======
         if (mMemberList.size() > MAX_GRID_ITEM) {
             mCurrentNum = MAX_GRID_ITEM - 1;
->>>>>>> master
         } else {
             mCurrentNum = mMemberList.size();
         }
         mRestNum = mRestArray[mCurrentNum % 4];
     }
 
-<<<<<<< HEAD
-    public void refreshMemberList(long groupId) {
-        Conversation conv = JMessageClient.getGroupConversation(groupId);
-        GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
-        mMemberList = groupInfo.getGroupMembers();
-        mCurrentNum = mMemberList.size();
-=======
     public void refreshMemberList() {
         if (mMemberList.size() > MAX_GRID_ITEM) {
             mCurrentNum = MAX_GRID_ITEM - 1;
         } else {
             mCurrentNum = mMemberList.size();
         }
->>>>>>> master
         mRestNum = mRestArray[mCurrentNum % 4];
         notifyDataSetChanged();
     }
@@ -152,22 +139,14 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                                 if (status == 0) {
                                     viewTag.icon.setImageBitmap(bitmap);
                                 } else {
-<<<<<<< HEAD
-                                    viewTag.icon.setImageResource(R.drawable.head_icon);
-=======
                                     viewTag.icon.setImageResource(R.drawable.jmui_head_icon);
->>>>>>> master
                                     HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
                     }
                 } else {
-<<<<<<< HEAD
-                    viewTag.icon.setImageResource(R.drawable.head_icon);
-=======
                     viewTag.icon.setImageResource(R.drawable.jmui_head_icon);
->>>>>>> master
                 }
 
                 if (TextUtils.isEmpty(userInfo.getNickname())) {

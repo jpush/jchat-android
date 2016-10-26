@@ -209,12 +209,8 @@ public class ConversationListFragment extends BaseFragment {
     public void onEventMainThread(Event.StringEvent event) {
         Log.d(TAG, "StringEvent execute");
         String targetId = event.getTargetId();
-<<<<<<< HEAD
-        Conversation conv = JMessageClient.getSingleConversation(targetId);
-=======
         String appKey = event.getAppKey();
         Conversation conv = JMessageClient.getSingleConversation(targetId, appKey);
->>>>>>> master
         if (conv != null) {
             mConvListController.getAdapter().addNewConversation(conv);
         }
@@ -228,11 +224,7 @@ public class ConversationListFragment extends BaseFragment {
     public void onEventMainThread(Event.LongEvent event) {
         long groupId = event.getGroupId();
         Conversation conv = JMessageClient.getGroupConversation(groupId);
-<<<<<<< HEAD
-        if (conv != null) {
-=======
         if (conv != null && event.getFlag()) {
->>>>>>> master
             mConvListController.getAdapter().addNewConversation(conv);
         } else {
             mConvListController.getAdapter().deleteConversation(groupId);
@@ -250,30 +242,6 @@ public class ConversationListFragment extends BaseFragment {
         Conversation conv;
         if (targetId != null) {
             conv = JMessageClient.getSingleConversation(targetId, targetAppKey);
-        } else {
-            long groupId = event.getGroupId();
-            conv = JMessageClient.getGroupConversation(groupId);
-        }
-        //如果草稿内容不为空，保存，并且置顶该会话
-        if (!TextUtils.isEmpty(draft)) {
-            mConvListController.getAdapter().putDraftToMap(conv.getId(), draft);
-            mConvListController.getAdapter().setToTop(conv);
-        //否则删除
-        } else {
-            mConvListController.getAdapter().delDraftFromMap(conv.getId());
-        }
-    }
-
-    /**
-     * 收到保存为草稿事件
-     * @param event 从event中得到Conversation Id及草稿内容
-     */
-    public void onEventMainThread(Event.DraftEvent event) {
-        String draft = event.getDraft();
-        String targetId = event.getTargetId();
-        Conversation conv;
-        if (targetId != null) {
-            conv = JMessageClient.getSingleConversation(targetId);
         } else {
             long groupId = event.getGroupId();
             conv = JMessageClient.getGroupConversation(groupId);

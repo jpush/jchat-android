@@ -1,11 +1,7 @@
 package io.jchat.android.adapter;
 
-<<<<<<< HEAD
-import android.content.Context;
-=======
 import android.app.Dialog;
 import android.content.Intent;
->>>>>>> master
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,34 +9,20 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-<<<<<<< HEAD
-=======
 import android.view.WindowManager;
 import android.widget.AdapterView;
->>>>>>> master
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-<<<<<<< HEAD
-=======
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
 
->>>>>>> master
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
-<<<<<<< HEAD
-import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.model.GroupInfo;
-import cn.jpush.im.android.api.model.UserInfo;
-import io.jchat.android.R;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.view.CircleImageView;
-=======
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
@@ -52,33 +34,10 @@ import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.activity.MembersInChatActivity.ItemModel;
->>>>>>> master
 
 /**
  * Created by Ken on 2015/11/25.
  */
-<<<<<<< HEAD
-public class AllMembersAdapter extends BaseAdapter {
-
-    private Context mContext;
-    private List<UserInfo> mMemberList = new ArrayList<UserInfo>();
-    private boolean mIsDeleteMode;
-    private List<String> mSelectedList = new ArrayList<String>();
-    private SparseBooleanArray mSelectMap = new SparseBooleanArray();
-
-    public AllMembersAdapter(Context context, List<UserInfo> memberList, boolean isDeleteMode) {
-        this.mContext = context;
-        this.mMemberList = memberList;
-        this.mIsDeleteMode = isDeleteMode;
-    }
-
-    public void refreshMemberList(long groupId){
-        Conversation conv = JMessageClient.getGroupConversation(groupId);
-        GroupInfo groupInfo = (GroupInfo)conv.getTargetInfo();
-        mMemberList = groupInfo.getGroupMembers();
-        mSelectMap.clear();
-        notifyDataSetChanged();
-=======
 public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItemClickListener,
         AdapterView.OnItemLongClickListener {
 
@@ -101,7 +60,6 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         this.mIsCreator = isCreator;
         this.mGroupId = groupId;
         this.mWidth = width;
->>>>>>> master
     }
 
     @Override
@@ -130,27 +88,6 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
                     (CheckBox) convertView.findViewById(R.id.check_box_cb));
             convertView.setTag(viewHolder);
         } else {
-<<<<<<< HEAD
-           viewHolder = (ViewHolder)convertView.getTag();
-        }
-
-        final UserInfo userInfo = mMemberList.get(position);
-        if (mIsDeleteMode && position > 0) {
-            viewHolder.checkBox.setVisibility(View.VISIBLE);
-            viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (viewHolder.checkBox.isChecked()) {
-                        mSelectedList.add(userInfo.getUserName());
-                        mSelectMap.put(position, true);
-                    } else {
-                        mSelectedList.remove(userInfo.getUserName());
-                        mSelectMap.delete(position);
-                    }
-                }
-            });
-            viewHolder.checkBox.setChecked(mSelectMap.get(position));
-=======
             viewHolder = (ViewHolder)convertView.getTag();
         }
 
@@ -177,7 +114,6 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
                 viewHolder.checkBox.setVisibility(View.INVISIBLE);
             }
 
->>>>>>> master
         } else {
             viewHolder.checkBox.setVisibility(View.GONE);
         }
@@ -189,30 +125,12 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
                     if (status == 0) {
                         viewHolder.icon.setImageBitmap(bitmap);
                     } else {
-<<<<<<< HEAD
-                        viewHolder.icon.setImageResource(R.drawable.head_icon);
-=======
                         viewHolder.icon.setImageResource(R.drawable.jmui_head_icon);
->>>>>>> master
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
             });
         } else {
-<<<<<<< HEAD
-            viewHolder.icon.setImageResource(R.drawable.head_icon);
-        }
-        String displayName = userInfo.getNickname();
-        if (TextUtils.isEmpty(displayName)) {
-            viewHolder.displayName.setText(userInfo.getUserName());
-        } else {
-            viewHolder.displayName.setText(userInfo.getNickname());
-        }
-
-        return convertView;
-    }
-
-=======
             viewHolder.icon.setImageResource(R.drawable.jmui_head_icon);
         }
         viewHolder.displayName.setText(itemModel.highlight);
@@ -231,18 +149,13 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         set.start();
     }
 
->>>>>>> master
     public List<String> getSelectedList() {
         Log.d("AllMembersAdapter", "SelectedList: " + mSelectedList.toString());
         return mSelectedList;
     }
 
     public void setOnCheck(int position) {
-<<<<<<< HEAD
-        UserInfo userInfo = mMemberList.get(position);
-=======
         UserInfo userInfo = mMemberList.get(position).data;
->>>>>>> master
         if (mSelectedList.contains(userInfo.getUserName())) {
 //            View view = getView(position, null, null);
 //            CheckBox checkBox = (CheckBox) view.findViewById(R.id.check_box_cb);
@@ -256,13 +169,6 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         notifyDataSetChanged();
     }
 
-<<<<<<< HEAD
-    public void updateListView(List<UserInfo> filterList) {
-        this.mMemberList = filterList;
-        notifyDataSetChanged();
-    }
-
-=======
     public void updateListView(List<ItemModel> filterList) {
         mSelectMap.clear();
         mMemberList = filterList;
@@ -327,7 +233,6 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         return true;
     }
 
->>>>>>> master
     class ViewHolder {
 
         protected CircleImageView icon;

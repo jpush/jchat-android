@@ -599,11 +599,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }
                     mIndex++;
                     if (mIndex >= mSelectMap.size()) {
-<<<<<<< HEAD
-                        myHandler.sendEmptyMessage(SEND_PICTURE);
-=======
                         mUIHandler.sendEmptyMessage(SEND_PICTURE);
->>>>>>> master
                     }
                 }
             });
@@ -621,11 +617,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     }
                     mIndex++;
                     if (mIndex >= mSelectMap.size()) {
-<<<<<<< HEAD
-                        myHandler.sendEmptyMessage(SEND_PICTURE);
-=======
                         mUIHandler.sendEmptyMessage(SEND_PICTURE);
->>>>>>> master
                     }
                 }
             });

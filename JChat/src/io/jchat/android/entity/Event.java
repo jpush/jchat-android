@@ -9,28 +9,19 @@ public class Event {
      */
     public static class StringEvent{
         private String mTargetId;
-<<<<<<< HEAD
-
-        public StringEvent(String targetId){
-            this.mTargetId = targetId;
-=======
         private String mAppKey;
 
         public StringEvent(String targetId, String appKey) {
             this.mTargetId = targetId;
             this.mAppKey = appKey;
->>>>>>> master
         }
 
         public String getTargetId(){
             return mTargetId;
-<<<<<<< HEAD
-=======
         }
 
         public String getAppKey() {
             return mAppKey;
->>>>>>> master
         }
     }
 
@@ -41,41 +32,6 @@ public class Event {
      */
     public static class LongEvent{
         private long mGroupId;
-<<<<<<< HEAD
-
-        public LongEvent(long groupId){
-            this.mGroupId = groupId;
-        }
-
-        public long getGroupId(){
-            return mGroupId;
-        }
-    }
-
-    public static class DraftEvent {
-        private String mTargetId;
-        private long mGroupId;
-        private String mDraft;
-
-        public DraftEvent(String targetId, String draft) {
-            this.mTargetId = targetId;
-            this.mDraft = draft;
-        }
-
-        public DraftEvent(long groupId, String draft) {
-            this.mGroupId = groupId;
-            this.mDraft = draft;
-        }
-
-        public String getTargetId() {
-            return mTargetId;
-        }
-
-        public long getGroupId() {
-            return mGroupId;
-        }
-
-=======
         private boolean mIsAddEvent;
 
         public LongEvent(boolean isAddEvent, long groupId){
@@ -126,7 +82,6 @@ public class Event {
             return mTargetAppKey;
         }
 
->>>>>>> master
         public String getDraft() {
             return mDraft;
         }

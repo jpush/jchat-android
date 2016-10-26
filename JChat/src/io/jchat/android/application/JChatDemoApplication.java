@@ -23,27 +23,14 @@ public class JChatDemoApplication extends Application {
     public static final int RESULT_CODE_ME_INFO = 20;
     public static final int REQUEST_CODE_ALL_MEMBER = 21;
     public static final int RESULT_CODE_ALL_MEMBER = 22;
-<<<<<<< HEAD
-    public static final int REFRESH_GROUP_NAME = 3000;
-    public static final int REFRESH_GROUP_NUM = 3001;
-=======
->>>>>>> master
     public static final int ON_GROUP_EVENT = 3004;
 
     private static final String JCHAT_CONFIGS = "JChat_configs";
-<<<<<<< HEAD
-
-=======
     public static final String TARGET_APP_KEY = "targetAppKey";
->>>>>>> master
     public static final String TARGET_ID = "targetId";
     public static final String NAME = "name";
     public static final String NICKNAME = "nickname";
     public static final String GROUP_ID = "groupId";
-<<<<<<< HEAD
-    public static final String IS_GROUP = "isGroup";
-=======
->>>>>>> master
     public static final String GROUP_NAME = "groupName";
     public static final String STATUS = "status";
     public static final String POSITION = "position";
@@ -51,11 +38,7 @@ public class JChatDemoApplication extends Application {
     public static final String DRAFT = "draft";
     public static final String DELETE_MODE = "deleteMode";
     public static final String MEMBERS_COUNT = "membersCount";
-<<<<<<< HEAD
-    public static final String PICTURE_DIR = "sdcard/JChatDemo/pictures/";
-=======
     public static String PICTURE_DIR = "sdcard/JChatDemo/pictures/";
->>>>>>> master
 
 
     @Override

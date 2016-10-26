@@ -12,10 +12,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
-<<<<<<< HEAD:JChat/src/io/jchat/android/adapter/MsgListAdapter.java
-import android.os.Build;
-=======
->>>>>>> master:JChat/src/io/jchat/android/chatting/MsgListAdapter.java
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -65,19 +61,11 @@ import io.jchat.android.activity.BrowserViewPagerActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.application.JChatDemoApplication;
-<<<<<<< HEAD:JChat/src/io/jchat/android/adapter/MsgListAdapter.java
-import io.jchat.android.tools.DialogCreator;
-import io.jchat.android.tools.FileHelper;
-import io.jchat.android.tools.HandleResponseCode;
-import io.jchat.android.tools.TimeFormat;
-import io.jchat.android.view.CircleImageView;
-=======
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.FileHelper;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.utils.IdHelper;
 import io.jchat.android.chatting.utils.TimeFormat;
->>>>>>> master:JChat/src/io/jchat/android/chatting/MsgListAdapter.java
 import cn.jpush.im.api.BasicCallback;
 
 @SuppressLint("NewApi")
@@ -270,22 +258,11 @@ public class MsgListAdapter extends BaseAdapter {
     //发送图片 将图片加入发送队列
     public void setSendImg(int[] msgIds) {
         Message msg;
-<<<<<<< HEAD:JChat/src/io/jchat/android/adapter/MsgListAdapter.java
-        mConv = JMessageClient.getSingleConversation(targetId);
-        for (int msgId : msgIds) {
-            msg = mConv.getMessage(msgId);
-            if (msg != null) {
-                mMsgList.add(msg);
-                incrementStartPosition();
-                mMsgQueue.offer(msg);
-            }
-=======
         if (mIsGroup) {
             mConv = JMessageClient.getGroupConversation(mGroupId);
         } else {
             mConv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
             Log.d(TAG, "mTargetAppKey: " + mTargetAppKey);
->>>>>>> master:JChat/src/io/jchat/android/chatting/MsgListAdapter.java
         }
         for (int msgId : msgIds) {
             msg = mConv.getMessage(msgId);
@@ -408,13 +385,8 @@ public class MsgListAdapter extends BaseAdapter {
                         .inflate(IdHelper.getLayout(mContext, "jmui_chat_item_receive_voice"), null);
             case location:
                 return getItemViewType(position) == TYPE_SEND_LOCATION ? mInflater
-<<<<<<< HEAD:JChat/src/io/jchat/android/adapter/MsgListAdapter.java
-                        .inflate(R.layout.chat_item_send_location, null) : mInflater
-                        .inflate(R.layout.chat_item_receive_location, null);
-=======
                         .inflate(IdHelper.getLayout(mContext, "jmui_chat_item_send_location"), null) : mInflater
                         .inflate(IdHelper.getLayout(mContext, "jmui_chat_item_receive_location"), null);
->>>>>>> master:JChat/src/io/jchat/android/chatting/MsgListAdapter.java
             case eventNotification:
                 if (getItemViewType(position) == TYPE_GROUP_CHANGE)
                     return mInflater.inflate(IdHelper.getLayout(mContext, "jmui_chat_item_group_change"), null);
@@ -1128,165 +1100,7 @@ public class MsgListAdapter extends BaseAdapter {
         }
 
 
-<<<<<<< HEAD:JChat/src/io/jchat/android/adapter/MsgListAdapter.java
-        holder.txtContent.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                if (!FileHelper.isSdCardExist() && msg.getDirect().equals(MessageDirect.send)) {
-                    Toast.makeText(mContext, mContext.getString(R.string.sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                // 如果之前存在播放动画，无论这次点击触发的是暂停还是播放，停止上次播放的动画
-                if (mVoiceAnimation != null) {
-                    mVoiceAnimation.stop();
-                }
-                // 播放中点击了正在播放的Item 则暂停播放
-                if (mp.isPlaying() && mPosition == position) {
-                    if (msgDirect.equals(MessageDirect.send)) {
-                        holder.voice.setImageResource(R.anim.voice_send);
-                    } else {
-                        holder.voice.setImageResource(R.anim.voice_receive);
-                    }
-                    mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
-                    pauseVoice();
-                    mVoiceAnimation.stop();
-                    // 开始播放录音
-                } else if (msgDirect.equals(MessageDirect.send)) {
-                    try {
-                        holder.voice.setImageResource(R.anim.voice_send);
-                        mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
-
-                        // 继续播放之前暂停的录音
-                        if (mSetData && mPosition == position) {
-                            playVoice();
-                            // 否则重新播放该录音或者其他录音
-                        } else {
-                            mp.reset();
-                            // 记录播放录音的位置
-                            mPosition = position;
-                            Log.i(TAG, "content.getLocalPath:" + content.getLocalPath());
-                            mFIS = new FileInputStream(content.getLocalPath());
-                            mFD = mFIS.getFD();
-                            mp.setDataSource(mFD);
-                            if (mIsEarPhoneOn) {
-                                mp.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
-                            } else {
-                                mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                            }
-
-                            mp.prepare();
-                            playVoice();
-                        }
-                    } catch (NullPointerException e) {
-                        Toast.makeText(mActivity, mContext.getString(R.string.file_not_found_toast),
-                                Toast.LENGTH_SHORT).show();
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                    } catch (SecurityException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        Toast.makeText(mActivity, mContext.getString(R.string.file_not_found_toast),
-                                Toast.LENGTH_SHORT).show();
-                    } finally {
-                        try {
-                            if (mFIS != null) {
-                                mFIS.close();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    // 语音接收方特殊处理，自动连续播放未读语音
-                } else {
-                    try {
-                        // 继续播放之前暂停的录音
-                        if (mSetData && mPosition == position) {
-                            mVoiceAnimation.start();
-                            mp.start();
-                            // 否则开始播放另一条录音
-                        } else {
-                            // 选中的录音是否已经播放过，如果未播放，自动连续播放这条语音之后未播放的语音
-                            if (msg.getContent().getBooleanExtra("isReaded") == null
-                                    || !msg.getContent().getBooleanExtra("isReaded")) {
-                                autoPlay = true;
-                                playVoiceThenRefresh(position, holder);
-                                // 否则直接播放选中的语音
-                            } else {
-                                holder.voice.setImageResource(R.anim.voice_receive);
-                                mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
-                                mp.reset();
-                                // 记录播放录音的位置
-                                mPosition = position;
-                                if (content.getLocalPath() != null) {
-                                    try {
-                                        mFIS = new FileInputStream(content.getLocalPath());
-                                        mFD = mFIS.getFD();
-                                        mp.setDataSource(mFD);
-                                        mp.prepare();
-                                        playVoice();
-                                    } catch (FileNotFoundException e) {
-                                        e.printStackTrace();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    } finally {
-                                        try {
-                                            if (mFIS != null) {
-                                                mFIS.close();
-                                            }
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                } else {
-                                    mVoiceAnimation.stop();
-                                    holder.voice.clearAnimation();
-                                    holder.voice.setImageResource(R.drawable.receive_3);
-                                    Toast.makeText(mContext, mContext.getString(R.string.voice_fetch_failed_toast),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-
-                            }
-                        }
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                    } catch (SecurityException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            private void playVoice() {
-                mVoiceAnimation.start();
-                mp.start();
-                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer arg0) {
-                        mVoiceAnimation.stop();
-                        mp.reset();
-                        mSetData = false;
-                        // 播放完毕，恢复初始状态
-                        if (msgDirect.equals(MessageDirect.send))
-                            holder.voice.setImageResource(R.drawable.send_3);
-                        else {
-                            holder.voice.setImageResource(R.drawable.receive_3);
-                            holder.readStatus.setVisibility(View.GONE);
-                        }
-                    }
-                });
-            }
-
-            private void pauseVoice() {
-                mp.pause();
-                mSetData = true;
-            }
-        });
-=======
         holder.txtContent.setOnClickListener(new BtnOrTxtListener(position, holder));
->>>>>>> master:JChat/src/io/jchat/android/chatting/MsgListAdapter.java
     }
 
     private void playVoice(final int position, final ViewHolder holder, final boolean isSender) {
