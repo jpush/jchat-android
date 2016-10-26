@@ -45,11 +45,13 @@ public class CropImageActivity extends BaseActivity {
         mTitle.setText(this.getString(R.string.crop_image_title));
         Intent intent = getIntent();
         String path = intent.getStringExtra("filePath");
-        int degree = getBitmapDegree(path);
         Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
-        bitmap = rotateBitmapByDegree(bitmap, degree);
-        Log.i("CropImageActivity", "mWidth * mHeight: " + mWidth + " * " + mHeight);
-        mImageView.setDrawable(new BitmapDrawable(getResources(), bitmap), 720, 720);
+        int degree = getBitmapDegree(path);
+        if (degree != 0) {
+            mImageView.setDrawable(new BitmapDrawable(getResources(), rotateBitmapByDegree(bitmap, degree)), 720, 720);
+        } else {
+            mImageView.setDrawable(new BitmapDrawable(getResources(), bitmap), 720, 720);
+        }
 
         mReturnBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,6 +120,7 @@ public class CropImageActivity extends BaseActivity {
         Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         if (bitmap != null && !bitmap.isRecycled()) {
             bitmap.recycle();
+            bitmap = null;
         }
         return newBitmap;
     }
