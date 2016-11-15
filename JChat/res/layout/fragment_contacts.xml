@@ -13,24 +13,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="10"
+            android:background="@drawable/jmui_chat_input_bg"
             android:cursorVisible="true"
             android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
-            android:hint="搜索..."
+            android:hint="@string/search"
             android:padding="10dp"
             android:textColor="#808080"
-            android:textSize="24sp" />
+            android:textSize="20sp" />
 
         <ImageButton
             android:id="@+id/search_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
+            android:src="@drawable/search"
             android:background="@drawable/search_btn_bg" />
 
     </LinearLayout>
@@ -40,19 +42,11 @@
         android:layout_height="1dp"
         android:layout_alignParentBottom="true"
         android:background="@color/me_split_line_color"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textColor="@color/gray"
-            android:textSize="24sp"
-            android:text="敬请期待！"/>
 
         <io.jchat.android.view.SideBar
             android:id="@+id/fast_scroller"
@@ -62,7 +56,7 @@
             android:layout_gravity="top|right|center"
             android:background="@null"
             android:scaleType="centerInside"
-            android:visibility="gone"/>
+            android:visibility="visible"/>
 
         <TextView
             android:id="@+id/fast_position"
@@ -82,7 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="visible">
 
 
             <RelativeLayout
