@@ -87,4 +87,16 @@ public class Event {
         }
     }
 
+    public static class AddFriendEvent {
+        private long id;
+
+        public AddFriendEvent(long id) {
+            this.id = id;
+        }
+
+        public long getId() {
+            return id;
+        }
+    }
+
 }

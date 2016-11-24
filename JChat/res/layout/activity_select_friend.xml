@@ -45,6 +45,17 @@
 
         </LinearLayout>
 
+        <Button
+            android:id="@+id/finish_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/send_picture_btn_bg"
+            android:text="@string/finish"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_normal_size"/>
+
     </RelativeLayout>
 
     <LinearLayout
@@ -78,7 +89,9 @@
         <io.jchat.android.view.StickyListHeadersListView
             android:id="@+id/sticky_list_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:divider="@drawable/contact_divider"
+            android:dividerHeight="1px">
 
         </io.jchat.android.view.StickyListHeadersListView>
 

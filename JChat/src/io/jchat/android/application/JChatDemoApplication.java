@@ -1,12 +1,12 @@
 package io.jchat.android.application;
 
-import android.app.Application;
 import android.util.Log;
 import cn.jpush.im.android.api.JMessageClient;
+import io.jchat.android.database.UserEntry;
 import io.jchat.android.receiver.NotificationClickEventReceiver;
 import io.jchat.android.chatting.utils.SharePreferenceManager;
 
-public class JChatDemoApplication extends Application {
+public class JChatDemoApplication extends com.activeandroid.app.Application {
 
     public static final int REQUEST_CODE_TAKE_PHOTO = 4;
     public static final int REQUEST_CODE_SELECT_PICTURE = 6;
@@ -23,15 +23,20 @@ public class JChatDemoApplication extends Application {
     public static final int RESULT_CODE_ME_INFO = 20;
     public static final int REQUEST_CODE_ALL_MEMBER = 21;
     public static final int RESULT_CODE_ALL_MEMBER = 22;
+    public static final int RESULT_CODE_SELECT_FRIEND = 23;
     public static final int ON_GROUP_EVENT = 3004;
 
     private static final String JCHAT_CONFIGS = "JChat_configs";
     public static final String TARGET_APP_KEY = "targetAppKey";
     public static final String TARGET_ID = "targetId";
+    public static final String AVATAR = "avatar";
     public static final String NAME = "name";
     public static final String NICKNAME = "nickname";
     public static final String GROUP_ID = "groupId";
     public static final String GROUP_NAME = "groupName";
+    public static final String GENDER = "gender";
+    public static final String REGION = "region";
+    public static final String SIGNATURE = "signature";
     public static final String STATUS = "status";
     public static final String POSITION = "position";
     public static final String MsgIDs = "msgIDs";
@@ -59,6 +64,10 @@ public class JChatDemoApplication extends Application {
             SharePreferenceManager.setCachedAppKey(appKey);
             PICTURE_DIR = "sdcard/JChatDemo/pictures/" + appKey + "/";
         }
+    }
+
+    public static UserEntry getUserEntry() {
+        return UserEntry.getUser(JMessageClient.getMyInfo().getUserName(), JMessageClient.getMyInfo().getAppKey());
     }
 
 }

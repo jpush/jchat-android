@@ -5,12 +5,13 @@
     android:layout_height="match_parent"
     android:background="#ffffff">
 
-    <include layout="@layout/menu_title_bar_with_button"/>
+    <include layout="@layout/menu_title_bar"/>
 
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/search_list_view">
+        android:id="@+id/friend_recommend_list_view">
+
     </ListView>
 
 </LinearLayout>

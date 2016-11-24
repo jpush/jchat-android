@@ -17,6 +17,7 @@ import io.jchat.android.activity.LoginActivity;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.database.UserEntry;
 import io.jchat.android.view.LoginView;
 import cn.jpush.im.api.BasicCallback;
 
@@ -67,6 +68,13 @@ public class LoginController implements LoginView.Listener, OnClickListener,
                     public void gotResult(final int status, final String desc) {
                         dialog.dismiss();
                         if (status == 0) {
+                            String username = JMessageClient.getMyInfo().getUserName();
+                            String appKey = JMessageClient.getMyInfo().getAppKey();
+                            UserEntry user = UserEntry.getUser(username, appKey);
+                            if (null == user) {
+                                user = new UserEntry(username, appKey);
+                                user.save();
+                            }
                             mContext.startMainActivity();
                         } else {
                             Log.i("LoginController", "status = " + status);

@@ -92,4 +92,31 @@ public class SharePreferenceManager {
         }
         return "default";
     }
+
+    private static final String CACHED_NEW_FRIEND = "CachedNewFriend";
+
+    public static void setCachedNewFriendNum(int num) {
+        if (null != sp) {
+            sp.edit().putInt(CACHED_NEW_FRIEND, num).apply();
+        }
+    }
+
+    public static int getCachedNewFriendNum() {
+        if (null != sp) {
+            return sp.getInt(CACHED_NEW_FRIEND, 0);
+        }
+        return 0;
+    }
+
+    private static final String CACHED_SHOW_CONTACT = "CachedShowContact";
+
+    public static void setCachedShowContact(boolean flag) {
+        if (null != sp) {
+            sp.edit().putBoolean(CACHED_SHOW_CONTACT, flag).apply();
+        }
+    }
+
+    public static boolean getCachedShowContact() {
+        return null != sp && sp.getBoolean(CACHED_SHOW_CONTACT, false);
+    }
 }

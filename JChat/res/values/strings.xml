@@ -18,7 +18,7 @@
     <string name="username_not_null_toast">用户名不能为空</string>
     <string name="nickname_not_null_toast">昵称不能为空</string>
     <string name="password_not_null_toast">密码不能为空</string>
-    <string name="password_length_illegal">密码长度要在4-128个字节之间</string>
+    <string name="password_length_illegal">密码长度要在4\-128个字节之间</string>
     <string name="password_same_to_previous">不能和原密码相同，请输入新密码</string>
 
     <!-- fixProfile界面中使用到的字符串 -->
@@ -45,13 +45,14 @@
     <string name="take_monent">稍等片刻</string>
     <string name="add">添加</string>
     <string name="add_friend">添加朋友</string>
+    <string name="add_friend_without_confirm">添加好友(无好友模式)</string>
     <string name="fetch_user_info_failed">用户信息获取失败</string>
     <string name="create_group">创建群聊</string>
     <string name="creating_hint">创建中</string>
     <string name="create_user">我们正在建立您的个人档案</string>
-    <string name="search_friend_title_bar">搜索结果</string>
+    <string name="search_friend_title_bar">搜索好友</string>
     <string name="friend_request_hit">请你输入你的添加好友请求</string>
-    <string name="friend_request_input_hit">我是…</string>
+    <string name="friend_request_input_hit">我是</string>
     <string name="send_request">发送请求</string>
     <string name="jmui_copy">复制</string>
     <string name="jmui_forward_msg">转发</string>
@@ -109,7 +110,7 @@
     <string name="jmui_business_card">名片</string>
     <string name="group_notification">[群成员变动]</string>
     <string name="type_custom">[自定义消息]</string>
-    <string name="hundreds_of_unread_msgs">...</string>
+    <string name="hundreds_of_unread_msgs">..\.</string>
     <string name="jmui_time_format_year_month_day">yyyy年-MM月-dd日</string>
     <string name="jmui_time_format_accuracy">yyyy-MM-dd HH:mm </string>
     <string name="jmui_time_format_hours">HH:mm</string>
@@ -136,6 +137,16 @@
 
     <string name="select_friend_title">选择朋友</string>
     <string name="selected_num">(%s)</string>
+
+    <!-- 通讯录相关-->
+    <string name="switch_to_friendless_mode">切换到无好友模式</string>
+    <string name="switch_to_friend_mode">切换到好友模式</string>
+    <string name="switch_to_friend_mode_hint">在设置中切换到好友模式\n以启用通讯录功能</string>
+    <string name="friend_inviting">等待验证</string>
+    <string name="friend_recommend_title">朋友推荐消息</string>
+    <string name="input_friend_username_hint">请输入您要查找的用户名</string>
+    <string name="sent_request">已成功发送请求</string>
+    <string name="decline_friend_invitation">对方已拒绝</string>
 
     <!--设置相关-->
     <string name="birthday">出生日期</string>
@@ -278,6 +289,8 @@
     <string name="jmui_server_803005">您已被请出此群，不能发送消息</string>
     <string name="jmui_server_803008">消息已发出，但被对方拒收了。</string>
     <string name="jmui_server_803010">发送消息的频率超过限制，发送失败</string>
+    <string name="jmui_server_805002">添加好友失败，双方已经是好友</string>
+    <string name="jmui_server_805003">删除好友失败，目标用户不是自己的好友</string>
     <string name="jmui_server_808003">讨论组数量已达上限，创建失败</string>
     <string name="jmui_server_808004">群组名长度超出上限</string>
     <string name="jmui_server_810003">用户不属于该群组</string>
@@ -301,8 +314,8 @@
     <string name="jmui_sdk_http_898030">系统繁忙，稍后重试</string>
     <string name="jmui_sdk_87x_871104">服务器返回错误</string>
     <string name="jmui_sdk_87x_871300">API调用发起者尚未登录</string>
-    <string name="jmui_sdk_87x_871303">用户名需以数字或字母开头，长度在4-128个字节之间，且不能带_ @ -以外的字符</string>
-    <string name="jmui_sdk_87x_871304">密码长度要在4-128个字节之间</string>
+    <string name="jmui_sdk_87x_871303">用户名需以数字或字母开头，长度在4\-128个字节之间，且不能带_ @ -以外的字符</string>
+    <string name="jmui_sdk_87x_871304">密码长度要在4\-128个字节之间</string>
     <string name="jmui_sdk_87x_871305">名称长度须小于64个字节</string>
     <string name="jmui_sdk_87x_871309">消息所含文件不存在</string>
     <string name="jmui_sdk_87x_871310">网络已断开，请检查网络连接</string>

@@ -3,15 +3,14 @@
 
     <item android:state_pressed="true">
         <shape>
-            <solid android:color="@color/jmui_jpush_blue"/>
+            <solid android:color="@color/item_click_bg_color" />
+            <corners android:radius="5dp" />
         </shape>
     </item>
     <item>
         <shape>
-            <gradient
-                android:angle="270"
-                android:endColor="#6AA8FD"
-                android:startColor="#9AC4FF" />
+            <solid android:color="@color/white" />
+            <corners android:radius="5dp" />
         </shape>
     </item>
 

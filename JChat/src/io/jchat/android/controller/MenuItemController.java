@@ -20,6 +20,7 @@ import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
+import io.jchat.android.activity.SearchFriendActivity;
 import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.application.JChatDemoApplication;
@@ -78,7 +79,8 @@ public class MenuItemController implements View.OnClickListener {
                     }
                 });
                 break;
-            case R.id.add_friend_ll:
+            // 无好友模式添加好友，添加后可以直接创建会话
+            case R.id.add_friend_direct_ll:
                 mContext.dismissPopWindow();
                 mAddFriendDialog = new Dialog(mContext.getActivity(), R.style.jmui_default_dialog_style);
                 final View view = LayoutInflater.from(mContext.getActivity())
@@ -127,6 +129,11 @@ public class MenuItemController implements View.OnClickListener {
                 };
                 cancel.setOnClickListener(listener);
                 commit.setOnClickListener(listener);
+                break;
+            // 好友模式添加需要经过验证
+            case R.id.add_friend_with_confirm_ll:
+                Intent intent = new Intent(mContext.getActivity(), SearchFriendActivity.class);
+                mContext.startActivity(intent);
                 break;
         }
     }

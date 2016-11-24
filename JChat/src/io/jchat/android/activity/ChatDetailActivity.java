@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
@@ -208,6 +209,9 @@ public class ChatDetailActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // TODO Auto-generated method stub
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_CANCELED) {
+            return;
+        }
         if (requestCode == GROUP_NAME_REQUEST_CODE) {
             Log.i(TAG, "resultName = " + data.getStringExtra("resultName"));
             mChatDetailView.setGroupName(data.getStringExtra("resultName"));
@@ -223,6 +227,11 @@ public class ChatDetailActivity extends BaseActivity {
             }
         } else if (requestCode == JChatDemoApplication.REQUEST_CODE_ALL_MEMBER) {
             mChatDetailController.refreshMemberList();
+        } else if (requestCode == ADD_FRIEND_REQUEST_CODE) {
+            ArrayList<String> list = data.getStringArrayListExtra("SelectedUser");
+            if (null != list && list.size() != 0) {
+                mChatDetailController.addMembersToGroup(list);
+            }
         }
     }
 

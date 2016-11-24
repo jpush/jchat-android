@@ -3,157 +3,99 @@
     android:id="@+id/contacts_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#ffffff">
+    android:background="#ffffff"
+    android:orientation="vertical">
 
     <include layout="@layout/base_title_bar" />
 
-
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="visible">
+        android:layout_height="wrap_content">
 
         <EditText
-            android:layout_width="0dp"
+            android:id="@+id/search_et"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="10"
             android:background="@drawable/jmui_chat_input_bg"
             android:cursorVisible="true"
-            android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
             android:hint="@string/search"
-            android:padding="10dp"
+            android:paddingTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="10dp"
+            android:paddingRight="25dp"
             android:textColor="#808080"
+            android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
             android:textSize="20sp" />
 
         <ImageButton
-            android:id="@+id/search_btn"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:src="@drawable/search"
-            android:background="@drawable/search_btn_bg" />
+            android:id="@+id/delete_ib"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="end"
+            android:background="@drawable/delete_btn_bg" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_alignParentBottom="true"
         android:background="@color/me_split_line_color"
-        android:visibility="visible"/>
+        android:visibility="visible" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/contact_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="@string/switch_to_friend_mode_hint"
+            android:textSize="@dimen/text_medium_size"
+            android:textColor="@color/chat_text_color"
+            android:visibility="gone" />
+
         <io.jchat.android.view.SideBar
-            android:id="@+id/fast_scroller"
+            android:id="@+id/sidebar"
             android:layout_width="30dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_gravity="top|right|center"
             android:background="@null"
             android:scaleType="centerInside"
-            android:visibility="visible"/>
+            android:visibility="visible" />
 
-        <TextView
-            android:id="@+id/fast_position"
-            android:layout_width="70dip"
-            android:layout_height="70dip"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center_horizontal|top"
-            android:layout_margin="34dip"
-            android:background="@drawable/sort_icon_bg_click"
-            android:gravity="center"
-            android:padding="2dip"
-            android:textColor="#404040"
-            android:textSize="48dip"
-            android:visibility="invisible" />
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:layout_height="match_parent">
 
-
-            <RelativeLayout
-                android:id="@+id/recommend_rl"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp">
-
-                <ImageView
-                    android:id="@+id/recommend_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="10dp"
-                    android:background="@drawable/recommend" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@id/recommend_icon"
-                    android:text="朋友推荐消息"
-                    android:textColor="@color/jmui_jpush_blue"
-                    android:textSize="20sp" />
-
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_alignParentBottom="true"
-                android:background="@color/me_split_line_color" />
-
-            <RelativeLayout
-                android:id="@+id/group_chat_rl"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/recommend_rl"
-                android:padding="10dp">
-
-                <ImageView
-                    android:id="@+id/group_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="10dp"
-                    android:background="@drawable/group" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@id/group_icon"
-                    android:text="群聊"
-                    android:textColor="@color/jmui_jpush_blue"
-                    android:textSize="20sp" />
-
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/me_split_line_color" />
-
-            <ListView
-                android:id="@+id/contact_list_view"
+            <io.jchat.android.view.StickyListHeadersListView
+                android:id="@+id/sticky_list_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1.0"
-                android:scrollbars="none"
-                android:scrollingCache="true" >
-            </ListView>
+                android:divider="@drawable/contact_divider"
+                android:dividerHeight="1px">
 
-        </LinearLayout>
+            </io.jchat.android.view.StickyListHeadersListView>
 
+            <TextView
+                android:id="@+id/letter_hint_tv"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:alpha="0.8"
+                android:background="@drawable/letter_hint_bg"
+                android:gravity="center"
+                android:textColor="#ffffffff"
+                android:textSize="30dp"
+                android:visibility="invisible" />
+
+        </FrameLayout>
 
     </RelativeLayout>
 

@@ -1,8 +1,10 @@
 package io.jchat.android.chatting.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.DisplayMetrics;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,6 +19,24 @@ import io.jchat.android.application.JChatDemoApplication;
  * Created by Ken on 2015/2/9.
  */
 public class BitmapLoader {
+
+    public static Bitmap getBitmapFromFile(String path, float density) {
+        BitmapFactory.Options opts = null;
+        int width = (int) (50 * density);
+        int height = (int) (50 * density);
+        if (path != null) {
+            if (width > 0 && height > 0) {
+                opts = new BitmapFactory.Options();
+                opts.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(path, opts);
+                final int minSideLength = Math.min(width, height);
+                opts.inSampleSize = computeSampleSize(opts, minSideLength,
+                        width * height);
+                opts.inJustDecodeBounds = false;
+            }
+            return BitmapFactory.decodeFile(path, opts);
+        } else return null;
+    }
 
     public static Bitmap getBitmapFromFile(String path, int width, int height) {
         BitmapFactory.Options opts = null;

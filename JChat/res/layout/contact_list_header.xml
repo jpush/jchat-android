@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff">
+
+    <RelativeLayout
+        android:id="@+id/recommend_rl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="@drawable/jmui_list_item_bg">
+
+        <FrameLayout
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/friend_recommend_fl"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center_vertical">
+
+            <io.jchat.android.chatting.CircleImageView
+                android:id="@+id/msg_item_head_icon"
+                android:layout_width="@dimen/item_head_icon_size"
+                android:layout_height="@dimen/item_head_icon_size"
+                android:src="@drawable/recommend" />
+
+            <TextView
+                android:id="@+id/friend_recommend_num"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="top|right"
+                android:layout_marginTop="3dp"
+                android:background="@drawable/red_circle"
+                android:gravity="center"
+                android:text="15"
+                android:textColor="@android:color/white" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/friend_recommend_fl"
+            android:text="@string/friend_recommend_title"
+            android:textColor="@color/jmui_jpush_blue"
+            android:textSize="20sp" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/me_split_line_color" />
+
+    <RelativeLayout
+        android:id="@+id/group_chat_rl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/recommend_rl"
+        android:padding="10dp"
+        android:background="@drawable/jmui_list_item_bg">
+
+        <ImageView
+            android:id="@+id/group_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/group" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/group_icon"
+            android:text="@string/group"
+            android:textColor="@color/jmui_jpush_blue"
+            android:textSize="20sp" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/me_split_line_color" />
+
+</LinearLayout>

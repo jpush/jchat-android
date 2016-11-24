@@ -21,7 +21,7 @@
         android:padding="10dp">
 
     <!-- 联系人信息 -->
-    <ImageView
+    <io.jchat.android.chatting.CircleImageView
         android:id="@+id/imageView"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -36,18 +36,13 @@
         android:layout_marginLeft="10dp"
         android:layout_centerInParent="true"
         android:layout_toRightOf="@id/imageView"
-        android:singleLine="true"
-        android:text="text"
+        android:maxLines="1"
+        android:text="@string/username_hit"
         android:textSize="20sp"
         android:textColor="#000000"
         android:textAppearance="?android:textAppearanceMedium" />
 
     </RelativeLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/me_split_line_color" />
 
 
 </LinearLayout>

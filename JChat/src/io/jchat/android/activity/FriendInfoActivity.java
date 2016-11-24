@@ -32,6 +32,7 @@ public class FriendInfoActivity extends BaseActivity {
     private String mNickname;
     private boolean mIsGetAvatar = false;
     private String mTargetAppKey;
+    private boolean mIsFromContact;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,23 +45,32 @@ public class FriendInfoActivity extends BaseActivity {
         if (mTargetAppKey == null) {
             mTargetAppKey = JMessageClient.getMyInfo().getAppKey();
         }
-        mGroupId = getIntent().getLongExtra(JChatDemoApplication.GROUP_ID, 0);
-        Conversation conv;
-        if (mGroupId == 0) {
-            conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
-            mUserInfo = (UserInfo) conv.getTargetInfo();
-        } else {
-            conv = JMessageClient.getGroupConversation(mGroupId);
-            GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
-            mUserInfo = groupInfo.getGroupMemberInfo(mTargetId, mTargetAppKey);
-        }
-
         mFriendInfoView.initModule();
-        //先从Conversation里获得UserInfo展示出来
-        mFriendInfoView.initInfo(mUserInfo);
         mFriendInfoController = new FriendInfoController(mFriendInfoView, this);
         mFriendInfoView.setListeners(mFriendInfoController);
         mFriendInfoView.setOnChangeListener(mFriendInfoController);
+        mIsFromContact = getIntent().getBooleanExtra("fromContact", false);
+        if (mIsFromContact) {
+            updateUserInfo();
+        } else {
+            mGroupId = getIntent().getLongExtra(JChatDemoApplication.GROUP_ID, 0);
+            Conversation conv;
+            if (mGroupId == 0) {
+                conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
+                mUserInfo = (UserInfo) conv.getTargetInfo();
+            } else {
+                conv = JMessageClient.getGroupConversation(mGroupId);
+                GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
+                mUserInfo = groupInfo.getGroupMemberInfo(mTargetId, mTargetAppKey);
+            }
+
+            //先从Conversation里获得UserInfo展示出来
+            mFriendInfoView.initInfo(mUserInfo);
+            updateUserInfo();
+        }
+    }
+
+    private void updateUserInfo() {
         //更新一次UserInfo
         final Dialog dialog = DialogCreator.createLoadingDialog(FriendInfoActivity.this,
                 FriendInfoActivity.this.getString(R.string.jmui_loading));
@@ -78,7 +88,6 @@ public class FriendInfoActivity extends BaseActivity {
                 }
             }
         });
-
     }
 
     /**
@@ -86,19 +95,27 @@ public class FriendInfoActivity extends BaseActivity {
      * finish掉此界面
      */
     public void startChatActivity() {
-        if (mGroupId != 0) {
-            Intent intent = new Intent();
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
-            intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
-            intent.setClass(this, ChatActivity.class);
+        if (mIsFromContact) {
+            Intent intent = new Intent(this, ChatActivity.class);
+            intent.putExtra(JChatDemoApplication.TARGET_ID, mUserInfo.getUserName());
+            intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mUserInfo.getAppKey());
             startActivity(intent);
         } else {
-            Intent intent = new Intent();
-            intent.putExtra("returnChatActivity", true);
-            intent.putExtra(JChatDemoApplication.NICKNAME, mNickname);
-            setResult(JChatDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
+            if (mGroupId != 0) {
+                Intent intent = new Intent();
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
+                intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
+                intent.setClass(this, ChatActivity.class);
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent();
+                intent.putExtra("returnChatActivity", true);
+                intent.putExtra(JChatDemoApplication.NICKNAME, mNickname);
+                setResult(JChatDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
+            }
         }
+
         Conversation conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
         //如果会话为空，使用EventBus通知会话列表添加新会话
         if (conv == null) {

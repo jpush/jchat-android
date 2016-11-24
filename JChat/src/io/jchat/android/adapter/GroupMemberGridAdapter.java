@@ -219,11 +219,11 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    class ItemViewTag {
+    private static class ItemViewTag {
 
-        protected CircleImageView icon;
-        protected ImageView deleteIcon;
-        protected TextView name;
+        private CircleImageView icon;
+        private ImageView deleteIcon;
+        private TextView name;
 
         public ItemViewTag(CircleImageView icon, TextView name, ImageView deleteIcon) {
             this.icon = icon;
