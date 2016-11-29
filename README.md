@@ -5,6 +5,8 @@
 
 [JChat Web](https://github.com/jpush/jchat-web)
 
+![jchat](https://github.com/KenChoi1992/SomeArticles/blob/master/screenshots/jchat.gif)
+
 在你的项目中集成 jmessage-sdk，[参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E9%9B%86%E6%88%90%20jmessage-sdk.md)；
 
 在 Android Studio 中导入 JChat demo， [参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E5%9C%A8Android%20Studio%E4%B8%AD%E8%BF%90%E8%A1%8CJChat%20Demo.md)；
@@ -52,4 +54,6 @@ JChat 的架构模型参考了 Android Passive MVC 架构(但是去掉了 Listen
 
 - Picasso —— 加载、显示、缓存图片，[官网](http://square.github.io/picasso/)。
 
-- StickyListHeadersListView —— 固定索引 HeadView 的 ListView [github地址](https://github.com/emilsjolander/StickyListHeaders)(可能更名了 ＝_＝)
+- StickyListHeadersListView —— 固定索引 HeadView 的 ListView [github 地址](https://github.com/emilsjolander/StickyListHeaders)(可能更名了 ＝_＝)
+
+- ActiveAndroid —— 对象关系映射（ORM）操作数据库 [github 地址](https://github.com/pardom/ActiveAndroid)
