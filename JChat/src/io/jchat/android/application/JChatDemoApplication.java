@@ -1,6 +1,10 @@
 package io.jchat.android.application;
 
 import android.util.Log;
+
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.database.UserEntry;
 import io.jchat.android.receiver.NotificationClickEventReceiver;
@@ -15,6 +19,7 @@ public class JChatDemoApplication extends com.activeandroid.app.Application {
     public static final int RESULT_CODE_SELECT_ALBUM = 11;
     public static final int REQUEST_CODE_BROWSER_PICTURE = 12;
     public static final int RESULT_CODE_BROWSER_PICTURE = 13;
+    public static final int REQUEST_CODE_CHAT_DETAIL = 14;
     public static final int RESULT_CODE_CHAT_DETAIL = 15;
     public static final int REQUEST_CODE_FRIEND_INFO = 16;
     public static final int RESULT_CODE_FRIEND_INFO = 17;
@@ -24,6 +29,8 @@ public class JChatDemoApplication extends com.activeandroid.app.Application {
     public static final int REQUEST_CODE_ALL_MEMBER = 21;
     public static final int RESULT_CODE_ALL_MEMBER = 22;
     public static final int RESULT_CODE_SELECT_FRIEND = 23;
+    public static final int REQUEST_CODE_SEND_LOCATION = 24;
+    public static final int RESULT_CODE_SEND_LOCATION = 25;
     public static final int ON_GROUP_EVENT = 3004;
 
     private static final String JCHAT_CONFIGS = "JChat_configs";

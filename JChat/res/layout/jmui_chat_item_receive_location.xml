@@ -32,16 +32,24 @@
             android:paddingRight="5dp"
             android:paddingTop="2dp"
             android:paddingBottom="5dp"
-            
+            android:orientation="vertical"
             android:layout_toRightOf="@id/jmui_avatar_iv"
             android:background="@drawable/jmui_receive_msg" >
 
             <TextView
-                android:id="@+id/jmui_msg_content"
+                android:id="@+id/jmui_loc_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/jmui_location_default"
+                android:ems="10"
+                android:textColor="@color/chat_text_color"/>
+
+            <ImageView
+                android:id="@+id/jmui_location_iv"
+                android:layout_width="163dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/jmui_location_default"
                 android:gravity="center"
+                android:scaleType="fitXY"
                 android:layout_marginTop="5dp" />
         </LinearLayout>
 

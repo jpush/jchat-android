@@ -222,7 +222,7 @@ public class MeFragment extends BaseFragment {
             public void gotResult(int status, String desc, Bitmap bitmap) {
                 if (status == 0) {
                     mIsGetAvatar = true;
-                    String path = BitmapLoader.saveBitmapToLocal(bitmap, mContext, myInfo.getUserName());
+                    String path = BitmapLoader.saveBitmapToLocal(bitmap, myInfo.getUserName());
                     Intent intent = new Intent();
                     intent.putExtra("browserAvatar", true);
                     intent.putExtra("avatarPath", path);

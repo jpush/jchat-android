@@ -36,7 +36,9 @@ public class AboutActivity extends Activity {
             String demoVersionName = this.getString(R.string.demo_version_name);
             String sdkVersion = JMessageClient.getSdkVersionString();
             String aboutContent = String.format(demoVersionName, version)
-                    + this.getString(R.string.sdk_version) + sdkVersion + this.getString(R.string.about_date);
+                    + this.getString(R.string.sdk_version)
+                    + sdkVersion + this.getString(R.string.about_date)
+                    + this.getString(R.string.new_functions);
             mAboutTv.setText(aboutContent);
         }catch (PackageManager.NameNotFoundException e) {
             Log.d("AboutActivity", "Name not Found");

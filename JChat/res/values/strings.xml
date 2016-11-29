@@ -105,6 +105,9 @@
     <string name="type_picture">[图片]</string>
     <string name="type_voice">[语音]</string>
     <string name="type_location">[位置]</string>
+    <string name="send_location">发送地理位置</string>
+    <string name="permission_should_allow">请允许使用位置权限，否则无法发送位置消息</string>
+    <string name="send_location_error">位置截图失败或会话为空</string>
     <string name="jmui_video">视频</string>
     <string name="jmui_location">位置</string>
     <string name="jmui_business_card">名片</string>
@@ -159,10 +162,6 @@
     <string name="upload_avatar_title">请选择上传头像方式</string>
     <string name="setting">设置</string>
     <string name="login_out">退出登录</string>
-    <string name="about">关于</string>
-    <string name="demo_version_name">demo版本号:%s</string>
-    <string name="sdk_version">\nsdk版本号:</string>
-    <string name="about_date">\n10月26日</string>
     <string name="add_to_friend">加为好友</string>
     <string name="setting_username_hit">昵称</string>
     <string name="setting_username_big_hit">更改名字</string>
@@ -215,6 +214,14 @@
     <string name="begin_time">开始时间</string>
     <string name="end_time">结束时间</string>
     <string name="jmui_logout_confirm">确定退出登录？</string>
+
+    <string name="about">关于</string>
+    <string name="demo_version_name">demo版本号:%s</string>
+    <string name="sdk_version">\nsdk版本号:</string>
+    <string name="about_date">\n10月26日</string>
+    <string name="new_functions">\n增加通讯录功能，在设置中打开好友模式即可开启。
+        \n（无好友与好友模式的区别在于添加好友的时候是否需要验证，无好友模式添加完后可以直接进行会话）
+        \n 增加发送位置功能</string>
 
     <!--聊天详情-->
     <string name="friend_request_title">新朋友</string>

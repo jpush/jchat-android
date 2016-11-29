@@ -69,7 +69,7 @@ public class BitmapLoader {
      * @param bitmap
      * @return
      */
-    public static String saveBitmapToLocal(Bitmap bitmap, Context context, String userName) {
+    public static String saveBitmapToLocal(Bitmap bitmap, String userName) {
         if (null == bitmap) {
             return null;
         }
@@ -161,7 +161,7 @@ public class BitmapLoader {
         return ddf1.format(size) + "M";
     }
 
-    public static Bitmap doBlur(Bitmap sentBitmap,  boolean canReuseInBitmap) {
+    public static Bitmap doBlur(Bitmap sentBitmap, boolean canReuseInBitmap) {
         // Stack Blur Algorithm by Mario Klingemann <mario@quasimondo.com>
 
         Bitmap bitmap;
@@ -364,5 +364,36 @@ public class BitmapLoader {
         bitmap.setPixels(pix, 0, w, 0, 0, w, h);
 
         return (bitmap);
+    }
+
+    public static Bitmap imageCropWithRect(Bitmap bitmap) {
+        if (bitmap == null) {
+            return null;
+        }
+
+        int w = bitmap.getWidth(); // 得到图片的宽，高
+        int h = bitmap.getHeight();
+
+        int nw, nh, retX, retY;
+        if (w > h) {
+            nw = h / 2;
+            nh = h;
+            retX = (w - nw) / 2;
+            retY = 0;
+        } else {
+            nw = w / 2;
+            nh = (h - w) / 2;
+            retX = w / 4;
+            retY = (int) (h - 0.95 * w);
+        }
+
+        // 下面这句是关键
+        Bitmap bmp = Bitmap.createBitmap(bitmap, retX, retY, nw, nh, null,
+                false);
+        if (bitmap != null && !bitmap.equals(bmp) && !bitmap.isRecycled()) {
+            bitmap.recycle();
+            bitmap = null;
+        }
+        return bmp;
     }
 }

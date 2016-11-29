@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.jchat.android"
-    android:versionCode="55"
-    android:versionName="1.3.3">
+    android:versionCode="56"
+    android:versionName="1.3.4">
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -138,6 +138,12 @@
 
         </service>
 
+        <service android:name="com.baidu.location.f" android:enabled="true"
+            android:process=":remote">
+        </service>
+        <meta-data android:name="com.baidu.lbsapi.API_KEY"
+            android:value="UAkQeBK84ioVGzYgA1rSWYfuD4xYtpmV"/>
+
         <!-- Required. Enable it you can get statistics data with channel -->
         <meta-data
             android:name="JPUSH_CHANNEL"
@@ -214,7 +220,7 @@
         <activity android:name="io.jchat.android.activity.SearchFriendActivity" />
         <activity android:name="io.jchat.android.activity.SearchFriendDetailActivity" />
         <activity android:name="io.jchat.android.activity.SendInvitationActivity" />
-
+        <activity android:name="io.jchat.android.activity.SendLocationActivity"/>
     </application>
 
 </manifest>
