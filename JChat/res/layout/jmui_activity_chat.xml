@@ -254,20 +254,19 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:visibility="invisible">
+                        android:visibility="visible">
 
                         <ImageButton
-                            android:id="@+id/jmui_send_video_btn"
+                            android:id="@+id/jmui_send_location_btn"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
-                            android:layout_gravity="center_vertical|center_horizontal"
-                            android:background="@drawable/jmui_video" />
+                            android:background="@drawable/jmui_location" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
-                            android:text="@string/jmui_video"
+                            android:text="@string/jmui_location"
                             android:textColor="#696969" />
                     </LinearLayout>
 
@@ -289,16 +288,17 @@
                         android:visibility="invisible">
 
                         <ImageButton
-                            android:id="@+id/jmui_send_location_btn"
+                            android:id="@+id/jmui_send_video_btn"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
-                            android:background="@drawable/jmui_location" />
+                            android:layout_gravity="center_vertical|center_horizontal"
+                            android:background="@drawable/jmui_video" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
-                            android:text="@string/jmui_location"
+                            android:text="@string/jmui_video"
                             android:textColor="#696969" />
                     </LinearLayout>
 

@@ -36,6 +36,7 @@ import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.activity.MembersInChatActivity;
 import io.jchat.android.adapter.GroupMemberGridAdapter;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.entity.Event;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
@@ -62,7 +63,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private long mGroupId;
     private String mTargetId;
     private Dialog mLoadingDialog = null;
-    private static final int ADD_TO_GRIDVIEW = 2048;
+    private static final int ADD_MEMBERS_TO_GRIDVIEW = 2048;
+    private static final int ADD_A_MEMBER_TO_GRIDVIEW = 2049;
     private static final int MAX_GRID_ITEM = 40;
     private String mGroupName;
     private final MyHandler myHandler = new MyHandler(this);
@@ -281,8 +283,11 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 mContext.startActivity(intent);
                 // 点击添加成员按钮
             } else if (position == mCurrentNum) {
-                addMemberToGroup();
-//                     mContext.showContacts();
+                if (SharePreferenceManager.getCachedShowContact()) {
+                    mContext.showContacts();
+                } else {
+                    addMemberToGroup();
+                }
 
                 // 是群主, 成员个数大于1并点击删除按钮
             } else if (position == mCurrentNum + 1 && mIsCreator && mCurrentNum > 1) {
@@ -298,9 +303,31 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             intent.setClass(mContext, FriendInfoActivity.class);
             mContext.startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_FRIEND_INFO);
         } else if (position == mCurrentNum) {
-            addMemberToGroup();
+            if (SharePreferenceManager.getCachedShowContact()) {
+                mContext.showContacts();
+            } else {
+                addMemberToGroup();
+            }
         }
 
+    }
+
+    public void addMembersToGroup(ArrayList<String> users) {
+        ArrayList<String> list = new ArrayList<String>();
+        for (String username : users) {
+            if (checkIfNotContainUser(username)) {
+                list.add(username);
+            }
+        }
+        if (list.size() > 0) {
+            mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
+                    mContext.getString(R.string.adding_hint));
+            mLoadingDialog.show();
+            android.os.Message msg = myHandler.obtainMessage();
+            msg.what = ADD_MEMBERS_TO_GRIDVIEW;
+            msg.obj = list;
+            msg.sendToTarget();
+        }
     }
 
     //点击添加按钮触发事件
@@ -356,7 +383,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 }
                 if (status == 0) {
                     android.os.Message msg = myHandler.obtainMessage();
-                    msg.what = ADD_TO_GRIDVIEW;
+                    msg.what = ADD_A_MEMBER_TO_GRIDVIEW;
                     msg.obj = userInfo;
                     msg.sendToTarget();
                     dialog.cancel();
@@ -394,6 +421,21 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         ArrayList<String> list = new ArrayList<String>();
         list.add(userInfo.getUserName());
         JMessageClient.addGroupMembers(mGroupId, list, new BasicCallback() {
+
+            @Override
+            public void gotResult(final int status, final String desc) {
+                mLoadingDialog.dismiss();
+                if (status == 0) {
+                    refreshMemberList();
+                } else {
+                    HandleResponseCode.onHandle(mContext, status, true);
+                }
+            }
+        });
+    }
+
+    private void addMembers(ArrayList<String> users) {
+        JMessageClient.addGroupMembers(mGroupId, users, new BasicCallback() {
 
             @Override
             public void gotResult(final int status, final String desc) {
@@ -488,16 +530,15 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             ChatDetailController controller = mController.get();
             if (controller != null) {
                 switch (msg.what) {
-                    //点击加人按钮并且用户信息返回正确
-                    case ADD_TO_GRIDVIEW:
-                        Log.i(TAG, "Adding Group Member, got UserInfo");
+                    //无好友模式一次添加一个
+                    case ADD_A_MEMBER_TO_GRIDVIEW:
                         if (controller.mLoadingDialog != null) {
                             controller.mLoadingDialog.dismiss();
                         }
                         final UserInfo userInfo = (UserInfo) msg.obj;
                         if (controller.mIsGroup) {
                             controller.addAMember(userInfo);
-                        //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
+                            //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
                         } else {
                             if (userInfo.getUserName().equals(controller.mMyUsername)
                                     || userInfo.getUserName().equals(controller.mTargetId)){
@@ -506,6 +547,20 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             } else {
                                 controller.addMemberAndCreateGroup(userInfo.getUserName());
                             }
+                        }
+                        break;
+                    //好友模式从通讯录中添加好友
+                    case ADD_MEMBERS_TO_GRIDVIEW:
+                        Log.i(TAG, "Adding Group Members");
+                        ArrayList<String> users = (ArrayList<String>) msg.obj;
+                        if (controller.mIsGroup) {
+                            controller.addMembers(users);
+                        //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
+                        } else {
+                            if (controller.mLoadingDialog != null) {
+                                controller.mLoadingDialog.dismiss();
+                            }
+                            controller.addMembersAndCreateGroup(users);
                         }
                         break;
                 }
@@ -529,6 +584,39 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     ArrayList<String> list = new ArrayList<String>();
                     list.add(mTargetId);
                     list.add(newMember);
+                    JMessageClient.addGroupMembers(groupId, list, new BasicCallback() {
+                        @Override
+                        public void gotResult(int status, String desc) {
+                            if (mLoadingDialog != null) {
+                                mLoadingDialog.dismiss();
+                            }
+                            if (status == 0) {
+                                Conversation conv = Conversation.createGroupConversation(groupId);
+                                EventBus.getDefault().post(new Event.LongEvent(true, groupId));
+                                mContext.startChatActivity(groupId, conv.getTitle());
+                            } else {
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
+                        }
+                    });
+                } else {
+                    if (mLoadingDialog != null) {
+                        mLoadingDialog.dismiss();
+                    }
+                    HandleResponseCode.onHandle(mContext, status, false);
+                }
+            }
+        });
+    }
+
+    private void addMembersAndCreateGroup(final ArrayList<String> list) {
+        mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
+                mContext.getString(R.string.creating_hint));
+        mLoadingDialog.show();
+        JMessageClient.createGroup("", "", new CreateGroupCallback() {
+            @Override
+            public void gotResult(int status, final String desc, final long groupId) {
+                if (status == 0) {
                     JMessageClient.addGroupMembers(groupId, list, new BasicCallback() {
                         @Override
                         public void gotResult(int status, String desc) {

@@ -35,20 +35,16 @@
 
         <TextView
             android:id="@+id/jmui_display_name_tv"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="15dp"
-            android:singleLine="true"
+            android:layout_marginRight="15dp"
+            android:maxLines="1"
             android:textColor="@color/black"
             android:textSize="24sp" />
 
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/select_friend_item_split_color" />
-
 
 </LinearLayout>

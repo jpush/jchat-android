@@ -16,6 +16,7 @@ import java.io.File;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.event.LoginStateChangeEvent;
 import cn.jpush.im.android.api.model.UserInfo;
+import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.FileHelper;
@@ -34,6 +35,8 @@ public class BaseFragment extends Fragment {
     protected float mDensity;
     protected int mDensityDpi;
     protected int mWidth;
+    protected int mHeight;
+    protected float mRatio;
     protected int mAvatarSize;
     private Context mContext;
 
@@ -48,6 +51,8 @@ public class BaseFragment extends Fragment {
         mDensity = dm.density;
         mDensityDpi = dm.densityDpi;
         mWidth = dm.widthPixels;
+        mHeight = dm.heightPixels;
+        mRatio = Math.min((float) mWidth / 720, (float) mHeight / 1280);
         mAvatarSize = (int) (50 * mDensity);
     }
 

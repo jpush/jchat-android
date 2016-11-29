@@ -31,6 +31,7 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
 import io.jchat.android.entity.Event;
@@ -269,8 +270,13 @@ public class ConversationListFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-        dismissPopWindow();
         super.onResume();
+        dismissPopWindow();
+        if (SharePreferenceManager.getCachedShowContact()) {
+            mMenuItemView.showAddFriend();
+        } else {
+            mMenuItemView.showAddFriendDirect();
+        }
     }
 
     public void dismissPopWindow() {

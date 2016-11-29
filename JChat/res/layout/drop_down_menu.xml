@@ -28,12 +28,12 @@
         android:layout_height="wrap_content"
         android:textColor="#d8e3f5"
         android:textSize="@dimen/text_medium_size"
-        android:text="发起群聊"/>
+        android:text="@string/create_group"/>
 
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/add_friend_ll"
+        android:id="@+id/add_friend_direct_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
@@ -48,9 +48,30 @@
             android:layout_height="wrap_content"
             android:textColor="#d8e3f5"
             android:textSize="@dimen/text_medium_size"
-            android:text="添加朋友"/>
+            android:text="@string/add_friend_without_confirm"/>
 
     </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/add_friend_with_confirm_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:layout_marginTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="30dp"
+            android:background="@drawable/menu_bg">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#d8e3f5"
+                android:textSize="@dimen/text_medium_size"
+                android:text="@string/add_friend"/>
+
+        </LinearLayout>
+
 
     </LinearLayout>
 

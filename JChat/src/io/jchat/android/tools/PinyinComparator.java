@@ -2,19 +2,20 @@ package io.jchat.android.tools;
 
 import java.util.Comparator;
 
+import io.jchat.android.database.FriendEntry;
 import io.jchat.android.entity.UserLetterBean;
 
-public class PinyinComparator implements Comparator<UserLetterBean> {
+public class PinyinComparator implements Comparator<FriendEntry> {
 
-	public int compare(UserLetterBean o1, UserLetterBean o2) {
-		if (o1.getLetter().equals("@")
-				|| o2.getLetter().equals("#")) {
+	public int compare(FriendEntry o1, FriendEntry o2) {
+		if (o1.letter.equals("@")
+				|| o2.letter.equals("#")) {
 			return -1;
-		} else if (o1.getLetter().equals("#")
-				|| o2.getLetter().equals("@")) {
+		} else if (o1.letter.equals("#")
+				|| o2.letter.equals("@")) {
 			return 1;
 		} else {
-			return o1.getLetter().compareTo(o2.getLetter());
+			return o1.letter.compareTo(o2.letter);
 		}
 	}
 

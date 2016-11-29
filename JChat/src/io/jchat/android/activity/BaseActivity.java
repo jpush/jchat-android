@@ -33,6 +33,7 @@ public class BaseActivity extends Activity {
     protected int mAvatarSize;
     protected int mWidth;
     protected int mHeight;
+    protected float mRatio;
     private Context mContext;
 
     @Override
@@ -48,6 +49,7 @@ public class BaseActivity extends Activity {
         mDensityDpi = dm.densityDpi;
         mWidth = dm.widthPixels;
         mHeight = dm.heightPixels;
+        mRatio = Math.min((float) mWidth / 720, (float) mHeight / 1280);
         mAvatarSize = (int) (50 * mDensity);
     }
 

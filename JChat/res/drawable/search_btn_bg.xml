@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <gradient
-        android:angle="270"
-        android:endColor="#6AA8FD"
-        android:startColor="#9AC4FF" />
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="@color/jmui_jpush_blue"/>
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:angle="270"
+                android:endColor="#6AA8FD"
+                android:startColor="#9AC4FF" />
+        </shape>
+    </item>
 
-</shape>
+</selector>

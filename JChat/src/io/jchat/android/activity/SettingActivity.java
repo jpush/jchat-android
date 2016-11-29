@@ -19,6 +19,7 @@ import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.view.SlipButton;
 
 public class SettingActivity extends BaseActivity implements OnClickListener, SlipButton.OnChangedListener {
@@ -30,6 +31,7 @@ public class SettingActivity extends BaseActivity implements OnClickListener, Sl
     private RelativeLayout mResetPwdRl;
     private RelativeLayout mAboutRl;
     private SlipButton mNoDisturbBtn;
+    private SlipButton mSwitchModeBtn;
     private Context mContext;
 
     @Override
@@ -44,6 +46,7 @@ public class SettingActivity extends BaseActivity implements OnClickListener, Sl
         mNotificationLl = (RelativeLayout) findViewById(R.id.notification_rl);
         mResetPwdRl = (RelativeLayout) findViewById(R.id.change_password_rl);
         mNoDisturbBtn = (SlipButton) findViewById(R.id.global_no_disturb_setting);
+        mSwitchModeBtn = (SlipButton) findViewById(R.id.show_contact_sp);
         mAboutRl = (RelativeLayout) findViewById(R.id.about_rl);
 
         mMenuBtn.setVisibility(View.GONE);
@@ -53,6 +56,8 @@ public class SettingActivity extends BaseActivity implements OnClickListener, Sl
         mResetPwdRl.setOnClickListener(this);
         mAboutRl.setOnClickListener(this);
         mNoDisturbBtn.setOnChangedListener(R.id.global_no_disturb_setting, this);
+        mSwitchModeBtn.setOnChangedListener(R.id.show_contact_sp, this);
+        mSwitchModeBtn.setChecked(SharePreferenceManager.getCachedShowContact());
 
         final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.jmui_loading));
         dialog.show();
@@ -98,30 +103,44 @@ public class SettingActivity extends BaseActivity implements OnClickListener, Sl
 
     @Override
     public void onChanged(int id, final boolean checkState) {
-        final Dialog loadingDialog = DialogCreator.createLoadingDialog(mContext,
-                mContext.getString(R.string.jmui_loading));
-        loadingDialog.show();
-        JMessageClient.setNoDisturbGlobal(checkState ? 1 : 0, new BasicCallback() {
-            @Override
-            public void gotResult(int status, String desc) {
-                loadingDialog.dismiss();
-                if (status == 0) {
-                    if (checkState) {
-                        Toast.makeText(mContext, mContext.getString(R.string.set_no_disturb_global_succeed),
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(mContext, mContext.getString(R.string.remove_no_disturb_global_succeed),
-                                Toast.LENGTH_SHORT).show();
-                    }
+        switch (id) {
+            case R.id.show_contact_sp:
+                SharePreferenceManager.setCachedShowContact(checkState);
+                if (SharePreferenceManager.getCachedShowContact()) {
+                    Toast.makeText(mContext, mContext.getString(R.string.switch_to_friend_mode),
+                            Toast.LENGTH_SHORT).show();
                 } else {
-                    if (checkState) {
-                        mNoDisturbBtn.setChecked(false);
-                    } else {
-                        mNoDisturbBtn.setChecked(true);
-                    }
-                    HandleResponseCode.onHandle(mContext, status, false);
+                    Toast.makeText(mContext, mContext.getString(R.string.switch_to_friendless_mode),
+                            Toast.LENGTH_SHORT).show();
                 }
-            }
-        });
+                break;
+            case R.id.global_no_disturb_setting:
+                final Dialog loadingDialog = DialogCreator.createLoadingDialog(mContext,
+                        mContext.getString(R.string.jmui_loading));
+                loadingDialog.show();
+                JMessageClient.setNoDisturbGlobal(checkState ? 1 : 0, new BasicCallback() {
+                    @Override
+                    public void gotResult(int status, String desc) {
+                        loadingDialog.dismiss();
+                        if (status == 0) {
+                            if (checkState) {
+                                Toast.makeText(mContext, mContext.getString(R.string.set_no_disturb_global_succeed),
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(mContext, mContext.getString(R.string.remove_no_disturb_global_succeed),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            if (checkState) {
+                                mNoDisturbBtn.setChecked(false);
+                            } else {
+                                mNoDisturbBtn.setChecked(true);
+                            }
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
+                    }
+                });
+                break;
+        }
     }
 }

@@ -33,14 +33,15 @@ import android.widget.Toast;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
+import cn.jpush.im.android.api.content.LocationContent;
 import cn.jpush.im.android.api.enums.MessageStatus;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
+
 import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,6 +61,7 @@ import cn.jpush.im.android.api.enums.MessageDirect;
 import io.jchat.android.activity.BrowserViewPagerActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
+import io.jchat.android.activity.SendLocationActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.FileHelper;
@@ -262,7 +264,6 @@ public class MsgListAdapter extends BaseAdapter {
             mConv = JMessageClient.getGroupConversation(mGroupId);
         } else {
             mConv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
-            Log.d(TAG, "mTargetAppKey: " + mTargetAppKey);
         }
         for (int msgId : msgIds) {
             msg = mConv.getMessage(msgId);
@@ -489,8 +490,10 @@ public class MsgListAdapter extends BaseAdapter {
                             .findViewById(IdHelper.getViewID(mContext, "jmui_avatar_iv"));
                     holder.displayName = (TextView) convertView
                             .findViewById(IdHelper.getViewID(mContext, "jmui_display_name_tv"));
-                    holder.txtContent = (TextView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_msg_content"));
+                    holder.location = (TextView) convertView
+                            .findViewById(IdHelper.getViewID(mContext, "jmui_loc_desc"));
+                    holder.picture = (ImageView) convertView
+                            .findViewById(IdHelper.getViewID(mContext, "jmui_location_iv"));
                     holder.sendingIv = (ImageView) convertView
                             .findViewById(IdHelper.getViewID(mContext, "jmui_sending_iv"));
                     holder.resend = (ImageButton) convertView
@@ -1200,8 +1203,67 @@ public class MsgListAdapter extends BaseAdapter {
         Collections.sort(mIndexList);
     }
 
-    private void handleLocationMsg(Message msg, ViewHolder holder, int position) {
+    private void handleLocationMsg(final Message msg, final ViewHolder holder, int position) {
+        LocationContent content = (LocationContent) msg.getContent();
+        String path = content.getStringExtra("path");
 
+        holder.location.setText(content.getAddress());
+        if (msg.getDirect() == MessageDirect.receive) {
+            Log.w(TAG, "receive location message!");
+            switch (msg.getStatus()) {
+                case receive_going:
+                    break;
+                case receive_success:
+
+                    break;
+                case receive_fail:
+                    break;
+            }
+        } else {
+            if (path != null) {
+                try {
+                    File file = new File(path);
+                    if (file.exists() && file.isFile()) {
+                        Picasso.with(mContext).load(file).into(holder.picture);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            switch (msg.getStatus()) {
+                case send_going:
+                    sendingTextOrVoice(holder, msg);
+                    break;
+                case send_success:
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.GONE);
+                    break;
+                case send_fail:
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.VISIBLE);
+                    break;
+            }
+            holder.resend.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View arg0) {
+                    if (msg.getContent() != null) {
+                        showResendDialog(holder, msg);
+                    } else {
+                        Toast.makeText(mContext, mContext.getString(IdHelper.getString(mContext,
+                                "jmui_sdcard_not_exist_toast")),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+        if (holder.picture != null) {
+            holder.picture.setOnClickListener(new BtnOrTxtListener(position, holder));
+            holder.picture.setTag(position);
+            holder.picture.setOnLongClickListener(mLongClickListener);
+
+        }
     }
 
     public void stopMediaPlayer() {
@@ -1300,18 +1362,31 @@ public class MsgListAdapter extends BaseAdapter {
                         }
                     }
                 }
-            } else if (holder.picture != null && v.getId() == holder.picture.getId()) {
-                Intent intent = new Intent();
-                intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
-                intent.putExtra("msgId", msg.getId());
-                intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
-                intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
-                intent.putExtra("msgCount", mMsgList.size());
-                intent.putIntegerArrayListExtra(JChatDemoApplication.MsgIDs, getImgMsgIDList());
-                intent.putExtra("fromChatActivity", true);
-                intent.setClass(mContext, BrowserViewPagerActivity.class);
-                mContext.startActivity(intent);
+            } else if (msg.getContentType() == ContentType.image) {
+                if (holder.picture != null && v.getId() == holder.picture.getId()) {
+                    Intent intent = new Intent();
+                    intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
+                    intent.putExtra("msgId", msg.getId());
+                    intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
+                    intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
+                    intent.putExtra("msgCount", mMsgList.size());
+                    intent.putIntegerArrayListExtra(JChatDemoApplication.MsgIDs, getImgMsgIDList());
+                    intent.putExtra("fromChatActivity", true);
+                    intent.setClass(mContext, BrowserViewPagerActivity.class);
+                    mContext.startActivity(intent);
+                }
+            } else if (msg.getContentType() == ContentType.location) {
+                if (holder.picture != null && v.getId() == holder.picture.getId()) {
+                    Intent intent = new Intent(mContext, SendLocationActivity.class);
+                    LocationContent locationContent = (LocationContent) msg.getContent();
+                    intent.putExtra("latitude", locationContent.getLatitude().doubleValue());
+                    intent.putExtra("longitude", locationContent.getLongitude().doubleValue());
+                    intent.putExtra("locDesc", locationContent.getAddress());
+                    intent.putExtra("sendLocation", false);
+                    mContext.startActivity(intent);
+                }
             }
+
         }
     }
 

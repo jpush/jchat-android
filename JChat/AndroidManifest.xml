@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.jchat.android"
-    android:versionCode="55"
-    android:versionName="1.3.3">
+    android:versionCode="56"
+    android:versionName="1.3.4">
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -23,21 +23,21 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 
     <!-- JMessage Demo required for record audio-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <!-- Optional for location -->
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <application
         android:name="io.jchat.android.application.JChatDemoApplication"
@@ -45,8 +45,17 @@
         android:configChanges="fontScale"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:theme="@style/noTitle"
-        android:screenOrientation="portrait">
+        android:screenOrientation="portrait"
+        android:theme="@style/noTitle">
+
+        <meta-data android:name="AA_DB_NAME" android:value="jchat.db"/>
+        <meta-data
+            android:name="AA_MODELS"
+            android:value="io.jchat.android.database.UserEntry, io.jchat.android.database.FriendEntry,
+             io.jchat.android.database.FriendRecommendEntry" />
+        <meta-data
+            android:name="AA_DB_VERSION"
+            android:value="4"/>
 
         <!-- Required Push SDK核心功能-->
         <service
@@ -129,6 +138,12 @@
 
         </service>
 
+        <service android:name="com.baidu.location.f" android:enabled="true"
+            android:process=":remote">
+        </service>
+        <meta-data android:name="com.baidu.lbsapi.API_KEY"
+            android:value="UAkQeBK84ioVGzYgA1rSWYfuD4xYtpmV"/>
+
         <!-- Required. Enable it you can get statistics data with channel -->
         <meta-data
             android:name="JPUSH_CHANNEL"
@@ -140,16 +155,17 @@
 
         <activity
             android:name="io.jchat.android.activity.BaseActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name="io.jchat.android.activity.LoginActivity"
-            android:theme="@style/noTitle"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden"/>
+            android:theme="@style/noTitle"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
         <activity
             android:name="io.jchat.android.activity.MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -159,62 +175,52 @@
         <activity
             android:name="io.jchat.android.activity.RegisterActivity"
             android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="io.jchat.android.activity.MeInfoActivity" />
+        <activity android:name="io.jchat.android.activity.MeInfoActivity" />
         <activity
             android:name="io.jchat.android.chatting.ChatActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="io.jchat.android.activity.ReloginActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden"/>
-        <activity
-            android:name="io.jchat.android.activity.ChatDetailActivity" />
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
+        <activity android:name="io.jchat.android.activity.ChatDetailActivity" />
         <activity
             android:name="io.jchat.android.activity.GroupSettingActivity"
             android:theme="@style/group_setting_dialog" />
-        <activity
-            android:name="io.jchat.android.activity.FriendInfoActivity" />
-        <activity
-            android:name="io.jchat.android.activity.CreateGroupActivity" />
-        <activity
-            android:name="io.jchat.android.activity.PickPictureTotalActivity" />
-        <activity
-            android:name="io.jchat.android.activity.PickPictureActivity" />
-        <activity
-            android:name="io.jchat.android.activity.BrowserViewPagerActivity" />
-        <activity
-            android:name="io.jchat.android.activity.SettingActivity" />
-        <activity
-            android:name="io.jchat.android.activity.NotificationSettingActivity" />
-        <activity
-            android:name="io.jchat.android.activity.DisturbSettingActivity" />
+        <activity android:name="io.jchat.android.activity.FriendInfoActivity" />
+        <activity android:name="io.jchat.android.activity.CreateGroupActivity" />
+        <activity android:name="io.jchat.android.activity.PickPictureTotalActivity" />
+        <activity android:name="io.jchat.android.activity.PickPictureActivity" />
+        <activity android:name="io.jchat.android.activity.BrowserViewPagerActivity" />
+        <activity android:name="io.jchat.android.activity.SettingActivity" />
+        <activity android:name="io.jchat.android.activity.NotificationSettingActivity" />
+        <activity android:name="io.jchat.android.activity.DisturbSettingActivity" />
         <activity
             android:name="io.jchat.android.activity.ResetPasswordActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
         <activity
             android:name="io.jchat.android.activity.FixProfileActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
         <activity
             android:name="io.jchat.android.activity.ResetNickNameActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
         <activity
             android:name="io.jchat.android.activity.SelectAreaActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
         <activity
             android:name="io.jchat.android.activity.EditSignatureActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
-        <activity
-            android:name="io.jchat.android.activity.EditNoteNameActivity" />
-        <activity
-            android:name="io.jchat.android.activity.AboutActivity" />
+            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
+        <activity android:name="io.jchat.android.activity.EditNoteNameActivity" />
+        <activity android:name="io.jchat.android.activity.AboutActivity" />
         <activity
             android:name="io.jchat.android.activity.SelectFriendActivity"
-            android:windowSoftInputMode="adjustPan"/>
-        <activity
-            android:name="io.jchat.android.activity.MembersInChatActivity" />
-        <activity
-            android:name="io.jchat.android.activity.CropImageActivity" />
-
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name="io.jchat.android.activity.MembersInChatActivity" />
+        <activity android:name="io.jchat.android.activity.CropImageActivity" />
+        <activity android:name="io.jchat.android.activity.FriendRecommendActivity" />
+        <activity android:name="io.jchat.android.activity.SearchFriendActivity" />
+        <activity android:name="io.jchat.android.activity.SearchFriendDetailActivity" />
+        <activity android:name="io.jchat.android.activity.SendInvitationActivity" />
+        <activity android:name="io.jchat.android.activity.SendLocationActivity"/>
     </application>
 
 </manifest>

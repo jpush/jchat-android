@@ -65,8 +65,7 @@ public class CropImageActivity extends BaseActivity {
             public void onClick(View v) {
                 Bitmap uploadBitmap = mImageView.getCropImage();
                 UserInfo myInfo = JMessageClient.getMyInfo();
-                String uploadPath = BitmapLoader.saveBitmapToLocal(uploadBitmap,
-                        mContext, myInfo.getUserName());
+                String uploadPath = BitmapLoader.saveBitmapToLocal(uploadBitmap, myInfo.getUserName());
                 Intent data = new Intent();
                 data.putExtra("filePath", uploadPath);
                 setResult(JChatDemoApplication.REQUEST_CODE_CROP_PICTURE, data);

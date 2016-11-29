@@ -68,11 +68,24 @@ public class DialogCreator {
         return dialog;
     }
 
+    public static Dialog createDelRecommendDialog(Context context, View.OnClickListener listener) {
+        Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
+        View v = LayoutInflater.from(context).inflate(
+                IdHelper.getLayout(context, "jmui_dialog_del_recommend"), null);
+        dialog.setContentView(v);
+        final LinearLayout deleteLl = (LinearLayout) v.findViewById(IdHelper
+                .getViewID(context, "jmui_del_recommend_ll"));
+        deleteLl.setOnClickListener(listener);
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        return dialog;
+    }
+
     public static Dialog createLongPressMessageDialog(Context context, String title, boolean hide,
                                                       View.OnClickListener listener){
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
-        View view = LayoutInflater.from(context).inflate(
-                IdHelper.getLayout(context, "jmui_dialog_msg_alert"), null);
+        View view = LayoutInflater.from(context).inflate(IdHelper.getLayout(context,
+                "jmui_dialog_msg_alert"), null);
         dialog.setContentView(view);
         Button copyBtn = (Button) view
                 .findViewById(IdHelper.getViewID(context, "jmui_copy_msg_btn"));

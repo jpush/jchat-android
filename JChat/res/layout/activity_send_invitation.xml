@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff">
+
+    <include layout="@layout/menu_title_bar_with_button"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
+        android:text="@string/friend_request_hit"
+        android:textSize="18sp"
+        android:textColor="@color/action_bar_txt_color"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="5dp"
+        android:background="@color/msg_list_item_sel_color"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+    <EditText
+        android:id="@+id/verify_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:cursorVisible="true"
+        android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
+        android:maxEms="30"
+        android:hint="@string/friend_request_input_hit"
+        android:textColorHint="@color/gray"
+        android:paddingLeft="20dp"
+        android:paddingRight="40dp"
+        android:paddingBottom="5dp"
+        android:textSize="20sp"
+        android:textColor="@color/me_info_edit_color"
+        android:background="@drawable/default_input_without_bg" />
+
+    <ImageButton
+        android:id="@+id/delete_iv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/delete_btn_bg"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="5dp"
+        android:background="@color/msg_list_item_sel_color"/>
+
+    <Button
+        android:id="@+id/send_invitation_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="28dp"
+        android:layout_marginRight="28dp"
+        android:layout_marginTop="25dp"
+        android:background="@drawable/login_btn_bg"
+        android:gravity="center"
+        android:text="@string/add_to_friend"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textSize="@dimen/text_medium_size" />
+
+</LinearLayout>
