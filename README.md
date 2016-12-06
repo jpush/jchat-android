@@ -3,6 +3,8 @@
 
 [JChat iOS](https://github.com/jpush/jchat-ios)
 
+[JChat-swift](https://github.com/jpush/jchat-swift)
+
 [JChat Web](https://github.com/jpush/jchat-web)
 
 
