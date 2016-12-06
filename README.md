@@ -41,9 +41,9 @@ JChat 的架构模型参考了 Android Passive MVC 架构(但是去掉了 Listen
 ####jmessage-sdk 接口相关文档
 - [Demo 用法参考](https://github.com/KenChoi1992/SomeArticles/blob/master/jmessage-sdk%E9%83%A8%E5%88%86%E6%8E%A5%E5%8F%A3%E7%94%A8%E6%B3%95.md)；
 
-- [Android JMessage-sdk 概述](http://docs.jpush.io/client/im_sdk_android/)；
+- [Android JMessage-sdk 概述](https://docs.jiguang.cn/jmessage/guideline/jmessage_guide/)；
 
-- [Android JMessage-sdk-doc 文档](http://docs.jpush.io/client/im_android_api_docs/)。
+- [Android JMessage-sdk-doc 文档](https://docs.jiguang.cn/jmessage/client/im_android_api_docs/)。
 
 ---
 ####JChat 中所使用的开源项目简介
