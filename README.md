@@ -5,6 +5,12 @@
 
 [JChat Web](https://github.com/jpush/jchat-web)
 
+
+####目前 JChat 已提供两种模式:好友模式和无好友模式，可在设置中进行切换(添加好友还是从右上角的 ➕ 处添加，通讯录中的搜索框只是过滤字符串)
+
+- 无好友模式：添加后可以直接发起会话
+- 好友模式：向对方发送好友请求，对方同意后，双方互为好友才能聊天。在通讯录的朋友推荐中可以查看好友请求的情况。
+
 ![jchat](https://github.com/KenChoi1992/SomeArticles/blob/master/screenshots/jchat.gif)
 
 在你的项目中集成 jmessage-sdk，[参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E9%9B%86%E6%88%90%20jmessage-sdk.md)；
