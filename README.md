@@ -15,6 +15,13 @@
 
 ![jchat](https://github.com/KenChoi1992/SomeArticles/blob/master/screenshots/jchat.gif)
 
+如需发送地理位置功能，需要在 AndroidManifest.xml 中配置一下百度地图的 API AccessKey：
+
+```
+<meta-data android:name="com.baidu.lbsapi.API_KEY"
+            android:value="UAkQeBK84ioVGzYgA1rSWYfuD4xYtpmV"/> // 将这个 value 替换成自己的
+```
+
 在你的项目中集成 jmessage-sdk，[参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E9%9B%86%E6%88%90%20jmessage-sdk.md)；
 
 在 Android Studio 中导入 JChat demo， [参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E5%9C%A8Android%20Studio%E4%B8%AD%E8%BF%90%E8%A1%8CJChat%20Demo.md)；
