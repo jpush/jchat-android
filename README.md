@@ -19,7 +19,7 @@
 
 在 Android Studio 中导入 JChat demo， [参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E5%9C%A8Android%20Studio%E4%B8%AD%E8%BF%90%E8%A1%8CJChat%20Demo.md)；
 
-在 Eclipse 中导入 JChat，[参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E5%9C%A8Eclipse%E4%B8%8A%E5%AF%BC%E5%85%A5JChat.md)。
+在 Eclipse 中导入 JChat，新版本加入了 ActiveAndroid 依赖，需要手动添加（Android Studio 不需要）[具体参考这个步骤](https://github.com/KenChoi1992/SomeArticles/blob/master/%E5%9C%A8Eclipse%E4%B8%8A%E5%AF%BC%E5%85%A5JChat.md)。
 
 ####JChat 的工程结构
 
