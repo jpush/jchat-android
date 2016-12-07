@@ -3,7 +3,6 @@ package io.jchat.android.tools;
 import java.util.Comparator;
 
 import io.jchat.android.database.FriendEntry;
-import io.jchat.android.entity.UserLetterBean;
 
 public class PinyinComparator implements Comparator<FriendEntry> {
 

@@ -1,15 +1,11 @@
 package io.jchat.android.view;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import java.util.List;
 import io.jchat.android.R;
 
 
@@ -17,9 +13,7 @@ public class MainView extends RelativeLayout {
 
     private Button[] mBtnList;
     private int[] mBtnListID;
-    List<Fragment> fragments;
-    private ImageView mMsgUnreadiv;
-    private ScrollControllViewPager mViewContainer;
+    private ScrollControlViewPager mViewContainer;
 
     public MainView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -34,7 +28,7 @@ public class MainView extends RelativeLayout {
             mBtnList[i] = (Button) findViewById(mBtnListID[i]);
         }
 //        mMsgUnreadiv = (ImageView) findViewById(R.id.msg_unread_iv);
-        mViewContainer = (ScrollControllViewPager) findViewById(R.id.viewpager);
+        mViewContainer = (ScrollControlViewPager) findViewById(R.id.viewpager);
         mBtnList[0].setTextColor(getResources().getColor(R.color.actionbar_pres_color));
         mBtnList[0].setSelected(true);
     }
@@ -46,7 +40,7 @@ public class MainView extends RelativeLayout {
     }
 
     public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
-        mViewContainer.setOnPageChangeListener(onPageChangeListener);
+        mViewContainer.addOnPageChangeListener(onPageChangeListener);
     }
 
     public void setViewPagerAdapter(FragmentPagerAdapter adapter) {

@@ -79,9 +79,14 @@ public class SendInvitationActivity extends BaseActivity {
                         dialog.dismiss();
                         if (status == 0) {
                             UserEntry userEntry = UserEntry.getUser(myInfo.getUserName(), myInfo.getAppKey());
-                            FriendRecommendEntry entry = new FriendRecommendEntry(targetUsername, targetAppKey,
-                                    targetAvatar, displayName, reason, FriendInvitation.INVITING.getValue(), userEntry);
-                            entry.save();
+                            FriendRecommendEntry entry = FriendRecommendEntry.getEntry(userEntry,
+                                    targetUsername, targetAppKey);
+                            if (null == entry) {
+                                entry = new FriendRecommendEntry(targetUsername, targetAppKey,
+                                        targetAvatar, displayName, reason, FriendInvitation.INVITING.getValue(), userEntry);
+                                entry.save();
+                            }
+
                             Toast.makeText(context, context.getString(R.string.sent_request),
                                     Toast.LENGTH_SHORT).show();
                             SendInvitationActivity.this.finish();

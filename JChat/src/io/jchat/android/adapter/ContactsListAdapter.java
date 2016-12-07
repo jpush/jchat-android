@@ -11,16 +11,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
-import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.chatting.utils.BitmapLoader;
-import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.database.FriendEntry;
 import io.jchat.android.tools.NativeImageLoader;
 
-import java.io.File;
 import java.util.List;
 
 
@@ -63,7 +59,7 @@ public class ContactsListAdapter extends BaseAdapter{
     public View getView(int position, View convertView, ViewGroup parent) {
         final ViewHolder holder;
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.list_view_contact_item, null);
+            convertView = mInflater.inflate(R.layout.item_contact, null);
             holder = new ViewHolder();
             holder.alpha = (TextView) convertView.findViewById(R.id.alpha);
             holder.headIcon = (CircleImageView) convertView.findViewById(R.id.imageView);

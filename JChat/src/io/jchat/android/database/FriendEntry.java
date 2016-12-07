@@ -41,9 +41,12 @@ public class FriendEntry extends Model {
         this.user = user;
     }
 
-    public static FriendEntry getFriend(String username, String appKey) {
-        return new Select().from(FriendEntry.class).where("Username = ?", username)
-                .where("AppKey = ?", appKey).executeSingle();
+    public static FriendEntry getFriend(UserEntry user, String username, String appKey) {
+        return new Select().from(FriendEntry.class)
+                .where("Username = ?", username)
+                .where("AppKey = ?", appKey)
+                .where("User = ?", user.getId())
+                .executeSingle();
     }
 
     public static FriendEntry getFriend(long id) {

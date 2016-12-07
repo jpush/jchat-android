@@ -114,6 +114,7 @@
         android:layout_marginLeft="28dp"
         android:layout_marginRight="28dp"
         android:layout_marginTop="25dp"
+        android:padding="10dp"
         android:background="@drawable/jmui_register_btn_bg"
         android:gravity="center"
         android:text="注册"

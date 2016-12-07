@@ -111,7 +111,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         final ItemViewTag viewTag;
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.group_grid_view_item, null);
+            convertView = mInflater.inflate(R.layout.item_group, null);
             viewTag = new ItemViewTag((CircleImageView) convertView.findViewById(R.id.grid_avatar),
                     (TextView) convertView.findViewById(R.id.grid_name),
                     (ImageView) convertView.findViewById(R.id.grid_delete_icon));

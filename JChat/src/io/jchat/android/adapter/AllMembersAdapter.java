@@ -82,7 +82,7 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         final ViewHolder viewHolder;
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            convertView = inflater.inflate(R.layout.all_member_item, null);
+            convertView = inflater.inflate(R.layout.item_all_member, null);
             viewHolder = new ViewHolder((CircleImageView) convertView.findViewById(R.id.icon_iv),
                     (TextView) convertView.findViewById(R.id.name),
                     (CheckBox) convertView.findViewById(R.id.check_box_cb));

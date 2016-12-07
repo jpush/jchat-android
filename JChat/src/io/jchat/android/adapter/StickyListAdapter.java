@@ -17,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
@@ -34,7 +33,6 @@ import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.BitmapLoader;
 import io.jchat.android.database.FriendEntry;
-import io.jchat.android.entity.UserLetterBean;
 import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.tools.NativeImageLoader;
 
@@ -158,7 +156,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         final ViewHolder holder;
         if (convertView == null) {
             holder = new ViewHolder();
-            convertView = mInflater.inflate(R.layout.select_friend_item, parent, false);
+            convertView = mInflater.inflate(R.layout.item_select_friend, parent, false);
             holder.itemLl = (LinearLayout) convertView.findViewById(R.id.select_friend_item_ll);
             holder.checkBox = (CheckBox) convertView.findViewById(R.id.selected_cb);
             holder.avatar = (CircleImageView) convertView.findViewById(R.id.jmui_avatar_iv);

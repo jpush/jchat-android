@@ -151,6 +151,13 @@
     <string name="sent_request">已成功发送请求</string>
     <string name="decline_friend_invitation">对方已拒绝</string>
 
+    <!-- 发送文件 -->
+    <string name="file">文件</string>
+    <string name="document">文档</string>
+    <string name="album">相册</string>
+    <string name="audio">音频</string>
+    <string name="other">其他</string>
+
     <!--设置相关-->
     <string name="birthday">出生日期</string>
     <string name="sex">性别</string>

@@ -22,7 +22,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import io.jchat.android.chatting.utils.IdHelper;
 import io.jchat.android.chatting.utils.SharePreferenceManager;
 
-public class ChatView extends RelativeLayout{
+public class ChatView extends RelativeLayout {
 
 	private LinearLayout mBackground;
 	private TableLayout mMoreMenuTl;
@@ -39,7 +39,7 @@ public class ChatView extends RelativeLayout{
 	private ImageButton mTakePhotoIb;
 	private ImageButton mPickPictureIb;
 	private ImageButton mLocationIb;
-	private ImageButton mSendVideoIb;
+	private ImageButton mSendFileIb;
 	private Button mSendMsgBtn;
 	Context mContext;
     private OnSizeChangedListener mListener;
@@ -83,7 +83,7 @@ public class ChatView extends RelativeLayout{
         mGroupNumTv = (TextView) findViewById(IdHelper.getViewID(mContext, "jmui_group_num_tv"));
         mExpressionIb = (ImageButton) findViewById(IdHelper.getViewID(mContext, "jmui_expression_btn"));
         mLocationIb = (ImageButton) findViewById(IdHelper.getViewID(mContext, "jmui_send_location_btn"));
-        mSendVideoIb = (ImageButton) findViewById(IdHelper.getViewID(mContext, "jmui_send_video_btn"));
+        mSendFileIb = (ImageButton) findViewById(IdHelper.getViewID(mContext, "jmui_send_file_btn"));
 
         mBackground.requestFocus();
 		mChatInputEt.addTextChangedListener(watcher);
@@ -238,7 +238,7 @@ public class ChatView extends RelativeLayout{
 		mTakePhotoIb.setOnClickListener(onClickListener);
 		mPickPictureIb.setOnClickListener(onClickListener);
 		mLocationIb.setOnClickListener(onClickListener);
-		mSendVideoIb.setOnClickListener(onClickListener);
+		mSendFileIb.setOnClickListener(onClickListener);
 	}
 
     public void setOnTouchListener(OnTouchListener listener) {

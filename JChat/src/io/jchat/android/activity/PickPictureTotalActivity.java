@@ -50,7 +50,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 	private Intent mIntent;
 	private final MyHandler myHandler = new MyHandler(this);
 
-	private static class MyHandler extends Handler{
+	private static class MyHandler extends Handler {
 		private final WeakReference<PickPictureTotalActivity> mActivity;
 
 		public MyHandler(PickPictureTotalActivity activity) {
@@ -67,7 +67,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 						//关闭进度条
 						activity.mProgressDialog.dismiss();
 						activity.adapter = new AlbumListAdapter(activity, activity.list = activity
-								.subGroupOfImage(activity.mGruopMap), activity.mListView, activity.mDensity);
+								.subGroupOfImage(activity.mGruopMap), activity.mDensity);
 						activity.mListView.setAdapter(activity.adapter);
 						break;
 					case SCAN_ERROR:
@@ -132,20 +132,17 @@ public class PickPictureTotalActivity extends BaseActivity {
 			
 			@Override
 			public void run() {
-				Uri mImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-				ContentResolver mContentResolver = PickPictureTotalActivity.this.getContentResolver();
-
-				//只查询jpeg和png的图片
-				Cursor mCursor = mContentResolver.query(mImageUri, null,
-						MediaStore.Images.Media.MIME_TYPE + "=? or "
-								+ MediaStore.Images.Media.MIME_TYPE + "=?",
-						new String[] { "image/jpeg", "image/png" }, MediaStore.Images.Media.DATE_MODIFIED);
-				if (mCursor == null || mCursor.getCount() == 0) {
+				Uri imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+				ContentResolver contentResolver = PickPictureTotalActivity.this.getContentResolver();
+				String[] projection = new String[]{ MediaStore.Images.ImageColumns.DATA };
+				Cursor cursor = contentResolver.query(imageUri, projection, null, null,
+                        MediaStore.Images.Media.DATE_MODIFIED);
+				if (cursor == null || cursor.getCount() == 0) {
 					myHandler.sendEmptyMessage(SCAN_ERROR);
-                }else {
-                    while (mCursor.moveToNext()) {
+                } else {
+                    while (cursor.moveToNext()) {
                         //获取图片的路径
-                        String path = mCursor.getString(mCursor
+                        String path = cursor.getString(cursor
                                 .getColumnIndex(MediaStore.Images.Media.DATA));
 
                         try{
@@ -163,7 +160,7 @@ public class PickPictureTotalActivity extends BaseActivity {
                             e.printStackTrace();
                         }
                     }
-                    mCursor.close();
+                    cursor.close();
                     //通知Handler扫描图片完成
 					myHandler.sendEmptyMessage(SCAN_OK);
                 }
@@ -221,7 +218,7 @@ public class PickPictureTotalActivity extends BaseActivity {
 		}
 	}
 
-    static class SortImageBeanComparator implements Comparator<ImageBean> {
+    public static class SortImageBeanComparator implements Comparator<ImageBean> {
 
         List<ImageBean> list;
 

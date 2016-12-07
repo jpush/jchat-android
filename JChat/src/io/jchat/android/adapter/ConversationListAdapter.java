@@ -127,7 +127,7 @@ public class ConversationListAdapter extends BaseAdapter {
         final Conversation convItem = mDatas.get(position);
         final ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.conversation_list_item,
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_conversation,
                     null);
             viewHolder = new ViewHolder();
             viewHolder.headIcon = (CircleImageView) convertView

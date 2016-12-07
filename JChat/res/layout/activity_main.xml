@@ -65,7 +65,7 @@
 
     </LinearLayout>
 
-    <io.jchat.android.view.ScrollControllViewPager
+    <io.jchat.android.view.ScrollControlViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -73,6 +73,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true">
 
-    </io.jchat.android.view.ScrollControllViewPager>
+    </io.jchat.android.view.ScrollControlViewPager>
 
 </io.jchat.android.view.MainView>

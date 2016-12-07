@@ -51,7 +51,7 @@ public class FriendRecommendEntry extends Model {
     public static FriendRecommendEntry getEntry(UserEntry user, String username, String appKey) {
         return new Select().from(FriendRecommendEntry.class).where("Username = ?", username)
                 .where("AppKey = ?", appKey)
-                .where("User = ?", user).executeSingle();
+                .where("User = ?", user.getId()).executeSingle();
     }
 
     public static void deleteEntry(FriendRecommendEntry entry) {
