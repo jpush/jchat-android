@@ -36,6 +36,7 @@ public class BubbleShader extends ShaderHelper {
     public BubbleShader() {
     }
 
+    @SuppressWarnings("ResourceType")
     @Override
     public void init(Context context, AttributeSet attrs, int defStyle) {
         super.init(context, attrs, defStyle);

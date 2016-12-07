@@ -65,6 +65,7 @@ public abstract class ShaderHelper {
         return square;
     }
 
+    @SuppressWarnings("ResourceType")
     public void init(Context context, AttributeSet attrs, int defStyle) {
         if(attrs != null){
             int[] declareStyleableArray = IdHelper.getResourceDeclareStyleableIntArray(context, "ShaderImageView");
