@@ -54,6 +54,10 @@ public class FriendRecommendEntry extends Model {
                 .where("User = ?", user.getId()).executeSingle();
     }
 
+    public static FriendRecommendEntry getEntry(long id) {
+        return new Select().from(FriendRecommendEntry.class).where("_id = ?", id).executeSingle();
+    }
+
     public static void deleteEntry(FriendRecommendEntry entry) {
         new Delete().from(FriendRecommendEntry.class).where("_id = ?", entry.getId()).execute();
     }
