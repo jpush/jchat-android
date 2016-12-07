@@ -6,15 +6,15 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 
-public class ScrollControllViewPager extends ViewPager {
-	private final String TAG = ScrollControllViewPager.class.getSimpleName();
+public class ScrollControlViewPager extends ViewPager {
+	private final String TAG = ScrollControlViewPager.class.getSimpleName();
 	private boolean scroll = true;
 
-	public ScrollControllViewPager(Context context) {
+	public ScrollControlViewPager(Context context) {
 		super(context);
 	}
 
-	public ScrollControllViewPager(Context context, AttributeSet attrs) {
+	public ScrollControlViewPager(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 

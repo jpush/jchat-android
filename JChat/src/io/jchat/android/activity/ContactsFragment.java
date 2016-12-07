@@ -28,7 +28,7 @@ import io.jchat.android.entity.FriendInvitation;
 import io.jchat.android.tools.HanziToPinyin;
 import io.jchat.android.view.ContactsView;
 
-public class ContactsFragment extends BaseFragment{
+public class ContactsFragment extends BaseFragment {
 	private View mRootView;
 	private ContactsView mContactsView;
 	private ContactsController mContactsController;
@@ -83,7 +83,7 @@ public class ContactsFragment extends BaseFragment{
         final String reason = event.getReason();
         final String username = event.getFromUsername();
         final String appKey = event.getfromUserAppKey();
-        //接受好友请求
+        //收到接受好友请求
         if (event.getType() == ContactNotifyEvent.Type.invite_accepted) {
             //add friend to contact
             JMessageClient.getUserInfo(username, appKey, new GetUserInfoCallback() {
@@ -113,15 +113,18 @@ public class ContactsFragment extends BaseFragment{
                         } else {
                             letter = "#";
                         }
-                        final FriendEntry friendEntry = new FriendEntry(username, appKey, userInfo.getAvatar(), name,
-                               letter, user);
-                        friendEntry.save();
-                        mContext.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mContactsController.refresh(friendEntry);
-                            }
-                        });
+                        FriendEntry friendEntry = FriendEntry.getFriend(user, username, appKey);
+                        if (null == friendEntry) {
+                            final FriendEntry newFriend = new FriendEntry(username, appKey, userInfo.getAvatar(), name,
+                                    letter, user);
+                            newFriend.save();
+                            mContext.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mContactsController.refresh(newFriend);
+                                }
+                            });
+                        }
                     }
                 }
             });
@@ -146,14 +149,20 @@ public class ContactsFragment extends BaseFragment{
                         }
                         if (null != userInfo.getAvatar()) {
                             String path = userInfo.getAvatarFile().getPath();
-                            FriendRecommendEntry entry = new FriendRecommendEntry(username, appKey, path,
-                                    name, reason, FriendInvitation.INVITED.getValue(), user);
-                            entry.save();
+                            FriendRecommendEntry entry = FriendRecommendEntry.getEntry(user, username, appKey);
+                            if (null == entry) {
+                                entry = new FriendRecommendEntry(username, appKey, path,
+                                        name, reason, FriendInvitation.INVITED.getValue(), user);
+                                entry.save();
+                            }
                         }
                     } else {
-                        FriendRecommendEntry entry = new FriendRecommendEntry(username, appKey, null,
-                                username, reason, FriendInvitation.INVITED.getValue(), user);
-                        entry.save();
+                        FriendRecommendEntry entry = FriendRecommendEntry.getEntry(user, username, appKey);
+                        if (null == entry) {
+                            entry = new FriendRecommendEntry(username, appKey, null,
+                                    username, reason, FriendInvitation.INVITED.getValue(), user);
+                            entry.save();
+                        }
                     }
                 }
             });

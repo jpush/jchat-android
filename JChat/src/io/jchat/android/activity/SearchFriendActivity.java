@@ -92,7 +92,9 @@ public class SearchFriendActivity extends BaseActivity {
                 intent.setClass(mContext, SearchFriendDetailActivity.class);
                 UserInfo userInfo = mInfoList.get(position);
                 intent.putExtra(JChatDemoApplication.NAME, userInfo.getUserName());
-                intent.putExtra(JChatDemoApplication.AVATAR, userInfo.getAvatarFile().getPath());
+                if (!TextUtils.isEmpty(userInfo.getAvatar())) {
+                    intent.putExtra(JChatDemoApplication.AVATAR, userInfo.getAvatarFile().getPath());
+                }
                 String nickname = userInfo.getNickname();
                 if (null != nickname && !TextUtils.isEmpty(nickname)) {
                     intent.putExtra(JChatDemoApplication.NICKNAME, nickname);

@@ -68,7 +68,7 @@ public class PickPictureAdapter extends BaseAdapter {
         String path = mList.get(position);
 
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.pick_picture_detail_grid_item, null);
+            convertView = mInflater.inflate(R.layout.item_pick_picture_detail, null);
             viewHolder = new ViewHolder();
             viewHolder.mImageView = (MyImageView) convertView.findViewById(R.id.child_image);
             viewHolder.mCheckBox = (CheckBox) convertView.findViewById(R.id.child_checkbox);

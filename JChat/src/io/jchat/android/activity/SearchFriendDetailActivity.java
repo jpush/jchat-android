@@ -100,7 +100,7 @@ public class SearchFriendDetailActivity extends BaseActivity {
         Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mUsername);
         if (null != bitmap) {
             mAvatarIv.setImageBitmap(bitmap);
-        } else {
+        } else if (null != mAvatarPath) {
             File file = new File(mAvatarPath);
             if (file.exists() && file.isFile()) {
                 Picasso.with(mContext).load(file).into(mAvatarIv);
@@ -124,47 +124,49 @@ public class SearchFriendDetailActivity extends BaseActivity {
     }
 
     private void startBrowserAvatar() {
-        if (mIsGetAvatar) {
-            //如果缓存了图片，直接加载
-            Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mUsername);
-            if (bitmap != null) {
-                Intent intent = new Intent();
-                intent.putExtra("browserAvatar", true);
-                intent.putExtra("avatarPath", mUsername);
-                intent.setClass(this, BrowserViewPagerActivity.class);
-                startActivity(intent);
-            }
-        } else {
-            final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.jmui_loading));
-            dialog.show();
-            JMessageClient.getUserInfo(mUsername, new GetUserInfoCallback() {
-                @Override
-                public void gotResult(int status, String desc, UserInfo userInfo) {
-                    if (status == 0) {
-                        userInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
-                            @Override
-                            public void gotResult(int status, String desc, Bitmap bitmap) {
-                                if (status == 0) {
-                                    mIsGetAvatar = true;
-                                    //缓存头像
-                                    NativeImageLoader.getInstance().updateBitmapFromCache(mUsername, bitmap);
-                                    Intent intent = new Intent();
-                                    intent.putExtra("browserAvatar", true);
-                                    intent.putExtra("avatarPath", mUsername);
-                                    intent.setClass(mContext, BrowserViewPagerActivity.class);
-                                    startActivity(intent);
-                                } else {
-                                    HandleResponseCode.onHandle(mContext, status, false);
-                                }
-                                dialog.dismiss();
-                            }
-                        });
-                    } else {
-                        dialog.dismiss();
-                        HandleResponseCode.onHandle(mContext, status, false);
-                    }
+        if (null != mAvatarPath) {
+            if (mIsGetAvatar) {
+                //如果缓存了图片，直接加载
+                Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mUsername);
+                if (bitmap != null) {
+                    Intent intent = new Intent();
+                    intent.putExtra("browserAvatar", true);
+                    intent.putExtra("avatarPath", mUsername);
+                    intent.setClass(this, BrowserViewPagerActivity.class);
+                    startActivity(intent);
                 }
-            });
+            } else {
+                final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.jmui_loading));
+                dialog.show();
+                JMessageClient.getUserInfo(mUsername, new GetUserInfoCallback() {
+                    @Override
+                    public void gotResult(int status, String desc, UserInfo userInfo) {
+                        if (status == 0) {
+                            userInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+                                @Override
+                                public void gotResult(int status, String desc, Bitmap bitmap) {
+                                    if (status == 0) {
+                                        mIsGetAvatar = true;
+                                        //缓存头像
+                                        NativeImageLoader.getInstance().updateBitmapFromCache(mUsername, bitmap);
+                                        Intent intent = new Intent();
+                                        intent.putExtra("browserAvatar", true);
+                                        intent.putExtra("avatarPath", mUsername);
+                                        intent.setClass(mContext, BrowserViewPagerActivity.class);
+                                        startActivity(intent);
+                                    } else {
+                                        HandleResponseCode.onHandle(mContext, status, false);
+                                    }
+                                    dialog.dismiss();
+                                }
+                            });
+                        } else {
+                            dialog.dismiss();
+                            HandleResponseCode.onHandle(mContext, status, false);
+                        }
+                    }
+                });
+            }
         }
     }
 }

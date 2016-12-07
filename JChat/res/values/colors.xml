@@ -60,6 +60,7 @@
     <!-- 黑色 -->
     <color name="black">#000000</color>
     <color name="gray">#808080</color>
+    <color name="file_size">#d4d4d4</color>
 
     <!-- 灰色 -->
 

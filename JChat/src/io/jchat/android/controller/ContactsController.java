@@ -196,7 +196,7 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
         }
 
         // 根据a-z进行排序
-        if (null != filterDateList) {
+        if (null != filterDateList && null != mAdapter) {
             Collections.sort(filterDateList, new PinyinComparator());
             mAdapter.updateListView(filterDateList);
         }

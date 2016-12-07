@@ -22,7 +22,6 @@ import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.chatting.utils.BitmapLoader;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
-import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.database.FriendRecommendEntry;
 import io.jchat.android.entity.Event;
 import io.jchat.android.entity.FriendInvitation;
@@ -62,7 +61,7 @@ public class FriendRecommendAdapter extends BaseAdapter {
     public View getView(int position, View view, ViewGroup viewGroup) {
         final ViewHolder holder;
         if (view == null) {
-            view = mInflater.inflate(R.layout.friend_recomend_list_item, null);
+            view = mInflater.inflate(R.layout.item_friend_recomend, null);
             holder = new ViewHolder();
             holder.headIcon = (CircleImageView) view.findViewById(R.id.item_head_icon);
             holder.name = (TextView) view.findViewById(R.id.item_name);

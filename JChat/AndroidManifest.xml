@@ -221,6 +221,8 @@
         <activity android:name="io.jchat.android.activity.SearchFriendDetailActivity" />
         <activity android:name="io.jchat.android.activity.SendInvitationActivity" />
         <activity android:name="io.jchat.android.activity.SendLocationActivity"/>
+        <activity android:name="io.jchat.android.activity.SendFileActivity"/>
+        <activity android:name="io.jchat.android.activity.PlayVideoActivity"/>
     </application>
 
 </manifest>

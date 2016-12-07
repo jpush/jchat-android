@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public class SearchFriendListAdapter extends BaseAdapter {
         final ViewHolder holder;
         if (null == view) {
             holder = new ViewHolder();
-            view = mInflater.inflate(R.layout.search_result_list_item, null);
+            view = mInflater.inflate(R.layout.item_search_result, null);
             holder.headIcon = (CircleImageView) view.findViewById(R.id.item_head_icon);
             holder.name = (TextView) view.findViewById(R.id.item_name);
             view.setTag(holder);

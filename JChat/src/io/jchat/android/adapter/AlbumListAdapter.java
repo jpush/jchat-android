@@ -1,5 +1,6 @@
 package io.jchat.android.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -10,6 +11,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.List;
 import io.jchat.android.R;
 import io.jchat.android.entity.ImageBean;
@@ -19,19 +24,17 @@ import io.jchat.android.view.MyImageView;
 /**
  * Created by Ken on 2015/1/21.
  */
-public class AlbumListAdapter extends BaseAdapter{
+public class AlbumListAdapter extends BaseAdapter {
 
     private List<ImageBean> list;
     private Point mPoint = new Point(0, 0);//用来封装ImageView的宽和高的对象
-    private ListView mListView;
     protected LayoutInflater mInflater;
-    private float mDensity;
+    private Activity mContext;
 
-    public AlbumListAdapter(Context context, List<ImageBean> list, ListView listView, float density) {
+    public AlbumListAdapter(Activity context, List<ImageBean> list, float density) {
+        this.mContext = context;
         this.list = list;
-        this.mListView = listView;
-        mInflater = LayoutInflater.from(context);
-        this.mDensity = density;
+        this.mInflater = LayoutInflater.from(context);
     }
 
     @Override
@@ -60,7 +63,7 @@ public class AlbumListAdapter extends BaseAdapter{
         String path = mImageBean.getTopImagePath();
         if (convertView == null) {
             viewHolder = new ViewHolder();
-            convertView = mInflater.inflate(R.layout.pick_picture_total_list_item, null);
+            convertView = mInflater.inflate(R.layout.item_pick_picture_total, null);
             viewHolder.mImageView = (MyImageView) convertView.findViewById(R.id.group_image);
             viewHolder.mTextViewTitle = (TextView) convertView.findViewById(R.id.group_title);
             viewHolder.mTextViewCounts = (TextView) convertView.findViewById(R.id.group_count);
@@ -83,27 +86,18 @@ public class AlbumListAdapter extends BaseAdapter{
         viewHolder.mTextViewTitle.setText(mImageBean.getFolderName());
         String count = "(" + Integer.toString(mImageBean.getImageCounts()) + ")";
         viewHolder.mTextViewCounts.setText(count);
-        //给ImageView设置路径Tag,这是异步加载图片的小技巧
-        viewHolder.mImageView.setTag(path);
-
-        //利用NativeImageLoader类加载本地图片
-        Bitmap bitmap = NativeImageLoader.getInstance().loadNativeImage(path, (int)(80 * mDensity),
-                new NativeImageLoader.NativeImageCallBack() {
-
-            @Override
-            public void onImageLoader(Bitmap bitmap, String path) {
-                ImageView mImageView = (ImageView) mListView.findViewWithTag(path);
-                if (bitmap != null && mImageView != null) {
-                    mImageView.setImageBitmap(bitmap);
-                }
+        File file = new File(path);
+        if (file.exists() && file.isFile()) {
+            try {
+                Picasso.with(mContext).load(file).into(viewHolder.mImageView);
+            } catch (Exception e) {
+                viewHolder.mImageView.setImageResource(R.drawable.jmui_picture_not_found);
             }
-        });
-
-        if (bitmap != null) {
-            viewHolder.mImageView.setImageBitmap(bitmap);
-        }else {
+        } else {
             viewHolder.mImageView.setImageResource(R.drawable.jmui_picture_not_found);
         }
+
+
         return convertView;
     }
 

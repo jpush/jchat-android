@@ -44,6 +44,7 @@ import de.greenrobot.event.EventBus;
 import io.jchat.android.activity.BaseActivity;
 import io.jchat.android.activity.ChatDetailActivity;
 import io.jchat.android.activity.PickPictureTotalActivity;
+import io.jchat.android.activity.SendFileActivity;
 import io.jchat.android.activity.SendLocationActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.DialogCreator;
@@ -345,13 +346,15 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             if (mChatView.getMoreMenu().getVisibility() == View.VISIBLE) {
                 mChatView.dismissMoreMenu();
             }
-            // TODO send location
             Intent intent = new Intent(mContext, SendLocationActivity.class);
             intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
             intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
             intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
             intent.putExtra("sendLocation", true);
             startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_SEND_LOCATION);
+        } else if (v.getId() == IdHelper.getViewID(mContext, "jmui_send_file_btn")) {
+            Intent intent = new Intent(mContext, SendFileActivity.class);
+            startActivity(intent);
         }
     }
 
