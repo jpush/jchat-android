@@ -94,29 +94,11 @@ public class ContactsFragment extends BaseFragment {
                         if (TextUtils.isEmpty(name)) {
                             name = userInfo.getUserName();
                         }
-                        String letter;
-                        ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
-                                .get(name);
-                        StringBuilder sb = new StringBuilder();
-                        if (tokens != null && tokens.size() > 0) {
-                            for (HanziToPinyin.Token token : tokens) {
-                                if (token.type == HanziToPinyin.Token.PINYIN) {
-                                    sb.append(token.target);
-                                } else {
-                                    sb.append(token.source);
-                                }
-                            }
-                        }
-                        String sortString = sb.toString().substring(0, 1).toUpperCase();
-                        if (sortString.matches("[A-Z]")) {
-                            letter = sortString.toUpperCase();
-                        } else {
-                            letter = "#";
-                        }
+
                         FriendEntry friendEntry = FriendEntry.getFriend(user, username, appKey);
                         if (null == friendEntry) {
-                            final FriendEntry newFriend = new FriendEntry(username, appKey, userInfo.getAvatar(), name,
-                                    letter, user);
+                            final FriendEntry newFriend = new FriendEntry(username, appKey,
+                                    userInfo.getAvatar(), name, getLetter(name), user);
                             newFriend.save();
                             mContext.runOnUiThread(new Runnable() {
                                 @Override
@@ -172,7 +154,41 @@ public class ContactsFragment extends BaseFragment {
     }
 
     public void onEventMainThread(Event.AddFriendEvent event) {
-        FriendEntry entry = FriendEntry.getFriend(event.getId());
-        mContactsController.refresh(entry);
+        FriendRecommendEntry recommendEntry = FriendRecommendEntry.getEntry(event.getId());
+        if (null != recommendEntry) {
+            FriendEntry friendEntry = FriendEntry.getFriend(recommendEntry.user,
+                    recommendEntry.username, recommendEntry.appKey);
+            if (null == friendEntry) {
+                friendEntry = new FriendEntry(recommendEntry.username, recommendEntry.appKey,
+                        recommendEntry.avatar, recommendEntry.displayName,
+                        getLetter(recommendEntry.displayName), recommendEntry.user);
+                friendEntry.save();
+                mContactsController.refresh(friendEntry);
+            }
+
+        }
+    }
+
+    private String getLetter(String name) {
+        String letter;
+        ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
+                .get(name);
+        StringBuilder sb = new StringBuilder();
+        if (tokens != null && tokens.size() > 0) {
+            for (HanziToPinyin.Token token : tokens) {
+                if (token.type == HanziToPinyin.Token.PINYIN) {
+                    sb.append(token.target);
+                } else {
+                    sb.append(token.source);
+                }
+            }
+        }
+        String sortString = sb.toString().substring(0, 1).toUpperCase();
+        if (sortString.matches("[A-Z]")) {
+            letter = sortString.toUpperCase();
+        } else {
+            letter = "#";
+        }
+        return letter;
     }
 }

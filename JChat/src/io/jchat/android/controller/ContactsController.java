@@ -86,16 +86,20 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
                                     } else {
                                         letter = "#";
                                     }
-                                    FriendEntry friend;
-                                    if (TextUtils.isEmpty(userInfo.getAvatar())) {
-                                        friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
-                                                null, displayName, letter, user);
-                                    } else {
-                                        friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
-                                                userInfo.getAvatarFile().getAbsolutePath(), displayName, letter, user);
+                                    //避免重复请求时导致数据重复
+                                    FriendEntry friend = FriendEntry.getFriend(user,
+                                            userInfo.getUserName(), userInfo.getAppKey());
+                                    if (null == friend) {
+                                        if (TextUtils.isEmpty(userInfo.getAvatar())) {
+                                            friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
+                                                    null, displayName, letter, user);
+                                        } else {
+                                            friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
+                                                    userInfo.getAvatarFile().getAbsolutePath(), displayName, letter, user);
+                                        }
+                                        friend.save();
+                                        mList.add(friend);
                                     }
-                                    friend.save();
-                                    mList.add(friend);
                                 }
                                 ActiveAndroid.setTransactionSuccessful();
                             } finally {

@@ -22,6 +22,7 @@ import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.chatting.utils.BitmapLoader;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.database.FriendEntry;
 import io.jchat.android.database.FriendRecommendEntry;
 import io.jchat.android.entity.Event;
 import io.jchat.android.entity.FriendInvitation;
