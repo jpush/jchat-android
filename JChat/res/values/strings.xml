@@ -105,6 +105,8 @@
     <string name="type_picture">[图片]</string>
     <string name="type_voice">[语音]</string>
     <string name="type_location">[位置]</string>
+    <string name="type_file">[文件]</string>
+    <string name="type_video">[视频]</string>
     <string name="send_location">发送地理位置</string>
     <string name="permission_should_allow">请允许使用位置权限，否则无法发送位置消息</string>
     <string name="send_location_error">位置截图失败或会话为空</string>
@@ -157,6 +159,11 @@
     <string name="album">相册</string>
     <string name="audio">音频</string>
     <string name="other">其他</string>
+    <string name="size_over_limit_hint">所选的文件数量不得超过5个</string>
+    <string name="file_size_over_limit_hint">所选的文件大小总和不得超过10M</string>
+    <string name="video_not_support_hint">暂不支持发送视频</string>
+    <string name="download_file_succeed">下载成功</string>
+    <string name="download_file_failed">下载失败</string>
 
     <!--设置相关-->
     <string name="birthday">出生日期</string>

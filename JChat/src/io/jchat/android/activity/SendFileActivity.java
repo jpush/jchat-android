@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 
 
 import io.jchat.android.R;
+import io.jchat.android.adapter.DocumentAdapter;
 import io.jchat.android.controller.SendFileController;
 import io.jchat.android.view.SendFileView;
 

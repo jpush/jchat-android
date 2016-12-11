@@ -43,21 +43,21 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:text="@string/jmui_video"
-                android:textColor="@color/action_bar_txt_color"
+                android:textColor="#000000"
                 android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/video_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/file_size"
+                android:textColor="@color/send_file_desc_color"
                 android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/video_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/file_size"
+                android:textColor="@color/send_file_desc_color"
                 android:textSize="12sp" />
 
         </LinearLayout>

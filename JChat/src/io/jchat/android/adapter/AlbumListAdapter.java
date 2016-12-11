@@ -1,8 +1,6 @@
 package io.jchat.android.adapter;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +16,7 @@ import java.io.File;
 import java.util.List;
 import io.jchat.android.R;
 import io.jchat.android.entity.ImageBean;
-import io.jchat.android.tools.NativeImageLoader;
+import io.jchat.android.tools.ViewHolder;
 import io.jchat.android.view.MyImageView;
 
 /**
@@ -58,52 +56,29 @@ public class AlbumListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final ViewHolder viewHolder;
         ImageBean mImageBean = list.get(position);
         String path = mImageBean.getTopImagePath();
-        if (convertView == null) {
-            viewHolder = new ViewHolder();
+        if (null == convertView) {
             convertView = mInflater.inflate(R.layout.item_pick_picture_total, null);
-            viewHolder.mImageView = (MyImageView) convertView.findViewById(R.id.group_image);
-            viewHolder.mTextViewTitle = (TextView) convertView.findViewById(R.id.group_title);
-            viewHolder.mTextViewCounts = (TextView) convertView.findViewById(R.id.group_count);
-
-            //用来监听ImageView的宽和高
-            viewHolder.mImageView.setOnMeasureListener(new MyImageView.OnMeasureListener() {
-
-                @Override
-                public void onMeasureSize(int width, int height) {
-                    mPoint.set(width, height);
-                }
-            });
-
-            convertView.setTag(viewHolder);
-        }else {
-            viewHolder = (ViewHolder) convertView.getTag();
-            viewHolder.mImageView.setImageResource(R.drawable.jmui_picture_not_found);
         }
-
-        viewHolder.mTextViewTitle.setText(mImageBean.getFolderName());
+        MyImageView imageView = ViewHolder.get(convertView, R.id.group_image);
+        TextView title = ViewHolder.get(convertView, R.id.group_title);
+        TextView countTv = ViewHolder.get(convertView, R.id.group_count);
+        title.setText(mImageBean.getFolderName());
         String count = "(" + Integer.toString(mImageBean.getImageCounts()) + ")";
-        viewHolder.mTextViewCounts.setText(count);
+        countTv.setText(count);
         File file = new File(path);
         if (file.exists() && file.isFile()) {
             try {
-                Picasso.with(mContext).load(file).into(viewHolder.mImageView);
+                Picasso.with(mContext).load(file).into(imageView);
             } catch (Exception e) {
-                viewHolder.mImageView.setImageResource(R.drawable.jmui_picture_not_found);
+                imageView.setImageResource(R.drawable.jmui_picture_not_found);
             }
         } else {
-            viewHolder.mImageView.setImageResource(R.drawable.jmui_picture_not_found);
+            imageView.setImageResource(R.drawable.jmui_picture_not_found);
         }
 
 
         return convertView;
-    }
-
-    public static class ViewHolder {
-        public MyImageView mImageView;
-        public TextView mTextViewTitle;
-        public TextView mTextViewCounts;
     }
 }

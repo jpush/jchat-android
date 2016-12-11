@@ -354,7 +354,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_SEND_LOCATION);
         } else if (v.getId() == IdHelper.getViewID(mContext, "jmui_send_file_btn")) {
             Intent intent = new Intent(mContext, SendFileActivity.class);
-            startActivity(intent);
+            intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
+            intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
+            intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
+            startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_SEND_FILE);
         }
     }
 
@@ -521,6 +524,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             case JChatDemoApplication.RESULT_CODE_SEND_LOCATION:
                 Message msg = mConv.getMessage(data.getIntExtra(JChatDemoApplication.MsgIDs, 0));
                 mChatAdapter.addMsgToList(msg);
+                mChatView.setToBottom();
+                break;
+            case JChatDemoApplication.RESULT_CODE_SEND_FILE:
+                mChatAdapter.addMsgList(data.getIntArrayExtra(MsgIDs));
                 mChatView.setToBottom();
                 break;
         }

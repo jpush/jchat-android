@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
@@ -27,18 +29,21 @@ import android.view.animation.LinearInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
+import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.LocationContent;
 import cn.jpush.im.android.api.enums.MessageStatus;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 
 import com.squareup.picasso.Picasso;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -48,6 +53,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.Message;
@@ -69,6 +75,7 @@ import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.utils.IdHelper;
 import io.jchat.android.chatting.utils.TimeFormat;
 import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.entity.FileType;
 
 @SuppressLint("NewApi")
 public class MsgListAdapter extends BaseAdapter {
@@ -85,7 +92,7 @@ public class MsgListAdapter extends BaseAdapter {
     private boolean mIsGroup = false;
     private long mGroupId;
     private int mPosition = -1;// 和mSetData一起组成判断播放哪条录音的依据
-    // 9种Item的类型
+    // 14种Item的类型
     // 文本
     private final int TYPE_RECEIVE_TXT = 0;
     private final int TYPE_SEND_TXT = 1;
@@ -102,6 +109,12 @@ public class MsgListAdapter extends BaseAdapter {
     private final int TYPE_GROUP_CHANGE = 8;
     //自定义消息
     private final int TYPE_CUSTOM_TXT = 9;
+    //视频
+    private final int TYPE_SEND_VIDEO = 10;
+    private final int TYPE_RECEIVE_VIDEO = 11;
+    //文件
+    private final int TYPE_SEND_FILE = 12;
+    private final int TYPE_RECEIVE_FILE = 13;
     private final MediaPlayer mp = new MediaPlayer();
     private AnimationDrawable mVoiceAnimation;
     private FileInputStream mFIS;
@@ -156,7 +169,7 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     private void reverse(List<Message> list) {
-        if (list.size() >0 ){
+        if (list.size() > 0) {
             Collections.reverse(list);
         }
     }
@@ -323,6 +336,17 @@ public class MsgListAdapter extends BaseAdapter {
         });
     }
 
+    public void addMsgList(int[] msgIds) {
+        for (int msgId : msgIds) {
+            Message msg = mConv.getMessage(msgId);
+            if (msg != null) {
+                mMsgList.add(msg);
+                incrementStartPosition();
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     public Message getLastMsg() {
         if (mMsgList.size() > 0) {
             return mMsgList.get(mMsgList.size() - 1);
@@ -362,6 +386,12 @@ public class MsgListAdapter extends BaseAdapter {
             case location:
                 return msg.getDirect() == MessageDirect.send ? TYPE_SEND_LOCATION
                         : TYPE_RECEIVER_LOCATION;
+            case video:
+                return msg.getDirect() == MessageDirect.send ? TYPE_SEND_VIDEO
+                        : TYPE_RECEIVE_VIDEO;
+            case file:
+                return msg.getDirect() == MessageDirect.send ? TYPE_SEND_FILE
+                        : TYPE_RECEIVE_FILE;
             case eventNotification:
                 return TYPE_GROUP_CHANGE;
             default:
@@ -370,7 +400,7 @@ public class MsgListAdapter extends BaseAdapter {
     }
 
     public int getViewTypeCount() {
-        return 11;
+        return 14;
     }
 
     private View createViewByType(Message msg, int position) {
@@ -388,6 +418,14 @@ public class MsgListAdapter extends BaseAdapter {
                 return getItemViewType(position) == TYPE_SEND_LOCATION ? mInflater
                         .inflate(IdHelper.getLayout(mContext, "jmui_chat_item_send_location"), null) : mInflater
                         .inflate(IdHelper.getLayout(mContext, "jmui_chat_item_receive_location"), null);
+            case video:
+                return getItemViewType(position) == TYPE_SEND_VIDEO ? mInflater
+                        .inflate(IdHelper.getLayout(mContext, "jmui_chat_item_send_video"), null) : mInflater
+                        .inflate(IdHelper.getLayout(mContext, "jmui_chat_item_receive_video"), null);
+            case file:
+                return getItemViewType(position) == TYPE_SEND_FILE ? mInflater
+                        .inflate(IdHelper.getLayout(mContext, "jmui_chat_item_send_file"), null) : mInflater
+                        .inflate(IdHelper.getLayout(mContext, "jmui_chat_item_receive_file"), null);
             case eventNotification:
                 if (getItemViewType(position) == TYPE_GROUP_CHANGE)
                     return mInflater.inflate(IdHelper.getLayout(mContext, "jmui_chat_item_group_change"), null);
@@ -440,72 +478,52 @@ public class MsgListAdapter extends BaseAdapter {
         if (convertView == null) {
             holder = new ViewHolder();
             convertView = createViewByType(msg, position);
+            holder.headIcon = (CircleImageView) convertView
+                    .findViewById(IdHelper.getViewID(mContext, "jmui_avatar_iv"));
+            holder.displayName = (TextView) convertView
+                    .findViewById(IdHelper.getViewID(mContext, "jmui_display_name_tv"));
+            holder.txtContent = (TextView) convertView
+                    .findViewById(IdHelper.getViewID(mContext, "jmui_msg_content"));
+            holder.sendingIv = (ImageView) convertView
+                    .findViewById(IdHelper.getViewID(mContext, "jmui_sending_iv"));
+            holder.resend = (ImageButton) convertView
+                    .findViewById(IdHelper.getViewID(mContext, "jmui_fail_resend_ib"));
             switch (msg.getContentType()) {
-                case text:
-                    holder.headIcon = (CircleImageView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_avatar_iv"));
-                    holder.displayName = (TextView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_display_name_tv"));
-                    holder.txtContent = (TextView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_msg_content"));
-                    holder.sendingIv = (ImageView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_sending_iv"));
-                    holder.resend = (ImageButton) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_fail_resend_ib"));
-                    break;
-                case image:
-                    holder.headIcon = (CircleImageView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_avatar_iv"));
-                    holder.displayName = (TextView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_display_name_tv"));
+                case file:
                     holder.picture = (ImageView) convertView
                             .findViewById(IdHelper.getViewID(mContext, "jmui_picture_iv"));
-                    holder.sendingIv = (ImageView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_sending_iv"));
                     holder.progressTv = (TextView) convertView
                             .findViewById(IdHelper.getViewID(mContext, "jmui_progress_tv"));
-                    holder.resend = (ImageButton) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_fail_resend_ib"));
+                    holder.contentLl = (LinearLayout) convertView
+                            .findViewById(IdHelper.getViewID(mContext, "jmui_send_file_ll"));
+                    holder.sizeTv = (TextView) convertView
+                            .findViewById(IdHelper.getViewID(mContext, "jmui_send_file_size"));
+                    break;
+                case image:
+                    holder.picture = (ImageView) convertView
+                            .findViewById(IdHelper.getViewID(mContext, "jmui_picture_iv"));
+                    holder.progressTv = (TextView) convertView
+                            .findViewById(IdHelper.getViewID(mContext, "jmui_progress_tv"));
                     break;
                 case voice:
-                    holder.headIcon = (CircleImageView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_avatar_iv"));
-                    holder.displayName = (TextView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_display_name_tv"));
-                    holder.txtContent = (TextView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_msg_content"));
                     holder.voice = (ImageView) convertView
                             .findViewById(IdHelper.getViewID(mContext, "jmui_voice_iv"));
-                    holder.sendingIv = (ImageView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_sending_iv"));
                     holder.voiceLength = (TextView) convertView
                             .findViewById(IdHelper.getViewID(mContext, "jmui_voice_length_tv"));
                     holder.readStatus = (ImageView) convertView
                             .findViewById(IdHelper.getViewID(mContext, "jmui_read_status_iv"));
-                    holder.resend = (ImageButton) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_fail_resend_ib"));
                     break;
                 case location:
-                    holder.headIcon = (CircleImageView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_avatar_iv"));
-                    holder.displayName = (TextView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_display_name_tv"));
                     holder.location = (TextView) convertView
                             .findViewById(IdHelper.getViewID(mContext, "jmui_loc_desc"));
                     holder.picture = (ImageView) convertView
                             .findViewById(IdHelper.getViewID(mContext, "jmui_location_iv"));
-                    holder.sendingIv = (ImageView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_sending_iv"));
-                    holder.resend = (ImageButton) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_fail_resend_ib"));
                     break;
+                case custom:
                 case eventNotification:
                     holder.groupChange = (TextView) convertView
                             .findViewById(IdHelper.getViewID(mContext, "jmui_group_content"));
                     break;
-                default:
-                    holder.groupChange = (TextView) convertView
-                            .findViewById(IdHelper.getViewID(mContext, "jmui_group_content"));
             }
             convertView.setTag(holder);
         } else {
@@ -561,7 +579,7 @@ public class MsgListAdapter extends BaseAdapter {
                         if (status == 0) {
                             holder.headIcon.setImageBitmap(bitmap);
                         } else {
-                            holder.headIcon.setImageResource(IdHelper.getDrawable(mContext, 
+                            holder.headIcon.setImageResource(IdHelper.getDrawable(mContext,
                                     "jmui_head_icon"));
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
@@ -607,6 +625,11 @@ public class MsgListAdapter extends BaseAdapter {
                 break;
             case location:
                 handleLocationMsg(msg, holder, position);
+                break;
+            case file:
+                handleFileMsg(msg, holder, position);
+                break;
+            case video:
                 break;
             case eventNotification:
                 handleGroupChangeMsg(msg, holder, msgTime);
@@ -740,10 +763,17 @@ public class MsgListAdapter extends BaseAdapter {
                     mDialog.dismiss();
                 } else {
                     mDialog.dismiss();
-                    if (msg.getContentType() == ContentType.image) {
-                        resendImage(holder, msg);
-                    } else {
-                        resendTextOrVoice(holder, msg);
+                    switch (msg.getContentType()) {
+                        case text:
+                        case voice:
+                            resendTextOrVoice(holder, msg);
+                            break;
+                        case image:
+                            resendImage(holder, msg);
+                            break;
+                        case file:
+                            resendFile(holder, msg);
+                            break;
                     }
                 }
             }
@@ -1008,6 +1038,43 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
+    private void resendFile(final ViewHolder holder, final Message msg) {
+        holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
+        holder.resend.setVisibility(View.GONE);
+        holder.progressTv.setVisibility(View.VISIBLE);
+        try {
+            msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
+                @Override
+                public void onProgressUpdate(final double progress) {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String progressStr = (int) (progress * 100) + "%";
+                            holder.progressTv.setText(progressStr);
+                        }
+                    });
+                }
+            });
+            if (!msg.isSendCompleteCallbackExists()) {
+                msg.setOnSendCompleteCallback(new BasicCallback() {
+                    @Override
+                    public void gotResult(final int status, String desc) {
+                        holder.progressTv.setVisibility(View.GONE);
+                        holder.contentLl.setBackground(mContext.getDrawable(IdHelper.getDrawable(mContext,
+                                "jmui_msg_send_bg")));
+                        if (status != 0) {
+                            HandleResponseCode.onHandle(mContext, status, false);
+                            holder.resend.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            }
+            JMessageClient.sendMessage(msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void handleVoiceMsg(final Message msg, final ViewHolder holder, final int position) {
         final VoiceContent content = (VoiceContent) msg.getContent();
         final MessageDirect msgDirect = msg.getDirect();
@@ -1045,7 +1112,7 @@ public class MsgListAdapter extends BaseAdapter {
                         showResendDialog(holder, msg);
                     } else {
                         Toast.makeText(mContext, mContext.getString(IdHelper.getString(mContext,
-                                        "jmui_sdcard_not_exist_toast")),
+                                "jmui_sdcard_not_exist_toast")),
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -1089,7 +1156,7 @@ public class MsgListAdapter extends BaseAdapter {
                             public void onComplete(int status, String desc, File file) {
                                 if (status != 0) {
                                     Toast.makeText(mContext, IdHelper.getString(mContext,
-                                                    "jmui_voice_fetch_failed_toast"),
+                                            "jmui_voice_fetch_failed_toast"),
                                             Toast.LENGTH_SHORT).show();
                                 } else {
                                     Log.i("VoiceMessage", "reload success");
@@ -1168,7 +1235,7 @@ public class MsgListAdapter extends BaseAdapter {
         } catch (Exception e) {
             Toast.makeText(mContext, IdHelper.getString(mContext, "jmui_file_not_found_toast"),
                     Toast.LENGTH_SHORT).show();
-            VoiceContent vc = (VoiceContent)msg.getContent();
+            VoiceContent vc = (VoiceContent) msg.getContent();
             vc.downloadVoiceFile(msg, new DownloadCompletionCallback() {
                 @Override
                 public void onComplete(int status, String desc, File file) {
@@ -1181,7 +1248,7 @@ public class MsgListAdapter extends BaseAdapter {
                     }
                 }
             });
-        }  finally {
+        } finally {
             try {
                 if (mFIS != null) {
                     mFIS.close();
@@ -1271,11 +1338,159 @@ public class MsgListAdapter extends BaseAdapter {
             mp.stop();
     }
 
+    private void handleFileMsg(final Message msg, final ViewHolder holder, int position) {
+        final FileContent content = (FileContent) msg.getContent();
+        holder.txtContent.setText(content.getFileName());
+        String fileType = content.getStringExtra("fileType");
+        String fileSize = content.getStringExtra("fileSize");
+        holder.sizeTv.setText(fileSize);
+        Drawable drawable;
+        if (fileType.equals(FileType.audio.toString())) {
+            drawable = mContext.getResources().getDrawable(IdHelper.getDrawable(mContext, "jmui_audio"));
+
+        } else if (fileType.equals(FileType.other.toString())) {
+            drawable = mContext.getResources().getDrawable(IdHelper.getDrawable(mContext, "jmui_other"));
+        } else {
+            drawable = mContext.getResources().getDrawable(IdHelper.getDrawable(mContext, "jmui_document"));
+        }
+        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+        holder.txtContent.setCompoundDrawables(null, null, drawable, null);
+
+
+        if (msg.getDirect() == MessageDirect.send) {
+            switch (msg.getStatus()) {
+                case send_going:
+                    holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
+                    holder.progressTv.setVisibility(View.VISIBLE);
+                    holder.resend.setVisibility(View.GONE);
+                    if (!msg.isContentUploadProgressCallbackExists()) {
+                        msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
+                            @Override
+                            public void onProgressUpdate(double v) {
+                                String progressStr = (int) (v * 100) + "%";
+                                Log.d(TAG, "msg.getId: " + msg.getId() + " progress: " + progressStr);
+                                holder.progressTv.setText(progressStr);
+                            }
+                        });
+                    }
+                    if (!msg.isSendCompleteCallbackExists()) {
+                        msg.setOnSendCompleteCallback(new BasicCallback() {
+                            @Override
+                            public void gotResult(int status, String desc) {
+                                holder.contentLl.setBackground(mContext.getDrawable(IdHelper
+                                        .getDrawable(mContext, "jmui_msg_send_bg")));
+                                holder.progressTv.setVisibility(View.GONE);
+                                if (status == 803008) {
+                                    CustomContent customContent = new CustomContent();
+                                    customContent.setBooleanValue("blackList", true);
+                                    Message customMsg = mConv.createSendMessage(customContent);
+                                    addMsgToList(customMsg);
+                                } else if (status != 0) {
+                                    HandleResponseCode.onHandle(mContext, status, false);
+                                    holder.resend.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        });
+                    }
+                    break;
+                case send_success:
+                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
+                            .getDrawable(mContext, "jmui_msg_send_bg")));
+                    holder.progressTv.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.GONE);
+                    break;
+                case send_fail:
+                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
+                            .getDrawable(mContext, "jmui_msg_send_bg")));
+                    holder.progressTv.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.VISIBLE);
+                    break;
+            }
+        } else {
+            switch (msg.getStatus()) {
+                case receive_going:
+                    holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
+                    holder.progressTv.setVisibility(View.VISIBLE);
+                    holder.resend.setVisibility(View.GONE);
+                    if (!msg.isContentDownloadProgressCallbackExists()) {
+                        msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
+                            @Override
+                            public void onProgressUpdate(double v) {
+                                if (v < 1) {
+                                    String progressStr = (int) (v * 100) + "%";
+                                    Log.d(TAG, "msg.getId: " + msg.getId() + " progress: " + progressStr);
+                                    holder.progressTv.setText(progressStr);
+                                } else {
+                                    holder.progressTv.setVisibility(View.GONE);
+                                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
+                                            .getDrawable(mContext, "jmui_receive_msg")));
+                                }
+
+                            }
+                        });
+                    }
+                    break;
+                case receive_fail:
+                    holder.progressTv.setVisibility(View.GONE);
+                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
+                            .getDrawable(mContext, "jmui_receive_msg")));
+                    holder.resend.setVisibility(View.VISIBLE);
+                    break;
+                case receive_success:
+                    holder.progressTv.setVisibility(View.GONE);
+                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
+                            .getDrawable(mContext, "jmui_receive_msg")));
+                    break;
+            }
+        }
+        holder.resend.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (msg.getDirect() == MessageDirect.send) {
+                    showResendDialog(holder, msg);
+                } else {
+                    holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
+                    holder.progressTv.setText("0%");
+                    holder.progressTv.setVisibility(View.VISIBLE);
+                    holder.resend.setVisibility(View.GONE);
+                    if (!msg.isContentDownloadProgressCallbackExists()) {
+                        msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
+                            @Override
+                            public void onProgressUpdate(double v) {
+                                String progressStr = (int) (v * 100) + "%";
+                                holder.progressTv.setText(progressStr);
+                            }
+                        });
+                    }
+                    content.downloadFile(msg, new DownloadCompletionCallback() {
+                        @Override
+                        public void onComplete(int status, String desc, File file) {
+                            holder.progressTv.setVisibility(View.GONE);
+                            holder.contentLl.setBackground(mContext.getDrawable(IdHelper
+                                    .getDrawable(mContext, "jmui_receive_msg")));
+                            if (status != 0) {
+                                holder.resend.setVisibility(View.VISIBLE);
+                                Toast.makeText(mContext, IdHelper.getString(mContext,
+                                        "download_file_failed"),
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(mContext, IdHelper.getString(mContext,
+                                        "download_file_succeed"), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+        holder.contentLl.setOnClickListener(new BtnOrTxtListener(position, holder));
+    }
+
     public static abstract class ContentLongClickListener implements OnLongClickListener {
 
         @Override
         public boolean onLongClick(View v) {
-            onContentLongClick((Integer)v.getTag(), v);
+            onContentLongClick((Integer) v.getTag(), v);
             return true;
         }
 
@@ -1296,9 +1511,9 @@ public class MsgListAdapter extends BaseAdapter {
         public void onClick(View v) {
             Message msg = mMsgList.get(position);
             MessageDirect msgDirect = msg.getDirect();
-            if (holder.txtContent != null && v.getId() == holder.txtContent.getId()) {
-                if (msg.getContentType() == ContentType.voice) {
-                    if (!FileHelper.isSdCardExist() && msg.getDirect() == MessageDirect.send) {
+            switch (msg.getContentType()) {
+                case voice:
+                    if (!FileHelper.isSdCardExist()) {
                         Toast.makeText(mContext, IdHelper.getString(mContext, "jmui_sdcard_not_exist_toast"),
                                 Toast.LENGTH_SHORT).show();
                         return;
@@ -1361,36 +1576,72 @@ public class MsgListAdapter extends BaseAdapter {
                             e.printStackTrace();
                         }
                     }
-                }
-            } else if (msg.getContentType() == ContentType.image) {
-                if (holder.picture != null && v.getId() == holder.picture.getId()) {
-                    Intent intent = new Intent();
-                    intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
-                    intent.putExtra("msgId", msg.getId());
-                    intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
-                    intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
-                    intent.putExtra("msgCount", mMsgList.size());
-                    intent.putIntegerArrayListExtra(JChatDemoApplication.MsgIDs, getImgMsgIDList());
-                    intent.putExtra("fromChatActivity", true);
-                    intent.setClass(mContext, BrowserViewPagerActivity.class);
-                    mContext.startActivity(intent);
-                }
-            } else if (msg.getContentType() == ContentType.location) {
-                if (holder.picture != null && v.getId() == holder.picture.getId()) {
-                    Intent intent = new Intent(mContext, SendLocationActivity.class);
-                    LocationContent locationContent = (LocationContent) msg.getContent();
-                    intent.putExtra("latitude", locationContent.getLatitude().doubleValue());
-                    intent.putExtra("longitude", locationContent.getLongitude().doubleValue());
-                    intent.putExtra("locDesc", locationContent.getAddress());
-                    intent.putExtra("sendLocation", false);
-                    mContext.startActivity(intent);
-                }
+                    break;
+                case image:
+                    if (holder.picture != null && v.getId() == holder.picture.getId()) {
+                        Intent intent = new Intent();
+                        intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
+                        intent.putExtra("msgId", msg.getId());
+                        intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
+                        intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
+                        intent.putExtra("msgCount", mMsgList.size());
+                        intent.putIntegerArrayListExtra(JChatDemoApplication.MsgIDs, getImgMsgIDList());
+                        intent.putExtra("fromChatActivity", true);
+                        intent.setClass(mContext, BrowserViewPagerActivity.class);
+                        mContext.startActivity(intent);
+                    }
+                    break;
+                case location:
+                    if (holder.picture != null && v.getId() == holder.picture.getId()) {
+                        Intent intent = new Intent(mContext, SendLocationActivity.class);
+                        LocationContent locationContent = (LocationContent) msg.getContent();
+                        intent.putExtra("latitude", locationContent.getLatitude().doubleValue());
+                        intent.putExtra("longitude", locationContent.getLongitude().doubleValue());
+                        intent.putExtra("locDesc", locationContent.getAddress());
+                        intent.putExtra("sendLocation", false);
+                        mContext.startActivity(intent);
+                    }
+                    break;
+                case file:
+                    if (msg.getDirect() == MessageDirect.receive) {
+                        FileContent content = (FileContent) msg.getContent();
+                        if (TextUtils.isEmpty(content.getLocalPath())) {
+                            holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
+                            holder.progressTv.setText("0%");
+                            holder.progressTv.setVisibility(View.VISIBLE);
+                            msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
+                                @Override
+                                public void onProgressUpdate(double v) {
+                                    String progressStr = (int) (v * 100) + "%";
+                                    holder.progressTv.setText(progressStr);
+                                }
+                            });
+                            content.downloadFile(msg, new DownloadCompletionCallback() {
+                                @Override
+                                public void onComplete(int status, String desc, File file) {
+                                    holder.progressTv.setVisibility(View.GONE);
+                                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
+                                            .getDrawable(mContext, "jmui_receive_msg")));
+                                    if (status != 0) {
+                                        holder.resend.setVisibility(View.VISIBLE);
+                                        Toast.makeText(mContext, IdHelper.getString(mContext,
+                                                "download_file_failed"),
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(mContext, IdHelper.getString(mContext,
+                                                "download_file_succeed"), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    break;
             }
 
         }
     }
 
-    public static class ViewHolder {
+    private static class ViewHolder {
         CircleImageView headIcon;
         TextView displayName;
         TextView txtContent;
@@ -1404,5 +1655,7 @@ public class MsgListAdapter extends BaseAdapter {
         TextView location;
         TextView groupChange;
         ImageView sendingIv;
+        LinearLayout contentLl;
+        TextView sizeTv;
     }
 }

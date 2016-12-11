@@ -8,16 +8,16 @@
 
     <GridView
         android:id="@+id/child_grid"
-        android:padding="5dip"
+        android:padding="5dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:listSelector="@android:color/transparent"
         android:cacheColorHint="@android:color/transparent"
         android:stretchMode="columnWidth"
-        android:horizontalSpacing="5dip"
+        android:horizontalSpacing="5dp"
         android:gravity="center"
-        android:verticalSpacing="5dip"
-        android:columnWidth="100dip"
+        android:verticalSpacing="5dp"
+        android:columnWidth="100dp"
         android:numColumns="auto_fit" >
     </GridView>
 

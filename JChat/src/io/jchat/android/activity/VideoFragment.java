@@ -20,6 +20,7 @@ import java.util.List;
 
 import io.jchat.android.R;
 import io.jchat.android.adapter.VideoAdapter;
+import io.jchat.android.controller.SendFileController;
 import io.jchat.android.entity.FileItem;
 import io.jchat.android.view.SendVideoView;
 
@@ -34,6 +35,7 @@ public class VideoFragment extends BaseFragment {
     private final static int SCAN_OK = 1;
     private final static int SCAN_ERROR = 0;
     private final MyHandler myHandler = new MyHandler(this);
+    private SendFileController mController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -95,6 +97,18 @@ public class VideoFragment extends BaseFragment {
 
     }
 
+    public void setController(SendFileController controller) {
+        this.mController = controller;
+    }
+
+    public int getTotalCount() {
+        return mController.getPathListSize();
+    }
+
+    public long getTotalSize() {
+        return mController.getTotalSize();
+    }
+
     private static class MyHandler extends Handler {
         private final WeakReference<VideoFragment> mFragment;
 
@@ -111,9 +125,10 @@ public class VideoFragment extends BaseFragment {
                     case SCAN_OK:
                         //关闭进度条
                         fragment.mProgressDialog.dismiss();
-                        fragment.mAdapter = new VideoAdapter(fragment.getActivity(), fragment.mVideos,
+                        fragment.mAdapter = new VideoAdapter(fragment, fragment.mVideos,
                                 fragment.mDensity);
                         fragment.mSVView.setAdapter(fragment.mAdapter);
+                        fragment.mAdapter.setUpdateListener(fragment.mController);
                         break;
                     case SCAN_ERROR:
                         fragment.mProgressDialog.dismiss();

@@ -1,6 +1,5 @@
 package io.jchat.android.adapter;
 
-import android.content.Context;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,28 +9,33 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
 
-import java.text.NumberFormat;
 import java.util.List;
 
 import io.jchat.android.R;
+import io.jchat.android.activity.DocumentFragment;
 import io.jchat.android.entity.FileItem;
+import io.jchat.android.entity.FileType;
+import io.jchat.android.listener.UpdateSelectedStateListener;
+import io.jchat.android.tools.ViewHolder;
 
 
 public class DocumentAdapter extends BaseAdapter {
 
     private List<FileItem> mList;
-    private Context mContext;
+    private DocumentFragment mFragment;
     private LayoutInflater mInflater;
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
+    private UpdateSelectedStateListener mListener;
 
-    public DocumentAdapter(Context context, List<FileItem> list) {
-        this.mContext = context;
+    public DocumentAdapter(DocumentFragment fragment, List<FileItem> list) {
+        this.mFragment = fragment;
         this.mList = list;
-        this.mInflater = LayoutInflater.from(context);
+        this.mInflater = LayoutInflater.from(fragment.getActivity());
     }
 
     @Override
@@ -51,54 +55,78 @@ public class DocumentAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup viewGroup) {
-        final ViewHolder holder;
-        FileItem item = mList.get(position);
+        final FileItem item = mList.get(position);
         if (null == convertView) {
-            holder = new ViewHolder();
             convertView = mInflater.inflate(R.layout.item_document, null);
-            holder.itemLl = (LinearLayout) convertView.findViewById(R.id.document_item_ll);
-            holder.checkBox = (CheckBox) convertView.findViewById(R.id.document_cb);
-            holder.icon = (ImageView) convertView.findViewById(R.id.document_iv);
-            holder.title = (TextView) convertView.findViewById(R.id.document_title);
-            holder.size = (TextView) convertView.findViewById(R.id.document_size);
-            holder.date = (TextView) convertView.findViewById(R.id.document_date);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
         }
+        LinearLayout itemLl = ViewHolder.get(convertView, R.id.document_item_ll);
+        final CheckBox checkBox = ViewHolder.get(convertView, R.id.document_cb);
+        TextView title = ViewHolder.get(convertView, R.id.document_title);
+        TextView size = ViewHolder.get(convertView, R.id.document_size);
+        TextView date = ViewHolder.get(convertView, R.id.document_date);
 
-
-        holder.itemLl.setOnClickListener(new View.OnClickListener() {
+        itemLl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (holder.checkBox.isChecked()) {
-                    holder.checkBox.setChecked(false);
+                if (checkBox.isChecked()) {
+                    checkBox.setChecked(false);
                     mSelectMap.delete(position);
+                    mListener.onUnselected(item.getFilePath(), item.getLongFileSize(), FileType.document);
                 } else {
-                    holder.checkBox.setChecked(true);
-                    mSelectMap.put(position, true);
-                    addAnimation(holder.checkBox);
+                    if (mFragment.getTotalCount() < 5) {
+                        if (mFragment.getTotalSize() + item.getLongFileSize() < 10485760.0) {
+                            checkBox.setChecked(true);
+                            mSelectMap.put(position, true);
+                            mListener.onSelected(item.getFilePath(), item.getLongFileSize(), FileType.document);
+                            addAnimation(checkBox);
+                        } else {
+                            Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                    .file_size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                .size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
 
-        holder.checkBox.setOnClickListener(new View.OnClickListener() {
+        checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (holder.checkBox.isChecked()) {
-                    mSelectMap.put(position, true);
-                    addAnimation(holder.checkBox);
+                if (checkBox.isChecked()) {
+                    if (mFragment.getTotalCount() < 5) {
+                        if (mFragment.getTotalSize() + item.getLongFileSize() < 10485760.0) {
+                            checkBox.setChecked(true);
+                            mSelectMap.put(position, true);
+                            mListener.onSelected(item.getFilePath(), item.getLongFileSize(), FileType.document);
+                            addAnimation(checkBox);
+                        } else {
+                            checkBox.setChecked(false);
+                            Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                    .file_size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        checkBox.setChecked(false);
+                        Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                .size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     mSelectMap.delete(position);
+                    mListener.onUnselected(item.getFilePath(), item.getLongFileSize(), FileType.document);
                 }
             }
         });
 
-        holder.checkBox.setChecked(mSelectMap.get(position));
-        holder.title.setText(item.getFileName());
-        holder.size.setText(item.getFileSize());
-        holder.date.setText(item.getDate());
+        checkBox.setChecked(mSelectMap.get(position));
+        title.setText(item.getFileName());
+        size.setText(item.getFileSize());
+        date.setText(item.getDate());
         return convertView;
+    }
+
+    public void setUpdateListener(UpdateSelectedStateListener listener) {
+        this.mListener = listener;
     }
 
     private void addAnimation(View view) {
@@ -110,12 +138,4 @@ public class DocumentAdapter extends BaseAdapter {
         set.start();
     }
 
-    private class ViewHolder {
-        LinearLayout itemLl;
-        CheckBox checkBox;
-        ImageView icon;
-        TextView title;
-        TextView size;
-        TextView date;
-    }
 }

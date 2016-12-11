@@ -60,7 +60,14 @@
     <!-- 黑色 -->
     <color name="black">#000000</color>
     <color name="gray">#808080</color>
-    <color name="file_size">#d4d4d4</color>
+
+    <!-- 发送文件相关 -->
+    <color name="send_file_title_color">#545454</color>
+    <color name="send_file_divider_color">#dcdcdc</color>
+    <color name="chat_item_file_size">#989898</color>
+    <color name="send_file_desc_color">#808080</color>
+    <color name="send_file_action_bar">#767676</color>
+    <color name="send_file_action_bar_selected">#3f82dd</color>
 
     <!-- 灰色 -->
 

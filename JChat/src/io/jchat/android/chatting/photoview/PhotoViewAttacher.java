@@ -393,7 +393,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 //				if (null != displayRect) {
 //					final float x = e.getX(), y = e.getY();
 //
-//					// Check to see if the user tapped on the photo
+//					// Check to see if the user tapped on the image
 //					if (displayRect.contains(x, y)) {
 //
 //						float xResult = (x - displayRect.left) / displayRect.width();
@@ -788,8 +788,8 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 	public static interface OnPhotoTapListener {
 
 		/**
-		 * A callback to receive where the user taps on a photo. You will only
-		 * receive a callback if the user taps on the actual photo, tapping on
+		 * A callback to receive where the user taps on a image. You will only
+		 * receive a callback if the user taps on the actual image, tapping on
 		 * 'whitespace' will be ignored.
 		 * 
 		 * @param view - View the user tapped.

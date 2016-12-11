@@ -25,6 +25,9 @@ import java.util.Map;
 
 import io.jchat.android.R;
 import io.jchat.android.adapter.AlbumListAdapter;
+import io.jchat.android.adapter.ImageAdapter;
+import io.jchat.android.controller.SendFileController;
+import io.jchat.android.entity.FileItem;
 import io.jchat.android.entity.ImageBean;
 import io.jchat.android.tools.SortPictureList;
 import io.jchat.android.view.SendImageView;
@@ -34,12 +37,13 @@ public class ImageFragment extends BaseFragment {
     private Activity mContext;
     private View mRootView;
     private SendImageView mSIView;
-    private AlbumListAdapter mAdapter;
+    private ImageAdapter mAdapter;
     private final static int SCAN_OK = 1;
     private final static int SCAN_ERROR = 0;
     private final MyHandler myHandler = new MyHandler(this);
+    private List<FileItem> mImages = new ArrayList<>();
     private ProgressDialog mProgressDialog;
-    private HashMap<String, List<String>> mGruopMap = new HashMap<String, List<String>>();
+    private SendFileController mController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,9 +79,11 @@ public class ImageFragment extends BaseFragment {
             public void run() {
                 Uri imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                 ContentResolver contentResolver = mContext.getContentResolver();
-                String[] projection = new String[]{ MediaStore.Images.ImageColumns.DATA };
+                String[] projection = new String[]{ MediaStore.Images.ImageColumns.DATA,
+                        MediaStore.Images.ImageColumns.DISPLAY_NAME,
+                        MediaStore.Images.ImageColumns.SIZE };
                 Cursor cursor = contentResolver.query(imageUri, projection, null, null,
-                        MediaStore.Images.Media.DATE_MODIFIED);
+                        MediaStore.Images.Media.DATE_MODIFIED + " desc");
                 if (cursor == null || cursor.getCount() == 0) {
                     myHandler.sendEmptyMessage(SCAN_ERROR);
                 } else {
@@ -85,21 +91,12 @@ public class ImageFragment extends BaseFragment {
                         //获取图片的路径
                         String path = cursor.getString(cursor
                                 .getColumnIndex(MediaStore.Images.Media.DATA));
+                        String fileName = cursor.getString(cursor
+                                .getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+                        String size = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.SIZE));
 
-                        try{
-                            //获取该图片的父路径名
-                            String parentName = new File(path).getParentFile().getName();
-                            //根据父路径名将图片放入到mGruopMap中
-                            if (!mGruopMap.containsKey(parentName)) {
-                                List<String> chileList = new ArrayList<String>();
-                                chileList.add(path);
-                                mGruopMap.put(parentName, chileList);
-                            } else {
-                                mGruopMap.get(parentName).add(path);
-                            }
-                        }catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        FileItem item = new FileItem(path, fileName, size, null);
+                        mImages.add(item);
                     }
                     cursor.close();
                     //通知Handler扫描图片完成
@@ -108,6 +105,18 @@ public class ImageFragment extends BaseFragment {
             }
         }).start();
 
+    }
+
+    public void setController(SendFileController controller) {
+        this.mController = controller;
+    }
+
+    public int getTotalCount() {
+        return mController.getPathListSize();
+    }
+
+    public long getTotalSize() {
+        return mController.getTotalSize();
     }
 
     private static class MyHandler extends Handler {
@@ -126,9 +135,9 @@ public class ImageFragment extends BaseFragment {
                     case SCAN_OK:
                         //关闭进度条
                         fragment.mProgressDialog.dismiss();
-                        fragment.mAdapter = new AlbumListAdapter(fragment.getActivity(), fragment
-                                .subGroupOfImage(fragment.mGruopMap), fragment.mDensity);
+                        fragment.mAdapter = new ImageAdapter(fragment, fragment.mImages);
                         fragment.mSIView.setAdapter(fragment.mAdapter);
+                        fragment.mAdapter.setUpdateListener(fragment.mController);
                         break;
                     case SCAN_ERROR:
                         fragment.mProgressDialog.dismiss();
@@ -137,34 +146,5 @@ public class ImageFragment extends BaseFragment {
                 }
             }
         }
-    }
-
-    private List<ImageBean> subGroupOfImage(HashMap<String, List<String>> mGruopMap) {
-        if (mGruopMap.size() == 0) {
-            return null;
-        }
-        List<ImageBean> list = new ArrayList<ImageBean>();
-
-        Iterator<Map.Entry<String, List<String>>> it = mGruopMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, List<String>> entry = it.next();
-            ImageBean mImageBean = new ImageBean();
-            String key = entry.getKey();
-            List<String> value = entry.getValue();
-            SortPictureList sortList = new SortPictureList();
-            Collections.sort(value, sortList);
-            mImageBean.setFolderName(key);
-            mImageBean.setImageCounts(value.size());
-            mImageBean.setTopImagePath(value.get(0));//获取该组的第一张图片
-
-            list.add(mImageBean);
-        }
-
-        //对相册进行排序，最近修改的相册放在最前面
-        PickPictureTotalActivity.SortImageBeanComparator sortComparator = new PickPictureTotalActivity.SortImageBeanComparator(list);
-        Collections.sort(list, sortComparator);
-
-        return list;
-
     }
 }

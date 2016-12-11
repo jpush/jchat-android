@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import io.jchat.android.R;
+import io.jchat.android.adapter.DocumentAdapter;
 
 
 public class SendFileView extends RelativeLayout {
@@ -22,13 +23,18 @@ public class SendFileView extends RelativeLayout {
     private int[] mBtnIdArray;
     private ImageView[] mIVArray;
     private int[] mIVIdArray;
+    private Button mSendBtn;
+    private TextView mTotalSize;
+    private Context mContext;
 
     public SendFileView(Context context) {
         super(context);
+        this.mContext = context;
     }
 
     public SendFileView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.mContext = context;
     }
 
     public void initModule() {
@@ -47,10 +53,14 @@ public class SendFileView extends RelativeLayout {
             mIVArray[i] = (ImageView) findViewById(mIVIdArray[i]);
         }
         mIVArray[0].setVisibility(VISIBLE);
+        mBtnArray[0].setTextColor(getResources().getColor(R.color.send_file_action_bar_selected));
+        mSendBtn = (Button) findViewById(R.id.send_file_btn);
+        mTotalSize = (TextView) findViewById(R.id.size_desc);
     }
 
     public void setOnClickListener(OnClickListener listener) {
         mReturnBtn.setOnClickListener(listener);
+        mSendBtn.setOnClickListener(listener);
         for (int i=0; i<mBtnIdArray.length; i++) {
             mBtnArray[i].setOnClickListener(listener);
         }
@@ -69,10 +79,22 @@ public class SendFileView extends RelativeLayout {
         for (int i=0; i<mBtnIdArray.length; i++) {
             if (i == index) {
                 mIVArray[i].setVisibility(VISIBLE);
+                mBtnArray[i].setTextColor(getResources().getColor(R.color.send_file_action_bar_selected));
             } else {
                 mIVArray[i].setVisibility(INVISIBLE);
+                mBtnArray[i].setTextColor(getResources().getColor(R.color.send_file_action_bar));
             }
         }
     }
 
+    public void updateSelectedState(int selectedNum, String sizeStr) {
+        String sendStr;
+        if (selectedNum != 0) {
+            sendStr = mContext.getString(R.string.jmui_send) + "(" + selectedNum + ")";
+        } else {
+            sendStr = mContext.getString(R.string.jmui_send);
+        }
+        mSendBtn.setText(sendStr);
+        mTotalSize.setText(sizeStr);
+    }
 }

@@ -65,7 +65,7 @@ public interface IPhotoView {
     ImageView.ScaleType getScaleType();
 
     /**
-     * Whether to allow the ImageView's parent to intercept the touch event when the photo is scroll to it's horizontal edge.
+     * Whether to allow the ImageView's parent to intercept the touch event when the image is scroll to it's horizontal edge.
      */
     void setAllowParentInterceptOnEdge(boolean allow);
 
