@@ -403,7 +403,7 @@ public class StickyListHeadersListView extends FrameLayout {
     }
 
     // hides the headers in the list under the sticky header.
-    // Makes sure the other ones are showing
+    // Makes sure the jmui_other ones are showing
     private void updateHeaderVisibilities() {
         int top = stickyHeaderTop();
         int childCount = mList.getChildCount();

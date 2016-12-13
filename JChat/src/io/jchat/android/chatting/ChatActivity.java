@@ -139,7 +139,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 }
             }
 
-            mChatAdapter = new MsgListAdapter(mContext, mTargetId, mTargetAppKey, longClickListener);
+            mChatAdapter = new MsgListAdapter(mContext, mConv, longClickListener);
         } else {
             mIsSingle = false;
             mGroupId = intent.getLongExtra(GROUP_ID, 0);
@@ -206,7 +206,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 //            if (mConv == null) {
 //                mConv = Conversation.createGroupConversation(mGroupId);
 //            }
-            mChatAdapter = new MsgListAdapter(mContext, mGroupId, longClickListener);
+            mChatAdapter = new MsgListAdapter(mContext, mConv, longClickListener);
         }
 
         String draft = intent.getStringExtra(DRAFT);
@@ -354,7 +354,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_SEND_LOCATION);
         } else if (v.getId() == IdHelper.getViewID(mContext, "jmui_send_file_btn")) {
             Intent intent = new Intent(mContext, SendFileActivity.class);
-            startActivity(intent);
+            intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
+            intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
+            intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
+            startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_SEND_FILE);
         }
     }
 
@@ -380,8 +383,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
      *
      * @param data intent
      */
-    private void handleImgRefresh(Intent data) {
-        mChatAdapter.setSendImg(data.getIntArrayExtra(MsgIDs));
+    private void handleSendMsg(Intent data) {
+        mChatAdapter.setSendMsgs(data.getIntArrayExtra(MsgIDs));
         mChatView.setToBottom();
     }
 
@@ -480,7 +483,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         }
         switch (resultCode) {
             case JChatDemoApplication.RESULT_CODE_SELECT_PICTURE:
-                handleImgRefresh(data);
+                handleSendMsg(data);
                 break;
             case JChatDemoApplication.RESULT_CODE_CHAT_DETAIL:
                 if (!mIsSingle) {
@@ -523,6 +526,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 mChatAdapter.addMsgToList(msg);
                 mChatView.setToBottom();
                 break;
+            case JChatDemoApplication.RESULT_CODE_SEND_FILE:
+                handleSendMsg(data);
+                break;
         }
         if (requestCode == JChatDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
             final Conversation conv = mConv;
@@ -536,7 +542,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                             Message msg = conv.createSendMessage(imageContent);
                             Intent intent = new Intent();
                             intent.putExtra(MsgIDs, new int[]{msg.getId()});
-                            handleImgRefresh(intent);
+                            handleSendMsg(intent);
                         }
                     }
                 });

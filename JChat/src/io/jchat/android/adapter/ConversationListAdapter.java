@@ -32,6 +32,7 @@ import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.chatting.utils.TimeFormat;
 import io.jchat.android.chatting.CircleImageView;
+import io.jchat.android.tools.ViewHolder;
 
 public class ConversationListAdapter extends BaseAdapter {
 
@@ -125,107 +126,101 @@ public class ConversationListAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         final Conversation convItem = mDatas.get(position);
-        final ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_conversation,
-                    null);
-            viewHolder = new ViewHolder();
-            viewHolder.headIcon = (CircleImageView) convertView
-                    .findViewById(R.id.msg_item_head_icon);
-            viewHolder.convName = (TextView) convertView
-                    .findViewById(R.id.conv_item_name);
-            viewHolder.content = (TextView) convertView
-                    .findViewById(R.id.msg_item_content);
-            viewHolder.datetime = (TextView) convertView
-                    .findViewById(R.id.msg_item_date);
-            viewHolder.newMsgNumber = (TextView) convertView
-                    .findViewById(R.id.new_msg_number);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_conversation, null);
         }
+        final CircleImageView headIcon = ViewHolder.get(convertView, R.id.msg_item_head_icon);
+        TextView convName = ViewHolder.get(convertView, R.id.conv_item_name);
+        TextView content = ViewHolder.get(convertView, R.id.msg_item_content);
+        TextView datetime = ViewHolder.get(convertView, R.id.msg_item_date);
+        TextView newMsgNumber = ViewHolder.get(convertView, R.id.new_msg_number);
         String draft = mDraftMap.get(convItem.getId());
         //如果该会话草稿为空，显示最后一条消息
         if (TextUtils.isEmpty(draft)) {
             Message lastMsg = convItem.getLatestMessage();
             if (lastMsg != null) {
                 TimeFormat timeFormat = new TimeFormat(mContext, lastMsg.getCreateTime());
-                viewHolder.datetime.setText(timeFormat.getTime());
+                datetime.setText(timeFormat.getTime());
                 // 按照最后一条消息的消息类型进行处理
                 switch (lastMsg.getContentType()) {
                     case image:
-                        viewHolder.content.setText(mContext.getString(R.string.type_picture));
+                        content.setText(mContext.getString(R.string.type_picture));
                         break;
                     case voice:
-                        viewHolder.content.setText(mContext.getString(R.string.type_voice));
+                        content.setText(mContext.getString(R.string.type_voice));
                         break;
                     case location:
-                        viewHolder.content.setText(mContext.getString(R.string.type_location));
+                        content.setText(mContext.getString(R.string.type_location));
+                        break;
+                    case file:
+                        content.setText(mContext.getString(R.string.type_file));
+                        break;
+                    case video:
+                        content.setText(mContext.getString(R.string.type_video));
                         break;
                     case eventNotification:
-                        viewHolder.content.setText(mContext.getString(R.string.group_notification));
+                        content.setText(mContext.getString(R.string.group_notification));
                         break;
                     case custom:
-                        CustomContent content = (CustomContent) lastMsg.getContent();
-                        Boolean isBlackListHint = content.getBooleanValue("blackList");
+                        CustomContent customContent = (CustomContent) lastMsg.getContent();
+                        Boolean isBlackListHint = customContent.getBooleanValue("blackList");
                         if (isBlackListHint != null && isBlackListHint) {
-                            viewHolder.content.setText(mContext.getString(R.string.jmui_server_803008));
+                            content.setText(mContext.getString(R.string.jmui_server_803008));
                         } else {
-                            viewHolder.content.setText(mContext.getString(R.string.type_custom));
+                            content.setText(mContext.getString(R.string.type_custom));
                         }
                         break;
                     default:
-                        viewHolder.content.setText(((TextContent) lastMsg.getContent()).getText());
+                        content.setText(((TextContent) lastMsg.getContent()).getText());
                 }
             }else {
                 TimeFormat timeFormat = new TimeFormat(mContext, convItem.getLastMsgDate());
-                viewHolder.datetime.setText(timeFormat.getTime());
-                viewHolder.content.setText("");
+                datetime.setText(timeFormat.getTime());
+                content.setText("");
             }
         } else {
-            String content = mContext.getString(R.string.draft) + draft;
-            SpannableStringBuilder builder = new SpannableStringBuilder(content);
+            draft = mContext.getString(R.string.draft) + draft;
+            SpannableStringBuilder builder = new SpannableStringBuilder(draft);
             builder.setSpan(new ForegroundColorSpan(Color.RED), 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            viewHolder.content.setText(builder);
+            content.setText(builder);
         }
 
         // 如果是单聊
         if (convItem.getType().equals(ConversationType.single)) {
-            viewHolder.convName.setText(convItem.getTitle());
+            convName.setText(convItem.getTitle());
             UserInfo userInfo = (UserInfo) convItem.getTargetInfo();
             if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
                 userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
                     @Override
                     public void gotResult(int status, String desc, Bitmap bitmap) {
                         if (status == 0) {
-                            viewHolder.headIcon.setImageBitmap(bitmap);
+                            headIcon.setImageBitmap(bitmap);
                         }else {
-                            viewHolder.headIcon.setImageResource(R.drawable.jmui_head_icon);
+                            headIcon.setImageResource(R.drawable.jmui_head_icon);
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });
             }else {
-                viewHolder.headIcon.setImageResource(R.drawable.jmui_head_icon);
+                headIcon.setImageResource(R.drawable.jmui_head_icon);
             }
         } else {
-            viewHolder.headIcon.setImageResource(R.drawable.group);
-            viewHolder.convName.setText(convItem.getTitle());
+            headIcon.setImageResource(R.drawable.group);
+            convName.setText(convItem.getTitle());
             Log.d("ConversationListAdapter", "Conversation title: " + convItem.getTitle());
         }
 
         // TODO 更新Message的数量,
         if (convItem.getUnReadMsgCnt() > 0) {
-            viewHolder.newMsgNumber.setVisibility(View.VISIBLE);
+            newMsgNumber.setVisibility(View.VISIBLE);
             if (convItem.getUnReadMsgCnt() < 100) {
-                viewHolder.newMsgNumber.setText(String.valueOf(convItem.getUnReadMsgCnt()));
+                newMsgNumber.setText(String.valueOf(convItem.getUnReadMsgCnt()));
             }
             else {
-                viewHolder.newMsgNumber.setText(mContext.getString(R.string.hundreds_of_unread_msgs));
+                newMsgNumber.setText(mContext.getString(R.string.hundreds_of_unread_msgs));
             }
         } else {
-            viewHolder.newMsgNumber.setVisibility(View.GONE);
+            newMsgNumber.setVisibility(View.GONE);
         }
 
         return convertView;
@@ -252,13 +247,4 @@ public class ConversationListAdapter extends BaseAdapter {
             }
         }
     }
-
-    private class ViewHolder {
-        CircleImageView headIcon;
-        TextView convName;
-        TextView content;
-        TextView datetime;
-        TextView newMsgNumber;
-    }
-
 }

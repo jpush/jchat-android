@@ -27,13 +27,15 @@
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
                 android:text="@string/document"
+                android:textColor="@color/send_file_action_bar"
                 android:paddingTop="10dp"
                 android:background="#ffffff"/>
 
             <ImageView
                 android:id="@+id/slipping_1"
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_height="5dp"
                 android:layout_gravity="bottom"
                 android:scaleType="fitXY"
                 android:src="@drawable/slipping"
@@ -53,13 +55,15 @@
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
                 android:text="@string/jmui_video"
+                android:textColor="@color/send_file_action_bar"
                 android:paddingTop="10dp"
                 android:background="#ffffff"/>
 
             <ImageView
                 android:id="@+id/slipping_2"
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_height="5dp"
                 android:layout_gravity="bottom"
                 android:scaleType="fitXY"
                 android:src="@drawable/slipping"
@@ -78,13 +82,15 @@
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
                 android:text="@string/album"
+                android:textColor="@color/send_file_action_bar"
                 android:paddingTop="10dp"
                 android:background="#ffffff"/>
 
             <ImageView
                 android:id="@+id/slipping_3"
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_height="5dp"
                 android:layout_gravity="bottom"
                 android:scaleType="fitXY"
                 android:src="@drawable/slipping"
@@ -104,13 +110,15 @@
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
                 android:text="@string/audio"
+                android:textColor="@color/send_file_action_bar"
                 android:paddingTop="10dp"
                 android:background="#ffffff"/>
 
             <ImageView
                 android:id="@+id/slipping_4"
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_height="5dp"
                 android:layout_gravity="bottom"
                 android:scaleType="fitXY"
                 android:src="@drawable/slipping"
@@ -130,13 +138,15 @@
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
                 android:text="@string/other"
+                android:textColor="@color/send_file_action_bar"
                 android:paddingTop="10dp"
                 android:background="#ffffff"/>
 
             <ImageView
                 android:id="@+id/slipping_5"
                 android:layout_width="match_parent"
-                android:layout_height="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_height="5dp"
                 android:layout_gravity="bottom"
                 android:scaleType="fitXY"
                 android:src="@drawable/slipping"
@@ -165,18 +175,23 @@
         <TextView
             android:id="@+id/size_desc"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:ems="10"
-            android:textSize="12sp"/>
+            android:gravity="center_vertical"
+            android:padding="10dp"
+            android:textSize="16sp"/>
 
         <Button
+            android:id="@+id/send_file_btn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:padding="10dp"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
             android:layout_alignParentRight="true"
             android:textColor="#d4d4d4"
             android:text="@string/jmui_send"
-            android:background="@null"/>
+            android:textSize="16sp"
+            android:background="@drawable/send_file_btn_bg"/>
 
     </RelativeLayout>
 

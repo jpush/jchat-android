@@ -24,7 +24,6 @@
             style="@style/jmui_chat_display_name_style"/>
 
         <FrameLayout
-            android:id="@+id/jmui_msg_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/jmui_display_name_tv"

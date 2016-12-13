@@ -3,17 +3,16 @@ package io.jchat.android.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
@@ -23,7 +22,10 @@ import java.util.List;
 
 import io.jchat.android.R;
 import io.jchat.android.activity.PlayVideoActivity;
+import io.jchat.android.activity.VideoFragment;
 import io.jchat.android.entity.FileItem;
+import io.jchat.android.entity.FileType;
+import io.jchat.android.listener.UpdateSelectedStateListener;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.VideoThumbnailLoader;
 
@@ -31,16 +33,17 @@ import io.jchat.android.tools.VideoThumbnailLoader;
 public class VideoAdapter extends BaseAdapter {
 
     private List<FileItem> mList;
-    private Context mContext;
+    private VideoFragment mFragment;
     private LayoutInflater mInflater;
     private int mImgWidth;
     private int mImgHeight;
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
+    private UpdateSelectedStateListener mListener;
 
-    public VideoAdapter(Context context, List<FileItem> list, float density) {
-        this.mContext = context;
+    public VideoAdapter(VideoFragment fragment, List<FileItem> list, float density) {
+        mFragment = fragment;
         this.mList = list;
-        this.mInflater = LayoutInflater.from(context);
+        this.mInflater = LayoutInflater.from(fragment.getContext());
         mImgWidth = (int) (50 * density);
         mImgHeight = (int) (50 * density);
     }
@@ -63,7 +66,7 @@ public class VideoAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup viewGroup) {
         final ViewHolder holder;
-        FileItem item = mList.get(position);
+        final FileItem item = mList.get(position);
         if (null == convertView) {
             holder = new ViewHolder();
             convertView = mInflater.inflate(R.layout.item_video, null);
@@ -105,10 +108,22 @@ public class VideoAdapter extends BaseAdapter {
                 if (holder.checkBox.isChecked()) {
                     holder.checkBox.setChecked(false);
                     mSelectMap.delete(position);
+                    mListener.onUnselected(item.getFilePath(), item.getLongFileSize(), FileType.video);
                 } else {
-                    holder.checkBox.setChecked(true);
-                    mSelectMap.put(position, true);
-                    addAnimation(holder.checkBox);
+                    if (mFragment.getTotalCount() < 5) {
+                        if (mFragment.getTotalSize() + item.getLongFileSize() < 10485760.0) {
+                            holder.checkBox.setChecked(true);
+                            mSelectMap.put(position, true);
+                            mListener.onSelected(item.getFilePath(), item.getLongFileSize(), FileType.video);
+                            addAnimation(holder.checkBox);
+                        } else {
+                            Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                    .file_size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                .size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -117,10 +132,25 @@ public class VideoAdapter extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 if (holder.checkBox.isChecked()) {
-                    mSelectMap.put(position, true);
-                    addAnimation(holder.checkBox);
+                    if (mFragment.getTotalCount() < 5) {
+                        if (mFragment.getTotalSize() + item.getLongFileSize() < 10485760.0) {
+                            holder.checkBox.setChecked(true);
+                            mSelectMap.put(position, true);
+                            mListener.onSelected(item.getFilePath(), item.getLongFileSize(), FileType.video);
+                            addAnimation(holder.checkBox);
+                        } else {
+                            holder.checkBox.setChecked(false);
+                            Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                    .file_size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        holder.checkBox.setChecked(false);
+                        Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                .size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     mSelectMap.delete(position);
+                    mListener.onUnselected(item.getFilePath(), item.getLongFileSize(), FileType.video);
                 }
             }
         });
@@ -130,14 +160,14 @@ public class VideoAdapter extends BaseAdapter {
         holder.icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, PlayVideoActivity.class);
+                Intent intent = new Intent(mFragment.getActivity(), PlayVideoActivity.class);
                 intent.putExtra("videoPath", mList.get(position).getFilePath());
                 ArrayList<String> pathList = new ArrayList<String>();
                 for (FileItem item : mList) {
                     pathList.add(item.getFilePath());
                 }
                 intent.putStringArrayListExtra("videoPathList", pathList);
-                mContext.startActivity(intent);
+                mFragment.startActivity(intent);
             }
         });
         return convertView;
@@ -150,6 +180,10 @@ public class VideoAdapter extends BaseAdapter {
                 ObjectAnimator.ofFloat(view, "scaleY", vaules));
         set.setDuration(150);
         set.start();
+    }
+
+    public void setUpdateListener(UpdateSelectedStateListener listener) {
+        mListener = listener;
     }
 
     private class ViewHolder {

@@ -14,10 +14,13 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import io.jchat.android.R;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.tools.NativeImageLoader.NativeImageCallBack;
@@ -80,7 +83,7 @@ public class PickPictureAdapter extends BaseAdapter {
         }
         viewHolder.mImageView.setTag(path);
         //增加选中checkbox面积
-        viewHolder.mCheckBoxLl.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!mChecked) {
@@ -95,7 +98,7 @@ public class PickPictureAdapter extends BaseAdapter {
                                 Toast.LENGTH_SHORT).show();
                         viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
                     }
-                }else if (mSelectMap.size() <= 9) {
+                } else if (mSelectMap.size() <= 9) {
                     mSelectMap.delete(position);
                     mChecked = false;
                     viewHolder.mCheckBox.setChecked(false);
@@ -109,35 +112,9 @@ public class PickPictureAdapter extends BaseAdapter {
                     mSendBtn.setClickable(false);
                 }
             }
-        });
-        viewHolder.mCheckBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (viewHolder.mCheckBox.isChecked()) {
-                    if (mSelectMap.size() < 9) {
-                        mChecked = true;
-                        mSelectMap.put(position, true);
-                        addAnimation(viewHolder.mCheckBox);
-                    } else {
-                        mChecked = false;
-                        Toast.makeText(mContext, mContext.getString(R.string.picture_num_limit_toast),
-                                Toast.LENGTH_SHORT).show();
-                        viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
-                    }
-                }else if (mSelectMap.size() <= 9) {
-                    mChecked = false;
-                    mSelectMap.delete(position);
-                }
-
-                if (mSelectMap.size() > 0) {
-                    mSendBtn.setClickable(true);
-                    mSendBtn.setText(mContext.getString(R.string.jmui_send) + "(" + mSelectMap.size() + "/" + "9)");
-                } else {
-                    mSendBtn.setText(mContext.getString(R.string.jmui_send));
-                    mSendBtn.setClickable(false);
-                }
-            }
-        });
+        };
+        viewHolder.mCheckBoxLl.setOnClickListener(listener);
+        viewHolder.mCheckBox.setOnClickListener(listener);
 
         viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
 
@@ -145,14 +122,14 @@ public class PickPictureAdapter extends BaseAdapter {
         Bitmap bitmap = NativeImageLoader.getInstance().loadNativeImage(path, (int) (80 * mDensity),
                 new NativeImageCallBack() {
 
-            @Override
-            public void onImageLoader(Bitmap bitmap, String path) {
-                ImageView mImageView = (ImageView) mGridView.findViewWithTag(path);
-                if (bitmap != null && mImageView != null) {
-                    mImageView.setImageBitmap(bitmap);
-                }
-            }
-        });
+                    @Override
+                    public void onImageLoader(Bitmap bitmap, String path) {
+                        ImageView mImageView = (ImageView) mGridView.findViewWithTag(path);
+                        if (bitmap != null && mImageView != null) {
+                            mImageView.setImageBitmap(bitmap);
+                        }
+                    }
+                });
 
         if (bitmap != null) {
             viewHolder.mImageView.setImageBitmap(bitmap);
@@ -215,9 +192,9 @@ public class PickPictureAdapter extends BaseAdapter {
     }
 
 
-    public static class ViewHolder {
-        public MyImageView mImageView;
-        public CheckBox mCheckBox;
-        public LinearLayout mCheckBoxLl;
+    private static class ViewHolder {
+        MyImageView mImageView;
+        CheckBox mCheckBox;
+        LinearLayout mCheckBoxLl;
     }
 }

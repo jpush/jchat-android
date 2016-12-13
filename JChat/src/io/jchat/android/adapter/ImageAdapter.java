@@ -1,6 +1,5 @@
 package io.jchat.android.adapter;
 
-import android.content.Context;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,25 +13,28 @@ import android.widget.Toast;
 
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
+import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.List;
 
 import io.jchat.android.R;
-import io.jchat.android.activity.OtherFragment;
+import io.jchat.android.activity.ImageFragment;
 import io.jchat.android.entity.FileItem;
 import io.jchat.android.entity.FileType;
 import io.jchat.android.listener.UpdateSelectedStateListener;
+import io.jchat.android.view.MyImageView;
 
 
-public class OtherAdapter extends BaseAdapter {
+public class ImageAdapter extends BaseAdapter {
 
+    private ImageFragment mFragment;
     private List<FileItem> mList;
-    private OtherFragment mFragment;
     private LayoutInflater mInflater;
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
     private UpdateSelectedStateListener mListener;
 
-    public OtherAdapter(OtherFragment fragment, List<FileItem> list) {
+    public ImageAdapter(ImageFragment fragment, List<FileItem> list) {
         this.mFragment = fragment;
         this.mList = list;
         this.mInflater = LayoutInflater.from(fragment.getContext());
@@ -57,46 +59,16 @@ public class OtherAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup viewGroup) {
         final ViewHolder holder;
         final FileItem item = mList.get(position);
-        if (null == convertView) {
+        if (convertView == null) {
+            convertView = mInflater.inflate(R.layout.item_pick_picture_detail, null);
             holder = new ViewHolder();
-            convertView = mInflater.inflate(R.layout.item_other, null);
-            holder.itemLl = (LinearLayout) convertView.findViewById(R.id.other_item_ll);
-            holder.checkBox = (CheckBox) convertView.findViewById(R.id.other_cb);
-            holder.icon = (ImageView) convertView.findViewById(R.id.other_iv);
-            holder.title = (TextView) convertView.findViewById(R.id.other_title);
-            holder.size = (TextView) convertView.findViewById(R.id.other_size);
-            holder.date = (TextView) convertView.findViewById(R.id.other_date);
+            holder.icon = (MyImageView) convertView.findViewById(R.id.child_image);
+            holder.checkBox = (CheckBox) convertView.findViewById(R.id.child_checkbox);
+            holder.checkBoxLl = (LinearLayout) convertView.findViewById(R.id.checkbox_ll);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-
-
-        holder.itemLl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (holder.checkBox.isChecked()) {
-                    holder.checkBox.setChecked(false);
-                    mSelectMap.delete(position);
-                    mListener.onUnselected(item.getFilePath(), item.getLongFileSize(), FileType.other);
-                } else {
-                    if (mFragment.getTotalCount() < 5) {
-                        if (mFragment.getTotalSize() + item.getLongFileSize() < 10485760.0) {
-                            holder.checkBox.setChecked(true);
-                            mSelectMap.put(position, true);
-                            mListener.onSelected(item.getFilePath(), item.getLongFileSize(), FileType.other);
-                            addAnimation(holder.checkBox);
-                        } else {
-                            Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
-                                    .file_size_over_limit_hint), Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
-                                .size_over_limit_hint), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
 
         holder.checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,7 +78,7 @@ public class OtherAdapter extends BaseAdapter {
                         if (mFragment.getTotalSize() + item.getLongFileSize() < 10485760.0) {
                             holder.checkBox.setChecked(true);
                             mSelectMap.put(position, true);
-                            mListener.onSelected(item.getFilePath(), item.getLongFileSize(), FileType.other);
+                            mListener.onSelected(item.getFilePath(), item.getLongFileSize(), FileType.image);
                             addAnimation(holder.checkBox);
                         } else {
                             holder.checkBox.setChecked(false);
@@ -120,15 +92,18 @@ public class OtherAdapter extends BaseAdapter {
                     }
                 } else {
                     mSelectMap.delete(position);
-                    mListener.onUnselected(item.getFilePath(), item.getLongFileSize(), FileType.other);
+                    mListener.onUnselected(item.getFilePath(), item.getLongFileSize(), FileType.image);
                 }
             }
         });
 
         holder.checkBox.setChecked(mSelectMap.get(position));
-        holder.title.setText(item.getFileName());
-        holder.size.setText(item.getFileSize());
-        holder.date.setText(item.getDate());
+        try {
+            Picasso.with(mFragment.getContext()).load(new File(item.getFilePath())).into(holder.icon);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return convertView;
     }
 
@@ -146,11 +121,8 @@ public class OtherAdapter extends BaseAdapter {
     }
 
     private class ViewHolder {
-        LinearLayout itemLl;
         CheckBox checkBox;
         ImageView icon;
-        TextView title;
-        TextView size;
-        TextView date;
+        LinearLayout checkBoxLl;
     }
 }

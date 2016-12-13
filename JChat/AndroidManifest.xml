@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.jchat.android"
-    android:versionCode="57"
-    android:versionName="1.3.6">
+    android:versionCode="58"
+    android:versionName="1.3.7">
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -28,7 +28,7 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 
-    <!-- JMessage Demo required for record audio-->
+    <!-- JMessage Demo required for record jmui_audio-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 

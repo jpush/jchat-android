@@ -5,11 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ListView
-        android:id="@+id/album_list_view"
+    <GridView
+        android:id="@+id/album_grid_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@null">
-    </ListView>
+        android:listSelector="@android:color/transparent"
+        android:cacheColorHint="@android:color/transparent"
+        android:stretchMode="columnWidth"
+        android:horizontalSpacing="10dp"
+        android:gravity="center"
+        android:verticalSpacing="10dp"
+        android:columnWidth="100dp"
+        android:numColumns="auto_fit">
+    </GridView>
 
 </io.jchat.android.view.SendImageView>

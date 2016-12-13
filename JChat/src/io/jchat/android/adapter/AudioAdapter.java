@@ -1,6 +1,5 @@
 package io.jchat.android.adapter;
 
-import android.content.Context;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +9,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
@@ -18,21 +18,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.jchat.android.R;
+import io.jchat.android.activity.AudioFragment;
 import io.jchat.android.entity.FileItem;
+import io.jchat.android.entity.FileType;
+import io.jchat.android.tools.ViewHolder;
+import io.jchat.android.listener.UpdateSelectedStateListener;
 
 
 public class AudioAdapter extends BaseAdapter {
 
     private List<FileItem> mList;
-    private Context mContext;
+    private AudioFragment mFragment;
     private LayoutInflater mInflater;
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
     private List<String> mSelectedList = new ArrayList<String>();
+    private UpdateSelectedStateListener mListener;
 
-    public AudioAdapter(Context context, List<FileItem> list) {
-        this.mContext = context;
+    public AudioAdapter(AudioFragment fragment, List<FileItem> list) {
+        this.mFragment = fragment;
         this.mList = list;
-        this.mInflater = LayoutInflater.from(context);
+        this.mInflater = LayoutInflater.from(fragment.getContext());
     }
 
     @Override
@@ -52,53 +57,74 @@ public class AudioAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup viewGroup) {
-        final ViewHolder holder;
         final FileItem item = mList.get(position);
         if (null == convertView) {
-            holder = new ViewHolder();
             convertView = mInflater.inflate(R.layout.item_audio, null);
-            holder.itemLl = (LinearLayout) convertView.findViewById(R.id.audio_item_ll);
-            holder.checkBox = (CheckBox) convertView.findViewById(R.id.audio_cb);
-            holder.icon = (ImageView) convertView.findViewById(R.id.audio_iv);
-            holder.title = (TextView) convertView.findViewById(R.id.audio_title);
-            holder.size = (TextView) convertView.findViewById(R.id.audio_size);
-            holder.date = (TextView) convertView.findViewById(R.id.audio_date);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
         }
+        LinearLayout itemLl = ViewHolder.get(convertView, R.id.audio_item_ll);
+        final CheckBox checkBox = ViewHolder.get(convertView, R.id.audio_cb);
+        ImageView icon = ViewHolder.get(convertView, R.id.audio_iv);
+        TextView title = ViewHolder.get(convertView, R.id.audio_title);
+        TextView size = ViewHolder.get(convertView, R.id.audio_size);
+        TextView date = ViewHolder.get(convertView, R.id.audio_date);
 
-
-        holder.itemLl.setOnClickListener(new View.OnClickListener() {
+        itemLl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (holder.checkBox.isChecked()) {
-                    holder.checkBox.setChecked(false);
+                if (checkBox.isChecked()) {
+                    checkBox.setChecked(false);
                     mSelectMap.delete(position);
+                    mListener.onUnselected(item.getFilePath(), item.getLongFileSize(), FileType.audio);
                 } else {
-                    holder.checkBox.setChecked(true);
-                    mSelectMap.put(position, true);
-                    addAnimation(holder.checkBox);
+                    if (mFragment.getTotalCount() < 5) {
+                        if (mFragment.getTotalSize() + item.getLongFileSize() < 10485760.0) {
+                            checkBox.setChecked(true);
+                            mSelectMap.put(position, true);
+                            mListener.onSelected(item.getFilePath(), item.getLongFileSize(), FileType.audio);
+                            addAnimation(checkBox);
+                        } else {
+                            Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                    .file_size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                .size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
 
-        holder.checkBox.setOnClickListener(new View.OnClickListener() {
+        checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (holder.checkBox.isChecked()) {
-                    mSelectMap.put(position, true);
-                    addAnimation(holder.checkBox);
+                if (checkBox.isChecked()) {
+                    if (mFragment.getTotalCount() < 5) {
+                        if (mFragment.getTotalSize() + item.getLongFileSize() < 10485760.0) {
+                            checkBox.setChecked(true);
+                            mSelectMap.put(position, true);
+                            mListener.onSelected(item.getFilePath(), item.getLongFileSize(), FileType.audio);
+                            addAnimation(checkBox);
+                        } else {
+                            checkBox.setChecked(false);
+                            Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                    .file_size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        checkBox.setChecked(false);
+                        Toast.makeText(mFragment.getContext(), mFragment.getString(R.string
+                                .size_over_limit_hint), Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     mSelectMap.delete(position);
+                    mListener.onUnselected(item.getFilePath(), item.getLongFileSize(), FileType.audio);
                 }
             }
         });
 
-        holder.checkBox.setChecked(mSelectMap.get(position));
-        holder.title.setText(item.getFileName());
-        holder.size.setText(item.getFileSize());
-        holder.date.setText(item.getDate());
+        checkBox.setChecked(mSelectMap.get(position));
+        title.setText(item.getFileName());
+        size.setText(item.getFileSize());
+        date.setText(item.getDate());
 
         return convertView;
     }
@@ -112,12 +138,7 @@ public class AudioAdapter extends BaseAdapter {
         set.start();
     }
 
-    private class ViewHolder {
-        LinearLayout itemLl;
-        CheckBox checkBox;
-        ImageView icon;
-        TextView title;
-        TextView size;
-        TextView date;
+    public void setUpdateListener(UpdateSelectedStateListener listener) {
+        this.mListener = listener;
     }
 }

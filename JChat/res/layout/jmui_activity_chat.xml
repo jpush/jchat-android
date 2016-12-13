@@ -280,7 +280,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:visibility="invisible">
+                    android:visibility="visible">
 
                     <ImageButton
                         android:id="@+id/jmui_send_file_btn"

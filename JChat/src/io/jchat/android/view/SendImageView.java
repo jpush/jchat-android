@@ -2,16 +2,16 @@ package io.jchat.android.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 
 import io.jchat.android.R;
-import io.jchat.android.adapter.AlbumListAdapter;
+import io.jchat.android.adapter.ImageAdapter;
 
 
 public class SendImageView extends LinearLayout {
 
-    private ListView mAlbumLV;
+    private GridView mImageGV;
 
     public SendImageView(Context context) {
         super(context);
@@ -22,11 +22,11 @@ public class SendImageView extends LinearLayout {
     }
 
     public void initModule() {
-        mAlbumLV = (ListView) findViewById(R.id.album_list_view);
+        mImageGV = (GridView) findViewById(R.id.album_grid_view);
     }
 
-    public void setAdapter(AlbumListAdapter adapter) {
-        mAlbumLV.setAdapter(adapter);
+    public void setAdapter(ImageAdapter adapter) {
+        mImageGV.setAdapter(adapter);
     }
 
 

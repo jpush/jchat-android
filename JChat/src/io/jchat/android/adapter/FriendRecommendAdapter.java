@@ -27,6 +27,7 @@ import io.jchat.android.database.FriendRecommendEntry;
 import io.jchat.android.entity.Event;
 import io.jchat.android.entity.FriendInvitation;
 import io.jchat.android.tools.NativeImageLoader;
+import io.jchat.android.tools.ViewHolder;
 
 
 public class FriendRecommendAdapter extends BaseAdapter {
@@ -60,40 +61,36 @@ public class FriendRecommendAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
-        final ViewHolder holder;
         if (view == null) {
             view = mInflater.inflate(R.layout.item_friend_recomend, null);
-            holder = new ViewHolder();
-            holder.headIcon = (CircleImageView) view.findViewById(R.id.item_head_icon);
-            holder.name = (TextView) view.findViewById(R.id.item_name);
-            holder.reason = (TextView) view.findViewById(R.id.item_reason);
-            holder.addBtn = (ImageButton) view.findViewById(R.id.item_add_btn);
-            holder.state = (TextView) view.findViewById(R.id.item_state);
-            view.setTag(holder);
-        } else {
-            holder = (ViewHolder) view.getTag();
         }
+        CircleImageView headIcon = ViewHolder.get(view, R.id.item_head_icon);
+        TextView name = ViewHolder.get(view, R.id.item_name);
+        TextView reason = ViewHolder.get(view, R.id.item_reason);
+        final ImageButton addBtn = ViewHolder.get(view, R.id.item_add_btn);
+        final TextView state = ViewHolder.get(view, R.id.item_state);
+
         final FriendRecommendEntry item = mList.get(position);
         Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(item.username);
         if (null == bitmap) {
             String path = item.avatar;
             if (null == path || TextUtils.isEmpty(path)) {
-                holder.headIcon.setImageResource(R.drawable.jmui_head_icon);
+                headIcon.setImageResource(R.drawable.jmui_head_icon);
             } else {
                 bitmap = BitmapLoader.getBitmapFromFile(path, (int) (50 * mDensity), (int) (50 * mDensity));
                 NativeImageLoader.getInstance().updateBitmapFromCache(item.username, bitmap);
-                holder.headIcon.setImageBitmap(bitmap);
+                headIcon.setImageBitmap(bitmap);
             }
         } else {
-            holder.headIcon.setImageBitmap(bitmap);
+            headIcon.setImageBitmap(bitmap);
         }
 
-        holder.name.setText(item.displayName);
-        holder.reason.setText(item.reason);
+        name.setText(item.displayName);
+        reason.setText(item.reason);
         if (item.state.equals(FriendInvitation.INVITED.getValue())) {
-            holder.addBtn.setVisibility(View.VISIBLE);
-            holder.state.setVisibility(View.GONE);
-            holder.addBtn.setOnClickListener(new View.OnClickListener() {
+            addBtn.setVisibility(View.VISIBLE);
+            state.setVisibility(View.GONE);
+            addBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.jmui_loading));
@@ -105,10 +102,10 @@ public class FriendRecommendAdapter extends BaseAdapter {
                             if (status == 0) {
                                 item.state = FriendInvitation.ACCEPTED.getValue();
                                 item.save();
-                                holder.addBtn.setVisibility(View.GONE);
-                                holder.state.setVisibility(View.VISIBLE);
-                                holder.state.setTextColor(mContext.getResources().getColor(R.color.contacts_pinner_txt));
-                                holder.state.setText(mContext.getString(R.string.added));
+                                addBtn.setVisibility(View.GONE);
+                                state.setVisibility(View.VISIBLE);
+                                state.setTextColor(mContext.getResources().getColor(R.color.contacts_pinner_txt));
+                                state.setText(mContext.getString(R.string.added));
                                 EventBus.getDefault().post(new Event.AddFriendEvent(item.getId()));
                             } else {
                                 HandleResponseCode.onHandle(mContext, status, false);
@@ -118,20 +115,20 @@ public class FriendRecommendAdapter extends BaseAdapter {
                 }
             });
         } else if (item.state.equals(FriendInvitation.ACCEPTED.getValue())) {
-            holder.addBtn.setVisibility(View.GONE);
-            holder.state.setVisibility(View.VISIBLE);
-            holder.state.setTextColor(mContext.getResources().getColor(R.color.contacts_pinner_txt));
-            holder.state.setText(mContext.getString(R.string.added));
+            addBtn.setVisibility(View.GONE);
+            state.setVisibility(View.VISIBLE);
+            state.setTextColor(mContext.getResources().getColor(R.color.contacts_pinner_txt));
+            state.setText(mContext.getString(R.string.added));
         } else if (item.state.equals(FriendInvitation.INVITING.getValue())) {
-            holder.addBtn.setVisibility(View.GONE);
-            holder.state.setVisibility(View.VISIBLE);
-            holder.state.setTextColor(mContext.getResources().getColor(R.color.finish_btn_clickable_color));
-            holder.state.setText(mContext.getString(R.string.friend_inviting));
+            addBtn.setVisibility(View.GONE);
+            state.setVisibility(View.VISIBLE);
+            state.setTextColor(mContext.getResources().getColor(R.color.finish_btn_clickable_color));
+            state.setText(mContext.getString(R.string.friend_inviting));
         } else {
-            holder.addBtn.setVisibility(View.GONE);
-            holder.state.setVisibility(View.VISIBLE);
-            holder.state.setTextColor(mContext.getResources().getColor(R.color.header_normal));
-            holder.state.setText(mContext.getString(R.string.decline_friend_invitation));
+            addBtn.setVisibility(View.GONE);
+            state.setVisibility(View.VISIBLE);
+            state.setTextColor(mContext.getResources().getColor(R.color.header_normal));
+            state.setText(mContext.getString(R.string.decline_friend_invitation));
         }
 
         return view;
@@ -142,11 +139,4 @@ public class FriendRecommendAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    private static class ViewHolder {
-        CircleImageView headIcon;
-        TextView name;
-        TextView reason;
-        ImageButton addBtn;
-        TextView state;
-    }
 }

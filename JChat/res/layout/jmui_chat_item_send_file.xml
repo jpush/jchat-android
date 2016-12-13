@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/jmui_chat_item_send_layout">
+
+    <TextView
+        android:id="@+id/jmui_send_time_txt"
+        style="@style/jmui_chat_text_date_style" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+
+        <io.jchat.android.chatting.CircleImageView
+            android:id="@+id/jmui_avatar_iv"
+            style="@style/jmui_chat_item_sender_avatar_style" />
+
+        <RelativeLayout
+            android:id="@+id/jmui_send_file_rl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="3dp"
+            android:layout_toLeftOf="@id/jmui_avatar_iv">
+
+            <LinearLayout
+                android:id="@+id/jmui_send_file_ll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/jmui_msg_send_bg"
+                android:orientation="vertical"
+                android:paddingBottom="5dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="15dp">
+
+                <TextView
+                    android:id="@+id/jmui_msg_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableRight="@drawable/jmui_document"
+                    android:ems="10"
+                    android:maxLines="3"
+                    android:paddingBottom="10dp"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="10dp"
+                    android:textColor="@color/send_file_title_color" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="@color/send_file_divider_color" />
+
+                <TextView
+                    android:id="@+id/jmui_send_file_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="3dp"
+                    android:textColor="@color/chat_item_file_size"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/jmui_progress_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="16sp"
+                android:textColor="#ffffff"/>
+
+        </RelativeLayout>
+
+        <ImageButton
+            android:id="@+id/jmui_fail_resend_ib"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@id/jmui_send_file_rl"
+            android:clickable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/jmui_send_error"
+            android:visibility="gone"
+            android:background="@null"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

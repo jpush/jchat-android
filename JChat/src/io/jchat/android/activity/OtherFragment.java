@@ -20,6 +20,7 @@ import java.util.List;
 
 import io.jchat.android.R;
 import io.jchat.android.adapter.OtherAdapter;
+import io.jchat.android.controller.SendFileController;
 import io.jchat.android.entity.FileItem;
 import io.jchat.android.view.SendOtherView;
 
@@ -34,6 +35,7 @@ public class OtherFragment extends BaseFragment {
     private final static int SCAN_OK = 1;
     private final static int SCAN_ERROR = 0;
     private final MyHandler myHandler = new MyHandler(this);
+    private SendFileController mController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,6 +107,18 @@ public class OtherFragment extends BaseFragment {
 
     }
 
+    public void setController(SendFileController controller) {
+        this.mController = controller;
+    }
+
+    public int getTotalCount() {
+        return mController.getPathListSize();
+    }
+
+    public long getTotalSize() {
+        return mController.getTotalSize();
+    }
+
     private static class MyHandler extends Handler {
         private final WeakReference<OtherFragment> mFragment;
 
@@ -120,8 +134,9 @@ public class OtherFragment extends BaseFragment {
                 switch (msg.what) {
                     case SCAN_OK:
                         fragment.mProgressDialog.dismiss();
-                        fragment.mAdapter = new OtherAdapter(fragment.getActivity(), fragment.mOthers);
+                        fragment.mAdapter = new OtherAdapter(fragment, fragment.mOthers);
                         fragment.mSOView.setAdapter(fragment.mAdapter);
+                        fragment.mAdapter.setUpdateListener(fragment.mController);
                         break;
                     case SCAN_ERROR:
                         fragment.mProgressDialog.dismiss();

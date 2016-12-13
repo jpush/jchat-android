@@ -20,6 +20,7 @@ import java.util.List;
 
 import io.jchat.android.R;
 import io.jchat.android.adapter.DocumentAdapter;
+import io.jchat.android.controller.SendFileController;
 import io.jchat.android.entity.FileItem;
 import io.jchat.android.view.SendDocumentView;
 
@@ -34,6 +35,7 @@ public class DocumentFragment extends BaseFragment {
     private final static int SCAN_OK = 1;
     private final static int SCAN_ERROR = 0;
     private final MyHandler myHandler = new MyHandler(this);
+    private SendFileController mController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,18 @@ public class DocumentFragment extends BaseFragment {
             p.removeAllViewsInLayout();
         }
         return mRootView;
+    }
+
+    public void setController(SendFileController controller) {
+        this.mController = controller;
+    }
+
+    public int getTotalCount() {
+        return mController.getPathListSize();
+    }
+
+    public long getTotalSize() {
+        return mController.getTotalSize();
     }
 
 
@@ -123,8 +137,9 @@ public class DocumentFragment extends BaseFragment {
                     case SCAN_OK:
                         //关闭进度条
                         fragment.mProgressDialog.dismiss();
-                        fragment.mAdapter = new DocumentAdapter(fragment.getActivity(), fragment.mDocuments);
+                        fragment.mAdapter = new DocumentAdapter(fragment, fragment.mDocuments);
                         fragment.mView.setAdapter(fragment.mAdapter);
+                        fragment.mAdapter.setUpdateListener(fragment.mController);
                         break;
                     case SCAN_ERROR:
                         fragment.mProgressDialog.dismiss();

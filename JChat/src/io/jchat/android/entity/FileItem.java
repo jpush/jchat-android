@@ -55,6 +55,10 @@ public class FileItem {
         return sizeDisplay;
     }
 
+    public long getLongFileSize() {
+        return Long.valueOf(mSize);
+    }
+
     public String getDate() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
         return format.format(Long.valueOf(mDate) * 1000);

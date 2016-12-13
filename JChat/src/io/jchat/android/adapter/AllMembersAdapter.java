@@ -34,6 +34,7 @@ import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.activity.MembersInChatActivity.ItemModel;
+import io.jchat.android.tools.ViewHolder;
 
 /**
  * Created by Ken on 2015/11/25.
@@ -79,43 +80,39 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        final ViewHolder viewHolder;
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
             convertView = inflater.inflate(R.layout.item_all_member, null);
-            viewHolder = new ViewHolder((CircleImageView) convertView.findViewById(R.id.icon_iv),
-                    (TextView) convertView.findViewById(R.id.name),
-                    (CheckBox) convertView.findViewById(R.id.check_box_cb));
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder)convertView.getTag();
         }
+        final CircleImageView icon = ViewHolder.get(convertView, R.id.icon_iv);
+        TextView displayName = ViewHolder.get(convertView, R.id.name);
+        final CheckBox checkBox = ViewHolder.get(convertView, R.id.check_box_cb);
 
         final ItemModel itemModel = mMemberList.get(position);
         final UserInfo userInfo = itemModel.data;
         if (mIsDeleteMode) {
             if (position > 0) {
-                viewHolder.checkBox.setVisibility(View.VISIBLE);
-                viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
+                checkBox.setVisibility(View.VISIBLE);
+                checkBox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (viewHolder.checkBox.isChecked()) {
+                        if (checkBox.isChecked()) {
                             mSelectedList.add(userInfo.getUserName());
                             mSelectMap.put(position, true);
-                            addAnimation(viewHolder.checkBox);
+                            addAnimation(checkBox);
                         } else {
                             mSelectedList.remove(userInfo.getUserName());
                             mSelectMap.delete(position);
                         }
                     }
                 });
-                viewHolder.checkBox.setChecked(mSelectMap.get(position));
+                checkBox.setChecked(mSelectMap.get(position));
             } else {
-                viewHolder.checkBox.setVisibility(View.INVISIBLE);
+                checkBox.setVisibility(View.INVISIBLE);
             }
 
         } else {
-            viewHolder.checkBox.setVisibility(View.GONE);
+            checkBox.setVisibility(View.GONE);
         }
 
         if (!TextUtils.isEmpty(userInfo.getAvatar())) {
@@ -123,17 +120,17 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
                 @Override
                 public void gotResult(int status, String desc, Bitmap bitmap) {
                     if (status == 0) {
-                        viewHolder.icon.setImageBitmap(bitmap);
+                        icon.setImageBitmap(bitmap);
                     } else {
-                        viewHolder.icon.setImageResource(R.drawable.jmui_head_icon);
+                        icon.setImageResource(R.drawable.jmui_head_icon);
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
             });
         } else {
-            viewHolder.icon.setImageResource(R.drawable.jmui_head_icon);
+            icon.setImageResource(R.drawable.jmui_head_icon);
         }
-        viewHolder.displayName.setText(itemModel.highlight);
+        displayName.setText(itemModel.highlight);
         return convertView;
     }
 
@@ -231,18 +228,5 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
             mDialog.show();
         }
         return true;
-    }
-
-    class ViewHolder {
-
-        protected CircleImageView icon;
-        protected TextView displayName;
-        protected CheckBox checkBox;
-
-        public ViewHolder(CircleImageView icon, TextView name, CheckBox checkBox) {
-            this.icon = icon;
-            this.displayName = name;
-            this.checkBox = checkBox;
-        }
     }
 }
