@@ -2,10 +2,6 @@ package io.jchat.android.application;
 
 import android.util.Log;
 
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
-import com.squareup.leakcanary.LeakCanary;
-
 import cn.jpush.im.android.api.JMessageClient;
 import io.jchat.android.database.UserEntry;
 import io.jchat.android.receiver.NotificationClickEventReceiver;
@@ -67,10 +63,6 @@ public class JChatDemoApplication extends com.activeandroid.app.Application {
         JMessageClient.setNotificationMode(JMessageClient.NOTI_MODE_DEFAULT);
         //注册Notification点击的接收器
         new NotificationClickEventReceiver(getApplicationContext());
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return;
-        }
-        LeakCanary.install(this);
     }
 
     public static void setPicturePath(String appKey) {
