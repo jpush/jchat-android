@@ -44,7 +44,7 @@
                 android:textColor="@color/chat_text_color"/>
 
             <ImageView
-                android:id="@+id/jmui_location_iv"
+                android:id="@+id/jmui_picture_iv"
                 android:layout_width="163dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/jmui_location_default"

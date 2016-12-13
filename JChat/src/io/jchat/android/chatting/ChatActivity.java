@@ -139,7 +139,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 }
             }
 
-            mChatAdapter = new MsgListAdapter(mContext, mTargetId, mTargetAppKey, longClickListener);
+            mChatAdapter = new MsgListAdapter(mContext, mConv, longClickListener);
         } else {
             mIsSingle = false;
             mGroupId = intent.getLongExtra(GROUP_ID, 0);
@@ -206,7 +206,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 //            if (mConv == null) {
 //                mConv = Conversation.createGroupConversation(mGroupId);
 //            }
-            mChatAdapter = new MsgListAdapter(mContext, mGroupId, longClickListener);
+            mChatAdapter = new MsgListAdapter(mContext, mConv, longClickListener);
         }
 
         String draft = intent.getStringExtra(DRAFT);
