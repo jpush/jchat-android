@@ -163,7 +163,6 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                             if (status == 0) {
                                                 Message msg = mConv.createSendMessage(imageContent);
                                                 mMsgIds[mIndex.get()] = msg.getId();
-                                                JMessageClient.sendMessage(msg);
                                             } else {
                                                 mMsgIds[mIndex.get()] = -1;
                                                 HandleResponseCode.onHandle(mContext, status, false);
@@ -182,7 +181,6 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                             if (status == 0) {
                                                 Message msg = mConv.createSendMessage(imageContent);
                                                 mMsgIds[mIndex.get()] = msg.getId();
-                                                JMessageClient.sendMessage(msg);
                                             } else {
                                                 mMsgIds[mIndex.get()] = -1;
                                                 HandleResponseCode.onHandle(mContext, status, false);
@@ -231,7 +229,6 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                         }
                                         content.setStringExtra("fileSize", sizeDisplay);
                                         Message msg = mConv.createSendMessage(content);
-                                        JMessageClient.sendMessage(msg);
                                         mMsgIds[mIndex.get()] = msg.getId();
                                         mIndex.incrementAndGet();
                                         if (mIndex.get() >= mSize) {

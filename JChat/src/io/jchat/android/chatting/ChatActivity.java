@@ -383,8 +383,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
      *
      * @param data intent
      */
-    private void handleImgRefresh(Intent data) {
-        mChatAdapter.setSendImg(data.getIntArrayExtra(MsgIDs));
+    private void handleSendMsg(Intent data) {
+        mChatAdapter.setSendMsgs(data.getIntArrayExtra(MsgIDs));
         mChatView.setToBottom();
     }
 
@@ -483,7 +483,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         }
         switch (resultCode) {
             case JChatDemoApplication.RESULT_CODE_SELECT_PICTURE:
-                handleImgRefresh(data);
+                handleSendMsg(data);
                 break;
             case JChatDemoApplication.RESULT_CODE_CHAT_DETAIL:
                 if (!mIsSingle) {
@@ -527,8 +527,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 mChatView.setToBottom();
                 break;
             case JChatDemoApplication.RESULT_CODE_SEND_FILE:
-                mChatAdapter.addMsgList(data.getIntArrayExtra(MsgIDs));
-                mChatView.setToBottom();
+                handleSendMsg(data);
                 break;
         }
         if (requestCode == JChatDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
@@ -543,7 +542,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                             Message msg = conv.createSendMessage(imageContent);
                             Intent intent = new Intent();
                             intent.putExtra(MsgIDs, new int[]{msg.getId()});
-                            handleImgRefresh(intent);
+                            handleSendMsg(intent);
                         }
                     }
                 });

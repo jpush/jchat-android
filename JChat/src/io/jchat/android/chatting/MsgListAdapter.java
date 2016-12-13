@@ -185,8 +185,7 @@ public class MsgListAdapter extends BaseAdapter {
         }
     }
 
-    //发送图片 将图片加入发送队列
-    public void setSendImg(int[] msgIds) {
+    public void setSendMsgs(int[] msgIds) {
         Message msg;
         for (int msgId : msgIds) {
             msg = mConv.getMessage(msgId);
