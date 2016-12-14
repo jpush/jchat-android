@@ -164,6 +164,8 @@
     <string name="video_not_support_hint">暂不支持发送视频</string>
     <string name="download_file_succeed">下载成功</string>
     <string name="download_file_failed">下载失败</string>
+    <string name="file_not_support_hint">无法打开该类型的文件</string>
+    <string name="file_already_copy_hint">文件已保存到 sdcard/JChatDemo/recvFiles 目录下</string>
 
     <!--设置相关-->
     <string name="birthday">出生日期</string>
@@ -232,7 +234,7 @@
     <string name="about">关于</string>
     <string name="demo_version_name">demo版本号:%s</string>
     <string name="sdk_version">\nsdk版本号:</string>
-    <string name="about_date">\n12月13日</string>
+    <string name="about_date">\n12月14日</string>
     <string name="new_functions">\n增加通讯录功能，在设置中打开好友模式即可开启。
         \n（无好友与好友模式的区别在于添加好友的时候是否需要验证，无好友模式添加完后可以直接进行会话）
         \n 增加发送位置功能</string>

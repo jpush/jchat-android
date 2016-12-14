@@ -1,6 +1,7 @@
 package io.jchat.android.chatting;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -51,7 +53,6 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.activity.BrowserViewPagerActivity;
-import io.jchat.android.activity.DocumentBrowseActivity;
 import io.jchat.android.activity.SendLocationActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.FileHelper;
@@ -523,6 +524,7 @@ public class ChatItemController {
                 case send_going:
                     holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
                     holder.progressTv.setVisibility(View.VISIBLE);
+                    holder.progressTv.setText("0%");
                     holder.resend.setVisibility(View.GONE);
                     if (!msg.isContentUploadProgressCallbackExists()) {
                         msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
@@ -803,11 +805,28 @@ public class ChatItemController {
                 case file:
                     FileContent content = (FileContent) msg.getContent();
                     if (!TextUtils.isEmpty(content.getLocalPath())) {
-                        File file = new File(content.getLocalPath());
-                        Uri uri = Uri.fromFile(file);
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(uri, "application/*");
-                        mContext.startActivity(intent);
+                        final String fileName = content.getFileName();
+                        final String path = content.getLocalPath();
+                        if (msg.getDirect() == MessageDirect.send) {
+                            browseDocument(fileName, path);
+                        } else {
+                            final String newPath = JChatDemoApplication.FILE_DIR + fileName;
+                            File file = new File(newPath);
+                            if (file.exists() && file.isFile()) {
+                                browseDocument(fileName, newPath);
+                            } else {
+                                FileHelper.getInstance().copyFile(fileName, path, (Activity) mContext,
+                                        new FileHelper.CopyFileCallback() {
+                                            @Override
+                                            public void copyCallback(Uri uri) {
+                                                Toast.makeText(mContext, mContext.getString(IdHelper
+                                                        .getString(mContext, "file_already_copy_hint")),
+                                                        Toast.LENGTH_SHORT).show();
+                                                browseDocument(fileName, newPath);
+                                            }
+                                        });
+                            }
+                        }
                     } else {
                         if (msg.getDirect() == MessageDirect.receive) {
                             holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
@@ -1008,6 +1027,22 @@ public class ChatItemController {
             }
         }
         return imgMsgIDList;
+    }
+
+    private void browseDocument(String fileName, String path) {
+        try {
+            String ext = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+            MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+            String mime = mimeTypeMap.getMimeTypeFromExtension(ext);
+            File file = new File(path);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(file), mime);
+            mContext.startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(mContext, mContext.getString(IdHelper.getString(mContext,
+                    "file_not_support_hint")), Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

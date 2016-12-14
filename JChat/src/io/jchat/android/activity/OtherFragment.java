@@ -147,4 +147,12 @@ public class OtherFragment extends BaseFragment {
             }
         }
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (null != mProgressDialog) {
+            mProgressDialog.dismiss();
+        }
+    }
 }

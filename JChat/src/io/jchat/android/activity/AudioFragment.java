@@ -141,4 +141,12 @@ public class AudioFragment extends BaseFragment {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (null != mProgressDialog) {
+            mProgressDialog.dismiss();
+        }
+    }
+
 }

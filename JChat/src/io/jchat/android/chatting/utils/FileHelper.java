@@ -59,11 +59,63 @@ public class FileHelper {
         public void copyCallback(Uri uri);
     }
 
+    public void copyFile(final String fileName, final String filePath, final Activity context,
+                         final CopyFileCallback callback) {
+        if (isSdCardExist()) {
+            final Dialog dialog = DialogCreator.createLoadingDialog(context,
+                    context.getString(R.string.jmui_loading));
+            dialog.show();
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        FileInputStream fis = new FileInputStream(new File(filePath));
+                        File destDir = new File(JChatDemoApplication.FILE_DIR);
+                        if (!destDir.exists()) {
+                            destDir.mkdirs();
+                        }
+                        final File tempFile = new File(JChatDemoApplication.FILE_DIR + fileName);
+                        FileOutputStream fos = new FileOutputStream(tempFile);
+                        byte[] bt = new byte[1024];
+                        int c;
+                        while((c = fis.read(bt)) > 0) {
+                            fos.write(bt,0,c);
+                        }
+                        //关闭输入、输出流
+                        fis.close();
+                        fos.close();
+
+                        context.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                callback.copyCallback(Uri.fromFile(tempFile));
+                            }
+                        });
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }finally {
+                        context.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.dismiss();
+                            }
+                        });
+                    }
+                }
+            });
+            thread.start();
+        }else {
+            Toast.makeText(context, context.getString(R.string.jmui_sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     /**
      * 复制后裁剪文件
      * @param file 要复制的文件
      */
-    public void copyAndCrop(final File file, final Activity context, final CopyFileCallback callback) {
+    public void copyFile(final File file, final Activity context, final CopyFileCallback callback) {
         if (isSdCardExist()) {
             final Dialog dialog = DialogCreator.createLoadingDialog(context,
                     context.getString(R.string.jmui_loading));

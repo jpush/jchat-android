@@ -208,8 +208,7 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                 int index = path.lastIndexOf('/');
                                 String fileName;
                                 if (index > 0) {
-                                    fileName = path.substring(index + 1, path.length());
-                                    Log.i("SendFileController", "file name: " + fileName);
+                                    fileName = path.substring(index + 1);
                                     try {
                                         FileContent content = new FileContent(file, fileName);
                                         content.setStringExtra("fileType", entry.getKey().toString());

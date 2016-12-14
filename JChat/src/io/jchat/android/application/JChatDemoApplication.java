@@ -50,6 +50,7 @@ public class JChatDemoApplication extends com.activeandroid.app.Application {
     public static final String DELETE_MODE = "deleteMode";
     public static final String MEMBERS_COUNT = "membersCount";
     public static String PICTURE_DIR = "sdcard/JChatDemo/pictures/";
+    public static String FILE_DIR = "sdcard/JChatDemo/recvFiles/";
 
 
     @Override

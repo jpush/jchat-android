@@ -170,7 +170,7 @@ public class MainActivity extends FragmentActivity {
      * @param file 要复制的文件
      */
     private void copyAndCrop(final File file) {
-        FileHelper.getInstance().copyAndCrop(file, this, new FileHelper.CopyFileCallback() {
+        FileHelper.getInstance().copyFile(file, this, new FileHelper.CopyFileCallback() {
             @Override
             public void copyCallback(Uri uri) {
                 mUri = uri;

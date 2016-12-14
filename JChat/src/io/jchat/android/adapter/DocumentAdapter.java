@@ -1,5 +1,6 @@
 package io.jchat.android.adapter;
 
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -119,7 +120,8 @@ public class DocumentAdapter extends BaseAdapter {
         });
 
         checkBox.setChecked(mSelectMap.get(position));
-        title.setText(item.getFileName());
+        String path = item.getFilePath();
+        title.setText(path.substring(path.lastIndexOf('/') + 1));
         size.setText(item.getFileSize());
         date.setText(item.getDate());
         return convertView;

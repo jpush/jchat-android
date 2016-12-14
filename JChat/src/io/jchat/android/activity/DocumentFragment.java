@@ -86,27 +86,33 @@ public class DocumentFragment extends BaseFragment {
                         MediaStore.Files.FileColumns.TITLE, MediaStore.Files.FileColumns.SIZE,
                         MediaStore.Files.FileColumns.DATE_MODIFIED};
 
+                //分别对应 txt doc pdf ppt xls wps docx pptx xlsx 类型的文档
                 String selection = MediaStore.Files.FileColumns.MIME_TYPE + "= ? "
+                        + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
+                        + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
+                        + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
                         + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
                         + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
                         + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
                         + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
                         + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? ";
 
-                String[] selectionArgs = new String[]{"text/plain", "application/msword", "application/pdf",
-                        "application/vnd.ms-powerpoint", "application/vnd.ms-excel", "application/vnd.ms-works"};
+                String[] selectionArgs = new String[]{ "text/plain", "application/msword", "application/pdf",
+                        "application/vnd.ms-powerpoint", "application/vnd.ms-excel", "application/vnd.ms-works",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
 
                 Cursor cursor = contentResolver.query(MediaStore.Files.getContentUri("external"), projection,
                         selection, selectionArgs, MediaStore.Files.FileColumns.DATE_MODIFIED + " desc");
 
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
-                        String fileName = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.TITLE));
                         String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
                         String date = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED));
 
-                        FileItem fileItem = new FileItem(filePath, fileName, size, date);
+                        FileItem fileItem = new FileItem(filePath, null, size, date);
                         mDocuments.add(fileItem);
 
                     }
@@ -148,6 +154,14 @@ public class DocumentFragment extends BaseFragment {
                         break;
                 }
             }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (null != mProgressDialog) {
+            mProgressDialog.dismiss();
         }
     }
 }
