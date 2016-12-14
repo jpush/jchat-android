@@ -9,6 +9,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -50,6 +51,7 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.activity.BrowserViewPagerActivity;
+import io.jchat.android.activity.DocumentBrowseActivity;
 import io.jchat.android.activity.SendLocationActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.FileHelper;
@@ -799,9 +801,15 @@ public class ChatItemController {
                     }
                     break;
                 case file:
-                    if (msg.getDirect() == MessageDirect.receive) {
-                        FileContent content = (FileContent) msg.getContent();
-                        if (TextUtils.isEmpty(content.getLocalPath())) {
+                    FileContent content = (FileContent) msg.getContent();
+                    if (!TextUtils.isEmpty(content.getLocalPath())) {
+                        File file = new File(content.getLocalPath());
+                        Uri uri = Uri.fromFile(file);
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(uri, "application/*");
+                        mContext.startActivity(intent);
+                    } else {
+                        if (msg.getDirect() == MessageDirect.receive) {
                             holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
                             holder.progressTv.setText("0%");
                             holder.progressTv.setVisibility(View.VISIBLE);
@@ -829,6 +837,9 @@ public class ChatItemController {
                                     }
                                 }
                             });
+                        } else {
+                            Toast.makeText(mContext, IdHelper.getString(mContext, "jmui_file_not_found_toast"),
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                     break;
