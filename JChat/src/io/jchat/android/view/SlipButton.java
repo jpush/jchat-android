@@ -17,7 +17,7 @@ import io.jchat.android.R;
 
 public class SlipButton extends View implements OnTouchListener {
     private boolean mEnabled = true;
-    public boolean flag = true;//设置初始化状态
+    public boolean flag = false;//设置初始化状态
     public boolean mNowChoose = true;//记录当前按钮是否打开,true为打开,flase为关闭
     private boolean mOnSlip = false;//记录用户是否在滑动的变量
     public float DownX = 0f, NowX = 0f;//按下时的x,当前的x,NowX>100时为ON背景,反之为OFF背景

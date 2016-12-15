@@ -148,7 +148,7 @@
     <string name="switch_to_friend_mode">切换到好友模式</string>
     <string name="switch_to_friend_mode_hint">在设置中切换到好友模式\n以启用通讯录功能</string>
     <string name="friend_inviting">等待验证</string>
-    <string name="friend_recommend_title">朋友推荐消息</string>
+    <string name="friend_verify_title">验证消息</string>
     <string name="input_friend_username_hint">请输入您要查找的用户名</string>
     <string name="sent_request">已成功发送请求</string>
     <string name="decline_friend_invitation">对方已拒绝</string>

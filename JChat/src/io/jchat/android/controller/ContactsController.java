@@ -131,7 +131,7 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
             case R.id.delete_ib:
                 mContactsView.clearSearchText();
                 break;
-            case R.id.recommend_rl:
+            case R.id.verify_rl:
                 intent.setClass(mContext, FriendRecommendActivity.class);
                 mContext.startActivity(intent);
                 mContactsView.dismissNewFriends();

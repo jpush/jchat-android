@@ -25,7 +25,7 @@ public class ContactsView extends LinearLayout{
     private Context mContext;
 	private StickyListHeadersListView mListView;
     private TextView mNewFriendNum;
-    private RelativeLayout mFriendRecommendRl;
+    private RelativeLayout mFriendVerifyRl;
     private RelativeLayout mGroupRl;
     private SideBar mSideBar;
     private TextView mLetterHintTv;
@@ -50,9 +50,9 @@ public class ContactsView extends LinearLayout{
         mSideBar.setRatio(ratio);
         mSideBar.bringToFront();
         View header = mInflater.inflate(R.layout.contact_list_header, null);
-        mFriendRecommendRl = (RelativeLayout) header.findViewById(R.id.recommend_rl);
+        mFriendVerifyRl = (RelativeLayout) header.findViewById(R.id.verify_rl);
         mGroupRl = (RelativeLayout) header.findViewById(R.id.group_chat_rl);
-        mNewFriendNum = (TextView) header.findViewById(R.id.friend_recommend_num);
+        mNewFriendNum = (TextView) header.findViewById(R.id.friend_verification_num);
         mNewFriendNum.setVisibility(INVISIBLE);
         mListView.addHeaderView(header);
         mListView.setDrawingListUnderStickyHeader(true);
@@ -65,7 +65,7 @@ public class ContactsView extends LinearLayout{
 	}
 
     public void setListeners(ContactsController controller) {
-        mFriendRecommendRl.setOnClickListener(controller);
+        mFriendVerifyRl.setOnClickListener(controller);
         mGroupRl.setOnClickListener(controller);
         mSideBar.setOnClickListener(controller);
         mDeleteBtn.setOnClickListener(controller);

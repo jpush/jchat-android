@@ -3,6 +3,7 @@ package io.jchat.android.activity;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -33,15 +34,17 @@ public class FriendRecommendActivity extends BaseActivity {
     private ListView mListView;
     private List<FriendRecommendEntry> mList;
     private Dialog mDialog;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.mContext = this;
         setContentView(R.layout.activity_friend_recommend);
         final Context context = this;
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
         mTitle = (TextView) findViewById(R.id.title);
-        mTitle.setText(this.getString(R.string.friend_recommend_title));
+        mTitle.setText(this.getString(R.string.friend_verify_title));
         mClearBtn = (ImageButton) findViewById(R.id.right_btn);
         mClearBtn.setImageDrawable(this.getResources().getDrawable(R.drawable.delete));
         mListView = (ListView) findViewById(R.id.friend_recommend_list_view);
@@ -74,6 +77,14 @@ public class FriendRecommendActivity extends BaseActivity {
                     ActiveAndroid.endTransaction();
                 }
                 mAdapter.clearAll();
+            }
+        });
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                FriendRecommendEntry entry = mList.get(position);
+                Intent intent = new Intent(mContext, FriendInfoActivity.class);
             }
         });
 
