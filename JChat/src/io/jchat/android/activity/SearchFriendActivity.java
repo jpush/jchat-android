@@ -89,28 +89,15 @@ public class SearchFriendActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Intent intent = new Intent();
-                intent.setClass(mContext, SearchFriendDetailActivity.class);
                 UserInfo userInfo = mInfoList.get(position);
-                intent.putExtra(JChatDemoApplication.NAME, userInfo.getUserName());
-                if (!TextUtils.isEmpty(userInfo.getAvatar())) {
-                    intent.putExtra(JChatDemoApplication.AVATAR, userInfo.getAvatarFile().getPath());
-                }
-                String nickname = userInfo.getNickname();
-                if (null != nickname && !TextUtils.isEmpty(nickname)) {
-                    intent.putExtra(JChatDemoApplication.NICKNAME, nickname);
+                if (userInfo.isFriend()) {
+                    intent.setClass(mContext, FriendInfoActivity.class);
+                    intent.putExtra("fromContact", true);
                 } else {
-                    intent.putExtra(JChatDemoApplication.NICKNAME, userInfo.getUserName());
+                    intent.setClass(mContext, SearchFriendDetailActivity.class);
                 }
+                intent.putExtra(JChatDemoApplication.TARGET_ID, userInfo.getUserName());
                 intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, userInfo.getAppKey());
-                if (userInfo.getGender() == UserInfo.Gender.male) {
-                    intent.putExtra(JChatDemoApplication.GENDER, "male");
-                } else if (userInfo.getGender() == UserInfo.Gender.female) {
-                    intent.putExtra(JChatDemoApplication.GENDER, "female");
-                } else {
-                    intent.putExtra(JChatDemoApplication.GENDER, "unknown");
-                }
-                intent.putExtra(JChatDemoApplication.REGION, userInfo.getRegion());
-                intent.putExtra(JChatDemoApplication.SIGNATURE, userInfo.getSignature());
                 mContext.startActivity(intent);
             }
         });

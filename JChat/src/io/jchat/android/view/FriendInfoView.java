@@ -21,7 +21,7 @@ public class FriendInfoView extends LinearLayout {
 
     private TextView mNickNameTv;
     private TextView mNoteName;
-    private LinearLayout mNameRl;
+    private LinearLayout mNameLl;
     private ImageButton mReturnBtn;
     private CircleImageView mAvatarIv;
     private Button mSendMsgBtn;
@@ -31,6 +31,7 @@ public class FriendInfoView extends LinearLayout {
     private TextView mSignatureTv;
     private SlipButton mNoDisturb;
     private SlipButton mBlackListBtn;
+    private Button mDelFriendBtn;
     private Context mContext;
 
     public FriendInfoView(Context context, AttributeSet attrs) {
@@ -42,7 +43,7 @@ public class FriendInfoView extends LinearLayout {
     public void initModule() {
         mNickNameTv = (TextView) findViewById(R.id.nick_name_tv);
         mNoteName = (TextView) findViewById(R.id.note_name_tv);
-        mNameRl = (LinearLayout) findViewById(R.id.name_rl);
+        mNameLl = (LinearLayout) findViewById(R.id.name_ll);
         mReturnBtn = (ImageButton) findViewById(R.id.friend_info_return_btn);
         mAvatarIv = (CircleImageView) findViewById(R.id.friend_detail_avatar);
         mSendMsgBtn = (Button) findViewById(R.id.friend_send_msg_btn);
@@ -52,6 +53,7 @@ public class FriendInfoView extends LinearLayout {
         mSignatureTv = (TextView) findViewById(R.id.signature_tv);
         mNoDisturb = (SlipButton) findViewById(R.id.no_disturb_slip_btn);
         mBlackListBtn = (SlipButton) findViewById(R.id.black_list_slip_btn);
+        mDelFriendBtn = (Button) findViewById(R.id.delete_friend_btn);
     }
 
     public void initInfo(UserInfo userInfo) {
@@ -74,6 +76,7 @@ public class FriendInfoView extends LinearLayout {
                 mNickNameTv.setText(userInfo.getNickname());
             }
             mNoteName.setText(userInfo.getNotename());
+            Log.i("FriendInfoView", "notename: " + userInfo.getNotename());
             if (userInfo.getGender() == UserInfo.Gender.male) {
                 mGenderTv.setText(mContext.getString(R.string.man));
                 mGenderIv.setImageResource(R.drawable.sex_man);
@@ -97,9 +100,10 @@ public class FriendInfoView extends LinearLayout {
 
     public void setListeners(OnClickListener onClickListener) {
         mReturnBtn.setOnClickListener(onClickListener);
-        mNameRl.setOnClickListener(onClickListener);
+        mNameLl.setOnClickListener(onClickListener);
         mSendMsgBtn.setOnClickListener(onClickListener);
         mAvatarIv.setOnClickListener(onClickListener);
+        mDelFriendBtn.setOnClickListener(onClickListener);
     }
 
     public void setOnChangeListener(SlipButton.OnChangedListener listener) {
@@ -117,5 +121,9 @@ public class FriendInfoView extends LinearLayout {
 
     public void setNoDisturbChecked(boolean flag) {
         mNoDisturb.setChecked(flag);
+    }
+
+    public void setNoteName(String notename) {
+        mNoteName.setText(notename);
     }
 }

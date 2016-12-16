@@ -185,7 +185,7 @@ public class ChatDetailActivity extends BaseActivity {
     public void onBackPressed() {
         Log.i(TAG, "onBackPressed");
         Intent intent = new Intent();
-        intent.putExtra(JChatDemoApplication.NAME, mChatDetailController.getName());
+        intent.putExtra(JChatDemoApplication.CONV_TITLE, mChatDetailController.getName());
         intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, mChatDetailController.getCurrentCount());
         intent.putExtra("deleteMsg", mChatDetailController.getDeleteFlag());
         setResult(JChatDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);

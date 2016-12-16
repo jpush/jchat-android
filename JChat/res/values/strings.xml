@@ -44,7 +44,7 @@
     <string name="search">搜索..\.</string>
     <string name="take_monent">稍等片刻</string>
     <string name="add">添加</string>
-    <string name="add_friend">添加朋友</string>
+    <string name="add_friend">添加好友</string>
     <string name="add_friend_without_confirm">添加好友(无好友模式)</string>
     <string name="fetch_user_info_failed">用户信息获取失败</string>
     <string name="create_group">创建群聊</string>
@@ -151,7 +151,15 @@
     <string name="friend_verify_title">验证消息</string>
     <string name="input_friend_username_hint">请输入您要查找的用户名</string>
     <string name="sent_request">已成功发送请求</string>
+    <string name="accept">同意</string>
+    <string name="refuse">拒绝</string>
+    <string name="refused">已拒绝</string>
+    <string name="processing">正在处理</string>
+    <string name="send_refuse_reason_title">拒绝理由</string>
+    <string name="reason_is_empty_hint">理由不能为空</string>
     <string name="decline_friend_invitation">对方已拒绝</string>
+    <string name="delete_friend_dialog_title">确定删除好友？</string>
+    <string name="friend_already_deleted_hint">已移除好友</string>
 
     <!-- 发送文件 -->
     <string name="file">文件</string>
@@ -183,6 +191,7 @@
     <string name="setting_username_big_hit">更改名字</string>
     <string name="reset_nickname_hint">好名字可以让你的朋友更加容易记住你。</string>
     <string name="note_name">备注名</string>
+    <string name="note_name_is_empty_hint">备注名为空</string>
     <string name="description">描述</string>
     <string name="setting_location_hit">地区</string>
     <string name="input_location_title">输入地区</string>
@@ -234,7 +243,7 @@
     <string name="about">关于</string>
     <string name="demo_version_name">demo版本号:%s</string>
     <string name="sdk_version">\nsdk版本号:</string>
-    <string name="about_date">\n12月14日</string>
+    <string name="about_date">\n12月16日</string>
     <string name="new_functions">\n增加通讯录功能，在设置中打开好友模式即可开启。
         \n（无好友与好友模式的区别在于添加好友的时候是否需要验证，无好友模式添加完后可以直接进行会话）
         \n 增加发送位置功能</string>

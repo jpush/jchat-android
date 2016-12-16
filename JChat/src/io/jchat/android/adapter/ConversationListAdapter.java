@@ -79,14 +79,9 @@ public class ConversationListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void deleteConversation(long groupId) {
-        for (Conversation conv : mDatas) {
-            if (conv.getType() == ConversationType.group
-                    && Long.parseLong(conv.getTargetId()) == groupId) {
-                mDatas.remove(conv);
-                return;
-            }
-        }
+    public void deleteConversation(Conversation conversation) {
+        mDatas.remove(conversation);
+        notifyDataSetChanged();
     }
 
     public void putDraftToMap(String convId, String draft) {

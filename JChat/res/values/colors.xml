@@ -69,6 +69,12 @@
     <color name="send_file_action_bar">#767676</color>
     <color name="send_file_action_bar_selected">#3f82dd</color>
 
+    <!-- 通讯录相关 -->
+    <color name="accept_btn_default">#327adf</color>
+    <color name="accept_btn_pressed">#0246a6</color>
+    <color name="refuse_btn_default">#ea6e76</color>
+    <color name="refuse_btn_pressed">#af5258</color>
+
     <!-- 灰色 -->
 
     <color name="grey">#808080</color>

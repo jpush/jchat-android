@@ -5,14 +5,14 @@
         <shape>
             <corners android:radius="5dp" />
 
-            <solid android:color="@color/accept_btn_pressed" />
+            <solid android:color="@color/refuse_btn_pressed" />
         </shape>
     </item>
     <item>
         <shape>
             <corners android:radius="5dp" />
 
-            <solid android:color="@color/accept_btn_default" />
+            <solid android:color="@color/refuse_btn_default" />
         </shape>
     </item>
 

@@ -75,6 +75,7 @@ public class ConversationListController implements OnClickListener,
         final Intent intent = new Intent();
         if (position > 0) {
             Conversation conv = mDatas.get(position - 1);
+            intent.putExtra(JChatDemoApplication.CONV_TITLE, conv.getTitle());
             if (null != conv) {
                 // 当前点击的会话是否为群组
                 if (conv.getType() == ConversationType.group) {

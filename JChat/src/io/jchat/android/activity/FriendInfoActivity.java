@@ -16,9 +16,11 @@ import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.controller.FriendInfoController;
+import io.jchat.android.database.FriendEntry;
 import io.jchat.android.entity.Event;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.entity.EventType;
 import io.jchat.android.tools.NativeImageLoader;
 import io.jchat.android.view.FriendInfoView;
 
@@ -29,7 +31,7 @@ public class FriendInfoActivity extends BaseActivity {
     private String mTargetId;
     private long mGroupId;
     private UserInfo mUserInfo;
-    private String mNickname;
+    private String mTitle;
     private boolean mIsGetAvatar = false;
     private String mTargetAppKey;
     private boolean mIsFromContact;
@@ -81,7 +83,10 @@ public class FriendInfoActivity extends BaseActivity {
                 dialog.dismiss();
                 if (status == 0) {
                     mUserInfo = userInfo;
-                    mNickname = userInfo.getNickname();
+                    mTitle = userInfo.getNotename();
+                    if (TextUtils.isEmpty(mTitle)) {
+                        mTitle = userInfo.getNickname();
+                    }
                     mFriendInfoView.initInfo(userInfo);
                 } else {
                     HandleResponseCode.onHandle(FriendInfoActivity.this, status, false);
@@ -97,6 +102,14 @@ public class FriendInfoActivity extends BaseActivity {
     public void startChatActivity() {
         if (mIsFromContact) {
             Intent intent = new Intent(this, ChatActivity.class);
+            String title = mUserInfo.getNotename();
+            if (TextUtils.isEmpty(title)) {
+                title = mUserInfo.getNickname();
+                if (TextUtils.isEmpty(title)) {
+                    title = mUserInfo.getUserName();
+                }
+            }
+            intent.putExtra(JChatDemoApplication.CONV_TITLE, title);
             intent.putExtra(JChatDemoApplication.TARGET_ID, mUserInfo.getUserName());
             intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mUserInfo.getAppKey());
             startActivity(intent);
@@ -111,7 +124,7 @@ public class FriendInfoActivity extends BaseActivity {
             } else {
                 Intent intent = new Intent();
                 intent.putExtra("returnChatActivity", true);
-                intent.putExtra(JChatDemoApplication.NICKNAME, mNickname);
+                intent.putExtra(JChatDemoApplication.CONV_TITLE, mTitle);
                 setResult(JChatDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
             }
         }
@@ -120,13 +133,12 @@ public class FriendInfoActivity extends BaseActivity {
         //如果会话为空，使用EventBus通知会话列表添加新会话
         if (conv == null) {
             conv = Conversation.createSingleConversation(mTargetId, mTargetAppKey);
-            EventBus.getDefault().post(new Event.StringEvent(mTargetId, mTargetAppKey));
+            EventBus.getDefault().post(new Event.Builder()
+                    .setType(EventType.createConversation)
+                    .setConversation(conv)
+                    .build());
         }
         finish();
-    }
-
-    public String getNickname() {
-        return mNickname;
     }
 
     public UserInfo getUserInfo() {
@@ -180,14 +192,44 @@ public class FriendInfoActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_CANCELED) {
+            return;
+        }
+        if (resultCode == JChatDemoApplication.RESULT_CODE_EDIT_NOTENAME) {
+            mTitle = data.getStringExtra(JChatDemoApplication.NOTENAME);
+            mFriendInfoView.setNoteName(mTitle);
+            FriendEntry friend = FriendEntry.getFriend(JChatDemoApplication.getUserEntry(), mTargetId, mTargetAppKey);
+            if (null != friend) {
+                friend.displayName = mTitle;
+                friend.save();
+            }
+        }
+    }
 
     //将获得的最新的昵称返回到聊天界面
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        intent.putExtra(JChatDemoApplication.NICKNAME, mNickname);
+        intent.putExtra(JChatDemoApplication.CONV_TITLE, mTitle);
         setResult(JChatDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
         finish();
         super.onBackPressed();
+    }
+
+    public int getWidth() {
+        return mWidth;
+    }
+
+    public void delConvAndReturnMainActivity() {
+        Conversation conversation = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
+        EventBus.getDefault().post(new Event.Builder().setType(EventType.deleteConversation)
+                .setConversation(conversation)
+                .build());
+        JMessageClient.deleteSingleConversation(mTargetId, mTargetAppKey);
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 }

@@ -202,58 +202,35 @@ public class ConversationListFragment extends BaseFragment {
         }
     }
 
-    /**
-     * 收到创建单聊的消息
-     *
-     * @param event 可以从event中得到targetID
-     */
-    public void onEventMainThread(Event.StringEvent event) {
-        Log.d(TAG, "StringEvent execute");
-        String targetId = event.getTargetId();
-        String appKey = event.getAppKey();
-        Conversation conv = JMessageClient.getSingleConversation(targetId, appKey);
-        if (conv != null) {
-            mConvListController.getAdapter().addNewConversation(conv);
-        }
-    }
-
-    /**
-     * 收到创建或者删除群聊的消息
-     *
-     * @param event 从event中得到groupID以及flag
-     */
-    public void onEventMainThread(Event.LongEvent event) {
-        long groupId = event.getGroupId();
-        Conversation conv = JMessageClient.getGroupConversation(groupId);
-        if (conv != null && event.getFlag()) {
-            mConvListController.getAdapter().addNewConversation(conv);
-        } else {
-            mConvListController.getAdapter().deleteConversation(groupId);
-        }
-    }
-
-    /**
-     * 收到保存为草稿事件
-     * @param event 从event中得到Conversation Id及草稿内容
-     */
-    public void onEventMainThread(Event.DraftEvent event) {
-        String draft = event.getDraft();
-        String targetId = event.getTargetId();
-        String targetAppKey = event.getTargetAppKey();
-        Conversation conv;
-        if (targetId != null) {
-            conv = JMessageClient.getSingleConversation(targetId, targetAppKey);
-        } else {
-            long groupId = event.getGroupId();
-            conv = JMessageClient.getGroupConversation(groupId);
-        }
-        //如果草稿内容不为空，保存，并且置顶该会话
-        if (!TextUtils.isEmpty(draft)) {
-            mConvListController.getAdapter().putDraftToMap(conv.getId(), draft);
-            mConvListController.getAdapter().setToTop(conv);
-        //否则删除
-        } else {
-            mConvListController.getAdapter().delDraftFromMap(conv.getId());
+    public void onEventMainThread(Event event) {
+        switch (event.getType()) {
+            case createConversation:
+                Conversation conv = event.getConversation();
+                if (conv != null) {
+                    mConvListController.getAdapter().addNewConversation(conv);
+                }
+                break;
+            case deleteConversation:
+                conv = event.getConversation();
+                if (null != conv) {
+                    mConvListController.getAdapter().deleteConversation(conv);
+                }
+                break;
+            //收到保存为草稿事件
+            case draft:
+                conv = event.getConversation();
+                String draft = event.getDraft();
+                //如果草稿内容不为空，保存，并且置顶该会话
+                if (!TextUtils.isEmpty(draft)) {
+                    mConvListController.getAdapter().putDraftToMap(conv.getId(), draft);
+                    mConvListController.getAdapter().setToTop(conv);
+                    //否则删除
+                } else {
+                    mConvListController.getAdapter().delDraftFromMap(conv.getId());
+                }
+                break;
+            case addFriend:
+                break;
         }
     }
 
@@ -277,6 +254,7 @@ public class ConversationListFragment extends BaseFragment {
         } else {
             mMenuItemView.showAddFriendDirect();
         }
+        mConvListController.getAdapter().notifyDataSetChanged();
     }
 
     public void dismissPopWindow() {

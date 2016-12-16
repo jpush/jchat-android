@@ -6,18 +6,22 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
+import io.jchat.android.activity.EditNoteNameActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.database.FriendEntry;
 import io.jchat.android.view.FriendInfoView;
 import io.jchat.android.view.SlipButton;
 
@@ -25,6 +29,7 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
 
     private FriendInfoView mFriendInfoView;
     private FriendInfoActivity mContext;
+    private Dialog mDialog;
 
 
     public FriendInfoController(FriendInfoView view, FriendInfoActivity context) {
@@ -39,11 +44,12 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
+        Intent intent = new Intent();
+        final UserInfo userInfo = mContext.getUserInfo();
         switch (v.getId()) {
             case R.id.friend_info_return_btn:
-                Intent intent = new Intent();
-                String nickname = mContext.getNickname();
+                String nickname = userInfo.getNickname();
                 intent.putExtra(JChatDemoApplication.NICKNAME, nickname);
                 mContext.setResult(JChatDemoApplication.RESULT_CODE_FRIEND_INFO, intent);
                 mContext.finish();
@@ -54,12 +60,51 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
             case R.id.friend_detail_avatar:
                 mContext.startBrowserAvatar();
                 break;
-            case R.id.name_rl:
-//                Intent intent = new Intent();
-//                intent.setClass(mContext, EditNoteNameActivity.class);
-//                intent.putExtra("noteName", "ddsklf");
-//                intent.putExtra("friendDescription", "kjdkjdlkj");
-//                mContext.startActivity(intent);
+            case R.id.name_ll:
+                intent.setClass(mContext, EditNoteNameActivity.class);
+                intent.putExtra(JChatDemoApplication.TARGET_ID, userInfo.getUserName());
+                intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, userInfo.getAppKey());
+                intent.putExtra("noteName", userInfo.getNotename());
+                intent.putExtra("friendDescription", userInfo.getNoteText());
+                mContext.startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_EDIT_NOTENAME);
+                break;
+            case R.id.delete_friend_btn:
+                OnClickListener listener = new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        switch (view.getId()) {
+                            case R.id.jmui_cancel_btn:
+                                mDialog.dismiss();
+                                break;
+                            case R.id.jmui_commit_btn:
+                                mDialog.dismiss();
+                                final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext
+                                        .getString(R.string.processing));
+                                dialog.show();
+                                userInfo.removeFromFriendList(new BasicCallback() {
+                                    @Override
+                                    public void gotResult(int status, String desc) {
+                                        dialog.dismiss();
+                                        if (status == 0) {
+                                            FriendEntry friend = FriendEntry.getFriend(JChatDemoApplication.getUserEntry(),
+                                                    userInfo.getUserName(), userInfo.getAppKey());
+                                            friend.delete();
+                                            Toast.makeText(mContext, mContext.getString(R.string
+                                                    .friend_already_deleted_hint), Toast.LENGTH_SHORT).show();
+                                            mContext.delConvAndReturnMainActivity();
+                                        } else {
+                                            HandleResponseCode.onHandle(mContext, status, false);
+                                        }
+                                    }
+                                });
+                                break;
+                        }
+                    }
+                };
+                mDialog = DialogCreator.createDelFriendDialog(mContext,
+                        mContext.getString(R.string.delete_friend_dialog_title), listener);
+                mDialog.getWindow().setLayout((int) (0.8 * mContext.getWidth()), WindowManager.LayoutParams.WRAP_CONTENT);
+                mDialog.show();
                 break;
         }
     }

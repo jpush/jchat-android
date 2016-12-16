@@ -149,11 +149,13 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                     viewTag.icon.setImageResource(R.drawable.jmui_head_icon);
                 }
 
-                if (TextUtils.isEmpty(userInfo.getNickname())) {
-                    viewTag.name.setText(userInfo.getUserName());
-                } else {
-                    viewTag.name.setText(userInfo.getNickname());
+                String displayName = userInfo.getNotename();
+                if (TextUtils.isEmpty(displayName)) {
+                    displayName = userInfo.getNickname();
+                } else if (TextUtils.isEmpty(displayName)) {
+                    displayName = userInfo.getUserName();
                 }
+                viewTag.name.setText(displayName);
             }
             viewTag.deleteIcon.setVisibility(View.INVISIBLE);
             if (position < mCurrentNum) {
@@ -196,11 +198,13 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                         }
                     });
                 }
-                if (TextUtils.isEmpty(userInfo.getNickname())) {
-                    viewTag.name.setText(userInfo.getUserName());
-                } else {
-                    viewTag.name.setText(userInfo.getNickname());
+                String displayName = userInfo.getNotename();
+                if (TextUtils.isEmpty(displayName)) {
+                    displayName = userInfo.getNickname();
+                } else if (TextUtils.isEmpty(displayName)) {
+                    displayName = userInfo.getUserName();
                 }
+                viewTag.name.setText(displayName);
                 viewTag.icon.setVisibility(View.VISIBLE);
                 viewTag.name.setVisibility(View.VISIBLE);
             } else {

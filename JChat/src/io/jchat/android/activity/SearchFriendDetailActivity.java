@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -92,35 +93,55 @@ public class SearchFriendDetailActivity extends BaseActivity {
     }
 
     private void inModule() {
+        final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.jmui_loading));
+        dialog.show();
         Intent intent = getIntent();
-        mUsername = intent.getStringExtra(JChatDemoApplication.NAME);
+        mUsername = intent.getStringExtra(JChatDemoApplication.TARGET_ID);
         mAppKey = intent.getStringExtra(JChatDemoApplication.TARGET_APP_KEY);
-        mAvatarPath = intent.getStringExtra(JChatDemoApplication.AVATAR);
-        mDisplayName = intent.getStringExtra(JChatDemoApplication.NICKNAME);
-        Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mUsername);
-        if (null != bitmap) {
-            mAvatarIv.setImageBitmap(bitmap);
-        } else if (null != mAvatarPath) {
-            File file = new File(mAvatarPath);
-            if (file.exists() && file.isFile()) {
-                Picasso.with(mContext).load(file).into(mAvatarIv);
+        JMessageClient.getUserInfo(mUsername, mAppKey, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int status, String desc, final UserInfo userInfo) {
+                dialog.dismiss();
+                if (status == 0) {
+                    Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mUsername);
+                    if (null != bitmap) {
+                        mAvatarIv.setImageBitmap(bitmap);
+                    } else if (!TextUtils.isEmpty(userInfo.getAvatar())) {
+                        mAvatarPath = userInfo.getAvatarFile().getPath();
+                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int status, String desc, Bitmap bitmap) {
+                                if (status == 0) {
+                                    mAvatarIv.setImageBitmap(bitmap);
+                                    NativeImageLoader.getInstance().updateBitmapFromCache(mUsername, bitmap);
+                                } else {
+                                    HandleResponseCode.onHandle(mContext, status, false);
+                                }
+                            }
+                        });
+                    }
+
+                    mDisplayName = userInfo.getNickname();
+                    if (TextUtils.isEmpty(mDisplayName)) {
+                        mDisplayName = userInfo.getUserName();
+                    }
+                    mNickNameTv.setText(mDisplayName);
+                    if (userInfo.getGender() == UserInfo.Gender.male) {
+                        mGenderTv.setText(mContext.getString(R.string.man));
+                        mGenderIv.setImageResource(R.drawable.sex_man);
+                    } else if (userInfo.getGender() == UserInfo.Gender.female) {
+                        mGenderTv.setText(mContext.getString(R.string.woman));
+                        mGenderIv.setImageResource(R.drawable.sex_woman);
+                    } else {
+                        mGenderTv.setText(mContext.getString(R.string.unknown));
+                    }
+                    mAreaTv.setText(userInfo.getRegion());
+                    mSignatureTv.setText(userInfo.getSignature());
+                } else {
+                    HandleResponseCode.onHandle(mContext, status, false);
+                }
             }
-        }
-
-        mNickNameTv.setText(mDisplayName);
-        String gender = intent.getStringExtra(JChatDemoApplication.GENDER);
-
-        if (gender.equals("male")) {
-            mGenderTv.setText(mContext.getString(R.string.man));
-            mGenderIv.setImageResource(R.drawable.sex_man);
-        } else if (gender.equals("female")) {
-            mGenderTv.setText(mContext.getString(R.string.woman));
-            mGenderIv.setImageResource(R.drawable.sex_woman);
-        } else {
-            mGenderTv.setText(mContext.getString(R.string.unknown));
-        }
-        mAreaTv.setText(intent.getStringExtra(JChatDemoApplication.REGION));
-        mSignatureTv.setText(intent.getStringExtra(JChatDemoApplication.SIGNATURE));
+        });
     }
 
     private void startBrowserAvatar() {

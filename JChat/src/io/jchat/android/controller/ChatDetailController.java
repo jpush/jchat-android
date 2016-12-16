@@ -40,6 +40,7 @@ import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.entity.Event;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.entity.EventType;
 import io.jchat.android.view.ChatDetailView;
 import io.jchat.android.view.SlipButton;
 
@@ -156,7 +157,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         switch (v.getId()) {
             case R.id.return_btn:
                 intent.putExtra("deleteMsg", mDeleteMsg);
-                intent.putExtra(JChatDemoApplication.NAME, getName());
+                intent.putExtra(JChatDemoApplication.CONV_TITLE, getName());
                 intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, mMemberInfoList.size());
                 mContext.setResult(JChatDemoApplication.RESULT_CODE_CHAT_DETAIL, intent);
                 mContext.finish();
@@ -252,9 +253,11 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 if (mLoadingDialog != null)
                     mLoadingDialog.dismiss();
                 if (status == 0) {
-                    if (JMessageClient.deleteGroupConversation(mGroupId)) {
-                        EventBus.getDefault().post(new Event.LongEvent(false, mGroupId));
-                    }
+                    Conversation conv = JMessageClient.getGroupConversation(mGroupId);
+                    EventBus.getDefault().post(new Event.Builder().setType(EventType.deleteConversation)
+                            .setConversation(conv)
+                            .build());
+                    JMessageClient.deleteGroupConversation(mGroupId);
                     mContext.startMainActivity();
                 } else {
                     HandleResponseCode.onHandle(mContext, status, false);
@@ -592,7 +595,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             }
                             if (status == 0) {
                                 Conversation conv = Conversation.createGroupConversation(groupId);
-                                EventBus.getDefault().post(new Event.LongEvent(true, groupId));
+                                EventBus.getDefault().post(new Event.Builder().setType(EventType.createConversation)
+                                        .setConversation(conv).build());
                                 mContext.startChatActivity(groupId, conv.getTitle());
                             } else {
                                 HandleResponseCode.onHandle(mContext, status, false);
@@ -625,7 +629,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             }
                             if (status == 0) {
                                 Conversation conv = Conversation.createGroupConversation(groupId);
-                                EventBus.getDefault().post(new Event.LongEvent(true, groupId));
+                                EventBus.getDefault().post(new Event.Builder().setType(EventType.createConversation)
+                                        .setConversation(conv).build());
                                 mContext.startChatActivity(groupId, conv.getTitle());
                             } else {
                                 HandleResponseCode.onHandle(mContext, status, false);
@@ -647,13 +652,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             return mGroupName;
         }else {
             Conversation conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
-            UserInfo userInfo = (UserInfo) conv.getTargetInfo();
-            String nickname = userInfo.getNickname();
-            if (TextUtils.isEmpty(nickname)) {
-                return userInfo.getUserName();
-            } else {
-                return nickname;
-            }
+            return conv.getTitle();
         }
     }
 

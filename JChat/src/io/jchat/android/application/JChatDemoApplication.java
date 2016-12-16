@@ -30,9 +30,12 @@ public class JChatDemoApplication extends com.activeandroid.app.Application {
     public static final int RESULT_CODE_SEND_LOCATION = 25;
     public static final int REQUEST_CODE_SEND_FILE = 26;
     public static final int RESULT_CODE_SEND_FILE = 27;
+    public static final int REQUEST_CODE_EDIT_NOTENAME = 28;
+    public static final int RESULT_CODE_EDIT_NOTENAME = 29;
     public static final int ON_GROUP_EVENT = 3004;
 
     private static final String JCHAT_CONFIGS = "JChat_configs";
+    public static final String CONV_TITLE = "convTitle";
     public static final String TARGET_APP_KEY = "targetAppKey";
     public static final String TARGET_ID = "targetId";
     public static final String AVATAR = "avatar";
@@ -40,6 +43,7 @@ public class JChatDemoApplication extends com.activeandroid.app.Application {
     public static final String NICKNAME = "nickname";
     public static final String GROUP_ID = "groupId";
     public static final String GROUP_NAME = "groupName";
+    public static final String NOTENAME = "notename";
     public static final String GENDER = "gender";
     public static final String REGION = "region";
     public static final String SIGNATURE = "signature";

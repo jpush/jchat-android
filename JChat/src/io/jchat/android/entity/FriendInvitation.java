@@ -4,7 +4,8 @@ public enum FriendInvitation {
     ACCEPTED("accepted"),
     INVITING("inviting"),
     INVITED("invited"),
-    REFUSED("refused");
+    REFUSED("refused"),
+    BE_REFUSED("be_refused");
 
     private String value;
 

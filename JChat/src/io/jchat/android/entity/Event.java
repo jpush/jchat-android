@@ -1,102 +1,71 @@
 package io.jchat.android.entity;
 
+import cn.jpush.im.android.api.model.Conversation;
+
 public class Event {
 
-    /**
-     * 传递到ConversationListFragment的创建单聊事件
-     * mTargetId 单聊Id
-     * mAppKey 可以得到创建单聊者的AppKey
-     */
-    public static class StringEvent{
-        private String mTargetId;
-        private String mAppKey;
+    private EventType type;
+    private Conversation conversation;
+    private String draft;
+    private long friendId;
 
-        public StringEvent(String targetId, String appKey) {
-            this.mTargetId = targetId;
-            this.mAppKey = appKey;
-        }
-
-        public String getTargetId(){
-            return mTargetId;
-        }
-
-        public String getAppKey() {
-            return mAppKey;
-        }
+    public Event(EventType type, Conversation conv, String draft, long friendId) {
+        this.type = type;
+        this.conversation = conv;
+        this.draft = draft;
+        this.friendId = friendId;
     }
 
-    /**
-     * 传递到ConversationListFragment的创建或删除群聊事件
-     * mGroupId 群聊Id
-     * mIsAddEvent 是否为创建群聊的标志
-     */
-    public static class LongEvent{
-        private long mGroupId;
-        private boolean mIsAddEvent;
-
-        public LongEvent(boolean isAddEvent, long groupId){
-            this.mIsAddEvent = isAddEvent;
-            this.mGroupId = groupId;
-        }
-
-        public long getGroupId(){
-            return mGroupId;
-        }
-
-        public boolean getFlag() {
-            return mIsAddEvent;
-        }
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
-    /**
-     * 传递到ConversationListFragment的保存为草稿的事件
-     * mDraft 草稿内容
-     */
-    public static class DraftEvent {
-        private String mTargetId;
-        private long mGroupId;
-        private String mTargetAppKey;
-        private String mDraft;
-
-        public DraftEvent(String targetId, String appKey, String draft) {
-            this.mTargetId = targetId;
-            this.mTargetAppKey = appKey;
-            this.mDraft = draft;
-        }
-
-        public DraftEvent(long groupId, String draft) {
-            this.mGroupId = groupId;
-            this.mDraft = draft;
-        }
-
-        public String getTargetId() {
-            return mTargetId;
-        }
-
-
-        public long getGroupId() {
-            return mGroupId;
-        }
-
-        public String getTargetAppKey() {
-            return mTargetAppKey;
-        }
-
-        public String getDraft() {
-            return mDraft;
-        }
+    public EventType getType() {
+        return type;
     }
 
-    public static class AddFriendEvent {
-        private long id;
+    public Conversation getConversation() {
+        return conversation;
+    }
 
-        public AddFriendEvent(long id) {
-            this.id = id;
+    public String getDraft() {
+        return draft;
+    }
+
+    public long getFriendId() {
+        return friendId;
+    }
+
+    public static class Builder {
+        private EventType type;
+        private Conversation conversation;
+        private String draft;
+        private long friendId;
+
+        public Builder setType(EventType type) {
+            this.type = type;
+            return this;
         }
 
-        public long getId() {
-            return id;
+        public Builder setConversation(Conversation conv) {
+            this.conversation = conv;
+            return this;
         }
+
+        public Builder setDraft(String draft) {
+            this.draft = draft;
+            return this;
+        }
+
+        public Builder setFriendId(long friendId) {
+            this.friendId = friendId;
+            return this;
+        }
+
+        public Event build() {
+            return new Event(type, conversation, draft, friendId);
+        }
+
     }
 
 }

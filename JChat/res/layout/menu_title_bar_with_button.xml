@@ -30,7 +30,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:padding="10dp"
-            android:text="保存"
+            android:text="@string/save"
             android:textSize="@dimen/text_medium_size"
             android:textColor="#FFFFFF"
             android:background="@drawable/jmui_back_btn_bg"/>
