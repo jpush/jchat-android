@@ -10,6 +10,7 @@ import io.jchat.android.activity.RegisterActivity;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.database.UserEntry;
 import io.jchat.android.view.LoginDialog;
 import io.jchat.android.view.RegisterView;
 import cn.jpush.im.api.BasicCallback;
@@ -60,6 +61,13 @@ public class RegisterController implements RegisterView.Listener, OnClickListene
                                 @Override
                                 public void gotResult(final int status, String desc) {
                                     if (status == 0) {
+                                        String username = JMessageClient.getMyInfo().getUserName();
+                                        String appKey = JMessageClient.getMyInfo().getAppKey();
+                                        UserEntry user = UserEntry.getUser(username, appKey);
+                                        if (null == user) {
+                                            user = new UserEntry(username, appKey);
+                                            user.save();
+                                        }
                                         mContext.onRegistSuccess();
                                     } else {
                                         mLoginDialog.dismiss();

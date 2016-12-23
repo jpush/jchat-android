@@ -65,6 +65,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
+        android:padding="10dp"
         android:background="@drawable/fix_profile_btn_bg"
         android:clickable="false"
         android:text="@string/finish"

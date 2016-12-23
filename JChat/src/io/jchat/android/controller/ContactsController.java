@@ -49,7 +49,7 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
         final UserEntry user = UserEntry.getUser(JMessageClient.getMyInfo().getUserName(),
                 JMessageClient.getMyInfo().getAppKey());
         List<FriendEntry> friends = user.getFriends();
-        if (friends.size() == 0) {
+        if (null == friends) {
             final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.jmui_loading));
             dialog.show();
             ContactManager.getFriendList(new GetUserInfoListCallback() {
