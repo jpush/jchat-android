@@ -148,8 +148,9 @@ public class ContactsFragment extends BaseFragment {
                             entry.reason = reason;
                         }
                         entry.save();
-                        SharePreferenceManager.setCachedNewFriendNum(SharePreferenceManager.getCachedNewFriendNum() + 1);
-                        mContactsView.showNewFriends(SharePreferenceManager.getCachedNewFriendNum());
+                        int showNum = SharePreferenceManager.getCachedNewFriendNum() + 1;
+                        mContactsView.showNewFriends(showNum);
+                        SharePreferenceManager.setCachedNewFriendNum(showNum);
                     } else {
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
