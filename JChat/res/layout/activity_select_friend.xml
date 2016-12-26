@@ -109,7 +109,7 @@
         <io.jchat.android.view.SideBar
             android:id="@+id/sidebar"
             android:layout_width="30dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="end"
             />
 

@@ -37,7 +37,7 @@ public class ContactsView extends LinearLayout{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void initModule(float ratio){
+	public void initModule(float ratio, float density){
         mTitle = (TextView) findViewById(R.id.title_bar_title);
         mTitle.setText(mContext.getString(R.string.actionbar_contact));
         mSearchEt = (EditText) findViewById(R.id.search_et);
@@ -47,7 +47,7 @@ public class ContactsView extends LinearLayout{
         mSideBar = (SideBar) findViewById(R.id.sidebar);
         mLetterHintTv = (TextView) findViewById(R.id.letter_hint_tv);
         mSideBar.setTextView(mLetterHintTv);
-        mSideBar.setRatio(ratio);
+        mSideBar.setRatioAndDensity(ratio, density);
         mSideBar.bringToFront();
         View header = mInflater.inflate(R.layout.contact_list_header, null);
         mFriendVerifyRl = (RelativeLayout) header.findViewById(R.id.verify_rl);
@@ -62,6 +62,7 @@ public class ContactsView extends LinearLayout{
 
 	public void setAdapter(StickyListAdapter adapter) {
 		mListView.setAdapter(adapter);
+        mSideBar.setIndex(adapter.getSections());
 	}
 
     public void setListeners(ContactsController controller) {
@@ -101,13 +102,6 @@ public class ContactsView extends LinearLayout{
         mSideBar.setVisibility(VISIBLE);
         mListView.setVisibility(VISIBLE);
         mHint.setVisibility(GONE);
-    }
-
-    public void dismissContact() {
-        mSideBar.setVisibility(GONE);
-        mListView.setVisibility(GONE);
-        mSearchEt.setVisibility(GONE);
-        mHint.setVisibility(VISIBLE);
     }
 
     public void clearSearchText() {

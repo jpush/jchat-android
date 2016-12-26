@@ -43,7 +43,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
     private LayoutInflater mInflater;
     private List<FriendEntry> mData;
     private int[] mSectionIndices;
-    private Character[] mSectionLetters;
+    private String[] mSectionLetters;
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
     private TextView mSelectedNum;
     private float mDensity;
@@ -82,11 +82,11 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         return null;
     }
 
-    private Character[] getSectionLetters() {
+    private String[] getSectionLetters() {
         if (null != mSectionIndices) {
-            Character[] letters = new Character[mSectionIndices.length];
+            String[] letters = new String[mSectionIndices.length];
             for (int i = 0; i < mSectionIndices.length; i++) {
-                letters[i] = mData.get(mSectionIndices[i]).letter.charAt(0);
+                letters[i] = mData.get(mSectionIndices[i]).letter;
             }
             return letters;
         }
@@ -263,7 +263,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
     }
 
     @Override
-    public Object[] getSections() {
+    public String[] getSections() {
         return mSectionLetters;
     }
 
@@ -284,7 +284,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
     public int getSectionForLetter(String letter) {
         if (null != mSectionIndices) {
             for (int i = 0; i < mSectionIndices.length; i++) {
-                if (mSectionLetters[i] == letter.charAt(0)) {
+                if (mSectionLetters[i].equals(letter)) {
                     return mSectionIndices[i] + 1;
                 }
             }
