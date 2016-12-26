@@ -61,7 +61,7 @@ public class SideBar extends View {
             int width = getWidth(); // 获取对应宽度
             int singleHeight = (int) (20 * mDensity);// 获取每一个字母的高度
             mTop = height / 2 + 10 * mDensity;
-            mBottom = height / 2 - 10 * mDensity;
+            mBottom = height / 2 - 10 * mDensity * b.length;
 
             for (int i = 0; i < b.length; i++) {
                 paint.setColor(getResources().getColor(R.color.jmui_jpush_blue));
