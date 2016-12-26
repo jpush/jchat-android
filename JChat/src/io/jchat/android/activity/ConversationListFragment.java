@@ -249,11 +249,7 @@ public class ConversationListFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         dismissPopWindow();
-        if (SharePreferenceManager.getCachedShowContact()) {
-            mMenuItemView.showAddFriend();
-        } else {
-            mMenuItemView.showAddFriendDirect();
-        }
+        mMenuItemView.showAddFriend();
         mConvListController.getAdapter().notifyDataSetChanged();
     }
 

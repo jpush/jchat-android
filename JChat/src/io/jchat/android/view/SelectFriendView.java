@@ -28,7 +28,7 @@ public class SelectFriendView extends LinearLayout {
         this.mContext = context;
     }
 
-    public void initModule(float ratio) {
+    public void initModule(float ratio, float density) {
         mCancelBtn = (ImageButton) findViewById(R.id.jmui_cancel_btn);
         mFinishBtn = (Button) findViewById(R.id.finish_btn);
         mSearchEt = (EditText) findViewById(R.id.search_et);
@@ -37,7 +37,7 @@ public class SelectFriendView extends LinearLayout {
         mSideBar = (SideBar) findViewById(R.id.sidebar);
         mLetterHintTv = (TextView) findViewById(R.id.letter_hint_tv);
         mSideBar.setTextView(mLetterHintTv);
-        mSideBar.setRatio(ratio);
+        mSideBar.setRatioAndDensity(ratio, density);
 
         mListView.setDrawingListUnderStickyHeader(true);
         mListView.setAreHeadersSticky(true);

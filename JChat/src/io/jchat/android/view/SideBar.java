@@ -15,14 +15,16 @@ public class SideBar extends View {
     // 触摸事件
     private OnTouchingLetterChangedListener onTouchingLetterChangedListener;
     // 26个字母
-    public static String[] b = {"A", "B", "C", "D", "E", "F", "G", "H", "I",
-            "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
-            "W", "X", "Y", "Z", "#"};
+    public static String[] b;
     private int choose = -1;// 选中
     private Paint paint = new Paint();
 
     private TextView mTextDialog;
     private float mRatio;
+    private float mDensity;
+    private float mTop;
+    private float mBottom;
+    private int mIndex;
 
     public void setTextView(TextView mTextDialog) {
         this.mTextDialog = mTextDialog;
@@ -41,42 +43,64 @@ public class SideBar extends View {
         super(context);
     }
 
+    public void setIndex(String[] sections) {
+        b = sections;
+        postInvalidate();
+    }
+
+
+
     /**
      * 重写这个方法
      */
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        // 获取焦点改变背景颜色.
-        int height = getHeight();// 获取对应高度
-        int width = getWidth(); // 获取对应宽度
-        int singleHeight = height / b.length;// 获取每一个字母的高度
+        if (null != b) {
+            // 获取焦点改变背景颜色.
+            int height = getHeight();// 获取对应高度
+            int width = getWidth(); // 获取对应宽度
+            int singleHeight = (int) (20 * mDensity);// 获取每一个字母的高度
+            mTop = height / 2 + 10 * mDensity;
+            mBottom = height / 2 - 10 * mDensity;
 
-        for (int i = 0; i < b.length; i++) {
-            paint.setColor(getResources().getColor(R.color.jmui_jpush_blue));
-            paint.setTypeface(Typeface.DEFAULT_BOLD);
-            paint.setAntiAlias(true);
-            paint.setTextSize((int) (30 * mRatio));
-            // 选中的状态3
-            if (i == choose) {
-                paint.setColor(getResources().getColor(R.color.white));
-                paint.setFakeBoldText(true);
+            for (int i = 0; i < b.length; i++) {
+                paint.setColor(getResources().getColor(R.color.jmui_jpush_blue));
+                paint.setTypeface(Typeface.DEFAULT_BOLD);
+                paint.setAntiAlias(true);
+                paint.setTextSize((int) (30 * mRatio));
+                // 选中的状态3
+                if (i == choose) {
+                    paint.setColor(getResources().getColor(R.color.white));
+                    paint.setFakeBoldText(true);
+                }
+                // x坐标等于中间-字符串宽度的一半.
+                float xPos = width / 2 - paint.measureText(b[i]) / 2;
+                float yPos;
+                if (b.length / 2 > i) {
+                    yPos = height / 2 - singleHeight * (b.length / 2 - i);
+                } else {
+                    yPos = height / 2 + singleHeight * (i - b.length / 2);
+                }
+
+                canvas.drawText(b[i], xPos, yPos, paint);
+                paint.reset();// 重置画笔
             }
-            // x坐标等于中间-字符串宽度的一半.
-            float xPos = width / 2 - paint.measureText(b[i]) / 2;
-            float yPos = singleHeight * i + singleHeight;
-            canvas.drawText(b[i], xPos, yPos, paint);
-            paint.reset();// 重置画笔
         }
 
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
+        if (null == b) {
+            return true;
+        }
         final int action = event.getAction();
         final float y = event.getY();// 点击y坐标
         final int oldChoose = choose;
         final OnTouchingLetterChangedListener listener = onTouchingLetterChangedListener;
-        final int c = (int) (y / getHeight() * b.length);// 点击y坐标所占总高度的比例*b数组的长度就等于点击b中的个数.
+        int actualHeight = (int)(b.length * 20 * mDensity);
+        final int c = (int) Math.ceil((y - mBottom) * b.length / actualHeight) ;
+        // 点击y坐标所占总高度的比例*b数组的长度就等于点击b中的个数.
 
         switch (action) {
             case MotionEvent.ACTION_UP:
@@ -100,7 +124,6 @@ public class SideBar extends View {
                             mTextDialog.setText(b[c]);
                             mTextDialog.setVisibility(View.VISIBLE);
                         }
-
                         choose = c;
                         invalidate();
                     }
@@ -129,8 +152,9 @@ public class SideBar extends View {
         public void onTouchingLetterChanged(String s);
     }
 
-    public void setRatio(float ratio) {
+    public void setRatioAndDensity(float ratio, float density) {
         this.mRatio = ratio;
+        this.mDensity = density;
     }
 
 }

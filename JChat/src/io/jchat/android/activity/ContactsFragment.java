@@ -46,7 +46,7 @@ public class ContactsFragment extends BaseFragment {
         mRootView = layoutInflater.inflate(R.layout.fragment_contacts,
                 (ViewGroup) getActivity().findViewById(R.id.main_view), false);
         mContactsView = (ContactsView) mRootView.findViewById(R.id.contacts_view);
-        mContactsView.initModule(mRatio);
+        mContactsView.initModule(mRatio, mDensity);
         mContactsController = new ContactsController(mContactsView, this.getActivity());
         mContactsView.setOnClickListener(mContactsController);
         mContactsView.setListeners(mContactsController);
@@ -68,12 +68,8 @@ public class ContactsFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (SharePreferenceManager.getCachedShowContact()) {
-            mContactsView.showContact();
-            mContactsController.initContacts();
-        } else {
-            mContactsView.dismissContact();
-        }
+        mContactsView.showContact();
+        mContactsController.initContacts();
     }
 
     /**

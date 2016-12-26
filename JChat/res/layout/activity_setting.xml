@@ -80,23 +80,6 @@
                 android:layout_height="1dp"
                 android:background="@color/me_split_line_color" />
 
-        <RelativeLayout
-            android:id="@+id/show_contact_rl"
-            style="@style/SettingItemStyle">
-
-            <TextView
-                style="@style/SettingItemTextStyle"
-                android:text="@string/switch_to_friend_mode" />
-
-            <io.jchat.android.view.SlipButton
-                android:id="@+id/show_contact_sp"
-                android:layout_width="70dp"
-                android:layout_height="35dp"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                />
-        </RelativeLayout>
-
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

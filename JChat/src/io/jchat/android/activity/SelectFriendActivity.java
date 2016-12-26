@@ -15,7 +15,7 @@ public class SelectFriendActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_friend);
         mView = (SelectFriendView) findViewById(R.id.select_friend_view);
-        mView.initModule(mRatio);
+        mView.initModule(mRatio, mDensity);
         mController = new SelectFriendController(mView, this);
         mView.setListeners(mController);
         mView.setSideBarTouchListener(mController);

@@ -107,16 +107,4 @@ public class SharePreferenceManager {
         }
         return 0;
     }
-
-    private static final String CACHED_SHOW_CONTACT = "CachedShowContact";
-
-    public static void setCachedShowContact(boolean flag) {
-        if (null != sp) {
-            sp.edit().putBoolean(CACHED_SHOW_CONTACT, flag).apply();
-        }
-    }
-
-    public static boolean getCachedShowContact() {
-        return null != sp && sp.getBoolean(CACHED_SHOW_CONTACT, false);
-    }
 }
