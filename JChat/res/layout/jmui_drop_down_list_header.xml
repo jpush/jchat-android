@@ -6,13 +6,12 @@
     android:paddingBottom="@dimen/drop_down_list_header_padding_bottom"
     android:paddingTop="@dimen/drop_down_list_header_padding_top" >
 
-    <ProgressBar
-        android:id="@+id/jmui_drop_down_list_header_progress_bar"
-        style="@style/jmui_drop_down_list_header_progress_bar_style"
+    <ImageView
+        android:id="@+id/jmui_loading_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:indeterminate="true"
-        android:visibility="gone" />
+        android:src="@drawable/loading"
+        android:visibility="gone"/>
 
 </RelativeLayout>

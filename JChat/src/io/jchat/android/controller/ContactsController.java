@@ -50,8 +50,7 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
                 JMessageClient.getMyInfo().getAppKey());
         List<FriendEntry> friends = user.getFriends();
         if (friends.size() == 0 ) {
-            final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.jmui_loading));
-            dialog.show();
+            mContactsView.showLoadingHeader();
             ContactManager.getFriendList(new GetUserInfoListCallback() {
                 @Override
                 public void gotResult(int status, String desc, List<UserInfo> list) {
@@ -106,12 +105,12 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
                                 ActiveAndroid.endTransaction();
                             }
                         }
-                        dialog.dismiss();
+                        mContactsView.dismissLoadingHeader();
                         Collections.sort(mList, new PinyinComparator());
                         mAdapter = new StickyListAdapter(mContext, mList, false);
                         mContactsView.setAdapter(mAdapter);
                     } else {
-                        dialog.dismiss();
+                        mContactsView.dismissLoadingHeader();
                         HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }

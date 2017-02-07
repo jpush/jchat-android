@@ -101,7 +101,7 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
                         }
                     }
                 };
-                mDialog = DialogCreator.createDelFriendDialog(mContext,
+                mDialog = DialogCreator.createBaseDialogWithTitle(mContext,
                         mContext.getString(R.string.delete_friend_dialog_title), listener);
                 mDialog.getWindow().setLayout((int) (0.8 * mContext.getWidth()), WindowManager.LayoutParams.WRAP_CONTENT);
                 mDialog.show();

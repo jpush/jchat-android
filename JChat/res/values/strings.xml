@@ -34,6 +34,7 @@
     <string name="nickname_save_failed">昵称保存失败</string>
 
     <!--聊天相关-->
+    <string name="conv_refresh_succeed">会话同步成功</string>
     <string name="network_disconnected_hint">当前网络不可用, 请检查你的网络设置</string>
     <string name="actionbar_msg">聊天</string>
     <string name="cross_app_key">跨应用</string>
@@ -115,6 +116,8 @@
     <string name="jmui_business_card">名片</string>
     <string name="group_notification">[群成员变动]</string>
     <string name="type_custom">[自定义消息]</string>
+    <string name="somebody_at_me">[有人@我]</string>
+    <string name="at_me_button_txt">有人@我</string>
     <string name="hundreds_of_unread_msgs">..\.</string>
     <string name="jmui_time_format_year_month_day">yyyy年-MM月-dd日</string>
     <string name="jmui_time_format_accuracy">yyyy-MM-dd HH:mm </string>
@@ -142,6 +145,7 @@
 
     <string name="select_friend_title">选择朋友</string>
     <string name="selected_num">(%s)</string>
+    <string name="select_member_to_reply">选择回复的人</string>
 
     <!-- 通讯录相关-->
     <string name="switch_to_friendless_mode">切换到无好友模式</string>
@@ -160,6 +164,7 @@
     <string name="decline_friend_invitation">对方已拒绝</string>
     <string name="delete_friend_dialog_title">确定删除好友？</string>
     <string name="friend_already_deleted_hint">已移除好友</string>
+    <string name="send_target_is_not_friend">对方还不是你的好友，请先添加对方为好友。</string>
 
     <!-- 发送文件 -->
     <string name="file">文件</string>
@@ -220,6 +225,10 @@
     <string name="password_not_match_toast">两次输入的密码不一致</string>
     <string name="password_change_success_toast">修改成功，请牢记新密码</string>
     <string name="set_do_not_disturb" >消息免打扰</string>
+    <string name="set_to_block">屏蔽群消息</string>
+    <string name="block_dialog_title">屏蔽后将不能收到群消息</string>
+    <string name="set_block_succeed_hint">群消息屏蔽成功</string>
+    <string name="remove_block_succeed_hint">已移除群消息屏蔽</string>
     <string name="set_do_not_disturb_success_hint">成功加入免打扰</string>
     <string name="remove_from_no_disturb_list_hint">已移除免打扰</string>
     <string name="add_to_blacklist">加入黑名单</string>

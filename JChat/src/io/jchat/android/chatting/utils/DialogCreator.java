@@ -190,7 +190,7 @@ public class DialogCreator {
         return dialog;
     }
 
-    public static Dialog createDelFriendDialog(Context context, String title, View.OnClickListener listener) {
+    public static Dialog createBaseDialogWithTitle(Context context, String title, View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         View view = LayoutInflater.from(context).inflate(IdHelper.getLayout(context,
                 "jmui_dialog_base_with_button"), null);

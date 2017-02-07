@@ -74,11 +74,15 @@ public class ConversationListController implements OnClickListener,
         // TODO Auto-generated method stub
         final Intent intent = new Intent();
         if (position > 0) {
-            Conversation conv = mDatas.get(position - 1);
+            // 减去 header view 个数
+            Conversation conv = mDatas.get(position - 2);
             intent.putExtra(JChatDemoApplication.CONV_TITLE, conv.getTitle());
             if (null != conv) {
                 // 当前点击的会话是否为群组
                 if (conv.getType() == ConversationType.group) {
+                    if (mListAdapter.includeAtMsg(conv)) {
+                        intent.putExtra("atMsgId", mListAdapter.getAtMsgId(conv));
+                    }
                     long groupId = ((GroupInfo) conv.getTargetInfo()).getGroupID();
                     intent.putExtra(JChatDemoApplication.GROUP_ID, groupId);
                     intent.putExtra(JChatDemoApplication.DRAFT, getAdapter().getDraft(conv.getId()));
@@ -101,7 +105,7 @@ public class ConversationListController implements OnClickListener,
     @Override
     public boolean onItemLongClick(AdapterView<?> viewAdapter, View view, final int position, long id) {
         if (position > 0) {
-            final Conversation conv = mDatas.get(position - 1);
+            final Conversation conv = mDatas.get(position - 2);
             if (conv != null) {
                 OnClickListener listener = new OnClickListener() {
                     @Override
@@ -114,7 +118,7 @@ public class ConversationListController implements OnClickListener,
                             JMessageClient.deleteSingleConversation(((UserInfo) conv.getTargetInfo())
                                     .getUserName(), conv.getTargetAppKey());
                         }
-                        mDatas.remove(position - 1);
+                        mDatas.remove(position - 2);
                         mListAdapter.notifyDataSetChanged();
                         mDialog.dismiss();
                     }

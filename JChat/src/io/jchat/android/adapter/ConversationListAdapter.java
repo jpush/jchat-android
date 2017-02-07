@@ -9,6 +9,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +17,17 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
+import cn.jpush.im.android.api.content.MessageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
@@ -40,7 +46,9 @@ public class ConversationListAdapter extends BaseAdapter {
     private Activity mContext;
     private Map<String, String> mDraftMap = new HashMap<String, String>();
     private UIHandler mUIHandler = new UIHandler(this);
-    private static final int REFRESH_CONVERSATION_LIST = 0x3001;
+    private static final int REFRESH_CONVERSATION_LIST = 0x3003;
+    private SparseBooleanArray mArray = new SparseBooleanArray();
+    private HashMap<Conversation, Integer> mAtConvMap = new HashMap<Conversation, Integer>();
 
     public ConversationListAdapter(Activity context, List<Conversation> data) {
         this.mContext = context;
@@ -79,23 +87,55 @@ public class ConversationListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void addAndSort(Conversation conv) {
+        mDatas.add(conv);
+        SortConvList sortConvList = new SortConvList();
+        Collections.sort(mDatas, sortConvList);
+        notifyDataSetChanged();
+    }
+
     public void deleteConversation(Conversation conversation) {
         mDatas.remove(conversation);
         notifyDataSetChanged();
     }
 
-    public void putDraftToMap(String convId, String draft) {
-        mDraftMap.put(convId, draft);
+    public void putDraftToMap(Conversation conv, String draft) {
+        mDraftMap.put(conv.getId(), draft);
     }
 
-    public void delDraftFromMap(String convId) {
-        mDraftMap.remove(convId);
+    public void delDraftFromMap(Conversation conv) {
+        mArray.delete(mDatas.indexOf(conv));
+        mAtConvMap.remove(conv);
+        mDraftMap.remove(conv.getId());
         notifyDataSetChanged();
     }
 
     public String getDraft(String convId) {
         return mDraftMap.get(convId);
     }
+
+    public boolean includeAtMsg(Conversation conv) {
+        if (mAtConvMap.size() > 0) {
+            Iterator<Map.Entry<Conversation, Integer>> iterator = mAtConvMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<Conversation, Integer> entry = iterator.next();
+                if (conv == entry.getKey()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public int getAtMsgId(Conversation conv) {
+        return mAtConvMap.get(conv);
+    }
+
+    public void putAtConv(Conversation conv, int msgId) {
+        mAtConvMap.put(conv, msgId);
+    }
+
+
 
     @Override
     public int getCount() {
@@ -136,39 +176,62 @@ public class ConversationListAdapter extends BaseAdapter {
             if (lastMsg != null) {
                 TimeFormat timeFormat = new TimeFormat(mContext, lastMsg.getCreateTime());
                 datetime.setText(timeFormat.getTime());
+                String contentStr;
                 // 按照最后一条消息的消息类型进行处理
                 switch (lastMsg.getContentType()) {
                     case image:
-                        content.setText(mContext.getString(R.string.type_picture));
+                        contentStr = mContext.getString(R.string.type_picture);
                         break;
                     case voice:
-                        content.setText(mContext.getString(R.string.type_voice));
+                        contentStr = mContext.getString(R.string.type_voice);
                         break;
                     case location:
-                        content.setText(mContext.getString(R.string.type_location));
+                        contentStr = mContext.getString(R.string.type_location);
                         break;
                     case file:
-                        content.setText(mContext.getString(R.string.type_file));
+                        contentStr = mContext.getString(R.string.type_file);
                         break;
                     case video:
-                        content.setText(mContext.getString(R.string.type_video));
+                        contentStr = mContext.getString(R.string.type_video);
                         break;
                     case eventNotification:
-                        content.setText(mContext.getString(R.string.group_notification));
+                        contentStr = mContext.getString(R.string.group_notification);
                         break;
                     case custom:
                         CustomContent customContent = (CustomContent) lastMsg.getContent();
                         Boolean isBlackListHint = customContent.getBooleanValue("blackList");
+                        Boolean notFriendFlag = customContent.getBooleanValue("notFriend");
                         if (isBlackListHint != null && isBlackListHint) {
-                            content.setText(mContext.getString(R.string.jmui_server_803008));
+                            contentStr = mContext.getString(R.string.jmui_server_803008);
+                        } else if (notFriendFlag != null && notFriendFlag) {
+                            contentStr = mContext.getString(R.string.send_target_is_not_friend);
                         } else {
-                            content.setText(mContext.getString(R.string.type_custom));
+                            contentStr = mContext.getString(R.string.type_custom);
                         }
                         break;
                     default:
-                        content.setText(((TextContent) lastMsg.getContent()).getText());
+                        contentStr = ((TextContent) lastMsg.getContent()).getText();
                 }
-            }else {
+                MessageContent msgContent = lastMsg.getContent();
+                Boolean isRead = msgContent.getBooleanExtra("isRead");
+                if (lastMsg.isAtMe()) {
+                    if (null != isRead && isRead) {
+                        mArray.delete(position);
+                        mAtConvMap.remove(convItem);
+                    } else {
+                        mArray.put(position, true);
+                    }
+                }
+
+                if (mArray.get(position)) {
+                    contentStr = mContext.getString(R.string.somebody_at_me) + contentStr;
+                    SpannableStringBuilder builder = new SpannableStringBuilder(contentStr);
+                    builder.setSpan(new ForegroundColorSpan(Color.RED), 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    content.setText(builder);
+                } else {
+                    content.setText(contentStr);
+                }
+            } else {
                 TimeFormat timeFormat = new TimeFormat(mContext, convItem.getLastMsgDate());
                 datetime.setText(timeFormat.getTime());
                 content.setText("");

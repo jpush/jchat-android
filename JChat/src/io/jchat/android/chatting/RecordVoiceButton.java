@@ -25,9 +25,12 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.VoiceContent;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.chatting.utils.FileHelper;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.utils.IdHelper;
@@ -253,8 +256,20 @@ public class RecordVoiceButton extends Button {
                     try {
                         VoiceContent content = new VoiceContent(myRecAudioFile, duration);
                         Message msg = mConv.createSendMessage(content);
-                        JMessageClient.sendMessage(msg);
                         mMsgListAdapter.addMsgToList(msg);
+                        if (mConv.getType() == ConversationType.single) {
+                            UserInfo userInfo = (UserInfo) msg.getTargetInfo();
+                            if (userInfo.isFriend()) {
+                                JMessageClient.sendMessage(msg);
+                            } else {
+                                CustomContent customContent = new CustomContent();
+                                customContent.setBooleanValue("notFriend", true);
+                                Message customMsg = mConv.createSendMessage(customContent);
+                                mMsgListAdapter.addMsgToList(customMsg);
+                            }
+                        } else {
+                            JMessageClient.sendMessage(msg);
+                        }
                         mChatView.setToBottom();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();

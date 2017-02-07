@@ -1,12 +1,14 @@
 package io.jchat.android.view;
 
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -30,6 +32,8 @@ public class ContactsView extends LinearLayout{
     private SideBar mSideBar;
     private TextView mLetterHintTv;
     private LayoutInflater mInflater;
+    private ImageView mLoadingIv;
+
 	public ContactsView(Context context, AttributeSet attrs) {
 		super(context, attrs);
         this.mContext = context;
@@ -53,8 +57,11 @@ public class ContactsView extends LinearLayout{
         mFriendVerifyRl = (RelativeLayout) header.findViewById(R.id.verify_rl);
         mGroupRl = (RelativeLayout) header.findViewById(R.id.group_chat_rl);
         mNewFriendNum = (TextView) header.findViewById(R.id.friend_verification_num);
+        RelativeLayout loadingHeader = (RelativeLayout) mInflater.inflate(R.layout.jmui_drop_down_list_header, null);
+        mLoadingIv = (ImageView) loadingHeader.findViewById(R.id.jmui_loading_img);
         mNewFriendNum.setVisibility(INVISIBLE);
         mListView.addHeaderView(header);
+        mListView.addHeaderView(loadingHeader);
         mListView.setDrawingListUnderStickyHeader(true);
         mListView.setAreHeadersSticky(true);
         mListView.setStickyHeaderTopOffset(0);
@@ -106,5 +113,16 @@ public class ContactsView extends LinearLayout{
 
     public void clearSearchText() {
         mSearchEt.setText("");
+    }
+
+    public void showLoadingHeader() {
+        mLoadingIv.setVisibility(View.VISIBLE);
+        AnimationDrawable drawable = (AnimationDrawable) mLoadingIv.getDrawable();
+        drawable.start();
+        mLoadingIv.setVisibility(View.VISIBLE);
+    }
+
+    public void dismissLoadingHeader() {
+        mLoadingIv.setVisibility(View.GONE);
     }
 }

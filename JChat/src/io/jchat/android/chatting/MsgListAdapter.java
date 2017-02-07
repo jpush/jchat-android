@@ -21,8 +21,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageStatus;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -41,6 +43,7 @@ import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.MessageDirect;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
+import io.jchat.android.activity.SearchFriendDetailActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
@@ -52,7 +55,7 @@ import cn.jpush.im.api.BasicCallback;
 public class MsgListAdapter extends BaseAdapter {
 
     private static final String TAG = "MsgListAdapter";
-    private static final int PAGE_MESSAGE_COUNT = 18;
+    public static final int PAGE_MESSAGE_COUNT = 18;
     private Context mContext;
     private Conversation mConv;
     private List<Message> mMsgList = new ArrayList<Message>();//所有消息列表
@@ -93,6 +96,7 @@ public class MsgListAdapter extends BaseAdapter {
     private ChatItemController mController;
     private Activity mActivity;
     private int mWidth;
+    private ContentLongClickListener mLongClickListener;
 
     public MsgListAdapter(Context context, Conversation conv, ContentLongClickListener longClickListener) {
         this.mContext = context;
@@ -105,6 +109,7 @@ public class MsgListAdapter extends BaseAdapter {
         this.mConv = conv;
         this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
         reverse(mMsgList);
+        mLongClickListener = longClickListener;
         this.mController = new ChatItemController(this, context, conv, mMsgList, dm.density,
                 longClickListener);
         mStart = mOffset;
@@ -127,6 +132,33 @@ public class MsgListAdapter extends BaseAdapter {
             mGroupId = groupInfo.getGroupID();
         }
         checkSendingImgMsg();
+    }
+
+    public MsgListAdapter(Context context, Conversation conv, ContentLongClickListener longClickListener,
+                          int msgId) {
+        this.mContext = context;
+        mActivity = (Activity) context;
+        DisplayMetrics dm = new DisplayMetrics();
+        mActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        mWidth = dm.widthPixels;
+
+        mInflater = LayoutInflater.from(mContext);
+        this.mConv = conv;
+        if (mConv.getUnReadMsgCnt() > PAGE_MESSAGE_COUNT) {
+            this.mMsgList = mConv.getMessagesFromNewest(0, mConv.getUnReadMsgCnt());
+            mStart = mConv.getUnReadMsgCnt();
+        } else {
+            this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
+            mStart = mOffset;
+        }
+        reverse(mMsgList);
+        mLongClickListener = longClickListener;
+        this.mController = new ChatItemController(this, context, conv, mMsgList, dm.density,
+                longClickListener);
+        GroupInfo groupInfo = (GroupInfo) mConv.getTargetInfo();
+        mGroupId = groupInfo.getGroupID();
+        checkSendingImgMsg();
+
     }
 
     private void reverse(List<Message> list) {
@@ -183,6 +215,25 @@ public class MsgListAdapter extends BaseAdapter {
                 mMsgQueue.offer(msg);
             }
         }
+
+        if (mMsgQueue.size() > 0) {
+            Message message = mMsgQueue.element();
+            if (mConv.getType() == ConversationType.single) {
+                UserInfo userInfo = (UserInfo) message.getTargetInfo();
+                if (userInfo.isFriend()) {
+                    sendNextImgMsg(message);
+                } else {
+                    CustomContent customContent = new CustomContent();
+                    customContent.setBooleanValue("notFriend", true);
+                    Message customMsg = mConv.createSendMessage(customContent);
+                    addMsgToList(customMsg);
+                }
+            } else {
+                sendNextImgMsg(message);
+            }
+
+            notifyDataSetChanged();
+        }
     }
 
     public void setSendMsgs(int[] msgIds) {
@@ -198,7 +249,20 @@ public class MsgListAdapter extends BaseAdapter {
 
         if (mMsgQueue.size() > 0) {
             Message message = mMsgQueue.element();
-            sendNextImgMsg(message);
+            if (mConv.getType() == ConversationType.single) {
+                UserInfo userInfo = (UserInfo) message.getTargetInfo();
+                if (userInfo.isFriend()) {
+                    sendNextImgMsg(message);
+                } else {
+                    CustomContent customContent = new CustomContent();
+                    customContent.setBooleanValue("notFriend", true);
+                    Message customMsg = mConv.createSendMessage(customContent);
+                    addMsgToList(customMsg);
+                }
+            } else {
+                sendNextImgMsg(message);
+            }
+
             notifyDataSetChanged();
         }
     }
@@ -481,12 +545,19 @@ public class MsgListAdapter extends BaseAdapter {
                         intent.putExtra(JChatDemoApplication.TARGET_ID, targetID);
                         intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, userInfo.getAppKey());
                         intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
-                        intent.setClass(mContext, FriendInfoActivity.class);
+                        if (userInfo.isFriend()) {
+                            intent.setClass(mContext, FriendInfoActivity.class);
+                        } else {
+                            intent.setClass(mContext, SearchFriendDetailActivity.class);
+                        }
                         ((Activity) mContext).startActivityForResult(intent,
                                 JChatDemoApplication.REQUEST_CODE_FRIEND_INFO);
                     }
                 }
             });
+
+            holder.headIcon.setTag(position);
+            holder.headIcon.setOnLongClickListener(mLongClickListener);
         }
 
         switch (msg.getContentType()) {
@@ -541,6 +612,14 @@ public class MsgListAdapter extends BaseAdapter {
                 }
             }
         };
+        if (mConv.getType() == ConversationType.single) {
+            UserInfo userInfo = (UserInfo) msg.getTargetInfo();
+            if (!userInfo.isFriend()) {
+                Toast.makeText(mContext, IdHelper.getString(mContext, "send_target_is_not_friend"),
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
         mDialog = DialogCreator.createResendDialog(mContext, listener);
         mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         mDialog.show();

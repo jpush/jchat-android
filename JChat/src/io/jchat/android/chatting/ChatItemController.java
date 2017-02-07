@@ -42,6 +42,7 @@ import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.LocationContent;
+import cn.jpush.im.android.api.content.MessageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ContentType;
@@ -82,12 +83,16 @@ public class ChatItemController {
     private boolean mIsEarPhoneOn;
     private int mSendMsgId;
     private Queue<Message> mMsgQueue = new LinkedList<Message>();
+    private UserInfo mUserInfo;
 
     public ChatItemController(MsgListAdapter adapter, Context context, Conversation conv, List<Message> msgList,
                               float density, MsgListAdapter.ContentLongClickListener longClickListener) {
         this.mAdapter = adapter;
         this.mContext = context;
         this.mConv = conv;
+        if (mConv.getType() == ConversationType.single) {
+            mUserInfo = (UserInfo) mConv.getTargetInfo();
+        }
         this.mMsgList = msgList;
         this.mLongClickListener = longClickListener;
         this.mDensity = density;
@@ -121,6 +126,12 @@ public class ChatItemController {
         // 检查发送状态，发送方有重发机制
         if (msg.getDirect() == MessageDirect.send) {
             switch (msg.getStatus()) {
+                case created:
+                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                        holder.sendingIv.setVisibility(View.GONE);
+                        holder.resend.setVisibility(View.VISIBLE);
+                    }
+                    break;
                 case send_success:
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
@@ -139,6 +150,9 @@ public class ChatItemController {
 
         } else {
             if (mConv.getType() == ConversationType.group) {
+                if (msg.isAtMe()) {
+                    mConv.updateMessageExtra(msg, "isRead", true);
+                }
                 holder.displayName.setVisibility(View.VISIBLE);
                 if (TextUtils.isEmpty(msg.getFromUser().getNickname())) {
                     holder.displayName.setText(msg.getFromUser().getUserName());
@@ -206,6 +220,15 @@ public class ChatItemController {
             }
             //检查状态
             switch (msg.getStatus()) {
+                case created:
+                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                        holder.sendingIv.setVisibility(View.GONE);
+                        holder.resend.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.sendingIv.setVisibility(View.VISIBLE);
+                        holder.resend.setVisibility(View.GONE);
+                    }
+                    break;
                 case send_success:
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
@@ -325,6 +348,12 @@ public class ChatItemController {
         if (msgDirect == MessageDirect.send) {
             holder.voice.setImageResource(IdHelper.getDrawable(mContext, "jmui_send_3"));
             switch (msg.getStatus()) {
+                case created:
+                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                        holder.sendingIv.setVisibility(View.GONE);
+                        holder.resend.setVisibility(View.VISIBLE);
+                    }
+                    break;
                 case send_success:
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
@@ -352,9 +381,9 @@ public class ChatItemController {
                 }
                 holder.voice.setImageResource(IdHelper.getDrawable(mContext, "jmui_receive_3"));
                 // 收到语音，设置未读
-                if (msg.getContent().getBooleanExtra("isReaded") == null
-                        || !msg.getContent().getBooleanExtra("isReaded")) {
-                    mConv.updateMessageExtra(msg, "isReaded", false);
+                if (msg.getContent().getBooleanExtra("isRead") == null
+                        || !msg.getContent().getBooleanExtra("isRead")) {
+                    mConv.updateMessageExtra(msg, "isRead", false);
                     holder.readStatus.setVisibility(View.VISIBLE);
                     if (mIndexList.size() > 0) {
                         if (!mIndexList.contains(position)) {
@@ -366,7 +395,7 @@ public class ChatItemController {
                     if (nextPlayPosition == position && autoPlay) {
                         playVoice(position, holder, false);
                     }
-                } else if (msg.getContent().getBooleanExtra("isReaded").equals(true)) {
+                } else if (msg.getContent().getBooleanExtra("isRead")) {
                     holder.readStatus.setVisibility(View.GONE);
                 }
                 break;
@@ -436,6 +465,15 @@ public class ChatItemController {
                 }
             }
             switch (msg.getStatus()) {
+                case created:
+                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                        holder.sendingIv.setVisibility(View.GONE);
+                        holder.resend.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.sendingIv.setVisibility(View.VISIBLE);
+                        holder.resend.setVisibility(View.GONE);
+                    }
+                    break;
                 case send_going:
                     sendingTextOrVoice(holder, msg);
                     break;
@@ -521,10 +559,19 @@ public class ChatItemController {
 
         if (msg.getDirect() == MessageDirect.send) {
             switch (msg.getStatus()) {
+                case created:
+                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                        holder.progressTv.setVisibility(View.GONE);
+                        holder.resend.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.progressTv.setVisibility(View.VISIBLE);
+                        holder.progressTv.setText("0%");
+                        holder.resend.setVisibility(View.GONE);
+                    }
+                    break;
                 case send_going:
                     holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
                     holder.progressTv.setVisibility(View.VISIBLE);
-                    holder.progressTv.setText("0%");
                     holder.resend.setVisibility(View.GONE);
                     if (!msg.isContentUploadProgressCallbackExists()) {
                         msg.setOnContentUploadProgressCallback(new ProgressUpdateCallback() {
@@ -686,8 +733,17 @@ public class ChatItemController {
     public void handleCustomMsg(Message msg, ViewHolder holder) {
         CustomContent content = (CustomContent) msg.getContent();
         Boolean isBlackListHint = content.getBooleanValue("blackList");
+        Boolean notFriendFlag = content.getBooleanValue("notFriend");
         if (isBlackListHint != null && isBlackListHint) {
             holder.groupChange.setText(IdHelper.getString(mContext, "jmui_server_803008"));
+            holder.groupChange.setVisibility(View.VISIBLE);
+        } else {
+            holder.groupChange.setVisibility(View.GONE);
+        }
+
+        if (notFriendFlag != null && notFriendFlag) {
+            holder.groupChange.setText(IdHelper.getString(mContext, "send_target_is_not_friend"));
+            holder.groupChange.setVisibility(View.VISIBLE);
         } else {
             holder.groupChange.setVisibility(View.GONE);
         }
@@ -754,8 +810,8 @@ public class ChatItemController {
                                 // 否则开始播放另一条录音
                             } else {
                                 // 选中的录音是否已经播放过，如果未播放，自动连续播放这条语音之后未播放的语音
-                                if (msg.getContent().getBooleanExtra("isReaded") == null
-                                        || !msg.getContent().getBooleanExtra("isReaded")) {
+                                if (msg.getContent().getBooleanExtra("isRead") == null
+                                        || !msg.getContent().getBooleanExtra("isRead")) {
                                     autoPlay = true;
                                     playVoice(position, holder, false);
                                     // 否则直接播放选中的语音
@@ -872,7 +928,7 @@ public class ChatItemController {
         mPosition = position;
         Message msg = mMsgList.get(position);
         if (autoPlay) {
-            mConv.updateMessageExtra(msg, "isReaded", true);
+            mConv.updateMessageExtra(msg, "isRead", true);
             holder.readStatus.setVisibility(View.GONE);
             if (mVoiceAnimation != null) {
                 mVoiceAnimation.stop();

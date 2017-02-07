@@ -22,9 +22,7 @@ public class SideBar extends View {
     private TextView mTextDialog;
     private float mRatio;
     private float mDensity;
-    private float mTop;
     private float mBottom;
-    private int mIndex;
 
     public void setTextView(TextView mTextDialog) {
         this.mTextDialog = mTextDialog;
@@ -60,7 +58,6 @@ public class SideBar extends View {
             int height = getHeight();// 获取对应高度
             int width = getWidth(); // 获取对应宽度
             int singleHeight = (int) (20 * mDensity);// 获取每一个字母的高度
-            mTop = height / 2 + 10 * mDensity;
             mBottom = height / 2 - 10 * mDensity * b.length;
 
             for (int i = 0; i < b.length; i++) {

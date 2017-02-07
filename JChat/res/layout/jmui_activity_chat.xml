@@ -73,8 +73,22 @@
             android:transcriptMode="normal"
             listViewAttr:isAutoLoadOnBottom="false"
             listViewAttr:isDropDownStyle="true"
-            listViewAttr:isOnBottomStyle="false"></io.jchat.android.chatting.DropDownListView>
+            listViewAttr:isOnBottomStyle="false"/>
+
     </LinearLayout>
+
+    <Button
+        android:id="@+id/jmui_at_me_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/arrow_up"
+        android:text="@string/at_me_button_txt"
+        android:textColor="@color/green"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="150dp"
+        android:layout_above="@+id/jmui_send_msg_layout"
+        android:visibility="gone"/>
 
 
     <LinearLayout

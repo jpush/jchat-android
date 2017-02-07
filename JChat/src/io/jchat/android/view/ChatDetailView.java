@@ -10,6 +10,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import io.jchat.android.R;
@@ -35,6 +36,9 @@ public class ChatDetailView extends LinearLayout{
 	private TextView mMyName;
 	private GroupGridView mGridView;
 	private SlipButton mNoDisturbBtn;
+	private SlipButton mBlockBtn;
+    private RelativeLayout mBlockRl;
+    private View mBlockLine;
     private Context mContext;
 
 	public ChatDetailView(Context context, AttributeSet attrs) {
@@ -62,6 +66,9 @@ public class ChatDetailView extends LinearLayout{
 		mMyName = (TextView) findViewById(R.id.chat_detail_my_name);
 		mGridView = (GroupGridView) findViewById(R.id.chat_detail_group_gv);
 		mNoDisturbBtn = (SlipButton) findViewById(R.id.no_disturb_slip_btn);
+        mBlockRl = (RelativeLayout) findViewById(R.id.block_rl);
+        mBlockBtn = (SlipButton) findViewById(R.id.block_slip_btn);
+        mBlockLine = findViewById(R.id.block_split_line);
 
 		mTitle.setText(mContext.getString(R.string.chat_detail_title));
 		mMenuBtn.setVisibility(View.GONE);
@@ -82,6 +89,7 @@ public class ChatDetailView extends LinearLayout{
 
     public void setOnChangeListener(SlipButton.OnChangedListener listener) {
         mNoDisturbBtn.setOnChangedListener(R.id.no_disturb_slip_btn, listener);
+        mBlockBtn.setOnChangedListener(R.id.block_slip_btn, listener);
     }
 	
 	public void setItemListener(OnItemClickListener listener) {
@@ -143,5 +151,15 @@ public class ChatDetailView extends LinearLayout{
 
 	public void setNoDisturbChecked(boolean flag) {
         mNoDisturbBtn.setChecked(flag);
+    }
+
+    public void showBlockView(int status) {
+        mBlockRl.setVisibility(VISIBLE);
+        mBlockLine.setVisibility(VISIBLE);
+        mBlockBtn.setChecked(status == 1);
+    }
+
+    public void setBlockChecked(boolean flag) {
+        mBlockBtn.setChecked(flag);
     }
 }

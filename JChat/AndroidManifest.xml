@@ -224,6 +224,7 @@
         <activity android:name="io.jchat.android.activity.SendLocationActivity"/>
         <activity android:name="io.jchat.android.activity.SendFileActivity"/>
         <activity android:name="io.jchat.android.activity.PlayVideoActivity"/>
+        <activity android:name="io.jchat.android.activity.AtMemberActivity"/>
     </application>
 
 </manifest>

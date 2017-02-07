@@ -97,7 +97,7 @@ public class HandleResponseCode {
                 content.setText(IdHelper.getString(context, "jmui_server_803010"));
                 break;
             case 805002:
-                content.setText(IdHelper.getString(context, ""));
+                content.setText(IdHelper.getString(context, "jmui_server_805002"));
             case 808003:
                 content.setText(IdHelper.getString(context, "jmui_server_808003"));
                 break;
