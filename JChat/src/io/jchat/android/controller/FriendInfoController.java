@@ -22,6 +22,7 @@ import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.database.FriendEntry;
+import io.jchat.android.database.FriendRecommendEntry;
 import io.jchat.android.view.FriendInfoView;
 import io.jchat.android.view.SlipButton;
 
@@ -88,7 +89,15 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
                                         if (status == 0) {
                                             FriendEntry friend = FriendEntry.getFriend(JChatDemoApplication.getUserEntry(),
                                                     userInfo.getUserName(), userInfo.getAppKey());
-                                            friend.delete();
+                                            if (friend != null) {
+                                                friend.delete();
+                                            }
+                                            FriendRecommendEntry entry = FriendRecommendEntry
+                                                    .getEntry(JChatDemoApplication.getUserEntry(),
+                                                            userInfo.getUserName(), userInfo.getAppKey());
+                                            if (entry != null) {
+                                                entry.delete();
+                                            }
                                             Toast.makeText(mContext, mContext.getString(R.string
                                                     .friend_already_deleted_hint), Toast.LENGTH_SHORT).show();
                                             mContext.delConvAndReturnMainActivity();

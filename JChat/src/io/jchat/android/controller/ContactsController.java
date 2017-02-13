@@ -33,100 +33,93 @@ import io.jchat.android.view.ContactsView;
 import io.jchat.android.view.SideBar;
 
 public class ContactsController implements OnClickListener, SideBar.OnTouchingLetterChangedListener,
-        TextWatcher{
+        TextWatcher {
 
-	private ContactsView mContactsView;
-	private Activity mContext;
+    private ContactsView mContactsView;
+    private Activity mContext;
     private List<FriendEntry> mList = new ArrayList<FriendEntry>();
     private StickyListAdapter mAdapter;
 
-	public ContactsController(ContactsView mContactsView, Activity context) {
-		this.mContactsView = mContactsView;
-		this.mContext = context;
-	}
+    public ContactsController(ContactsView mContactsView, Activity context) {
+        this.mContactsView = mContactsView;
+        this.mContext = context;
+    }
 
     public void initContacts() {
         final UserEntry user = UserEntry.getUser(JMessageClient.getMyInfo().getUserName(),
                 JMessageClient.getMyInfo().getAppKey());
         List<FriendEntry> friends = user.getFriends();
-        if (friends.size() == 0 ) {
-            mContactsView.showLoadingHeader();
-            ContactManager.getFriendList(new GetUserInfoListCallback() {
-                @Override
-                public void gotResult(int status, String desc, List<UserInfo> list) {
-                    if (status == 0) {
-                        if (list.size() != 0) {
-                            ActiveAndroid.beginTransaction();
-                            try {
-                                for (UserInfo userInfo : list) {
-                                    String displayName = userInfo.getNotename();
+        mContactsView.showLoadingHeader();
+        ContactManager.getFriendList(new GetUserInfoListCallback() {
+            @Override
+            public void gotResult(int status, String desc, List<UserInfo> list) {
+                if (status == 0) {
+                    if (list.size() != 0) {
+                        ActiveAndroid.beginTransaction();
+                        try {
+                            for (UserInfo userInfo : list) {
+                                String displayName = userInfo.getNotename();
+                                if (TextUtils.isEmpty(displayName)) {
+                                    displayName = userInfo.getNickname();
                                     if (TextUtils.isEmpty(displayName)) {
-                                        displayName = userInfo.getNickname();
-                                        if (TextUtils.isEmpty(displayName)) {
-                                            displayName = userInfo.getUserName();
-                                        }
-                                    }
-                                    String letter;
-                                    ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
-                                            .get(displayName);
-                                    StringBuilder sb = new StringBuilder();
-                                    if (tokens != null && tokens.size() > 0) {
-                                        for (HanziToPinyin.Token token : tokens) {
-                                            if (token.type == HanziToPinyin.Token.PINYIN) {
-                                                sb.append(token.target);
-                                            } else {
-                                                sb.append(token.source);
-                                            }
-                                        }
-                                    }
-                                    String sortString = sb.toString().substring(0, 1).toUpperCase();
-                                    if (sortString.matches("[A-Z]")) {
-                                        letter = sortString.toUpperCase();
-                                    } else {
-                                        letter = "#";
-                                    }
-                                    //避免重复请求时导致数据重复
-                                    FriendEntry friend = FriendEntry.getFriend(user,
-                                            userInfo.getUserName(), userInfo.getAppKey());
-                                    if (null == friend) {
-                                        if (TextUtils.isEmpty(userInfo.getAvatar())) {
-                                            friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
-                                                    null, displayName, letter, user);
-                                        } else {
-                                            friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
-                                                    userInfo.getAvatarFile().getAbsolutePath(), displayName, letter, user);
-                                        }
-                                        friend.save();
-                                        mList.add(friend);
+                                        displayName = userInfo.getUserName();
                                     }
                                 }
-                                ActiveAndroid.setTransactionSuccessful();
-                            } finally {
-                                ActiveAndroid.endTransaction();
+                                String letter;
+                                ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
+                                        .get(displayName);
+                                StringBuilder sb = new StringBuilder();
+                                if (tokens != null && tokens.size() > 0) {
+                                    for (HanziToPinyin.Token token : tokens) {
+                                        if (token.type == HanziToPinyin.Token.PINYIN) {
+                                            sb.append(token.target);
+                                        } else {
+                                            sb.append(token.source);
+                                        }
+                                    }
+                                }
+                                String sortString = sb.toString().substring(0, 1).toUpperCase();
+                                if (sortString.matches("[A-Z]")) {
+                                    letter = sortString.toUpperCase();
+                                } else {
+                                    letter = "#";
+                                }
+                                //避免重复请求时导致数据重复
+                                FriendEntry friend = FriendEntry.getFriend(user,
+                                        userInfo.getUserName(), userInfo.getAppKey());
+                                if (null == friend) {
+                                    if (TextUtils.isEmpty(userInfo.getAvatar())) {
+                                        friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
+                                                null, displayName, letter, user);
+                                    } else {
+                                        friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
+                                                userInfo.getAvatarFile().getAbsolutePath(), displayName, letter, user);
+                                    }
+                                    friend.save();
+                                    mList.add(friend);
+                                }
                             }
+                            ActiveAndroid.setTransactionSuccessful();
+                        } finally {
+                            ActiveAndroid.endTransaction();
                         }
-                        mContactsView.dismissLoadingHeader();
-                        Collections.sort(mList, new PinyinComparator());
-                        mAdapter = new StickyListAdapter(mContext, mList, false);
-                        mContactsView.setAdapter(mAdapter);
-                    } else {
-                        mContactsView.dismissLoadingHeader();
-                        HandleResponseCode.onHandle(mContext, status, false);
                     }
+                    mContactsView.dismissLoadingHeader();
+                    Collections.sort(mList, new PinyinComparator());
+                    mAdapter = new StickyListAdapter(mContext, mList, false);
+                    mContactsView.setAdapter(mAdapter);
+                } else {
+                    mContactsView.dismissLoadingHeader();
+                    HandleResponseCode.onHandle(mContext, status, false);
                 }
-            });
-        } else {
-            mList = friends;
-            Collections.sort(mList, new PinyinComparator());
-            mAdapter = new StickyListAdapter(mContext, mList, false);
-            mContactsView.setAdapter(mAdapter);
-        }
+            }
+        });
     }
 
-	@Override
-	public void onClick(View v) {
+    @Override
+    public void onClick(View v) {
         Intent intent = new Intent();
-		switch(v.getId()){
+        switch (v.getId()) {
             case R.id.delete_ib:
                 mContactsView.clearSearchText();
                 break;
@@ -137,9 +130,9 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
                 break;
             case R.id.group_chat_rl:
                 break;
-		}
-		
-	}
+        }
+
+    }
 
     public void refresh(FriendEntry entry) {
         mList.add(entry);
@@ -180,6 +173,7 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
 
     /**
      * 根据输入框中的值来过滤数据并更新ListView
+     *
      * @param filterStr
      */
     private void filterData(String filterStr) {
@@ -189,7 +183,7 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
             filterDateList = mList;
         } else {
             filterDateList.clear();
-            for(FriendEntry entry : mList) {
+            for (FriendEntry entry : mList) {
                 String name = entry.displayName;
                 if (name.contains(filterStr) || name.startsWith(filterStr)
                         || entry.letter.equals(filterStr.substring(0, 1).toUpperCase())) {
@@ -203,5 +197,14 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
             Collections.sort(filterDateList, new PinyinComparator());
             mAdapter.updateListView(filterDateList);
         }
+    }
+
+    public void refreshContact() {
+        final UserEntry user = UserEntry.getUser(JMessageClient.getMyInfo().getUserName(),
+                JMessageClient.getMyInfo().getAppKey());
+        mList = user.getFriends();
+        Collections.sort(mList, new PinyinComparator());
+        mAdapter = new StickyListAdapter(mContext, mList, false);
+        mContactsView.setAdapter(mAdapter);
     }
 }

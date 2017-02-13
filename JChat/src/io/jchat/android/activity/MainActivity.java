@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import java.io.File;
 
-import cn.jpush.android.api.JPushInterface;
+import cn.jiguang.api.JCoreInterface;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -48,13 +48,13 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onPause() {
-        JPushInterface.onPause(this);
+        JCoreInterface.onPause(this);
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        JPushInterface.onResume(this);
+        JCoreInterface.onResume(this);
         //第一次登录需要设置昵称
         boolean flag = SharePreferenceManager.getCachedFixProfileFlag();
         UserInfo myInfo = JMessageClient.getMyInfo();
