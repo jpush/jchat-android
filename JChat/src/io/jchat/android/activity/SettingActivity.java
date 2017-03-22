@@ -14,12 +14,10 @@ import android.widget.Toast;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.IntegerCallback;
-import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
-import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.view.SlipButton;
 
 public class SettingActivity extends BaseActivity implements OnClickListener, SlipButton.OnChangedListener {

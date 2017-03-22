@@ -5,7 +5,7 @@
     <dimen name="title_bar_txt_size">20sp</dimen>
     <dimen name="default_btn_radius">5dp</dimen>
     <dimen name="view_left_right_padding">28dp</dimen>
-    <dimen name="title_bar_height">40dp</dimen>
+    <dimen name="title_bar_height">48dp</dimen>
 
     <!-- Login页面 -->
     <dimen name="login_email_txt_size">18sp</dimen>
@@ -35,5 +35,6 @@
     <dimen name="drop_down_list_header_padding_bottom">5dp</dimen>
     <dimen name="drop_down_list_header_release_min_distance">0dp</dimen>
     <dimen name="drop_down_list_header_progress_bar_height">36dp</dimen>
+    <dimen name="image">80dp</dimen>
 
 </resources>

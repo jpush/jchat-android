@@ -12,7 +12,6 @@
         android:layout_height="match_parent"
         android:id="@+id/friend_recommend_list_view"
         android:divider="@null">
-
     </ListView>
 
 </LinearLayout>

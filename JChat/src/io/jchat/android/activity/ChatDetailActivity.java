@@ -25,6 +25,7 @@ import android.widget.Toast;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
@@ -84,6 +85,7 @@ public class ChatDetailActivity extends BaseActivity {
                 private CharSequence temp = "";
                 private int editStart;
                 private int editEnd;
+
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -240,6 +242,7 @@ public class ChatDetailActivity extends BaseActivity {
         super.onResume();
         if (mChatDetailController.getAdapter() != null) {
             mChatDetailController.getAdapter().notifyDataSetChanged();
+            mChatDetailController.getNoDisturb();
         }
     }
 
@@ -317,7 +320,7 @@ public class ChatDetailActivity extends BaseActivity {
             android.os.Message handleMsg = mUIHandler.obtainMessage();
             handleMsg.what = JChatDemoApplication.ON_GROUP_EVENT;
             Bundle bundle = new Bundle();
-            bundle.putLong(JChatDemoApplication.GROUP_ID, ((GroupInfo)msg.getTargetInfo()).getGroupID());
+            bundle.putLong(JChatDemoApplication.GROUP_ID, ((GroupInfo) msg.getTargetInfo()).getGroupID());
             handleMsg.setData(bundle);
             handleMsg.sendToTarget();
         }

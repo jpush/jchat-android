@@ -57,6 +57,7 @@ public class JChatDemoApplication extends com.activeandroid.app.Application {
     public static final String MEMBERS_COUNT = "membersCount";
     public static String PICTURE_DIR = "sdcard/JChatDemo/pictures/";
     public static String FILE_DIR = "sdcard/JChatDemo/recvFiles/";
+    public static boolean isNeedAtMsg = true;
 
 
     @Override
@@ -64,6 +65,7 @@ public class JChatDemoApplication extends com.activeandroid.app.Application {
         super.onCreate();
         Log.i("JpushDemoApplication", "init");
         //初始化JMessage-sdk，第二个参数表示开启漫游
+        JMessageClient.setDebugMode(true);
         JMessageClient.init(getApplicationContext(), true);
         SharePreferenceManager.init(getApplicationContext(), JCHAT_CONFIGS);
         //设置Notification的模式

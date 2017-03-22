@@ -42,7 +42,6 @@ import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.LocationContent;
-import cn.jpush.im.android.api.content.MessageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ContentType;
@@ -56,10 +55,10 @@ import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.activity.BrowserViewPagerActivity;
 import io.jchat.android.activity.SendLocationActivity;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.MsgListAdapter.ViewHolder;
 import io.jchat.android.chatting.utils.FileHelper;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.utils.IdHelper;
-import io.jchat.android.chatting.MsgListAdapter.ViewHolder;
 import io.jchat.android.entity.FileType;
 
 public class ChatItemController {
@@ -127,7 +126,7 @@ public class ChatItemController {
         if (msg.getDirect() == MessageDirect.send) {
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                    if (null != mUserInfo/* && !mUserInfo.isFriend()*/) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
                     }
@@ -177,22 +176,38 @@ public class ChatItemController {
         final ImageContent imgContent = (ImageContent) msg.getContent();
         // 先拿本地缩略图
         final String path = imgContent.getLocalThumbnailPath();
+
+        if (path == null) {
+            //从服务器上拿缩略图
+            imgContent.downloadThumbnailImage(msg, new DownloadCompletionCallback() {
+                @Override
+                public void onComplete(int status, String desc, File file) {
+                    if (status == 0) {
+                        Picasso.with(mContext).load(file).into(holder.picture);
+                    }
+                }
+            });
+        } else {
+            setPictureScale(path, holder.picture);
+            Picasso.with(mContext).load(new File(path)).into(holder.picture);
+        }
+
         // 接收图片
         if (msg.getDirect() == MessageDirect.receive) {
-            if (path == null) {
-                //从服务器上拿缩略图
-                imgContent.downloadThumbnailImage(msg, new DownloadCompletionCallback() {
-                    @Override
-                    public void onComplete(int status, String desc, File file) {
-                        if (status == 0) {
-                            Picasso.with(mContext).load(file).into(holder.picture);
-                        }
-                    }
-                });
-            } else {
-                setPictureScale(path, holder.picture);
-                Picasso.with(mContext).load(new File(path)).into(holder.picture);
-            }
+//            if (path == null) {
+//                //从服务器上拿缩略图
+//                imgContent.downloadThumbnailImage(msg, new DownloadCompletionCallback() {
+//                    @Override
+//                    public void onComplete(int status, String desc, File file) {
+//                        if (status == 0) {
+//                            Picasso.with(mContext).load(file).into(holder.picture);
+//                        }
+//                    }
+//                });
+//            } else {
+//                setPictureScale(path, holder.picture);
+//                Picasso.with(mContext).load(new File(path)).into(holder.picture);
+//            }
             //群聊中显示昵称
             if (mConv.getType() == ConversationType.group) {
                 holder.displayName.setVisibility(View.VISIBLE);
@@ -211,17 +226,17 @@ public class ChatItemController {
             }
             // 发送图片方，直接加载缩略图
         } else {
-            try {
-                setPictureScale(path, holder.picture);
-                Picasso.with(mContext).load(new File(path)).into(holder.picture);
-            } catch (NullPointerException e) {
-                Picasso.with(mContext).load(IdHelper.getDrawable(mContext, "jmui_picture_not_found"))
-                        .into(holder.picture);
-            }
+//            try {
+//                setPictureScale(path, holder.picture);
+//                Picasso.with(mContext).load(new File(path)).into(holder.picture);
+//            } catch (NullPointerException e) {
+//                Picasso.with(mContext).load(IdHelper.getDrawable(mContext, "jmui_picture_not_found"))
+//                        .into(holder.picture);
+//            }
             //检查状态
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                    if (null != mUserInfo/* && !mUserInfo.isFriend()*/) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
                     } else {
@@ -349,7 +364,7 @@ public class ChatItemController {
             holder.voice.setImageResource(IdHelper.getDrawable(mContext, "jmui_send_3"));
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                    if (null != mUserInfo/* && !mUserInfo.isFriend()*/) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
                     }
@@ -466,7 +481,7 @@ public class ChatItemController {
             }
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                    if (null != mUserInfo/* && !mUserInfo.isFriend()*/) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
                     } else {
@@ -560,7 +575,10 @@ public class ChatItemController {
         if (msg.getDirect() == MessageDirect.send) {
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                    holder.progressTv.setVisibility(View.VISIBLE);
+                    holder.progressTv.setText("0%");
+                    holder.resend.setVisibility(View.GONE);
+                    if (null != mUserInfo/* && !mUserInfo.isFriend()*/) {
                         holder.progressTv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
                     } else {
@@ -741,12 +759,13 @@ public class ChatItemController {
             holder.groupChange.setVisibility(View.GONE);
         }
 
-        if (notFriendFlag != null && notFriendFlag) {
-            holder.groupChange.setText(IdHelper.getString(mContext, "send_target_is_not_friend"));
-            holder.groupChange.setVisibility(View.VISIBLE);
-        } else {
-            holder.groupChange.setVisibility(View.GONE);
-        }
+//        if (notFriendFlag != null && notFriendFlag) {
+//            holder.groupChange.setText(IdHelper.getString(mContext, "send_target_is_not_friend"));
+//            holder.groupChange.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.groupChange.setVisibility(View.GONE);
+//        }
+        holder.groupChange.setVisibility(View.GONE);
     }
 
 
@@ -876,7 +895,7 @@ public class ChatItemController {
                                             @Override
                                             public void copyCallback(Uri uri) {
                                                 Toast.makeText(mContext, mContext.getString(IdHelper
-                                                        .getString(mContext, "file_already_copy_hint")),
+                                                                .getString(mContext, "file_already_copy_hint")),
                                                         Toast.LENGTH_SHORT).show();
                                                 browseDocument(fileName, newPath);
                                             }
@@ -1021,10 +1040,13 @@ public class ChatItemController {
         //计算图片缩放比例
         double imageWidth = opts.outWidth;
         double imageHeight = opts.outHeight;
-        if (imageWidth < 100 * mDensity) {
+        if (imageWidth < 100 * mDensity /*&& imageHeight < 300 * mDensity*/) {
             imageHeight = imageHeight * (100 * mDensity / imageWidth);
             imageWidth = 100 * mDensity;
-        }
+        } /*else {
+            imageWidth = 100 * mDensity;
+            imageHeight = imageHeight * (30 * mDensity / imageWidth);
+        }*/
         ViewGroup.LayoutParams params = imageView.getLayoutParams();
         params.width = (int) imageWidth;
         params.height = (int) imageHeight;

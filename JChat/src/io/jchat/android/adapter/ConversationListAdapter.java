@@ -17,14 +17,12 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.MessageContent;
@@ -34,10 +32,11 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.chatting.utils.HandleResponseCode;
-import io.jchat.android.tools.SortConvList;
-import io.jchat.android.chatting.utils.TimeFormat;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.CircleImageView;
+import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.chatting.utils.TimeFormat;
+import io.jchat.android.tools.SortConvList;
 import io.jchat.android.tools.ViewHolder;
 
 public class ConversationListAdapter extends BaseAdapter {
@@ -203,9 +202,9 @@ public class ConversationListAdapter extends BaseAdapter {
                         Boolean notFriendFlag = customContent.getBooleanValue("notFriend");
                         if (isBlackListHint != null && isBlackListHint) {
                             contentStr = mContext.getString(R.string.jmui_server_803008);
-                        } else if (notFriendFlag != null && notFriendFlag) {
+                        }/* else if (notFriendFlag != null && notFriendFlag) {
                             contentStr = mContext.getString(R.string.send_target_is_not_friend);
-                        } else {
+                        } */else {
                             contentStr = mContext.getString(R.string.type_custom);
                         }
                         break;
@@ -223,7 +222,8 @@ public class ConversationListAdapter extends BaseAdapter {
                     }
                 }
 
-                if (mArray.get(position)) {
+                if (mArray.get(position) && JChatDemoApplication.isNeedAtMsg) {
+                    //有人@我 文字提示
                     contentStr = mContext.getString(R.string.somebody_at_me) + contentStr;
                     SpannableStringBuilder builder = new SpannableStringBuilder(contentStr);
                     builder.setSpan(new ForegroundColorSpan(Color.RED), 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

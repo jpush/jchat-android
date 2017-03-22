@@ -32,7 +32,6 @@ import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
-import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
@@ -51,12 +50,12 @@ import io.jchat.android.activity.PickPictureTotalActivity;
 import io.jchat.android.activity.SendFileActivity;
 import io.jchat.android.activity.SendLocationActivity;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.utils.BitmapLoader;
 import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.FileHelper;
 import io.jchat.android.chatting.utils.IdHelper;
 import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.entity.Event;
-import io.jchat.android.chatting.utils.BitmapLoader;
-import io.jchat.android.chatting.utils.FileHelper;
 import io.jchat.android.entity.EventType;
 
 /*
@@ -130,6 +129,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         mTitle = intent.getStringExtra(JChatDemoApplication.CONV_TITLE);
         mMyInfo = JMessageClient.getMyInfo();
         if (!TextUtils.isEmpty(mTargetId)) {
+            //单聊
             mIsSingle = true;
             mConv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
             mChatView.setChatTitle(mTitle);
@@ -139,6 +139,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             mUserInfo = (UserInfo) mConv.getTargetInfo();
             mChatAdapter = new MsgListAdapter(mContext, mConv, longClickListener);
         } else {
+            //群聊
             mIsSingle = false;
             mGroupId = intent.getLongExtra(GROUP_ID, 0);
             final boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
@@ -159,6 +160,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     UserInfo userInfo = groupInfo.getGroupMemberInfo(mMyInfo.getUserName(), mMyInfo.getAppKey());
                     //如果自己在群聊中，聊天标题显示群人数
                     if (userInfo != null) {
+                        // TODO: 2017/3/2
                         if (!TextUtils.isEmpty(groupInfo.getGroupName())) {
                             mChatView.setChatTitle(mTitle, groupInfo.getGroupMembers().size());
                         } else {
@@ -315,17 +317,28 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 msg = mConv.createSendMessage(content);
             }
             mChatAdapter.addMsgToList(msg);
+//            if (mIsSingle) {
+//                UserInfo userInfo = (UserInfo) msg.getTargetInfo();
+//                if (userInfo.isFriend()) {
+//                    JMessageClient.sendMessage(msg);
+//                } else {
+//                    CustomContent customContent = new CustomContent();
+//                    customContent.setBooleanValue("notFriend", true);
+//                    Message customMsg = mConv.createSendMessage(customContent);
+//                    mChatAdapter.addMsgToList(customMsg);
+//                }
+//            } else {
+//                JMessageClient.sendMessage(msg);
+//            }
             if (mIsSingle) {
                 UserInfo userInfo = (UserInfo) msg.getTargetInfo();
                 if (userInfo.isFriend()) {
                     JMessageClient.sendMessage(msg);
                 } else {
-                    CustomContent customContent = new CustomContent();
-                    customContent.setBooleanValue("notFriend", true);
-                    Message customMsg = mConv.createSendMessage(customContent);
-                    mChatAdapter.addMsgToList(customMsg);
+                    Toast.makeText(ChatActivity.this, "对方不是你的好友.也可以发消息", Toast.LENGTH_SHORT).show();
+                    JMessageClient.sendMessage(msg);
                 }
-            } else {
+            }else {
                 JMessageClient.sendMessage(msg);
             }
             if (null != mAtList) {
@@ -387,7 +400,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
             intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
             startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_SEND_FILE);
-        // 滚动到 @我 的那条消息处
+            // 滚动到 @我 的那条消息处
         } else if (v.getId() == IdHelper.getViewID(mContext, "jmui_at_me_btn")) {
             if (mUnreadMsgCnt < MsgListAdapter.PAGE_MESSAGE_COUNT) {
                 int position = MsgListAdapter.PAGE_MESSAGE_COUNT + mAtMsgId - mConv.getLatestMessage().getId();
@@ -491,6 +504,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         if (!mIsSingle) {
             long groupId = getIntent().getLongExtra(GROUP_ID, 0);
             if (groupId != 0) {
+                JChatDemoApplication.isNeedAtMsg = false;
                 JMessageClient.enterGroupConversation(groupId);
             }
         } else if (null != targetId) {
@@ -594,7 +608,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                         if (status == 0) {
                             Message msg = conv.createSendMessage(imageContent);
                             Intent intent = new Intent();
-                            intent.putExtra(MsgIDs, new int[]{msg.getId()});
+                            intent.putExtra(MsgIDs, new int[] {msg.getId()});
                             handleSendMsg(intent);
                         }
                     }
@@ -684,6 +698,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                         } else {
                             activity.mChatView.getListView().setSelection(0);
                         }
+                        //显示上一页的消息数18条
                         activity.mChatView.getListView()
                                 .setOffset(activity.mChatAdapter.getOffset());
                         break;

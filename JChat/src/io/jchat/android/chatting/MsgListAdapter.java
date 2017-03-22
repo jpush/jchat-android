@@ -21,26 +21,25 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
-import cn.jpush.im.android.api.content.CustomContent;
-import cn.jpush.im.android.api.enums.ConversationType;
-import cn.jpush.im.android.api.enums.MessageStatus;
-import cn.jpush.im.android.api.model.GroupInfo;
-import cn.jpush.im.android.api.model.UserInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.enums.ContentType;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
+import cn.jpush.im.android.api.enums.MessageStatus;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.activity.SearchFriendDetailActivity;
@@ -49,7 +48,6 @@ import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.utils.IdHelper;
 import io.jchat.android.chatting.utils.TimeFormat;
-import cn.jpush.im.api.BasicCallback;
 
 @SuppressLint("NewApi")
 public class MsgListAdapter extends BaseAdapter {
@@ -220,14 +218,15 @@ public class MsgListAdapter extends BaseAdapter {
             Message message = mMsgQueue.element();
             if (mConv.getType() == ConversationType.single) {
                 UserInfo userInfo = (UserInfo) message.getTargetInfo();
-                if (userInfo.isFriend()) {
-                    sendNextImgMsg(message);
-                } else {
-                    CustomContent customContent = new CustomContent();
-                    customContent.setBooleanValue("notFriend", true);
-                    Message customMsg = mConv.createSendMessage(customContent);
-                    addMsgToList(customMsg);
-                }
+                sendNextImgMsg(message);
+//                if (userInfo.isFriend()) {
+//                    sendNextImgMsg(message);
+//                } else {
+//                    CustomContent customContent = new CustomContent();
+//                    customContent.setBooleanValue("notFriend", true);
+//                    Message customMsg = mConv.createSendMessage(customContent);
+//                    addMsgToList(customMsg);
+//                }
             } else {
                 sendNextImgMsg(message);
             }
@@ -251,14 +250,15 @@ public class MsgListAdapter extends BaseAdapter {
             Message message = mMsgQueue.element();
             if (mConv.getType() == ConversationType.single) {
                 UserInfo userInfo = (UserInfo) message.getTargetInfo();
-                if (userInfo.isFriend()) {
-                    sendNextImgMsg(message);
-                } else {
-                    CustomContent customContent = new CustomContent();
-                    customContent.setBooleanValue("notFriend", true);
-                    Message customMsg = mConv.createSendMessage(customContent);
-                    addMsgToList(customMsg);
-                }
+                sendNextImgMsg(message);
+//                if (userInfo.isFriend()) {
+//                    sendNextImgMsg(message);
+//                } else {
+//                    CustomContent customContent = new CustomContent();
+//                    customContent.setBooleanValue("notFriend", true);
+//                    Message customMsg = mConv.createSendMessage(customContent);
+//                    addMsgToList(customMsg);
+//                }
             } else {
                 sendNextImgMsg(message);
             }
@@ -612,14 +612,14 @@ public class MsgListAdapter extends BaseAdapter {
                 }
             }
         };
-        if (mConv.getType() == ConversationType.single) {
-            UserInfo userInfo = (UserInfo) msg.getTargetInfo();
-            if (!userInfo.isFriend()) {
-                Toast.makeText(mContext, IdHelper.getString(mContext, "send_target_is_not_friend"),
-                        Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
+//        if (mConv.getType() == ConversationType.single) {
+//            UserInfo userInfo = (UserInfo) msg.getTargetInfo();
+//            if (!userInfo.isFriend()) {
+//                Toast.makeText(mContext, IdHelper.getString(mContext, "send_target_is_not_friend"),
+//                        Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//        }
         mDialog = DialogCreator.createResendDialog(mContext, listener);
         mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         mDialog.show();

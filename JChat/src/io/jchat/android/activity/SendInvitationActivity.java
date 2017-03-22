@@ -93,6 +93,8 @@ public class SendInvitationActivity extends BaseActivity {
                             Toast.makeText(context, context.getString(R.string.sent_request),
                                     Toast.LENGTH_SHORT).show();
                             SendInvitationActivity.this.finish();
+                        } else if (status == 805002) {
+                            Toast.makeText(SendInvitationActivity.this, "对方已经是您的好友", Toast.LENGTH_SHORT).show();
                         } else {
                             HandleResponseCode.onHandle(context, status, false);
                         }

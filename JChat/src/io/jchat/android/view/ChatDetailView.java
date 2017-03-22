@@ -35,7 +35,7 @@ public class ChatDetailView extends LinearLayout{
 	private TextView mGroupNum;
 	private TextView mMyName;
 	private GroupGridView mGridView;
-	private SlipButton mNoDisturbBtn;
+	public static SlipButton mNoDisturbBtn;
 	private SlipButton mBlockBtn;
     private RelativeLayout mBlockRl;
     private View mBlockLine;

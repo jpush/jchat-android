@@ -93,22 +93,9 @@
         </receiver>
 
         <!-- Required Push SDK核心功能 -->
-        <activity
-            android:name="cn.jpush.android.ui.PushActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="cn.jpush.android.ui.PushActivity" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="${applicationId}" />
-            </intent-filter>
-        </activity>
         <!-- Required Push SDK核心功能 -->
-        <service
-            android:name="cn.jpush.android.service.DownloadService"
-            android:enabled="true"
-            android:exported="false" />
+
         <!-- Required Push SDK核心功能 -->
         <receiver android:name="cn.jpush.android.service.AlarmReceiver" />
 
@@ -127,16 +114,7 @@
 
         <!-- option 可选项。用于同一设备中不同应用的JPush服务相互拉起的功能。 -->
         <!-- 若不启用该功能可删除该组件，将不拉起其他应用也不能被其他应用拉起 -->
-        <service
-            android:name="cn.jpush.android.service.DaemonService"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="cn.jpush.android.intent.DaemonService" />
-                <category android:name="${applicationId}" />
-            </intent-filter>
 
-        </service>
 
         <service android:name="com.baidu.location.f" android:enabled="true"
             android:process=":remote">

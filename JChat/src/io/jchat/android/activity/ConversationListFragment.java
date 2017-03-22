@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
-import android.widget.Toast;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
@@ -35,10 +34,11 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
+import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
 import io.jchat.android.entity.Event;
-import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.view.ConversationListView;
 import io.jchat.android.view.MenuItemView;
 
@@ -160,6 +160,7 @@ public class ConversationListFragment extends BaseFragment {
             Conversation conv = JMessageClient.getGroupConversation(groupID);
             if (conv != null && mConvListController != null) {
                 if (msg.isAtMe()) {
+                    JChatDemoApplication.isNeedAtMsg = true;
                     mConvListController.getAdapter().putAtConv(conv, msg.getId());
                 }
                 mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST,
@@ -209,8 +210,6 @@ public class ConversationListFragment extends BaseFragment {
      * @param event 漫游完成后， 刷新会话事件
      */
     public void onEvent(ConversationRefreshEvent event) {
-        Toast.makeText(mContext, mContext.getString(R.string.conv_refresh_succeed),
-                Toast.LENGTH_SHORT).show();
         Conversation conv = event.getConversation();
         mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
     }

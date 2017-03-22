@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,8 +25,8 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
@@ -259,14 +260,15 @@ public class RecordVoiceButton extends Button {
                         mMsgListAdapter.addMsgToList(msg);
                         if (mConv.getType() == ConversationType.single) {
                             UserInfo userInfo = (UserInfo) msg.getTargetInfo();
-                            if (userInfo.isFriend()) {
-                                JMessageClient.sendMessage(msg);
-                            } else {
-                                CustomContent customContent = new CustomContent();
-                                customContent.setBooleanValue("notFriend", true);
-                                Message customMsg = mConv.createSendMessage(customContent);
-                                mMsgListAdapter.addMsgToList(customMsg);
-                            }
+                            JMessageClient.sendMessage(msg);
+//                            if (userInfo.isFriend()) {
+//                                JMessageClient.sendMessage(msg);
+//                            } else {
+//                                CustomContent customContent = new CustomContent();
+//                                customContent.setBooleanValue("notFriend", true);
+//                                Message customMsg = mConv.createSendMessage(customContent);
+//                                mMsgListAdapter.addMsgToList(customMsg);
+//                            }
                         } else {
                             JMessageClient.sendMessage(msg);
                         }

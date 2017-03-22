@@ -70,6 +70,7 @@ public class MainActivity extends FragmentActivity {
             startActivity(intent);
             finish();
         } else {
+            //已经登录过但是没设置头像,就跳转到设置头像界面
             JChatDemoApplication.setPicturePath(myInfo.getAppKey());
             if (TextUtils.isEmpty(myInfo.getNickname()) && flag) {
                 Intent intent = new Intent();

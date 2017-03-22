@@ -37,10 +37,9 @@ import io.jchat.android.activity.MembersInChatActivity;
 import io.jchat.android.activity.SearchFriendDetailActivity;
 import io.jchat.android.adapter.GroupMemberGridAdapter;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.chatting.utils.SharePreferenceManager;
-import io.jchat.android.entity.Event;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.entity.Event;
 import io.jchat.android.entity.EventType;
 import io.jchat.android.view.ChatDetailView;
 import io.jchat.android.view.SlipButton;
@@ -60,7 +59,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     // 空白项的项数
     // 除了群成员Item和添加、删除按钮，剩下的都看成是空白项，
     // 对应的mRestNum[mCurrent%4]的值即为空白项的数目
-    private int[] mRestArray = new int[]{2, 1, 0, 3};
+    private int[] mRestArray = new int[] {2, 1, 0, 3};
     private boolean mIsGroup = false;
     private boolean mIsCreator = false;
     private long mGroupId;
@@ -204,8 +203,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                                 Conversation conv;
                                 if (mIsGroup) {
                                     conv = JMessageClient.getGroupConversation(mGroupId);
-                                }
-                                else {
+                                } else {
                                     conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
                                 }
                                 if (conv != null) {
@@ -380,7 +378,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         commit.setOnClickListener(listener);
     }
 
-    private void getUserInfo(final String targetId, final Dialog dialog){
+    private void getUserInfo(final String targetId, final Dialog dialog) {
         JMessageClient.getUserInfo(targetId, new GetUserInfoCallback() {
             @Override
             public void gotResult(final int status, String desc, final UserInfo userInfo) {
@@ -553,6 +551,13 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         }
     }
 
+    public void getNoDisturb() {
+        if (mUserInfo != null) {
+            ChatDetailView.mNoDisturbBtn.setChecked(mUserInfo.getNoDisturb() == 1);
+        }
+
+    }
+
     private static class MyHandler extends Handler {
         private final WeakReference<ChatDetailController> mController;
 
@@ -577,7 +582,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
                         } else {
                             if (userInfo.getUserName().equals(controller.mMyUsername)
-                                    || userInfo.getUserName().equals(controller.mTargetId)){
+                                    || userInfo.getUserName().equals(controller.mTargetId)) {
                                 HandleResponseCode.onHandle(controller.mContext, 1002, false);
                                 return;
                             } else {
@@ -591,7 +596,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                         ArrayList<String> users = (ArrayList<String>) msg.obj;
                         if (controller.mIsGroup) {
                             controller.addMembers(users);
-                        //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
+                            //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
                         } else {
                             if (controller.mLoadingDialog != null) {
                                 controller.mLoadingDialog.dismiss();
@@ -683,7 +688,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     public String getName() {
         if (mIsGroup) {
             return mGroupName;
-        }else {
+        } else {
             Conversation conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
             return conv.getTitle();
         }

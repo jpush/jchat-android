@@ -47,12 +47,14 @@ public class ContactsView extends LinearLayout{
         mSearchEt = (EditText) findViewById(R.id.search_et);
         mDeleteBtn = (ImageButton) findViewById(R.id.delete_ib);
         mHint = (TextView) findViewById(R.id.contact_hint);
+
         mListView = (StickyListHeadersListView) findViewById(R.id.sticky_list_view);
         mSideBar = (SideBar) findViewById(R.id.sidebar);
         mLetterHintTv = (TextView) findViewById(R.id.letter_hint_tv);
         mSideBar.setTextView(mLetterHintTv);
         mSideBar.setRatioAndDensity(ratio, density);
         mSideBar.bringToFront();
+
         View header = mInflater.inflate(R.layout.contact_list_header, null);
         mFriendVerifyRl = (RelativeLayout) header.findViewById(R.id.verify_rl);
         mGroupRl = (RelativeLayout) header.findViewById(R.id.group_chat_rl);
@@ -60,7 +62,7 @@ public class ContactsView extends LinearLayout{
         RelativeLayout loadingHeader = (RelativeLayout) mInflater.inflate(R.layout.jmui_drop_down_list_header, null);
         mLoadingIv = (ImageView) loadingHeader.findViewById(R.id.jmui_loading_img);
         mNewFriendNum.setVisibility(INVISIBLE);
-        mListView.addHeaderView(header);
+        mListView.addHeaderView(header, null, false);
         mListView.addHeaderView(loadingHeader);
         mListView.setDrawingListUnderStickyHeader(true);
         mListView.setAreHeadersSticky(true);

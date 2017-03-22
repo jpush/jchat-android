@@ -146,7 +146,7 @@ public class SideBar extends View {
      * @author coder
      */
     public interface OnTouchingLetterChangedListener {
-        public void onTouchingLetterChanged(String s);
+         void onTouchingLetterChanged(String s);
     }
 
     public void setRatioAndDensity(float ratio, float density) {

@@ -15,7 +15,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
@@ -39,7 +38,6 @@ import com.baidu.mapapi.model.LatLng;
 import java.util.UUID;
 
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.LocationContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
@@ -197,14 +195,15 @@ public class SendLocationActivity extends BaseActivity {
                             intent.putExtra(JChatDemoApplication.MsgIDs, msg.getId());
                             if (conv.getType() == ConversationType.single) {
                                 UserInfo userInfo = (UserInfo) conv.getTargetInfo();
-                                if (userInfo.isFriend()) {
-                                    JMessageClient.sendMessage(msg);
-                                } else {
-                                    CustomContent customContent = new CustomContent();
-                                    customContent.setBooleanValue("notFriend", true);
-                                    Message customMsg = conv.createSendMessage(customContent);
-                                    intent.putExtra("customMsg", customMsg.getId());
-                                }
+                                JMessageClient.sendMessage(msg);
+//                                if (userInfo.isFriend()) {
+//                                    JMessageClient.sendMessage(msg);
+//                                } else {
+//                                    CustomContent customContent = new CustomContent();
+//                                    customContent.setBooleanValue("notFriend", true);
+//                                    Message customMsg = conv.createSendMessage(customContent);
+//                                    intent.putExtra("customMsg", customMsg.getId());
+//                                }
                             } else {
                                 JMessageClient.sendMessage(msg);
                             }

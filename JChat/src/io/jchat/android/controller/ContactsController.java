@@ -1,7 +1,6 @@
 package io.jchat.android.controller;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -18,12 +17,12 @@ import java.util.List;
 
 import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.activity.FriendRecommendActivity;
 import io.jchat.android.adapter.StickyListAdapter;
-import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.database.FriendEntry;
 import io.jchat.android.database.UserEntry;
@@ -39,6 +38,7 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
     private Activity mContext;
     private List<FriendEntry> mList = new ArrayList<FriendEntry>();
     private StickyListAdapter mAdapter;
+    private UserInfo mUserInfo;
 
     public ContactsController(ContactsView mContactsView, Activity context) {
         this.mContactsView = mContactsView;
@@ -58,6 +58,7 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
                         ActiveAndroid.beginTransaction();
                         try {
                             for (UserInfo userInfo : list) {
+                                mUserInfo = userInfo;
                                 String displayName = userInfo.getNotename();
                                 if (TextUtils.isEmpty(displayName)) {
                                     displayName = userInfo.getNickname();
@@ -203,6 +204,23 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
         final UserEntry user = UserEntry.getUser(JMessageClient.getMyInfo().getUserName(),
                 JMessageClient.getMyInfo().getAppKey());
         mList = user.getFriends();
+        for (final FriendEntry en : mList) {
+            JMessageClient.getUserInfo(en.username, new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int i, String s, UserInfo userInfo) {
+                    if (userInfo.isFriend()) {
+                        //是好友
+                    } else {
+                        //不是好友
+                        FriendEntry entry = FriendEntry.getFriend(user, userInfo.getUserName(), userInfo.getAppKey());
+                        entry.delete();
+                        UserEntry user = UserEntry.getUser(JMessageClient.getMyInfo().getUserName(),
+                                JMessageClient.getMyInfo().getAppKey());
+                        mList = user.getFriends();
+                    }
+                }
+            });
+        }
         Collections.sort(mList, new PinyinComparator());
         mAdapter = new StickyListAdapter(mContext, mList, false);
         mContactsView.setAdapter(mAdapter);

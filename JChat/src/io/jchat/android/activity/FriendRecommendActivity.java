@@ -41,6 +41,8 @@ public class FriendRecommendActivity extends BaseActivity {
         mClearBtn = (ImageButton) findViewById(R.id.right_btn);
         mClearBtn.setImageDrawable(this.getResources().getDrawable(R.drawable.delete));
         mListView = (ListView) findViewById(R.id.friend_recommend_list_view);
+
+
         UserEntry user = JChatDemoApplication.getUserEntry();
         if (null != user) {
             mList = user.getRecommends();

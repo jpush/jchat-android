@@ -6,11 +6,13 @@
 
     <io.jchat.android.view.UnderlineTextView
         android:id="@+id/section_tv"
+        android:clickable="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="start|left"
-        android:padding="5dp"
+        android:padding="3dp"
         android:textColor="@color/section_text_color"
-        android:textSize="17sp"
+        android:textSize="10sp"
+        android:text="A"
         android:textStyle="bold" />
 </RelativeLayout>
