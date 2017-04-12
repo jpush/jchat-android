@@ -4,7 +4,6 @@ package io.jchat.android.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -33,7 +31,6 @@ import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
-import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
@@ -42,8 +39,10 @@ import java.util.UUID;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.LocationContent;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.BitmapLoader;
@@ -194,7 +193,21 @@ public class SendLocationActivity extends BaseActivity {
                             Intent intent = new Intent();
                             Message msg = conv.createSendMessage(locationContent);
                             intent.putExtra(JChatDemoApplication.MsgIDs, msg.getId());
-                            JMessageClient.sendMessage(msg);
+                            if (conv.getType() == ConversationType.single) {
+                                UserInfo userInfo = (UserInfo) conv.getTargetInfo();
+                                JMessageClient.sendMessage(msg);
+//                                if (userInfo.isFriend()) {
+//                                    JMessageClient.sendMessage(msg);
+//                                } else {
+//                                    CustomContent customContent = new CustomContent();
+//                                    customContent.setBooleanValue("notFriend", true);
+//                                    Message customMsg = conv.createSendMessage(customContent);
+//                                    intent.putExtra("customMsg", customMsg.getId());
+//                                }
+                            } else {
+                                JMessageClient.sendMessage(msg);
+                            }
+
                             setResult(JChatDemoApplication.RESULT_CODE_SEND_LOCATION, intent);
                             finish();
                         } else {

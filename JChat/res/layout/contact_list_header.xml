@@ -60,7 +60,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/verify_rl"
         android:padding="10dp"
-        android:background="@drawable/jmui_list_item_bg">
+        android:background="@drawable/jmui_list_item_bg"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/group_icon"

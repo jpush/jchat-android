@@ -1,6 +1,8 @@
 package io.jchat.android.chatting;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
@@ -18,7 +20,11 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
+
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
+import io.jchat.android.activity.AtMemberActivity;
+import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.IdHelper;
 import io.jchat.android.chatting.utils.SharePreferenceManager;
 
@@ -44,6 +50,7 @@ public class ChatView extends RelativeLayout {
 	Context mContext;
     private OnSizeChangedListener mListener;
     private OnKeyBoardChangeListener mKeyboardListener;
+    private Button mAtMeBtn;
 
 	public static final byte KEYBOARD_STATE_SHOW = -3;
 	public static final byte KEYBOARD_STATE_HIDE = -2;
@@ -51,6 +58,8 @@ public class ChatView extends RelativeLayout {
 	private boolean mHasInit;
 	private boolean mHasKeybord;
 	private int mHeight;
+    private Conversation mConv;
+    private boolean mLongClick = false;
 
 	public ChatView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -84,6 +93,7 @@ public class ChatView extends RelativeLayout {
         mExpressionIb = (ImageButton) findViewById(IdHelper.getViewID(mContext, "jmui_expression_btn"));
         mLocationIb = (ImageButton) findViewById(IdHelper.getViewID(mContext, "jmui_send_location_btn"));
         mSendFileIb = (ImageButton) findViewById(IdHelper.getViewID(mContext, "jmui_send_file_btn"));
+        mAtMeBtn = (Button) findViewById(IdHelper.getViewID(mContext, "jmui_at_me_btn"));
 
         mBackground.requestFocus();
 		mChatInputEt.addTextChangedListener(watcher);
@@ -160,6 +170,26 @@ public class ChatView extends RelativeLayout {
         mChatInputEt.setText(text);
     }
 
+    public void setAtText(String name) {
+        mLongClick = true;
+        String input = getChatInput() + name + " ";
+        mChatInputEt.setText(input);
+        mChatInputEt.setSelection(mChatInputEt.getText().length());
+    }
+
+    public void setConversation(Conversation conv) {
+        this.mConv = conv;
+    }
+
+    public void showAtMeButton() {
+        mAtMeBtn.setVisibility(VISIBLE);
+    }
+
+    public void setToPosition(int position) {
+        mChatListView.smoothScrollToPosition(position);
+        mAtMeBtn.setVisibility(GONE);
+    }
+
     public interface OnSizeChangedListener {
         void onSizeChanged(int w, int h, int oldw, int oldh);
     }
@@ -180,7 +210,8 @@ public class ChatView extends RelativeLayout {
 			if (temp.length() > 0) {
 				mAddFileIb.setVisibility(View.GONE);
 				mSendMsgBtn.setVisibility(View.VISIBLE);
-			}else {
+                mLongClick = false;
+			} else {
 				mAddFileIb.setVisibility(View.VISIBLE);
 				mSendMsgBtn.setVisibility(View.GONE);
 			}
@@ -196,6 +227,15 @@ public class ChatView extends RelativeLayout {
 		public void onTextChanged(CharSequence s, int start, int count, int after) {
 			// TODO Auto-generated method stub
 			temp = s;
+            if (s.length() > 0 && after >= 1 && s.subSequence(start, start + 1).charAt(0) == '@' && !mLongClick) {
+                if (null != mConv && mConv.getType() == ConversationType.group) {
+                    mKeyboardListener.onKeyBoardStateChange(KEYBOARD_STATE_HIDE);
+                    Intent intent = new Intent(mContext, AtMemberActivity.class);
+                    intent.putExtra(JChatDemoApplication.GROUP_ID, Long.parseLong(mConv.getTargetId()));
+                    ((Activity) mContext).startActivityForResult(intent, JChatDemoApplication
+                            .REQUEST_CODE_AT_MEMBER);
+                }
+            }
 		}
 
 	};
@@ -239,6 +279,7 @@ public class ChatView extends RelativeLayout {
 		mPickPictureIb.setOnClickListener(onClickListener);
 		mLocationIb.setOnClickListener(onClickListener);
 		mSendFileIb.setOnClickListener(onClickListener);
+        mAtMeBtn.setOnClickListener(onClickListener);
 	}
 
     public void setOnTouchListener(OnTouchListener listener) {
@@ -270,11 +311,11 @@ public class ChatView extends RelativeLayout {
 	}
 
 	//语音输入
-	public void notKeyBoard(Conversation conv, MsgListAdapter adapter, ChatView chatView) {
+	public void notKeyBoard(MsgListAdapter adapter, ChatView chatView) {
 		mChatInputEt.setVisibility(View.GONE);
 		mSwitchIb.setBackgroundResource(IdHelper.getDrawable(mContext, "jmui_keyboard"));
 		mVoiceBtn.setVisibility(View.VISIBLE);
-		mVoiceBtn.initConv(conv, adapter, chatView);
+		mVoiceBtn.initConv(mConv, adapter, chatView);
 		mExpressionIb.setVisibility(View.GONE);
         mSendMsgBtn.setVisibility(View.GONE);
         mAddFileIb.setVisibility(View.VISIBLE);

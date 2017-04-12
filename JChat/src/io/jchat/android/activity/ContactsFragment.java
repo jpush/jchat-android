@@ -52,6 +52,7 @@ public class ContactsFragment extends BaseFragment {
         mContactsView.setListeners(mContactsController);
         mContactsView.setSideBarTouchListener(mContactsController);
         mContactsView.setTextWatcher(mContactsController);
+        mContactsController.initContacts();
     }
 
     @Override
@@ -69,7 +70,7 @@ public class ContactsFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         mContactsView.showContact();
-        mContactsController.initContacts();
+        mContactsController.refreshContact();
     }
 
     /**

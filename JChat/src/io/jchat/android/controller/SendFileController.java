@@ -228,15 +228,18 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                         }
                                         content.setStringExtra("fileSize", sizeDisplay);
                                         Message msg = mConv.createSendMessage(content);
-                                        mMsgIds[mIndex.get()] = msg.getId();
-                                        mIndex.incrementAndGet();
-                                        if (mIndex.get() >= mSize) {
-                                            myHandler.sendEmptyMessage(SEND_FILE);
+                                        if (mIndex.get() < mSize) {
+                                            mMsgIds[mIndex.get()] = msg.getId();
+                                            mIndex.incrementAndGet();
+                                            if (mIndex.get() >= mSize) {
+                                                myHandler.sendEmptyMessage(SEND_FILE);
+                                            }
                                         }
                                     } catch (FileNotFoundException e) {
                                         mDialog.dismiss();
                                         Toast.makeText(mContext, mContext.getString(R.string.jmui_file_not_found_toast),
                                                 Toast.LENGTH_SHORT).show();
+                                        mIndex.incrementAndGet();
                                         e.printStackTrace();
                                     } catch (JMFileSizeExceedException e) {
                                         mDialog.dismiss();

@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import java.io.File;
 
-import cn.jpush.android.api.JPushInterface;
+import cn.jiguang.api.JCoreInterface;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -48,13 +48,13 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onPause() {
-        JPushInterface.onPause(this);
+        JCoreInterface.onPause(this);
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        JPushInterface.onResume(this);
+        JCoreInterface.onResume(this);
         //第一次登录需要设置昵称
         boolean flag = SharePreferenceManager.getCachedFixProfileFlag();
         UserInfo myInfo = JMessageClient.getMyInfo();
@@ -70,6 +70,7 @@ public class MainActivity extends FragmentActivity {
             startActivity(intent);
             finish();
         } else {
+            //已经登录过但是没设置头像,就跳转到设置头像界面
             JChatDemoApplication.setPicturePath(myInfo.getAppKey());
             if (TextUtils.isEmpty(myInfo.getNickname()) && flag) {
                 Intent intent = new Intent();

@@ -12,7 +12,6 @@ import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,7 +30,6 @@ import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.chatting.utils.BitmapLoader;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
-import io.jchat.android.database.FriendEntry;
 import io.jchat.android.database.FriendRecommendEntry;
 import io.jchat.android.entity.Event;
 import io.jchat.android.entity.EventType;
@@ -43,7 +41,7 @@ import io.jchat.android.tools.ViewHolder;
 public class FriendRecommendAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<FriendRecommendEntry> mList = new ArrayList<FriendRecommendEntry>();
+    private List<FriendRecommendEntry> mList = new ArrayList<>();
     private LayoutInflater mInflater;
     private float mDensity;
     private Dialog mDialog;

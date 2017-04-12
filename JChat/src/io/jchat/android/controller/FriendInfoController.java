@@ -22,6 +22,7 @@ import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.database.FriendEntry;
+import io.jchat.android.database.FriendRecommendEntry;
 import io.jchat.android.view.FriendInfoView;
 import io.jchat.android.view.SlipButton;
 
@@ -30,6 +31,8 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
     private FriendInfoView mFriendInfoView;
     private FriendInfoActivity mContext;
     private Dialog mDialog;
+    private List<FriendEntry> mList = new ArrayList<FriendEntry>();
+
 
 
     public FriendInfoController(FriendInfoView view, FriendInfoActivity context) {
@@ -86,12 +89,26 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
                                     public void gotResult(int status, String desc) {
                                         dialog.dismiss();
                                         if (status == 0) {
+                                            //将好友删除时候还原黑名单设置
+                                            List<String> name = new ArrayList<>();
+                                            name.add(userInfo.getUserName());
+                                            JMessageClient.delUsersFromBlacklist(name, null);
+
                                             FriendEntry friend = FriendEntry.getFriend(JChatDemoApplication.getUserEntry(),
                                                     userInfo.getUserName(), userInfo.getAppKey());
-                                            friend.delete();
+                                            if (friend != null) {
+                                                friend.delete();
+                                            }
+                                            FriendRecommendEntry entry = FriendRecommendEntry
+                                                    .getEntry(JChatDemoApplication.getUserEntry(),
+                                                            userInfo.getUserName(), userInfo.getAppKey());
+                                            if (entry != null) {
+                                                entry.delete();
+                                            }
                                             Toast.makeText(mContext, mContext.getString(R.string
                                                     .friend_already_deleted_hint), Toast.LENGTH_SHORT).show();
                                             mContext.delConvAndReturnMainActivity();
+                                            //删除好友后
                                         } else {
                                             HandleResponseCode.onHandle(mContext, status, false);
                                         }
@@ -101,7 +118,7 @@ public class FriendInfoController implements OnClickListener, SlipButton.OnChang
                         }
                     }
                 };
-                mDialog = DialogCreator.createDelFriendDialog(mContext,
+                mDialog = DialogCreator.createBaseDialogWithTitle(mContext,
                         mContext.getString(R.string.delete_friend_dialog_title), listener);
                 mDialog.getWindow().setLayout((int) (0.8 * mContext.getWidth()), WindowManager.LayoutParams.WRAP_CONTENT);
                 mDialog.show();

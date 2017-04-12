@@ -6,7 +6,7 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import cn.jpush.android.Configs;
+import cn.jiguang.api.JCoreInterface;
 
 
 /**
@@ -27,7 +27,7 @@ public class TimeFormat {
 
     //用于显示会话时间
     public String getTime() {
-        long currentTime = Configs.getReportTime();
+        long currentTime = JCoreInterface.getReportTime();
         Date date1 = new Date(currentTime * 1000);
         Date date2 = new Date(mTimeStamp);
         SimpleDateFormat format = new SimpleDateFormat(mContext.getString(IdHelper.getString(mContext,
@@ -77,7 +77,7 @@ public class TimeFormat {
 
     //用于显示消息具体时间
     public String getDetailTime() {
-        long currentTime = Configs.getReportTime();
+        long currentTime = JCoreInterface.getReportTime();
         Date date1 = new Date(currentTime * 1000);
         Date date2 = new Date(mTimeStamp);
         SimpleDateFormat format = new SimpleDateFormat(mContext.getString(IdHelper.getString(mContext,

@@ -5,16 +5,6 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <!-- 首字母 -->
-    <TextView
-        android:id="@+id/alpha"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#F8F8F8"
-        android:paddingLeft="10dip"
-        android:textColor="#858585"
-        android:visibility="gone" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +12,7 @@
 
     <!-- 联系人信息 -->
     <io.jchat.android.chatting.CircleImageView
-        android:id="@+id/imageView"
+        android:id="@+id/head_icon_iv"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignParentLeft="true"
@@ -35,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_centerInParent="true"
-        android:layout_toRightOf="@id/imageView"
+        android:layout_toRightOf="@id/head_icon_iv"
         android:maxLines="1"
         android:text="@string/username_hit"
         android:textSize="20sp"

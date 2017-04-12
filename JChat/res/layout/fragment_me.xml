@@ -51,117 +51,117 @@
 
     </FrameLayout>
 
-        <ScrollView
-            android:id="@+id/scroll_view"
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/content_list_ll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:orientation="vertical"
+            android:background="#ffffff">
 
-            <LinearLayout
-                android:id="@+id/content_list_ll"
+            <RelativeLayout
+                android:id="@+id/user_info_rl"
+                style="@style/SettingItemStyle">
+
+                <ImageView
+                    android:id="@+id/jmui_avatar_iv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/me_man" />
+
+                <TextView
+                    android:id="@+id/user_name_tv"
+                    style="@style/info_left_txt_style"
+                    android:layout_toRightOf="@id/jmui_avatar_iv"
+                    android:text="Minion" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/arrow" />
+            </RelativeLayout>
+
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:background="#ffffff">
+                android:layout_height="1dp"
+                android:background="@color/me_split_line_color" />
 
-                <RelativeLayout
-                    android:id="@+id/user_info_rl"
-                    style="@style/SettingItemStyle">
+            <RelativeLayout
+                android:id="@+id/setting_rl"
+                style="@style/SettingItemStyle">
 
-                    <ImageView
-                        android:id="@+id/jmui_avatar_iv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/me_man" />
+                <ImageView
+                    android:id="@+id/setting_iv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/setting" />
 
-                    <TextView
-                        android:id="@+id/user_name_tv"
-                        style="@style/info_left_txt_style"
-                        android:layout_toRightOf="@id/jmui_avatar_iv"
-                        android:text="Minion" />
+                <TextView
+                    style="@style/info_left_txt_style"
+                    android:layout_toRightOf="@id/setting_iv"
+                    android:text="@string/setting"/>
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="10dp"
-                        android:background="@drawable/arrow" />
-                </RelativeLayout>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/arrow" />
+            </RelativeLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/me_split_line_color" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/me_split_line_color" />
 
-                <RelativeLayout
-                    android:id="@+id/setting_rl"
-                    style="@style/SettingItemStyle">
+            <RelativeLayout
+                android:id="@+id/logout_rl"
+                style="@style/SettingItemStyle">
 
-                    <ImageView
-                        android:id="@+id/setting_iv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/setting" />
+                <ImageView
+                    android:id="@+id/exit_iv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/exit" />
 
-                    <TextView
-                        style="@style/info_left_txt_style"
-                        android:layout_toRightOf="@id/setting_iv"
-                        android:text="@string/setting"/>
+                <TextView
+                    android:id="@+id/logout_tv"
+                    style="@style/info_left_txt_style"
+                    android:layout_toRightOf="@id/exit_iv"
+                    android:text="@string/login_out"/>
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="10dp"
-                        android:background="@drawable/arrow" />
-                </RelativeLayout>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/arrow" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/me_split_line_color" />
+            </RelativeLayout>
 
-                <RelativeLayout
-                    android:id="@+id/logout_rl"
-                    style="@style/SettingItemStyle">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/me_split_line_color" />
 
-                    <ImageView
-                        android:id="@+id/exit_iv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/exit" />
+        </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/logout_tv"
-                        style="@style/info_left_txt_style"
-                        android:layout_toRightOf="@id/exit_iv"
-                        android:text="@string/login_out"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="10dp"
-                        android:background="@drawable/arrow" />
-
-                </RelativeLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/me_split_line_color" />
-
-            </LinearLayout>
-
-        </ScrollView>
+    </ScrollView>
 
 </io.jchat.android.view.MeView>

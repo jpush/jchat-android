@@ -16,7 +16,6 @@ import java.io.File;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.event.LoginStateChangeEvent;
 import cn.jpush.im.android.api.model.UserInfo;
-import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.FileHelper;

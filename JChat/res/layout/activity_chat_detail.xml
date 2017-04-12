@@ -107,6 +107,32 @@
                 android:layout_height="1dp"
                 android:background="@color/jmui_chat_detail_split_line_color" />
 
+            <RelativeLayout
+                android:id="@+id/block_rl"
+                style="@style/ChatDetailItem"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="@string/set_to_block" />
+
+                <io.jchat.android.view.SlipButton
+                    android:id="@+id/block_slip_btn"
+                    android:layout_width="70dp"
+                    android:layout_height="35dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp" />
+
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/block_split_line"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/jmui_chat_detail_split_line_color"
+                android:visibility="gone"/>
+
             <LinearLayout
                 android:id="@+id/group_num_ll"
                 style="@style/ChatDetailItem"

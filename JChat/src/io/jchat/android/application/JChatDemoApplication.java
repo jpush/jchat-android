@@ -32,6 +32,8 @@ public class JChatDemoApplication extends com.activeandroid.app.Application {
     public static final int RESULT_CODE_SEND_FILE = 27;
     public static final int REQUEST_CODE_EDIT_NOTENAME = 28;
     public static final int RESULT_CODE_EDIT_NOTENAME = 29;
+    public static final int REQUEST_CODE_AT_MEMBER = 30;
+    public static final int RESULT_CODE_AT_MEMBER = 31;
     public static final int ON_GROUP_EVENT = 3004;
 
     private static final String JCHAT_CONFIGS = "JChat_configs";
@@ -55,14 +57,16 @@ public class JChatDemoApplication extends com.activeandroid.app.Application {
     public static final String MEMBERS_COUNT = "membersCount";
     public static String PICTURE_DIR = "sdcard/JChatDemo/pictures/";
     public static String FILE_DIR = "sdcard/JChatDemo/recvFiles/";
+    public static boolean isNeedAtMsg = true;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.i("JpushDemoApplication", "init");
-        //初始化JMessage-sdk
-        JMessageClient.init(getApplicationContext());
+        //初始化JMessage-sdk，第二个参数表示开启漫游
+        JMessageClient.setDebugMode(true);
+        JMessageClient.init(getApplicationContext(), true);
         SharePreferenceManager.init(getApplicationContext(), JCHAT_CONFIGS);
         //设置Notification的模式
         JMessageClient.setNotificationMode(JMessageClient.NOTI_MODE_DEFAULT);

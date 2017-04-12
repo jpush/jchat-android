@@ -34,17 +34,18 @@ import io.jchat.android.activity.ChatDetailActivity;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.activity.MembersInChatActivity;
+import io.jchat.android.activity.SearchFriendDetailActivity;
 import io.jchat.android.adapter.GroupMemberGridAdapter;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.chatting.utils.SharePreferenceManager;
-import io.jchat.android.entity.Event;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.entity.Event;
 import io.jchat.android.entity.EventType;
 import io.jchat.android.view.ChatDetailView;
 import io.jchat.android.view.SlipButton;
 
-public class ChatDetailController implements OnClickListener, OnItemClickListener, SlipButton.OnChangedListener{
+public class ChatDetailController implements OnClickListener, OnItemClickListener,
+        SlipButton.OnChangedListener {
 
     private static final String TAG = "ChatDetailController";
 
@@ -58,7 +59,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     // 空白项的项数
     // 除了群成员Item和添加、删除按钮，剩下的都看成是空白项，
     // 对应的mRestNum[mCurrent%4]的值即为空白项的数目
-    private int[] mRestArray = new int[]{2, 1, 0, 3};
+    private int[] mRestArray = new int[] {2, 1, 0, 3};
     private boolean mIsGroup = false;
     private boolean mIsCreator = false;
     private long mGroupId;
@@ -119,6 +120,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             }
             mChatDetailView.setMyName(mMyUsername);
             mChatDetailView.setTitle(mMemberInfoList.size());
+            mChatDetailView.showBlockView(mGroupInfo.isGroupBlocked());
             initAdapter();
             if (mGridAdapter != null) {
                 mGridAdapter.setCreator(mIsCreator);
@@ -201,8 +203,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                                 Conversation conv;
                                 if (mIsGroup) {
                                     conv = JMessageClient.getGroupConversation(mGroupId);
-                                }
-                                else {
+                                } else {
                                     conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
                                 }
                                 if (conv != null) {
@@ -278,10 +279,14 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     intent.setClass(mContext, MeInfoActivity.class);
                 } else {
                     UserInfo userInfo = mMemberInfoList.get(position);
+                    if (userInfo.isFriend()) {
+                        intent.setClass(mContext, FriendInfoActivity.class);
+                    } else {
+                        intent.setClass(mContext, SearchFriendDetailActivity.class);
+                    }
                     intent.putExtra(JChatDemoApplication.TARGET_ID, userInfo.getUserName());
                     intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, userInfo.getAppKey());
                     intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
-                    intent.setClass(mContext, FriendInfoActivity.class);
                 }
                 mContext.startActivity(intent);
                 // 点击添加成员按钮
@@ -297,9 +302,13 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             }
             //单聊
         } else if (position < mCurrentNum) {
+            if (mUserInfo.isFriend()) {
+                intent.setClass(mContext, FriendInfoActivity.class);
+            } else {
+                intent.setClass(mContext, SearchFriendDetailActivity.class);
+            }
             intent.putExtra(JChatDemoApplication.TARGET_ID, mTargetId);
             intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
-            intent.setClass(mContext, FriendInfoActivity.class);
             mContext.startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_FRIEND_INFO);
         } else if (position == mCurrentNum) {
             mContext.showContacts();
@@ -369,7 +378,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         commit.setOnClickListener(listener);
     }
 
-    private void getUserInfo(final String targetId, final Dialog dialog){
+    private void getUserInfo(final String targetId, final Dialog dialog) {
         JMessageClient.getUserInfo(targetId, new GetUserInfoCallback() {
             @Override
             public void gotResult(final int status, String desc, final UserInfo userInfo) {
@@ -458,58 +467,95 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
 
     @Override
     public void onChanged(int id, final boolean checked) {
-        final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.jmui_loading));
-        dialog.show();
-        //设置免打扰,1为将当前用户或群聊设为免打扰,0为移除免打扰
-        if (mIsGroup) {
-            mGroupInfo.setNoDisturb(checked ? 1 : 0, new BasicCallback() {
-                @Override
-                public void gotResult(int status, String desc) {
-                    dialog.dismiss();
-                    if (status == 0) {
-                        if (checked) {
-                            Toast.makeText(mContext, mContext.getString(R.string.set_do_not_disturb_success_hint),
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(mContext, mContext.getString(R.string.remove_from_no_disturb_list_hint),
-                                    Toast.LENGTH_SHORT).show();
+        switch (id) {
+            case R.id.no_disturb_slip_btn:
+                final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.processing));
+                dialog.show();
+                //设置免打扰,1为将当前用户或群聊设为免打扰,0为移除免打扰
+                if (mIsGroup) {
+                    mGroupInfo.setNoDisturb(checked ? 1 : 0, new BasicCallback() {
+                        @Override
+                        public void gotResult(int status, String desc) {
+                            dialog.dismiss();
+                            if (status == 0) {
+                                if (checked) {
+                                    Toast.makeText(mContext, mContext.getString(R.string.set_do_not_disturb_success_hint),
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(mContext, mContext.getString(R.string.remove_from_no_disturb_list_hint),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                                //设置失败,恢复为原来的状态
+                            } else {
+                                if (checked) {
+                                    mChatDetailView.setNoDisturbChecked(false);
+                                } else {
+                                    mChatDetailView.setNoDisturbChecked(true);
+                                }
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
                         }
-                    //设置失败,恢复为原来的状态
-                    } else {
-                        if (checked) {
-                            mChatDetailView.setNoDisturbChecked(false);
-                        } else {
-                            mChatDetailView.setNoDisturbChecked(true);
+                    });
+                } else {
+                    mUserInfo.setNoDisturb(checked ? 1 : 0, new BasicCallback() {
+                        @Override
+                        public void gotResult(int status, String desc) {
+                            dialog.dismiss();
+                            if (status == 0) {
+                                if (checked) {
+                                    Toast.makeText(mContext, mContext.getString(R.string.set_do_not_disturb_success_hint),
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(mContext, mContext.getString(R.string.remove_from_no_disturb_list_hint),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                                //设置失败,恢复为原来的状态
+                            } else {
+                                if (checked) {
+                                    mChatDetailView.setNoDisturbChecked(false);
+                                } else {
+                                    mChatDetailView.setNoDisturbChecked(true);
+                                }
+                                HandleResponseCode.onHandle(mContext, status, false);
+                            }
                         }
-                        HandleResponseCode.onHandle(mContext, status, false);
-                    }
+                    });
                 }
-            });
-        } else {
-            mUserInfo.setNoDisturb(checked ? 1 : 0, new BasicCallback() {
-                @Override
-                public void gotResult(int status, String desc) {
-                    dialog.dismiss();
-                    if (status == 0) {
-                        if (checked) {
-                            Toast.makeText(mContext, mContext.getString(R.string.set_do_not_disturb_success_hint),
-                                    Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.block_slip_btn:
+                mDialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.processing));
+                mDialog.show();
+                mGroupInfo.setBlockGroupMessage(checked ? 1 : 0, new BasicCallback() {
+                    @Override
+                    public void gotResult(int status, String desc) {
+                        mDialog.dismiss();
+                        if (status == 0) {
+                            if (checked) {
+                                Toast.makeText(mContext, mContext.getString(R.string
+                                        .set_block_succeed_hint), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(mContext, mContext.getString(R.string
+                                        .remove_block_succeed_hint), Toast.LENGTH_SHORT).show();
+                            }
                         } else {
-                            Toast.makeText(mContext, mContext.getString(R.string.remove_from_no_disturb_list_hint),
-                                    Toast.LENGTH_SHORT).show();
+//                            if (checked) {
+//                                mChatDetailView.setBlockChecked(false);
+//                            } else {
+//                                mChatDetailView.setBlockChecked(true);
+//                            }
+                            HandleResponseCode.onHandle(mContext, status, false);
                         }
-                        //设置失败,恢复为原来的状态
-                    } else {
-                        if (checked) {
-                            mChatDetailView.setNoDisturbChecked(false);
-                        } else {
-                            mChatDetailView.setNoDisturbChecked(true);
-                        }
-                        HandleResponseCode.onHandle(mContext, status, false);
                     }
-                }
-            });
+                });
+                break;
         }
+    }
+
+    public void getNoDisturb() {
+        if (mUserInfo != null) {
+            ChatDetailView.mNoDisturbBtn.setChecked(mUserInfo.getNoDisturb() == 1);
+        }
+
     }
 
     private static class MyHandler extends Handler {
@@ -536,7 +582,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                             //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
                         } else {
                             if (userInfo.getUserName().equals(controller.mMyUsername)
-                                    || userInfo.getUserName().equals(controller.mTargetId)){
+                                    || userInfo.getUserName().equals(controller.mTargetId)) {
                                 HandleResponseCode.onHandle(controller.mContext, 1002, false);
                                 return;
                             } else {
@@ -550,7 +596,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                         ArrayList<String> users = (ArrayList<String>) msg.obj;
                         if (controller.mIsGroup) {
                             controller.addMembers(users);
-                        //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
+                            //在单聊中点击加人按钮并且用户信息返回正确,如果为第三方则创建群聊
                         } else {
                             if (controller.mLoadingDialog != null) {
                                 controller.mLoadingDialog.dismiss();
@@ -642,7 +688,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     public String getName() {
         if (mIsGroup) {
             return mGroupName;
-        }else {
+        } else {
             Conversation conv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
             return conv.getTitle();
         }

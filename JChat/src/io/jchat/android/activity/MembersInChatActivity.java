@@ -124,7 +124,7 @@ public class MembersInChatActivity extends BaseActivity {
                 case R.id.right_btn:
                     if (mIsDeleteMode) {
                         List<String> deleteList = mAdapter.getSelectedList();
-                        if (deleteList.size() > 0) {
+                        if (deleteList.size() >= 0) {
                             showDeleteMemberDialog(deleteList);
                         }
                     } else {

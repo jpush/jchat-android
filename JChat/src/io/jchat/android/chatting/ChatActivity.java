@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
@@ -36,6 +37,7 @@ import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
+import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -48,12 +50,12 @@ import io.jchat.android.activity.PickPictureTotalActivity;
 import io.jchat.android.activity.SendFileActivity;
 import io.jchat.android.activity.SendLocationActivity;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.utils.BitmapLoader;
 import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.chatting.utils.FileHelper;
 import io.jchat.android.chatting.utils.IdHelper;
 import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.entity.Event;
-import io.jchat.android.chatting.utils.BitmapLoader;
-import io.jchat.android.chatting.utils.FileHelper;
 import io.jchat.android.entity.EventType;
 
 /*
@@ -99,6 +101,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
     private String mTargetAppKey;
     private String mPhotoPath = null;
     private String mTitle;
+    private List<UserInfo> mAtList;
+    private int mAtMsgId;
+    private int mUnreadMsgCnt;
 
     Window mWindow;
     InputMethodManager mImm;
@@ -124,6 +129,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         mTitle = intent.getStringExtra(JChatDemoApplication.CONV_TITLE);
         mMyInfo = JMessageClient.getMyInfo();
         if (!TextUtils.isEmpty(mTargetId)) {
+            //单聊
             mIsSingle = true;
             mConv = JMessageClient.getSingleConversation(mTargetId, mTargetAppKey);
             mChatView.setChatTitle(mTitle);
@@ -133,16 +139,20 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             mUserInfo = (UserInfo) mConv.getTargetInfo();
             mChatAdapter = new MsgListAdapter(mContext, mConv, longClickListener);
         } else {
+            //群聊
             mIsSingle = false;
             mGroupId = intent.getLongExtra(GROUP_ID, 0);
             final boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
+            // TODO Provide at message button to jump
             Log.d(TAG, "GroupId : " + mGroupId);
             //判断是否从创建群组跳转过来, 如果作为UIKit使用,去掉if else这一段
             if (fromGroup) {
                 mChatView.setChatTitle(IdHelper.getString(mContext, "group"),
                         intent.getIntExtra(MEMBERS_COUNT, 0));
                 mConv = JMessageClient.getGroupConversation(mGroupId);
+                mChatAdapter = new MsgListAdapter(mContext, mConv, longClickListener);
             } else {
+                mAtMsgId = intent.getIntExtra("atMsgId", -1);
                 mConv = JMessageClient.getGroupConversation(mGroupId);
                 if (mConv != null) {
                     GroupInfo groupInfo = (GroupInfo) mConv.getTargetInfo();
@@ -150,6 +160,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     UserInfo userInfo = groupInfo.getGroupMemberInfo(mMyInfo.getUserName(), mMyInfo.getAppKey());
                     //如果自己在群聊中，聊天标题显示群人数
                     if (userInfo != null) {
+                        // TODO: 2017/3/2
                         if (!TextUtils.isEmpty(groupInfo.getGroupName())) {
                             mChatView.setChatTitle(mTitle, groupInfo.getGroupMembers().size());
                         } else {
@@ -179,6 +190,17 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                         }
                     }
                 });
+                if (mAtMsgId != -1) {
+                    mUnreadMsgCnt = mConv.getUnReadMsgCnt();
+                    // 如果 @我 的消息位于屏幕显示的消息之上，显示 有人@我 的按钮
+                    if (mAtMsgId + 8 <= mConv.getLatestMessage().getId()) {
+                        mChatView.showAtMeButton();
+                    }
+                    mChatAdapter = new MsgListAdapter(mContext, mConv, longClickListener, mAtMsgId);
+                } else {
+                    mChatAdapter = new MsgListAdapter(mContext, mConv, longClickListener);
+                }
+
             }
             //聊天信息标志改变
             mChatView.setGroupIcon();
@@ -196,7 +218,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
 //            if (mConv == null) {
 //                mConv = Conversation.createGroupConversation(mGroupId);
 //            }
-            mChatAdapter = new MsgListAdapter(mContext, mConv, longClickListener);
         }
 
         String draft = intent.getStringExtra(DRAFT);
@@ -216,6 +237,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         });
         // 滑动到底部
         mChatView.setToBottom();
+        mChatView.setConversation(mConv);
     }
 
     // 监听耳机插入
@@ -268,7 +290,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                 showSoftInputAndDismissMenu();
             } else {
                 //否则切换到语音输入
-                mChatView.notKeyBoard(mConv, mChatAdapter, mChatView);
+                mChatView.notKeyBoard(mChatAdapter, mChatView);
                 if (mShowSoftInput) {
                     if (mImm != null) {
                         mImm.hideSoftInputFromWindow(mChatView.getInputView().getWindowToken(), 0); //强制隐藏键盘
@@ -287,10 +309,42 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             if (msgContent.equals("")) {
                 return;
             }
+            Message msg;
             TextContent content = new TextContent(msgContent);
-            final Message msg = mConv.createSendMessage(content);
+            if (null != mAtList) {
+                msg = mConv.createSendMessage(content, mAtList, null);
+            } else {
+                msg = mConv.createSendMessage(content);
+            }
             mChatAdapter.addMsgToList(msg);
-            JMessageClient.sendMessage(msg);
+//            if (mIsSingle) {
+//                UserInfo userInfo = (UserInfo) msg.getTargetInfo();
+//                if (userInfo.isFriend()) {
+//                    JMessageClient.sendMessage(msg);
+//                } else {
+//                    CustomContent customContent = new CustomContent();
+//                    customContent.setBooleanValue("notFriend", true);
+//                    Message customMsg = mConv.createSendMessage(customContent);
+//                    mChatAdapter.addMsgToList(customMsg);
+//                }
+//            } else {
+//                JMessageClient.sendMessage(msg);
+//            }
+            if (mIsSingle) {
+                UserInfo userInfo = (UserInfo) msg.getTargetInfo();
+                if (userInfo.isFriend()) {
+                    JMessageClient.sendMessage(msg);
+                } else {
+                    Toast.makeText(ChatActivity.this, "对方不是你的好友.也可以发消息", Toast.LENGTH_SHORT).show();
+                    JMessageClient.sendMessage(msg);
+                }
+            }else {
+                JMessageClient.sendMessage(msg);
+            }
+            if (null != mAtList) {
+                mAtList.clear();
+            }
+
             // 点击添加按钮，弹出更多选项菜单
         } else if (v.getId() == IdHelper.getViewID(mContext, "jmui_add_file_btn")) {
             //如果在语音输入时点击了添加按钮，则显示菜单并切换到输入框
@@ -346,6 +400,14 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, mTargetAppKey);
             intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
             startActivityForResult(intent, JChatDemoApplication.REQUEST_CODE_SEND_FILE);
+            // 滚动到 @我 的那条消息处
+        } else if (v.getId() == IdHelper.getViewID(mContext, "jmui_at_me_btn")) {
+            if (mUnreadMsgCnt < MsgListAdapter.PAGE_MESSAGE_COUNT) {
+                int position = MsgListAdapter.PAGE_MESSAGE_COUNT + mAtMsgId - mConv.getLatestMessage().getId();
+                mChatView.setToPosition(position);
+            } else {
+                mChatView.setToPosition(mAtMsgId + mUnreadMsgCnt - mConv.getLatestMessage().getId());
+            }
         }
     }
 
@@ -442,6 +504,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         if (!mIsSingle) {
             long groupId = getIntent().getLongExtra(GROUP_ID, 0);
             if (groupId != 0) {
+                JChatDemoApplication.isNeedAtMsg = false;
                 JMessageClient.enterGroupConversation(groupId);
             }
         } else if (null != targetId) {
@@ -509,10 +572,29 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             case JChatDemoApplication.RESULT_CODE_SEND_LOCATION:
                 Message msg = mConv.getMessage(data.getIntExtra(JChatDemoApplication.MsgIDs, 0));
                 mChatAdapter.addMsgToList(msg);
+                int customMsgId = data.getIntExtra("customMsg", -1);
+                if (-1 != customMsgId) {
+                    Message customMsg = mConv.getMessage(customMsgId);
+                    mChatAdapter.addMsgToList(customMsg);
+                }
                 mChatView.setToBottom();
                 break;
             case JChatDemoApplication.RESULT_CODE_SEND_FILE:
                 handleSendMsg(data);
+                break;
+            case JChatDemoApplication.RESULT_CODE_AT_MEMBER:
+                if (!mIsSingle) {
+                    GroupInfo groupInfo = (GroupInfo) mConv.getTargetInfo();
+                    String username = data.getStringExtra(JChatDemoApplication.TARGET_ID);
+                    String appKey = data.getStringExtra(JChatDemoApplication.TARGET_APP_KEY);
+                    UserInfo userInfo = groupInfo.getGroupMemberInfo(username, appKey);
+                    if (null == mAtList) {
+                        mAtList = new ArrayList<UserInfo>();
+                    }
+                    mAtList.add(userInfo);
+                    mChatView.setAtText(data.getStringExtra(JChatDemoApplication.NAME));
+                    showSoftInputAndDismissMenu();
+                }
                 break;
         }
         if (requestCode == JChatDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
@@ -526,7 +608,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                         if (status == 0) {
                             Message msg = conv.createSendMessage(imageContent);
                             Intent intent = new Intent();
-                            intent.putExtra(MsgIDs, new int[]{msg.getId()});
+                            intent.putExtra(MsgIDs, new int[] {msg.getId()});
                             handleSendMsg(intent);
                         }
                     }
@@ -616,6 +698,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                         } else {
                             activity.mChatView.getListView().setSelection(0);
                         }
+                        //显示上一页的消息数18条
                         activity.mChatView.getListView()
                                 .setOffset(activity.mChatAdapter.getOffset());
                         break;
@@ -672,6 +755,22 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     mChatView.getMoreMenu().setVisibility(View.GONE);
                 }
                 break;
+//            case ChatView.KEYBOARD_STATE_SHOW:
+//                if (!mShowSoftInput) {
+//                    if (mImm != null) {
+//                        mImm.showSoftInput(mChatView.getInputView(),
+//                                InputMethodManager.SHOW_FORCED);//强制显示键盘
+//                        mShowSoftInput = true;
+//                    }
+//                }
+//                break;
+//            case ChatView.KEYBOARD_STATE_HIDE:
+//                if (mShowSoftInput) {
+//                    mWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+//                            | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+//                    mShowSoftInput = false;
+//                }
+//                break;
             default:
                 break;
         }
@@ -808,6 +907,18 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
             Log.i(TAG, "long click position" + position);
             final Message msg = mChatAdapter.getMessage(position);
             UserInfo userInfo = msg.getFromUser();
+            if (view.getId() == IdHelper.getViewID(mContext, "jmui_avatar_iv")
+                    && msg.getDirect() == MessageDirect.receive && !mIsSingle) {
+                //TODO @ somebody
+                if (null == mAtList) {
+                    mAtList = new ArrayList<UserInfo>();
+                }
+                mAtList.add(userInfo);
+
+                mChatView.setAtText("@" + userInfo.getNickname());
+                showSoftInputAndDismissMenu();
+                return;
+            }
             if (msg.getContentType() == ContentType.text || msg.getContentType() == ContentType.voice) {
                 // 长按文本弹出菜单
                 String name = userInfo.getNickname();

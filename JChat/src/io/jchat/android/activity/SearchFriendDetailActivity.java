@@ -13,16 +13,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
-import java.io.File;
-
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
@@ -45,6 +42,8 @@ public class SearchFriendDetailActivity extends BaseActivity {
     private String mAppKey;
     private String mAvatarPath;
     private String mDisplayName;
+    private Button mBt_chat;
+    private UserInfo mToUserInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +60,7 @@ public class SearchFriendDetailActivity extends BaseActivity {
         mAreaTv = (TextView) findViewById(R.id.region_tv);
         mSignatureTv = (TextView) findViewById(R.id.signature_tv);
         mAddFriendBtn = (Button) findViewById(R.id.add_to_friend);
+        mBt_chat = (Button) findViewById(R.id.bt_chat);
 
         inModule();
 
@@ -84,12 +84,27 @@ public class SearchFriendDetailActivity extends BaseActivity {
                     case R.id.friend_detail_avatar:
                         startBrowserAvatar();
                         break;
+                    case R.id.bt_chat:
+                        Intent intentChat = new Intent(SearchFriendDetailActivity.this, ChatActivity.class);
+                        String title = mToUserInfo.getNotename();
+                        if (TextUtils.isEmpty(title)) {
+                            title = mToUserInfo.getNickname();
+                            if (TextUtils.isEmpty(title)) {
+                                title = mToUserInfo.getUserName();
+                            }
+                        }
+                        intentChat.putExtra(JChatDemoApplication.CONV_TITLE, title);
+                        intentChat.putExtra(JChatDemoApplication.TARGET_ID, mToUserInfo.getUserName());
+                        intentChat.putExtra(JChatDemoApplication.TARGET_APP_KEY, mToUserInfo.getAppKey());
+                        startActivity(intentChat);
+                        break;
                 }
             }
         };
         mReturnBtn.setOnClickListener(listener);
         mAddFriendBtn.setOnClickListener(listener);
         mAvatarIv.setOnClickListener(listener);
+        mBt_chat.setOnClickListener(listener);
     }
 
     private void inModule() {
@@ -103,6 +118,7 @@ public class SearchFriendDetailActivity extends BaseActivity {
             public void gotResult(int status, String desc, final UserInfo userInfo) {
                 dialog.dismiss();
                 if (status == 0) {
+                    mToUserInfo = userInfo;
                     Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(mUsername);
                     if (null != bitmap) {
                         mAvatarIv.setImageBitmap(bitmap);

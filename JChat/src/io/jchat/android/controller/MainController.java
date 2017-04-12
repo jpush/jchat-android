@@ -30,8 +30,11 @@ public class MainController implements OnClickListener, OnPageChangeListener {
     private final static String TAG = "MainController";
 
     private ConversationListFragment mConvListFragment;
+
     private MeFragment mMeActivity;
     private MainView mMainView;
+    private ContactsFragment mContactsActivity;
+
     private MainActivity mContext;
     private ProgressDialog mDialog;
     // 裁剪后图片的宽(X)和高(Y), 720 X 720的正方形。
@@ -48,10 +51,10 @@ public class MainController implements OnClickListener, OnPageChangeListener {
         List<Fragment> fragments = new ArrayList<Fragment>();
         // init Fragment
         mConvListFragment = new ConversationListFragment();
-        ContactsFragment contactsActivity = new ContactsFragment();
+        mContactsActivity = new ContactsFragment();
         mMeActivity = new MeFragment();
         fragments.add(mConvListFragment);
-        fragments.add(contactsActivity);
+        fragments.add(mContactsActivity);
         fragments.add(mMeActivity);
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(mContext.getSupportFragmentManger(),
                 fragments);

@@ -7,6 +7,7 @@ package io.jchat.android.chatting;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.AnimationDrawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -32,7 +34,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
      * header layout view
      **/
     private RelativeLayout headerLayout;
-    private ProgressBar headerProgressBar;
+    private ImageView loading;
 
     private OnDropDownListener onDropDownListener;
     private OnScrollListener onScrollListener;
@@ -110,8 +112,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         headerLayout = (RelativeLayout) inflater.inflate(IdHelper.getLayout(context, "jmui_drop_down_list_header"),
                 this, false);
-        headerProgressBar = (ProgressBar) headerLayout.findViewById(IdHelper.getViewID(context,
-                "jmui_drop_down_list_header_progress_bar"));
+        loading = (ImageView) headerLayout.findViewById(IdHelper.getViewID(context, "jmui_loading_img"));
         addHeaderView(headerLayout);
 
         measureHeaderLayout(headerLayout);
@@ -267,7 +268,7 @@ public class DropDownListView extends ListView implements OnScrollListener {
     private void resetHeader() {
         if (currentHeaderStatus != HEADER_STATUS_CLICK_TO_LOAD) {
             resetHeaderPadding();
-            headerProgressBar.setVisibility(View.GONE);
+            loading.setVisibility(View.GONE);
             currentHeaderStatus = HEADER_STATUS_DROP_DOWN_TO_LOAD;
         }
     }
@@ -320,7 +321,9 @@ public class DropDownListView extends ListView implements OnScrollListener {
     private void setHeaderStatusLoading() {
         if (currentHeaderStatus != HEADER_STATUS_LOADING) {
             resetHeaderPadding();
-            headerProgressBar.setVisibility(View.VISIBLE);
+            loading.setVisibility(View.VISIBLE);
+            AnimationDrawable drawable = (AnimationDrawable) loading.getDrawable();
+            drawable.start();
             currentHeaderStatus = HEADER_STATUS_LOADING;
             setSelection(0);
         }

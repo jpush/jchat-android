@@ -50,6 +50,7 @@ public class SlipButton extends View implements OnTouchListener {
             mNowChoose = false;
             NowX = 5;
         }
+        invalidate();
     }
 
     public void setEnabled(boolean b) {

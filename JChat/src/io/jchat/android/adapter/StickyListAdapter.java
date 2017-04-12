@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -31,9 +32,9 @@ import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.chatting.utils.BitmapLoader;
 import io.jchat.android.database.FriendEntry;
-import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.tools.NativeImageLoader;
 
 public class StickyListAdapter extends BaseAdapter implements StickyListHeadersAdapter, SectionIndexer {
@@ -121,7 +122,8 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         if (position == getPositionForSection(section)) {
             holder.text.setText(model.letter);
         }
-
+        //设置通讯录名片之间的字母背景
+        convertView.setBackgroundColor(Color.parseColor("#FFE9E6E6"));
 
 //         set header text as first char in name
 //        CharSequence headerChar = model.getNickname().subSequence(0, 1);
@@ -306,7 +308,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
     }
 
     private void addAnimation(View view) {
-        float[] vaules = new float[]{0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f, 1.25f, 1.2f, 1.15f, 1.1f, 1.0f};
+        float[] vaules = new float[] {0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f, 1.25f, 1.2f, 1.15f, 1.1f, 1.0f};
         AnimatorSet set = new AnimatorSet();
         set.playTogether(ObjectAnimator.ofFloat(view, "scaleX", vaules),
                 ObjectAnimator.ofFloat(view, "scaleY", vaules));

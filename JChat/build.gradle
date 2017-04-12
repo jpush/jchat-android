@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         applicationId "io.jchat.android"
@@ -32,7 +32,7 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled false
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
             signingConfig signingConfigs.debug
@@ -75,6 +75,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+    compile files('libs/jmessage-android_debug_v2.1.1_b795.jar')
 }
 
 

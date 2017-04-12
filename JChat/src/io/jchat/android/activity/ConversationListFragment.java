@@ -21,21 +21,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
+import cn.jpush.im.android.api.event.ConversationRefreshEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.event.OfflineMessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
-import io.jchat.android.chatting.utils.SharePreferenceManager;
+import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.controller.ConversationListController;
 import io.jchat.android.controller.MenuItemController;
 import io.jchat.android.entity.Event;
-import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.view.ConversationListView;
 import io.jchat.android.view.MenuItemView;
 
@@ -57,6 +60,8 @@ public class ConversationListFragment extends BaseFragment {
     private BackgroundHandler mBackgroundHandler;
     private HandlerThread mThread;
     private static final int REFRESH_CONVERSATION_LIST = 0x3000;
+    private static final int DISMISS_REFRESH_HEADER = 0x3001;
+    private static final int ROAM_COMPLETED = 0x3002;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,6 +95,8 @@ public class ConversationListFragment extends BaseFragment {
             mConvListView.showHeaderView();
         } else {
             mConvListView.dismissHeaderView();
+            mConvListView.showLoadingHeader();
+            mBackgroundHandler.sendEmptyMessageDelayed(DISMISS_REFRESH_HEADER, 1000);
         }
         initReceiver();
 
@@ -140,7 +147,7 @@ public class ConversationListFragment extends BaseFragment {
     }
 
     /**
-     * 在会话列表中接收消息
+     * 在会话列表中接收在线消息
      *
      * @param event 消息事件
      */
@@ -152,13 +159,17 @@ public class ConversationListFragment extends BaseFragment {
             long groupID = ((GroupInfo) msg.getTargetInfo()).getGroupID();
             Conversation conv = JMessageClient.getGroupConversation(groupID);
             if (conv != null && mConvListController != null) {
+                if (msg.isAtMe()) {
+                    JChatDemoApplication.isNeedAtMsg = true;
+                    mConvListController.getAdapter().putAtConv(conv, msg.getId());
+                }
                 mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST,
                         conv));
             }
         } else {
             final UserInfo userInfo = (UserInfo) msg.getTargetInfo();
-            final String targetID = userInfo.getUserName();
-            final Conversation conv = JMessageClient.getSingleConversation(targetID, userInfo.getAppKey());
+            final String targetId = userInfo.getUserName();
+            final Conversation conv = JMessageClient.getSingleConversation(targetId, userInfo.getAppKey());
             if (conv != null && mConvListController != null) {
                 mContext.runOnUiThread(new Runnable() {
                     @Override
@@ -185,6 +196,24 @@ public class ConversationListFragment extends BaseFragment {
         }
     }
 
+    /**
+     * 接收离线消息
+     * @param event 离线消息事件
+     */
+    public void onEvent(OfflineMessageEvent event) {
+        Conversation conv = event.getConversation();
+        mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
+    }
+
+    /**
+     * 消息漫游完成事件
+     * @param event 漫游完成后， 刷新会话事件
+     */
+    public void onEvent(ConversationRefreshEvent event) {
+        Conversation conv = event.getConversation();
+        mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
+    }
+
     private class BackgroundHandler extends Handler {
         public BackgroundHandler(Looper looper) {
             super(looper);
@@ -197,6 +226,18 @@ public class ConversationListFragment extends BaseFragment {
                 case REFRESH_CONVERSATION_LIST:
                     Conversation conv = (Conversation) msg.obj;
                     mConvListController.getAdapter().setToTop(conv);
+                    break;
+                case DISMISS_REFRESH_HEADER:
+                    mContext.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mConvListView.dismissLoadingHeader();
+                        }
+                    });
+                    break;
+                case ROAM_COMPLETED:
+                    conv = (Conversation) msg.obj;
+                    mConvListController.getAdapter().addAndSort(conv);
                     break;
             }
         }
@@ -222,11 +263,11 @@ public class ConversationListFragment extends BaseFragment {
                 String draft = event.getDraft();
                 //如果草稿内容不为空，保存，并且置顶该会话
                 if (!TextUtils.isEmpty(draft)) {
-                    mConvListController.getAdapter().putDraftToMap(conv.getId(), draft);
+                    mConvListController.getAdapter().putDraftToMap(conv, draft);
                     mConvListController.getAdapter().setToTop(conv);
                     //否则删除
                 } else {
-                    mConvListController.getAdapter().delDraftFromMap(conv.getId());
+                    mConvListController.getAdapter().delDraftFromMap(conv);
                 }
                 break;
             case addFriend:

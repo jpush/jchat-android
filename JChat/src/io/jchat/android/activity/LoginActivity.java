@@ -1,7 +1,9 @@
 package io.jchat.android.activity;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import io.jchat.android.R;
 import io.jchat.android.controller.LoginController;
@@ -57,6 +59,7 @@ public class LoginActivity extends BaseActivity {
         return this;
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void startMainActivity() {
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

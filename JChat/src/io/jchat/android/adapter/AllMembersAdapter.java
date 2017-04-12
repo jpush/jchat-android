@@ -23,17 +23,19 @@ import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.activity.FriendInfoActivity;
 import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.activity.MembersInChatActivity;
+import io.jchat.android.activity.MembersInChatActivity.ItemModel;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
-import io.jchat.android.chatting.CircleImageView;
-import io.jchat.android.activity.MembersInChatActivity.ItemModel;
 import io.jchat.android.tools.ViewHolder;
 
 /**
@@ -108,7 +110,20 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
                 });
                 checkBox.setChecked(mSelectMap.get(position));
             } else {
-                checkBox.setVisibility(View.INVISIBLE);
+                JMessageClient.getGroupInfo(mGroupId, new GetGroupInfoCallback() {
+                    @Override
+                    public void gotResult(int i, String s, GroupInfo groupInfo) {
+                        if (i == 0) {
+                            if (groupInfo.getGroupOwner().equals(userInfo.getUserName())) {
+                                checkBox.setVisibility(View.INVISIBLE);
+                            }else {
+                                checkBox.setVisibility(View.VISIBLE);
+                                mSelectedList.add(userInfo.getUserName());
+                                mSelectMap.delete(position);
+                            }
+                        }
+                    }
+                });
             }
 
         } else {
