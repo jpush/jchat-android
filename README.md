@@ -13,7 +13,7 @@
 - 无好友模式：搜索后可直接发起会话
 - 好友模式：向对方发送好友请求，对方同意后，双方互为好友才能聊天。在通讯录的朋友推荐中可以查看好友请求的情况。
 
-![jchat](jpush/jchat-android/tree/master/JChat/res/gif/jchat.gif)
+![jchat](https://github.com/jpush/jchat-android/raw/master/gif/jchat.gif)
 
 如需发送地理位置功能，需要在 AndroidManifest.xml 中配置一下百度地图的 API AccessKey：
 
