@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +83,7 @@ public class DocumentFragment extends BaseFragment {
             @Override
             public void run() {
                 ContentResolver contentResolver = mContext.getContentResolver();
-                String[] projection = new String[]{MediaStore.Files.FileColumns.DATA,
+                String[] projection = new String[] {MediaStore.Files.FileColumns.DATA,
                         MediaStore.Files.FileColumns.TITLE, MediaStore.Files.FileColumns.SIZE,
                         MediaStore.Files.FileColumns.DATE_MODIFIED};
 
@@ -97,11 +98,11 @@ public class DocumentFragment extends BaseFragment {
                         + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
                         + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? ";
 
-                String[] selectionArgs = new String[]{ "text/plain", "application/msword", "application/pdf",
+                String[] selectionArgs = new String[] {"text/plain", "application/msword", "application/pdf",
                         "application/vnd.ms-powerpoint", "application/vnd.ms-excel", "application/vnd.ms-works",
                         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"};
 
                 Cursor cursor = contentResolver.query(MediaStore.Files.getContentUri("external"), projection,
                         selection, selectionArgs, MediaStore.Files.FileColumns.DATE_MODIFIED + " desc");
@@ -111,10 +112,10 @@ public class DocumentFragment extends BaseFragment {
                         String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
                         String date = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED));
-
-                        FileItem fileItem = new FileItem(filePath, null, size, date);
-                        mDocuments.add(fileItem);
-
+                        if (scannerFile(filePath)) {
+                            FileItem fileItem = new FileItem(filePath, null, size, date);
+                            mDocuments.add(fileItem);
+                        }
                     }
                     cursor.close();
                     cursor = null;
@@ -125,6 +126,17 @@ public class DocumentFragment extends BaseFragment {
             }
         }).start();
 
+    }
+
+    private File file;
+
+    private boolean scannerFile(String path) {
+        file = new File(path);
+        if (file.exists() && file.length() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private static class MyHandler extends Handler {

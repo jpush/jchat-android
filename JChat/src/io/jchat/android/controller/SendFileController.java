@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -16,7 +15,6 @@ import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
-import cn.jpush.im.android.api.content.MediaContent;
 import cn.jpush.im.android.api.exceptions.JMFileSizeExceedException;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
@@ -209,6 +206,9 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                 String fileName;
                                 if (index > 0) {
                                     fileName = path.substring(index + 1);
+                                    if (fileName.startsWith(".")) {
+                                        fileName = path.substring(index + 2);
+                                    }
                                     try {
                                         FileContent content = new FileContent(file, fileName);
                                         content.setStringExtra("fileType", entry.getKey().toString());

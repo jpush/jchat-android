@@ -92,6 +92,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
      * 用来存储图片的选中情况
      */
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
+    private Bitmap mBitmap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -207,10 +208,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
             if (path != null) {
                 File file = new File(path);
                 if (file.exists()) {
-                    Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
-                    if (bitmap != null) {
+                    mBitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
+                    if (mBitmap != null) {
                         photoView.setMaxScale(9);
-                        photoView.setImageBitmap(bitmap);
+                        photoView.setImageBitmap(mBitmap);
                     } else {
                         photoView.setImageResource(R.drawable.jmui_picture_not_found);
                     }
@@ -475,6 +476,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
                     Intent intent = new Intent();
                     intent.putExtra("pathArray", pathArray);
                     setResult(JChatDemoApplication.RESULT_CODE_SELECT_PICTURE, intent);
+                    mBitmap.recycle();
+                    mBitmap = null;
                     finish();
                     break;
                 case R.id.pick_picture_send_btn:

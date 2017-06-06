@@ -583,6 +583,7 @@ public class MsgListAdapter extends BaseAdapter {
                 break;
             default:
                 mController.handleCustomMsg(msg, holder);
+                break;
         }
 
         return convertView;

@@ -50,6 +50,7 @@ public class NotificationClickEventReceiver {
                 conv = JMessageClient.getGroupConversation(Long.parseLong(targetId));
                 notificationIntent.putExtra(JChatDemoApplication.GROUP_ID, Long.parseLong(targetId));
             }
+            notificationIntent.putExtra(JChatDemoApplication.CONV_TITLE, conv.getTitle());
             conv.resetUnreadCount();
             Log.d("Notification", "Conversation unread msg reset");
 //        notificationIntent.setAction(Intent.ACTION_MAIN);

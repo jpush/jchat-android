@@ -171,6 +171,42 @@ public class ChatItemController {
         }
     }
 
+    /**
+     * 设置图片最小宽高
+     *
+     * @param path      图片路径
+     * @param imageView 显示图片的View
+     */
+    private ImageView setPictureScale(String path, final ImageView imageView) {
+
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, opts);
+
+
+        //计算图片缩放比例
+        double imageWidth = opts.outWidth;
+        double imageHeight = opts.outHeight;
+        return setDensity(imageWidth, imageHeight, imageView);
+    }
+
+    private ImageView setDensity(double imageWidth, double imageHeight, ImageView imageView) {
+
+        if (imageWidth > 150 * mDensity || imageHeight > 200 * mDensity) {
+            imageHeight = 150 * mDensity;
+            imageWidth = 100 * mDensity;
+        } else {
+            imageHeight = imageHeight * (100 * mDensity / imageWidth);
+            imageWidth = 100 * mDensity;
+        }
+        ViewGroup.LayoutParams params = imageView.getLayoutParams();
+        params.width = (int) imageWidth;
+        params.height = (int) imageHeight;
+        imageView.setLayoutParams(params);
+
+        return imageView;
+    }
+
     // 处理图片
     public void handleImgMsg(final Message msg, final ViewHolder holder, final int position) {
         final ImageContent imgContent = (ImageContent) msg.getContent();
@@ -183,6 +219,7 @@ public class ChatItemController {
                 @Override
                 public void onComplete(int status, String desc, File file) {
                     if (status == 0) {
+                        setPictureScale(path, holder.picture);
                         Picasso.with(mContext).load(file).into(holder.picture);
                     }
                 }
@@ -236,6 +273,8 @@ public class ChatItemController {
             //检查状态
             switch (msg.getStatus()) {
                 case created:
+                    holder.picture.setEnabled(false);
+                    holder.resend.setEnabled(false);
                     if (null != mUserInfo/* && !mUserInfo.isFriend()*/) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
@@ -245,6 +284,7 @@ public class ChatItemController {
                     }
                     break;
                 case send_success:
+                    holder.picture.setEnabled(true);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.picture.setAlpha(1.0f);
@@ -252,6 +292,7 @@ public class ChatItemController {
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
+                    holder.picture.setEnabled(true);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.picture.setAlpha(1.0f);
@@ -259,6 +300,8 @@ public class ChatItemController {
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
+                    holder.resend.setEnabled(false);
+                    holder.picture.setEnabled(false);
                     sendingImage(msg, holder);
                     break;
                 default:
@@ -534,11 +577,11 @@ public class ChatItemController {
         holder.resend.setVisibility(View.GONE);
         //消息正在发送，重新注册一个监听消息发送完成的Callback
         if (!msg.isSendCompleteCallbackExists()) {
+            holder.sendingIv.setVisibility(View.GONE);
+            holder.sendingIv.clearAnimation();
             msg.setOnSendCompleteCallback(new BasicCallback() {
                 @Override
                 public void gotResult(final int status, final String desc) {
-                    holder.sendingIv.setVisibility(View.GONE);
-                    holder.sendingIv.clearAnimation();
                     if (status == 803008) {
                         CustomContent customContent = new CustomContent();
                         customContent.setBooleanValue("blackList", true);
@@ -550,6 +593,9 @@ public class ChatItemController {
                     }
                 }
             });
+        }else {
+            holder.sendingIv.setVisibility(View.GONE);
+            holder.sendingIv.clearAnimation();
         }
     }
 
@@ -560,10 +606,10 @@ public class ChatItemController {
         String fileSize = content.getStringExtra("fileSize");
         holder.sizeTv.setText(fileSize);
         Drawable drawable;
-        if (fileType.equals(FileType.audio.toString())) {
+        if (fileType != null && fileType.equals(FileType.audio.toString())) {
             drawable = mContext.getResources().getDrawable(IdHelper.getDrawable(mContext, "jmui_audio"));
 
-        } else if (fileType.equals(FileType.other.toString())) {
+        } else if (fileType != null && fileType.equals(FileType.other.toString())) {
             drawable = mContext.getResources().getDrawable(IdHelper.getDrawable(mContext, "jmui_other"));
         } else {
             drawable = mContext.getResources().getDrawable(IdHelper.getDrawable(mContext, "jmui_document"));
@@ -727,7 +773,8 @@ public class ChatItemController {
                 holder.groupChange.setVisibility(View.VISIBLE);
                 break;
             case group_member_exit:
-                holder.groupChange.setVisibility(View.GONE);
+                holder.groupChange.setText(content);
+                holder.groupChange.setVisibility(View.VISIBLE);
                 holder.msgTime.setVisibility(View.GONE);
                 break;
             case group_member_removed:
@@ -756,7 +803,8 @@ public class ChatItemController {
             holder.groupChange.setText(IdHelper.getString(mContext, "jmui_server_803008"));
             holder.groupChange.setVisibility(View.VISIBLE);
         } else {
-            holder.groupChange.setVisibility(View.GONE);
+            holder.groupChange.setText("收到一条自定义消息");
+            holder.groupChange.setVisibility(View.VISIBLE);
         }
 
 //        if (notFriendFlag != null && notFriendFlag) {
@@ -765,7 +813,6 @@ public class ChatItemController {
 //        } else {
 //            holder.groupChange.setVisibility(View.GONE);
 //        }
-        holder.groupChange.setVisibility(View.GONE);
     }
 
 
@@ -1027,31 +1074,7 @@ public class ChatItemController {
 
     }
 
-    /**
-     * 设置图片最小宽高
-     *
-     * @param path      图片路径
-     * @param imageView 显示图片的View
-     */
-    private void setPictureScale(String path, ImageView imageView) {
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, opts);
-        //计算图片缩放比例
-        double imageWidth = opts.outWidth;
-        double imageHeight = opts.outHeight;
-        if (imageWidth < 100 * mDensity /*&& imageHeight < 300 * mDensity*/) {
-            imageHeight = imageHeight * (100 * mDensity / imageWidth);
-            imageWidth = 100 * mDensity;
-        } /*else {
-            imageWidth = 100 * mDensity;
-            imageHeight = imageHeight * (30 * mDensity / imageWidth);
-        }*/
-        ViewGroup.LayoutParams params = imageView.getLayoutParams();
-        params.width = (int) imageWidth;
-        params.height = (int) imageHeight;
-        imageView.setLayoutParams(params);
-    }
+
 
     public void setAudioPlayByEarPhone(int state) {
         AudioManager audioManager = (AudioManager) mContext

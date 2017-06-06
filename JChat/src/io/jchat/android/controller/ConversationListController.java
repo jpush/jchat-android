@@ -20,10 +20,10 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
-import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.activity.ConversationListFragment;
 import io.jchat.android.adapter.ConversationListAdapter;
 import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.tools.SortConvList;
 import io.jchat.android.view.ConversationListView;
@@ -101,7 +101,7 @@ public class ConversationListController implements OnClickListener,
                     mContext.getActivity().startActivity(intent);
                 }
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -133,7 +133,7 @@ public class ConversationListController implements OnClickListener,
                     mDialog.show();
                     mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 }
-            }catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

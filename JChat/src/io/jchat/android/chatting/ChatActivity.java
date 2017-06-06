@@ -43,9 +43,10 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
-import de.greenrobot.event.EventBus;
+import cn.jpush.im.android.eventbus.EventBus;
 import io.jchat.android.activity.BaseActivity;
 import io.jchat.android.activity.ChatDetailActivity;
+import io.jchat.android.activity.FrowardToPersonActivity;
 import io.jchat.android.activity.PickPictureTotalActivity;
 import io.jchat.android.activity.SendFileActivity;
 import io.jchat.android.activity.SendLocationActivity;
@@ -338,7 +339,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     Toast.makeText(ChatActivity.this, "对方不是你的好友.也可以发消息", Toast.LENGTH_SHORT).show();
                     JMessageClient.sendMessage(msg);
                 }
-            }else {
+            } else {
                 JMessageClient.sendMessage(msg);
             }
             if (null != mAtList) {
@@ -595,6 +596,20 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                     mChatView.setAtText(data.getStringExtra(JChatDemoApplication.NAME));
                     showSoftInputAndDismissMenu();
                 }
+                break;
+            case 428://转发
+                String messageBack = data.getStringExtra("messageBack");
+                mChatView.clearInput();
+                mChatView.setToBottom();
+                Message message;
+                TextContent content = new TextContent(messageBack);
+                if (null != mAtList) {
+                    message = mConv.createSendMessage(content, mAtList, null);
+                } else {
+                    message = mConv.createSendMessage(content);
+                }
+                mChatAdapter.addMsgToList(message);
+                JMessageClient.sendMessage(message);
                 break;
         }
         if (requestCode == JChatDemoApplication.REQUEST_CODE_TAKE_PHOTO) {
@@ -906,7 +921,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
         public void onContentLongClick(final int position, View view) {
             Log.i(TAG, "long click position" + position);
             final Message msg = mChatAdapter.getMessage(position);
-            UserInfo userInfo = msg.getFromUser();
+            final UserInfo userInfo = msg.getFromUser();
             if (view.getId() == IdHelper.getViewID(mContext, "jmui_avatar_iv")
                     && msg.getDirect() == MessageDirect.receive && !mIsSingle) {
                 //TODO @ somebody
@@ -947,7 +962,15 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener, 
                                         Toast.LENGTH_SHORT).show();
                                 mDialog.dismiss();
                             }
+                            //消息转发
                         } else if (v.getId() == IdHelper.getViewID(mContext, "jmui_forward_msg_btn")) {
+                            org.greenrobot.eventbus.EventBus.getDefault().postSticky(msg);
+                            Intent intent = new Intent(ChatActivity.this, FrowardToPersonActivity.class);
+                            if (msg.getTargetType() == ConversationType.single) {
+                                UserInfo targetInfo = (UserInfo) msg.getTargetInfo();
+                                intent.putExtra("frowardMsg", targetInfo.getUserName());
+                            }
+                            startActivityForResult(intent, 428);
                             mDialog.dismiss();
                         } else {
                             mConv.deleteMessage(msg.getId());

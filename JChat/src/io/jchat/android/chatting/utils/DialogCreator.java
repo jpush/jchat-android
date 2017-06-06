@@ -61,8 +61,11 @@ public class DialogCreator {
         TextView titleTv = (TextView) v.findViewById(IdHelper.getViewID(context, "jmui_dialog_title"));
         final LinearLayout deleteLl = (LinearLayout) v.findViewById(IdHelper
                 .getViewID(context, "jmui_delete_conv_ll"));
+        final LinearLayout convTop = (LinearLayout) v.findViewById(IdHelper
+                .getViewID(context, "jmui_conv_top"));
         titleTv.setText(title);
         deleteLl.setOnClickListener(listener);
+        convTop.setOnClickListener(listener);
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;

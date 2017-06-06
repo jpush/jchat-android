@@ -22,6 +22,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -32,7 +34,6 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
-import de.greenrobot.event.EventBus;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.HandleResponseCode;
@@ -68,7 +69,7 @@ public class ConversationListFragment extends BaseFragment {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         mContext = this.getActivity();
-        EventBus.getDefault().register(this);
+        org.greenrobot.eventbus.EventBus.getDefault().register(this);
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mRootView = layoutInflater.inflate(R.layout.fragment_conv_list,
                 (ViewGroup) getActivity().findViewById(R.id.main_view), false);
@@ -243,6 +244,18 @@ public class ConversationListFragment extends BaseFragment {
         }
     }
 
+    @Subscribe
+    public void createConv(Event event) {
+        switch (event.getType()) {
+            case createConversation:
+                Conversation conv = event.getConversation();
+                if (conv != null) {
+                    mConvListController.getAdapter().addNewConversation(conv);
+                }
+                break;
+        }
+    }
+
     public void onEventMainThread(Event event) {
         switch (event.getType()) {
             case createConversation:
@@ -303,7 +316,8 @@ public class ConversationListFragment extends BaseFragment {
 
     @Override
     public void onDestroy() {
-        EventBus.getDefault().unregister(this);
+        JMessageClient.unRegisterEventReceiver(this);
+        org.greenrobot.eventbus.EventBus.getDefault().unregister(this);
         mContext.unregisterReceiver(mReceiver);
         mBackgroundHandler.removeCallbacksAndMessages(null);
         mThread.getLooper().quit();

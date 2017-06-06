@@ -27,8 +27,7 @@ public class BitmapLoader {
                 opts.inJustDecodeBounds = true;
                 BitmapFactory.decodeFile(path, opts);
                 final int minSideLength = Math.min(width, height);
-                opts.inSampleSize = computeSampleSize(opts, minSideLength,
-                        width * height);
+                opts.inSampleSize = computeSampleSize(opts, minSideLength, width * height);
                 opts.inJustDecodeBounds = false;
             }
             return BitmapFactory.decodeFile(path, opts);
@@ -42,11 +41,31 @@ public class BitmapLoader {
                 opts = new BitmapFactory.Options();
                 opts.inJustDecodeBounds = true;
                 BitmapFactory.decodeFile(path, opts);
+                //比较后返回小的那一个
                 final int minSideLength = Math.min(width, height);
-                opts.inSampleSize = computeSampleSize(opts, minSideLength,
-                        width * height);
+                opts.inSampleSize = computeSampleSize(opts, minSideLength, width * height);
                 opts.inJustDecodeBounds = false;
+                opts.inInputShareable = true;
+                opts.inPurgeable = true;
             }
+            try {
+                return BitmapFactory.decodeFile(path, opts);
+            } catch (OutOfMemoryError e) {
+                e.printStackTrace();
+                return getBitmapThumb(path);
+            }
+        } else return null;
+    }
+
+    public static Bitmap getBitmapThumb(String path) {
+        BitmapFactory.Options opts = null;
+        if (path != null) {
+            opts = new BitmapFactory.Options();
+            opts.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(path, opts);
+            //比较后返回小的那一个
+            opts.inSampleSize = computeSampleSize(opts, -1, 128 * 128);
+            opts.inJustDecodeBounds = false;
             return BitmapFactory.decodeFile(path, opts);
         } else return null;
     }
@@ -102,10 +121,8 @@ public class BitmapLoader {
         return filePath;
     }
 
-    public static int computeSampleSize(BitmapFactory.Options options,
-                                        int minSideLength, int maxNumOfPixels) {
-        int initialSize = computeInitialSampleSize(options, minSideLength,
-                maxNumOfPixels);
+    public static int computeSampleSize(BitmapFactory.Options options, int minSideLength, int maxNumOfPixels) {
+        int initialSize = computeInitialSampleSize(options, minSideLength, maxNumOfPixels);
 
         int roundedSize;
         if (initialSize <= 8) {
@@ -120,15 +137,14 @@ public class BitmapLoader {
         return roundedSize;
     }
 
-    private static int computeInitialSampleSize(BitmapFactory.Options options,
-                                                int minSideLength, int maxNumOfPixels) {
+    private static int computeInitialSampleSize(BitmapFactory.Options options, int minSideLength, int maxNumOfPixels) {
         double w = options.outWidth;
         double h = options.outHeight;
 
-        int lowerBound = (maxNumOfPixels == -1) ? 1 : (int) Math.ceil(Math
-                .sqrt(w * h / maxNumOfPixels));
-        int upperBound = (minSideLength == -1) ? 128 : (int) Math.min(Math
-                .floor(w / minSideLength), Math.floor(h / minSideLength));
+        int lowerBound = (maxNumOfPixels == -1) ? 1 :
+                (int) Math.ceil(Math.sqrt(w * h / maxNumOfPixels));
+        int upperBound = (minSideLength == -1) ? 128 :
+                (int) Math.min(Math.floor(w / minSideLength), Math.floor(h / minSideLength));
 
         if (upperBound < lowerBound) {
             // return the larger one when there is no overlapping zone.

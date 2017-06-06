@@ -16,13 +16,17 @@ import android.widget.TextView;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.eventbus.EventBus;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.chatting.CircleImageView;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.entity.Event;
+import io.jchat.android.entity.EventType;
 import io.jchat.android.tools.NativeImageLoader;
 
 public class SearchFriendDetailActivity extends BaseActivity {
@@ -92,6 +96,15 @@ public class SearchFriendDetailActivity extends BaseActivity {
                             if (TextUtils.isEmpty(title)) {
                                 title = mToUserInfo.getUserName();
                             }
+                        }
+                        Conversation conv = JMessageClient.getSingleConversation(mToUserInfo.getUserName(), mToUserInfo.getAppKey());
+                        //如果会话为空，使用EventBus通知会话列表添加新会话
+                        if (conv == null) {
+                            conv = Conversation.createSingleConversation(mToUserInfo.getUserName(), mToUserInfo.getAppKey());
+                            EventBus.getDefault().post(new Event.Builder()
+                                    .setType(EventType.createConversation)
+                                    .setConversation(conv)
+                                    .build());
                         }
                         intentChat.putExtra(JChatDemoApplication.CONV_TITLE, title);
                         intentChat.putExtra(JChatDemoApplication.TARGET_ID, mToUserInfo.getUserName());

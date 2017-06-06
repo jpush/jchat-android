@@ -50,6 +50,20 @@
 
 
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/jmui_chat_detail_split_line_color" />
+
+    <LinearLayout
+        android:id="@+id/jmui_conv_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/jmui_bottom_rounded_bg"
+        android:clickable="true"
+        android:orientation="horizontal">
+
+    </LinearLayout>
 
 
 </LinearLayout>

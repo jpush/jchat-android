@@ -55,6 +55,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         mCurrentNum = mMemberList.size();
         this.mIsCreator = isCreator;
         this.mAvatarSize = size;
+        System.out.println("===========mCurrentNum======" + mCurrentNum);
         initBlankItem();
     }
 
@@ -93,12 +94,14 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         } else {
             return mCurrentNum + mRestNum + 2;
         }
+
+
     }
 
     @Override
     public Object getItem(int position) {
         // TODO Auto-generated method stub
-        return null;
+        return mMemberList.get(position);
     }
 
     @Override

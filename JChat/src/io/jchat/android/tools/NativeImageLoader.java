@@ -208,6 +208,8 @@ public class NativeImageLoader {
 
         //设置为false,解析Bitmap对象加入到内存中
         options.inJustDecodeBounds = false;
+        options.inInputShareable = true;
+        options.inPurgeable = true;
 
         return BitmapFactory.decodeFile(path, options);
     }

@@ -203,6 +203,7 @@
         <activity android:name="io.jchat.android.activity.SendFileActivity"/>
         <activity android:name="io.jchat.android.activity.PlayVideoActivity"/>
         <activity android:name="io.jchat.android.activity.AtMemberActivity"/>
+        <activity android:name="io.jchat.android.activity.FrowardToPersonActivity"/>
     </application>
 
 </manifest>

@@ -29,6 +29,7 @@ import cn.jpush.im.android.api.content.MessageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
@@ -135,7 +136,6 @@ public class ConversationListAdapter extends BaseAdapter {
     }
 
 
-
     @Override
     public int getCount() {
         if (mDatas == null) {
@@ -204,7 +204,7 @@ public class ConversationListAdapter extends BaseAdapter {
                             contentStr = mContext.getString(R.string.jmui_server_803008);
                         }/* else if (notFriendFlag != null && notFriendFlag) {
                             contentStr = mContext.getString(R.string.send_target_is_not_friend);
-                        } */else {
+                        } */ else {
                             contentStr = mContext.getString(R.string.type_custom);
                         }
                         break;
@@ -253,33 +253,50 @@ public class ConversationListAdapter extends BaseAdapter {
                     public void gotResult(int status, String desc, Bitmap bitmap) {
                         if (status == 0) {
                             headIcon.setImageBitmap(bitmap);
-                        }else {
+                        } else {
                             headIcon.setImageResource(R.drawable.jmui_head_icon);
                             HandleResponseCode.onHandle(mContext, status, false);
                         }
                     }
                 });
-            }else {
+            } else {
                 headIcon.setImageResource(R.drawable.jmui_head_icon);
+            }
+            if (convItem.getUnReadMsgCnt() > 0) {
+                newMsgNumber.setVisibility(View.VISIBLE);
+                if (convItem.getUnReadMsgCnt() < 100) {
+                    newMsgNumber.setText(String.valueOf(convItem.getUnReadMsgCnt()));
+                } else {
+                    newMsgNumber.setText(mContext.getString(R.string.hundreds_of_unread_msgs));
+                }
+            } else {
+                newMsgNumber.setVisibility(View.GONE);
             }
         } else {
             headIcon.setImageResource(R.drawable.group);
             convName.setText(convItem.getTitle());
             Log.d("ConversationListAdapter", "Conversation title: " + convItem.getTitle());
+
+            GroupInfo groupInfo = (GroupInfo) convItem.getTargetInfo();
+            if (groupInfo.getNoDisturb() == 1 && convItem.getUnReadMsgCnt() > 0) {
+                newMsgNumber.setVisibility(View.VISIBLE);
+                newMsgNumber.setText("");
+            } else if (groupInfo.getNoDisturb() == 0) {
+                if (convItem.getUnReadMsgCnt() > 0) {
+                    newMsgNumber.setVisibility(View.VISIBLE);
+                    if (convItem.getUnReadMsgCnt() < 100) {
+                        newMsgNumber.setText(String.valueOf(convItem.getUnReadMsgCnt()));
+                    } else {
+                        newMsgNumber.setText(mContext.getString(R.string.hundreds_of_unread_msgs));
+                    }
+                } else {
+                    newMsgNumber.setVisibility(View.GONE);
+                }
+            } else if (convItem.getUnReadMsgCnt() <= 0) {
+                newMsgNumber.setVisibility(View.GONE);
+            }
         }
 
-        // TODO 更新Message的数量,
-        if (convItem.getUnReadMsgCnt() > 0) {
-            newMsgNumber.setVisibility(View.VISIBLE);
-            if (convItem.getUnReadMsgCnt() < 100) {
-                newMsgNumber.setText(String.valueOf(convItem.getUnReadMsgCnt()));
-            }
-            else {
-                newMsgNumber.setText(mContext.getString(R.string.hundreds_of_unread_msgs));
-            }
-        } else {
-            newMsgNumber.setVisibility(View.GONE);
-        }
 
         return convertView;
     }

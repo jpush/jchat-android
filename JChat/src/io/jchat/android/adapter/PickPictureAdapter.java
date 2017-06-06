@@ -19,7 +19,9 @@ import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.jchat.android.R;
 import io.jchat.android.tools.NativeImageLoader;
@@ -38,6 +40,7 @@ public class PickPictureAdapter extends BaseAdapter {
     private Button mSendBtn;
     private float mDensity;
     private boolean mChecked;
+    private Map<Integer, Boolean> isChecked = new HashMap<>();
 
     public PickPictureAdapter(Context context, List<String> list, GridView mGridView, float density) {
         this.mContext = context;
@@ -86,22 +89,21 @@ public class PickPictureAdapter extends BaseAdapter {
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mChecked) {
+                if (isChecked.get(position) == null || !isChecked.get(position)) {
                     if (mSelectMap.size() < 9) {
                         mSelectMap.put(position, true);
                         viewHolder.mCheckBox.setChecked(true);
                         addAnimation(viewHolder.mCheckBox);
-                        mChecked = true;
+                        isChecked.put(position, true);
                     } else {
-                        mChecked = false;
                         Toast.makeText(mContext, mContext.getString(R.string.picture_num_limit_toast),
                                 Toast.LENGTH_SHORT).show();
-                        viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
+                        viewHolder.mCheckBox.setChecked(false);
                     }
-                } else if (mSelectMap.size() <= 9) {
+                } else if (isChecked.get(position)) {
                     mSelectMap.delete(position);
-                    mChecked = false;
                     viewHolder.mCheckBox.setChecked(false);
+                    isChecked.put(position, false);
                 }
 
                 if (mSelectMap.size() > 0) {
@@ -113,9 +115,7 @@ public class PickPictureAdapter extends BaseAdapter {
                 }
             }
         };
-        viewHolder.mCheckBoxLl.setOnClickListener(listener);
         viewHolder.mCheckBox.setOnClickListener(listener);
-
         viewHolder.mCheckBox.setChecked(mSelectMap.get(position));
 
         //利用NativeImageLoader类加载本地图片

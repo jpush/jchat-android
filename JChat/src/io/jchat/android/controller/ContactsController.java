@@ -93,8 +93,13 @@ public class ContactsController implements OnClickListener, SideBar.OnTouchingLe
                                         friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
                                                 null, displayName, letter, user);
                                     } else {
-                                        friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
-                                                userInfo.getAvatarFile().getAbsolutePath(), displayName, letter, user);
+                                        if (userInfo.getAvatarFile() != null) {
+                                            friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
+                                                    userInfo.getAvatarFile().getAbsolutePath(), displayName, letter, user);
+                                        }else {
+                                            friend = new FriendEntry(userInfo.getUserName(), userInfo.getAppKey(),
+                                                    "", displayName, letter, user);
+                                        }
                                     }
                                     friend.save();
                                     mList.add(friend);
