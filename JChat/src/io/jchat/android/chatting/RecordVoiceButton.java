@@ -1,7 +1,9 @@
 package io.jchat.android.chatting;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateFormat;
@@ -23,7 +25,6 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cn.jpush.im.android.api.JMVoiceRecorder;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -33,7 +34,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.chatting.utils.FileHelper;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.utils.IdHelper;
-
+/*
 //私有云录制语音
 public class RecordVoiceButton extends Button {
 
@@ -500,9 +501,9 @@ public class RecordVoiceButton extends Button {
 }
 
 
+*/
 
-/*
-公有云录制语音使用
+//公有云录制语音使用
 public class RecordVoiceButton extends Button {
 
     private File myRecAudioFile;
@@ -989,5 +990,5 @@ public class RecordVoiceButton extends Button {
             }
         }
     }
-}*/
+}
 

@@ -76,7 +76,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
     compile 'org.greenrobot:eventbus:3.0.0'
-    compile files('libs/jmessage-android_debug_v2.1.2_b731_forPCloudWithFastDfs.jar')
+    compile files('libs/jcore-android_v1.1.2.jar')
 }
 
 
