@@ -120,7 +120,7 @@
             android:value="developer-default"/>
         <meta-data
             android:name="JPUSH_APPKEY"
-            android:value="9d78dfccfe1e6e4b9b425f2c"/>
+            android:value="4f7aef34fb361292c566a1cd"/>
 
         <activity
             android:name=".activity.WelcomeActivity"
