@@ -15,12 +15,12 @@ JChat 同时具备好友模式和无好友模式：
 
 目前已覆盖 Android 和 [iOS](https://github.com/jpush/jchat-swift) 平台，之后将提供 web 版本，开发者可参照 JChat 快速打造自己的 APP，提高开发效率。
 
-![jiguang](../image/6.gif)
-![jiguang](../image/9.gif)
+![jiguang](./image/6.gif)
+![jiguang](./image/9.gif)
 
 ### 应用截图
 
-![jiguang](../image/sdk_model.png)
+![jiguang](./image/sdk_model.png)
 
 ### 搭建环境
 * 如需发送地理位置功能，需要在 AndroidManifest.xml 中配置一下百度地图的 API AccessKey：
