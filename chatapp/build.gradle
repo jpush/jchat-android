@@ -1,0 +1,72 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.1"
+
+    defaultConfig {
+        applicationId "io.jchat.android"
+        minSdkVersion 18
+        targetSdkVersion 23
+        versionCode 61
+        versionName "2.0.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+   /* signingConfigs {
+        release {
+            storeFile file("release.keystore")
+            storePassword "jpush-release"
+            keyAlias "release.keystore"
+            keyPassword "jpush-release"
+        }
+        debug {
+            storeFile file("debug.keystore")
+            storePassword "jpush-debug"
+            keyAlias "debug.keystore"
+            keyPassword "jpush-debug"
+        }
+    }*/
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    aaptOptions.cruncherEnabled = false
+    aaptOptions.useNewCruncher = false
+
+
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:recyclerview-v7:23.1.0'
+    compile 'com.android.support:design:23.1.0'
+    testCompile 'junit:junit:4.12'
+    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.github.bumptech.glide:glide:3.6.1'
+    compile 'com.github.w446108264:AndroidEmoji:1.0.0'
+    compile 'com.github.chrisbanes.photoview:library:1.2.4'
+    compile files('libs/picasso-2.4.0.jar')
+    compile files('libs/universal-image-loader-1.9.5.jar')
+    compile files('libs/BaiduLBS_Android.jar')
+    compile 'com.facebook.fresco:fresco:0.8.1'
+    compile files('libs/pinyin4j-2.5.0.jar')
+    compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile project(':reclib-qq')
+    compile project(':reclib-testemoticons')
+}

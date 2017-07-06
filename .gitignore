@@ -23,7 +23,7 @@ build-res/
 *.iml
 .idea
 .DS_Store
-
+*.keystore
 # Local configuration file (sdk path, etc)
 local.properties
 

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/jmui_chat_item_send_layout"
+              xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <TextView
+        android:id="@+id/jmui_send_time_txt"
+        style="@style/jmui_chat_text_date_style"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/jmui_fail_resend_ib"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/send_message_failed"
+            android:clickable="true"
+            android:scaleType="fitCenter"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/jmui_sending_iv"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="3dp"
+            android:src="@drawable/jmui_sending_img"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/jmui_msg_content"
+            android:autoLink="email|phone|web"
+            style="@style/jmui_msg_text_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="3dp"
+            android:background="@drawable/jmui_msg_send_bg"
+            android:paddingLeft="10dp"
+            android:paddingRight="18dp"/>
+
+        <ImageView
+            android:id="@+id/jmui_avatar_iv"
+            style="@style/jmui_chat_item_sender_avatar_style"/>
+
+    </LinearLayout>
+
+</LinearLayout>

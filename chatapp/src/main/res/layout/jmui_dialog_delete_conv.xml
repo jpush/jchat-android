@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/jmui_delete_conv_ll"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center"
+              android:background="@drawable/jmui_bottom_rounded_bg"
+              android:clickable="true">
+
+
+    <TextView
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="10dp"
+        android:text="@string/jmui_delete_conv"
+        android:textColor="@color/jmui_reset_password_title_color"
+        android:textSize="@dimen/text_medium_size"/>
+
+
+</LinearLayout>

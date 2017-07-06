@@ -1,1 +1,1 @@
-include ':JChat'
+include ':chatapp',':reclib-qq', ':reclib-testemoticons'

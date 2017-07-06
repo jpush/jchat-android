@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="jmui_jpush_blue">#2DD0CF</color>
+    <color name="titlebar_text_color">#fff</color>
+    <color name="item_click_bg_color">#E9EDED</color>
+    <color name="white">#FFFFFF</color>
+    <color name="jmui_chat_detail_split_line_color">#d3d3d3</color>
+    <color name="menu_item_back_pres_color">#2DD0CF</color>
+    <color name="action_bar_txt_color">#999999</color>
+    <color name="actionbar_pres_color">#2C2C2C</color>
+    <color name="conv_list_split_line_color">#d6d6d6</color>
+    <color name="network_disconnected_bg_color">#ffdfe0</color>
+    <color name="all_members_bg_color">#f0f1f3</color>
+    <color name="default_cursor_color">#8db4eb</color>
+    <color name="gray">#808080</color>
+    <color name="me_split_line_color">#d0d0d0</color>
+    <color name="chat_text_color">#0B1816</color>
+    <color name="line_press">#57D9D9</color>
+    <color name="line_normal">#2DD0CF</color>
+    <color name="button_press">#99E4E4</color>
+    <color name="del_conversation_background">#E9EDED</color>
+    <color name="text_back_ground">#7E1D22</color>
+    <color name="me_no_picture_color">#e1e1e1</color>
+    <color name="header_pressed">#ffc0392b</color>
+    <color name="section_color">#f8f8f8</color>
+    <color name="section_text_color">#858585</color>
+    <color name="red">#FC2828</color>
+    <color name="black1">#7A7E83</color>
+    <color name="black2">#ffeeeeee</color>
+    <color name="windows_color">#F5F5F5</color>
+    <color name="toolbar_btn_select">#D9D9D9</color>
+    <color name="toolbar_btn_nomal">@color/white</color>
+    <color name="toolbar_spilt_line">#CDCDCD</color>
+    <color name="btn_send_textcolor">@color/white</color>
+    <color name="menu_item_click_color">#346fc3</color>
+    <color name="jmui_reset_password_title_color">#4e4e4e</color>
+    <color name="transparent">#00000000</color>
+    <color name="blue">#33b5e5</color>
+    <color name="status_bar">#303135</color>
+    <color name="theme_body">#cc22292c</color>
+    <color name="color_grey_999999">#999999</color>
+    <color name="color_activity_blue_bg">#f7389fff</color>
+    <color name="color_b3b3b3">#b3b3b3</color>
+    <color name="split_line_grey_color_d9d9d9">#D9D9D9</color>
+    <color name="color_grey_eaeaea">#eaeaea</color>
+
+    <color name="transparent_background">#80000000</color>
+    <color name="dialog_select_color">#d4d4d4</color>
+    <color name="black">#000000</color>
+    <color name="color_black_333333">#333333</color>
+    <color name="color_gray_d9d9d9">#d9d9d9</color>
+    <color name="color_split_line_d9d9d9">#d9d9d9</color>
+    <color name="spilt_line">#CFCFCF</color>
+
+    <color name="color_line_border">#C7C7C7</color>
+    <color name="colorBlack_Three">#333333</color>
+    <color name="province_line_border">#3b3b3b</color>
+    <color name="login_button_normal">#28e1df</color>
+    <color name="button_no_click">#2DD0CF</color>
+    <color name="text_no_click">#99E4E4</color>
+    <color name="login_button_pressed">#2DD0CF</color>
+    <color name="press">#e8e8e8</color>
+    <color name="text_black_color">#333333</color>
+    <color name="text_line_color">#dfdfdd</color>
+    <color name="text_tips_color">#666666</color>
+    <color name="main_theme_color">#0195ff</color>
+    <color name="accept_btn_default">#2DD0CF</color>
+    <color name="accept_btn_pressed">#02BDBC</color>
+    <color name="contacts_pinner_txt">#858585</color>
+    <color name="finish_btn_clickable_color">#6fd66b</color>
+    <color name="refuse_btn_default">#ea6e76</color>
+    <color name="wait_inviting">#2DD09C</color>
+    <color name="send_file_action_bar">#2C2C2C</color>
+    <color name="send_file_desc_color">#808080</color>
+    <color name="send_file_action_bar_selected">#2DD0CF</color>
+    <color name="chat_item_file_size">#989898</color>
+    <color name="send_file_title_color">#545454</color>
+    <color name="send_file_divider_color">#dcdcdc</color>
+
+    <color name="reply_button_disable">#f5f5f5</color>
+    <color name="reply_button_text">#dfFFFFFF</color>
+    <color name="reply_button_text_disable">#b8b8b8</color>
+    <color name="text_primary">#df000000</color>
+
+    <color name="bg_edittext_color">#00000000</color>
+
+    <color name="bg_horizontal_line_color">#80a3a4a7</color>
+    <color name="bg_horizontal_btn_normal">#eeeeee</color>
+    <color name="bg_horizontal_btn_selected">#70a3a4a7</color>
+
+    <color name="bg_indicator_point_normal">#D8D8D8</color>
+    <color name="bg_indicator_point_selected">#A6A6A6</color>
+
+    <color name="picker_list_divider">#dadada</color>
+
+    <color name="picker_map_nearby_divider">@color/picker_list_divider</color>
+
+    <color name="chat_detail_item_hit_color">#555555</color>
+
+
+    <color name="blue_btn_cannot_pressed">#6CDEDD</color>
+    <color name="blue_btn_normal">#2DD0CF</color>
+    <color name="blue_btn_pressed">#02BDBC</color>
+    <color name="red_btn_normal">#EB424D</color>
+    <color name="red_btn_press">#CC3139</color>
+
+    <color name="blue_btn_text_70">#E0F8F8</color>
+    <color name="blue_btn_text_press">#99E4E4</color>
+    <color name="red_btn_text_70">#EAACAF</color>
+
+    <color name="white_btn_press">#D2D2D2</color>
+
+    <color name="white_btn_text_press">#888888</color>
+    <color name="white_btn_text_normal">#2C2C2C</color>
+
+
+
+</resources>
