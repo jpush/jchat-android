@@ -15,6 +15,7 @@ import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.database.FriendEntry;
 import jiguang.chat.utils.ToastUtil;
+import jiguang.chat.utils.pinyin.HanyuPinyin;
 
 /**
  * Created by ${chenyn} on 2017/5/7.
@@ -52,9 +53,11 @@ public class SetNoteNameActivity extends BaseActivity {
                                         intent.putExtra("updateName", name);
                                         setResult(1, intent);
                                         ToastUtil.shortToast(SetNoteNameActivity.this, "更新成功");
-                                        //更新备注名时候同时更新数据库中的名字
+                                        //更新备注名时候同时更新数据库中的名字和letter
                                         new Update(FriendEntry.class).set("DisplayName=?", name).where("Username=?", userName).execute();
                                         new Update(FriendEntry.class).set("NoteName=?", name).where("Username=?", userName).execute();
+                                        String newNote = HanyuPinyin.getInstance().getStringPinYin(name.substring(0, 1));
+                                        new Update(FriendEntry.class).set("Letter=?", newNote.toUpperCase()).where("Username=?", userName).execute();
                                         finish();
                                     } else {
                                         ToastUtil.shortToast(SetNoteNameActivity.this, "更新失败" + responseMessage);

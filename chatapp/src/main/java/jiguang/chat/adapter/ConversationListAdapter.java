@@ -54,7 +54,9 @@ public class ConversationListAdapter extends BaseAdapter {
     private UIHandler mUIHandler = new UIHandler(this);
     private static final int REFRESH_CONVERSATION_LIST = 0x3003;
     private SparseBooleanArray mArray = new SparseBooleanArray();
+    private SparseBooleanArray mAtAll = new SparseBooleanArray();
     private HashMap<Conversation, Integer> mAtConvMap = new HashMap<Conversation, Integer>();
+    private HashMap<Conversation, Integer> mAtAllConv = new HashMap<Conversation, Integer>();
     private UserInfo mUserInfo;
     private GroupInfo mGroupInfo;
     private ConversationListView mConversationListView;
@@ -198,8 +200,21 @@ public class ConversationListAdapter extends BaseAdapter {
                         mArray.put(position, true);
                     }
                 }
+                if (lastMsg.isAtAll()) {
+                    if (null != isRead && isRead) {
+                        mAtAll.delete(position);
+                        mAtAllConv.remove(convItem);
+                    } else {
+                        mAtAll.put(position, true);
+                    }
 
-                if (mArray.get(position) && JGApplication.isNeedAtMsg) {
+                }
+                if (mAtAll.get(position) && JGApplication.isAtAll) {
+                    contentStr = "[@所有人] " + contentStr;
+                    SpannableStringBuilder builder = new SpannableStringBuilder(contentStr);
+                    builder.setSpan(new ForegroundColorSpan(Color.RED), 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    content.setText(builder);
+                } else if (mArray.get(position) && JGApplication.isNeedAtMsg) {
                     //有人@我 文字提示
                     contentStr = mContext.getString(R.string.somebody_at_me) + contentStr;
                     SpannableStringBuilder builder = new SpannableStringBuilder(contentStr);

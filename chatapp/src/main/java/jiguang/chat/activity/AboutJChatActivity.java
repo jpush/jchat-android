@@ -1,6 +1,8 @@
 package jiguang.chat.activity;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -9,7 +11,6 @@ import android.widget.TextView;
 
 import cn.jpush.im.android.api.JMessageClient;
 import jiguang.chat.R;
-import jiguang.chat.application.JGApplication;
 
 /**
  * Created by ${chenyn} on 2017/2/22.
@@ -47,9 +48,14 @@ public class AboutJChatActivity extends BaseActivity {
                 startActivity(intent);
             }
         });
-
+        PackageManager manager = getPackageManager();
+        try {
+            PackageInfo packageInfo = manager.getPackageInfo(getPackageName(), 0);
+            mJChat_version.setText("JChat v" + packageInfo.versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
         //极光IM版本以及sdk版本
-        mJChat_version.setText(JGApplication.JCHAT_VERSION);
         mSDK_version.setText(JMessageClient.getSdkVersionString());
     }
 }

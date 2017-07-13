@@ -5,10 +5,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupIDListCallback;
+import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.model.GroupInfo;
 import jiguang.chat.R;
 import jiguang.chat.adapter.GroupListAdapter;
 import jiguang.chat.utils.DialogCreator;
@@ -22,6 +25,7 @@ public class GroupActivity extends BaseActivity {
     private ListView mGroupList;
     private GroupListAdapter mGroupListAdapter;
     private Context mContext;
+    private List<GroupInfo> mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,15 +42,36 @@ public class GroupActivity extends BaseActivity {
     private void initData() {
         final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.jmui_loading));
         dialog.show();
+        final List<GroupInfo> infoList = new ArrayList<>();
         JMessageClient.getGroupIDList(new GetGroupIDListCallback() {
             @Override
-            public void gotResult(int responseCode, String responseMessage, List<Long> groupIDList) {
-                dialog.dismiss();
+            public void gotResult(int responseCode, String responseMessage, final List<Long> groupIDList) {
                 if (responseCode == 0) {
-                    mGroupListAdapter = new GroupListAdapter(mContext, groupIDList);
-                    mGroupList.setAdapter(mGroupListAdapter);
+                    final int[] groupSize = {groupIDList.size()};
+                    for (Long id : groupIDList) {
+                        JMessageClient.getGroupInfo(id, new GetGroupInfoCallback() {
+                            @Override
+                            public void gotResult(int i, String s, GroupInfo groupInfo) {
+                                if (i == 0) {
+                                    groupSize[0] = groupSize[0] - 1;
+                                    infoList.add(groupInfo);
+                                    if (groupSize[0] == 0) {
+                                        setAdapter(infoList, dialog);
+                                    }
+
+                                }
+                            }
+                        });
+                    }
+
                 }
             }
         });
+    }
+
+    public void setAdapter(List<GroupInfo> infoList, Dialog dialog) {
+        dialog.dismiss();
+        mGroupListAdapter = new GroupListAdapter(mContext,infoList);
+        mGroupList.setAdapter(mGroupListAdapter);
     }
 }

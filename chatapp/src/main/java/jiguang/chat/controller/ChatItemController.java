@@ -158,7 +158,7 @@ public class ChatItemController {
 
         } else {
             if (mConv.getType() == ConversationType.group) {
-                if (msg.isAtMe()) {
+                if (msg.isAtMe() || msg.isAtAll()) {
                     mConv.updateMessageExtra(msg, "isRead", true);
                 }
                 holder.displayName.setVisibility(View.VISIBLE);

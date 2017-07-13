@@ -37,9 +37,9 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final int REQUEST_CODE_SEND_FILE = 26;
 
 
-    public static String JCHAT_VERSION = "JChat v2.0.0";
     public static final int RESULT_CODE_ALL_MEMBER = 22;
     public static boolean isNeedAtMsg = true;
+    public static boolean isAtAll = true;
 
     public static long registerOrLogin = 1;
     public static final int REQUEST_CODE_TAKE_PHOTO = 4;
@@ -52,6 +52,8 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final String NOTENAME = "notename";
     public static final int REQUEST_CODE_AT_MEMBER = 30;
     public static final int RESULT_CODE_AT_MEMBER = 31;
+    public static final int RESULT_CODE_AT_ALL = 32;
+    public static final int SEARCH_AT_MEMBER_CODE = 33;
 
     public static final int RESULT_BUTTON = 2;
     public static final int START_YEAR = 1900;
@@ -77,6 +79,10 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final String POSITION = "position";
     public static final String MsgIDs = "msgIDs";
     public static final String NAME = "name";
+    public static final String ATALL = "atall";
+    public static final String SEARCH_AT_MEMBER_NAME = "search_at_member_name";
+    public static final String SEARCH_AT_MEMBER_USERNAME = "search_at_member_username";
+    public static final String SEARCH_AT_APPKEY = "search_at_appkey";
 
     public static final String MEMBERS_COUNT = "membersCount";
 
@@ -95,6 +101,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static List<GroupInfo> mGroupInfoList = new ArrayList<>();
     public static List<UserInfo> mFriendInfoList = new ArrayList<>();
     public static List<UserInfo> mSearchGroup = new ArrayList<>();
+    public static List<UserInfo> mSearchAtMember = new ArrayList<>();
 
     @Override
     public void onCreate() {

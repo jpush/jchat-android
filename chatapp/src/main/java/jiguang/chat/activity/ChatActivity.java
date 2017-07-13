@@ -126,6 +126,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     Window mWindow;
     InputMethodManager mImm;
     private final UIHandler mUIHandler = new UIHandler(this);
+    private boolean mAtAll = false;
 
 
     @Override
@@ -299,7 +300,10 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 }
                 Message msg;
                 TextContent content = new TextContent(mcgContent);
-                if (null != mAtList) {
+                if (mAtAll) {
+                    msg = mConv.createSendMessageAtAllMember(content, null);
+                    mAtAll = false;
+                } else if (null != mAtList) {
                     msg = mConv.createSendMessage(content, mAtList, null);
                 } else {
                     msg = mConv.createSendMessage(content);
@@ -488,6 +492,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             long groupId = getIntent().getLongExtra(GROUP_ID, 0);
             if (groupId != 0) {
                 JGApplication.isNeedAtMsg = false;
+                JGApplication.isAtAll = false;
                 JMessageClient.enterGroupConversation(groupId);
             }
         } else if (null != targetId) {
@@ -634,7 +639,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                 Toast.makeText(mContext, R.string.jmui_copy_toast, Toast.LENGTH_SHORT).show();
                                 mDialog.dismiss();
                             }
-                        }else {
+                        } else {
                             mConv.deleteMessage(msg.getId());
                             mChatAdapter.removeMessage(position);
                             mDialog.dismiss();
@@ -646,7 +651,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 mDialog = DialogCreator.createLongPressMessageDialog(mContext, name, hide, listener);
                 mDialog.show();
                 mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-            }else {
+            } else {
                 String name = msg.getFromUser().getNickname();
                 View.OnClickListener listener = new View.OnClickListener() {
 
@@ -730,6 +735,14 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     mAtList.add(userInfo);
                     mLongClick = true;
                     ekBar.getEtChat().setText(ekBar.getEtChat().getText().toString() + data.getStringExtra(JGApplication.NAME) + " ");
+                    ekBar.getEtChat().setSelection(ekBar.getEtChat().getText().length());
+                }
+                break;
+            case JGApplication.RESULT_CODE_AT_ALL:
+                mAtAll = data.getBooleanExtra(JGApplication.ATALL, false);
+                mLongClick = true;
+                if (mAtAll) {
+                    ekBar.getEtChat().setText(ekBar.getEtChat().getText().toString() + "所有成员 ");
                     ekBar.getEtChat().setSelection(ekBar.getEtChat().getText().length());
                 }
                 break;
@@ -858,7 +871,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     imageContent.setStringExtra("jiguang", "xiong");
                     Message msg = mConv.createSendMessage(imageContent);
                     handleSendMsg(msg.getId());
-                }else {
+                } else {
                     ToastUtil.shortToast(mContext, responseMessage);
                 }
             }

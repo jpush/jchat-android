@@ -21,7 +21,7 @@ android {
         }
     }
 
-   /* signingConfigs {
+    signingConfigs {
         release {
             storeFile file("release.keystore")
             storePassword "jpush-release"
@@ -34,7 +34,7 @@ android {
             keyAlias "debug.keystore"
             keyPassword "jpush-debug"
         }
-    }*/
+    }
     sourceSets {
         main {
             jniLibs.srcDirs = ['libs']

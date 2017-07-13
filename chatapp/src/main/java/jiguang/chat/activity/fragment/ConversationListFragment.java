@@ -158,6 +158,10 @@ public class ConversationListFragment extends BaseFragment {
                     JGApplication.isNeedAtMsg = true;
                     mConvListController.getAdapter().putAtConv(conv, msg.getId());
                 }
+                if (msg.isAtAll()) {
+                    JGApplication.isAtAll = true;
+                    mConvListController.getAdapter().putAtConv(conv, msg.getId());
+                }
                 mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST,
                         conv));
             }

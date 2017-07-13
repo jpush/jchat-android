@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -32,27 +31,27 @@ import jiguang.chat.entity.EventType;
  */
 
 public class GroupListAdapter extends BaseAdapter {
-    private List<Long> mGroupList;
     private Context mContext;
     private LayoutInflater mInflater;
     private String groupName;
     private Map<Long, String> mGroupName = new HashMap<>();
+    private List<GroupInfo> mGroupInfo;
 
-    public GroupListAdapter(Context context, List<Long> list) {
+    public GroupListAdapter(Context context, List<GroupInfo> groupInfo) {
         this.mContext = context;
-        this.mGroupList = list;
         this.mInflater = LayoutInflater.from(context);
+        this.mGroupInfo = groupInfo;
 
     }
 
     @Override
     public int getCount() {
-        return mGroupList.size();
+        return mGroupInfo.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mGroupList.get(position);
+        return mGroupInfo.get(position);
     }
 
     @Override
@@ -89,40 +88,33 @@ public class GroupListAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+        final GroupInfo groupInfo = mGroupInfo.get(position);
+        if (TextUtils.isEmpty(groupInfo.getGroupName())) {
+            //Conversation groupConversation = JMessageClient.getGroupConversation(groupId);
+            //群组名是null的话,手动拿出5个名字拼接
+            List<UserInfo> groupMembers = groupInfo.getGroupMembers();
 
-        final Long groupId = mGroupList.get(position);
-        JMessageClient.getGroupInfo(groupId, new GetGroupInfoCallback() {
-            @Override
-            public void gotResult(int responseCode, String responseMessage, final GroupInfo groupInfo) {
-                if (responseCode == 0) {
-                    if (TextUtils.isEmpty(groupInfo.getGroupName())) {
-                        //Conversation groupConversation = JMessageClient.getGroupConversation(groupId);
-                        //群组名是null的话,手动拿出5个名字拼接
-                        List<UserInfo> groupMembers = groupInfo.getGroupMembers();
-                        StringBuilder builder = new StringBuilder();
-                        if (groupMembers.size() <= 5) {
-                            groupName = getGroupName(groupMembers, builder);
-                        } else {
-                            List<UserInfo> newGroupMember = groupMembers.subList(0, 5);
-                            groupName = getGroupName(newGroupMember, builder);
-                        }
-                    } else {
-                        groupName = groupInfo.getGroupName();
-                    }
-                    mGroupName.put(groupId, groupName);
-                    holder.groupName.setText(groupName);
-                    holder.avatar.setImageResource(R.drawable.group);
-
-                }
+            StringBuilder builder = new StringBuilder();
+            if (groupMembers.size() <= 5) {
+                groupName = getGroupName(groupMembers, builder);
+            } else {
+                List<UserInfo> newGroupMember = groupMembers.subList(0, 5);
+                groupName = getGroupName(newGroupMember, builder);
             }
-        });
+        } else {
+            groupName = groupInfo.getGroupName();
+        }
+
+        mGroupName.put(groupInfo.getGroupID(), groupName);
+        holder.groupName.setText(groupName);
+        holder.avatar.setImageResource(R.drawable.group);
 
         holder.itemLl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Conversation groupConversation = JMessageClient.getGroupConversation(groupId);
+                Conversation groupConversation = JMessageClient.getGroupConversation(groupInfo.getGroupID());
                 if (groupConversation == null) {
-                    groupConversation = Conversation.createGroupConversation(groupId);
+                    groupConversation = Conversation.createGroupConversation(groupInfo.getGroupID());
                     EventBus.getDefault().post(new Event.Builder()
                             .setType(EventType.createConversation)
                             .setConversation(groupConversation)
@@ -130,8 +122,8 @@ public class GroupListAdapter extends BaseAdapter {
                 }
 
                 Intent intent = new Intent(mContext, ChatActivity.class);
-                intent.putExtra(JGApplication.CONV_TITLE, mGroupName.get(groupId));
-                intent.putExtra(JGApplication.GROUP_ID, groupId);
+                intent.putExtra(JGApplication.CONV_TITLE, mGroupName.get(groupInfo.getGroupID()));
+                intent.putExtra(JGApplication.GROUP_ID, groupInfo.getGroupID());
                 mContext.startActivity(intent);
 
             }
