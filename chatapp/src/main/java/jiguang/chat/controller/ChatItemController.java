@@ -45,6 +45,7 @@ import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.LocationContent;
+import cn.jpush.im.android.api.content.PromptContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ContentType;
@@ -158,8 +159,11 @@ public class ChatItemController {
 
         } else {
             if (mConv.getType() == ConversationType.group) {
-                if (msg.isAtMe() || msg.isAtAll()) {
+                if (msg.isAtMe()) {
                     mConv.updateMessageExtra(msg, "isRead", true);
+                }
+                if (msg.isAtAll()) {
+                    mConv.updateMessageExtra(msg, "isReadAtAll", true);
                 }
                 holder.displayName.setVisibility(View.VISIBLE);
                 if (TextUtils.isEmpty(msg.getFromUser().getNickname())) {
@@ -833,6 +837,13 @@ public class ChatItemController {
         }
     }
 
+    public void handlePromptMsg(Message msg, ViewHolder holder) {
+        String promptText = ((PromptContent) msg.getContent()).getPromptText();
+        holder.groupChange.setText(promptText);
+        holder.groupChange.setVisibility(View.VISIBLE);
+        holder.msgTime.setVisibility(View.GONE);
+    }
+
     public void handleCustomMsg(Message msg, ViewHolder holder) {
         CustomContent content = (CustomContent) msg.getContent();
         Boolean isBlackListHint = content.getBooleanValue("blackList");
@@ -985,7 +996,7 @@ public class ChatItemController {
                             File file = new File(newPath);
                             if (!new File(path).exists()) {
                                 ToastUtil.shortToast(mContext, "文件已被清理");
-                            }else {
+                            } else {
                                 if (file.exists() && file.isFile()) {
                                     browseDocument(fileName, newPath);
                                 } else {

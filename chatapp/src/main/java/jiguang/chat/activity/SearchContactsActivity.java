@@ -31,7 +31,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -44,9 +46,11 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
+import jiguang.chat.controller.ActivityController;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
 import jiguang.chat.model.SearchResult;
+import jiguang.chat.utils.DialogCreator;
 import jiguang.chat.utils.photochoose.SelectableRoundedImageView;
 import jiguang.chat.utils.pinyin.CharacterParser;
 import jiguang.chat.utils.query.TextSearcher;
@@ -77,11 +81,14 @@ public class SearchContactsActivity extends BaseActivity {
     private ArrayList<GroupInfo> mFilterGroupList;
     private ScrollView mSearchView;
     private TextView mNoConnect;
+    private Map<String, String> user = new HashMap<>();
+    private Map<Long, String> group = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_contacts);
+        ActivityController.addActivity(this);
 
         initView();
         initData();
@@ -260,53 +267,79 @@ public class SearchContactsActivity extends BaseActivity {
     }
 
     private void initListener() {
-        //点击搜索出的好友条目跳转到FriendInfoActivity
-        mFriendListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Object selectObject = parent.getItemAtPosition(position);
-                if (selectObject instanceof UserInfo) {
-                    Intent intent = new Intent(SearchContactsActivity.this, FriendInfoActivity.class);
-                    UserInfo friend = (UserInfo) selectObject;
-                    intent.putExtra(JGApplication.TARGET_ID, friend.getUserName());
-                    intent.putExtra(JGApplication.TARGET_APP_KEY, friend.getAppKey());
-                    intent.putExtra("fromSearch", true);
-                    startActivity(intent);
-                    finish();
-                }
-            }
-        });
-        //点击搜索出的群组条目
-        mGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Object selectObject = parent.getItemAtPosition(position);
-                if (selectObject instanceof GroupInfo) {
-                    Intent intent = new Intent(SearchContactsActivity.this, ChatActivity.class);
-                    GroupInfo groupInfo = (GroupInfo) selectObject;
-                    long groupID = groupInfo.getGroupID();
-
-                    Conversation conversation = JMessageClient.getGroupConversation(groupID);
-                    if (conversation == null) {
-                        conversation = Conversation.createGroupConversation(groupID);
-                        EventBus.getDefault().post(new Event.Builder()
-                                .setType(EventType.createConversation)
-                                .setConversation(conversation)
-                                .build());
+        //点击搜索出的好友条目跳转到FriendInfoActivity;通过转发搜索过来的 flag == 1
+        if (getIntent().getFlags() == 1) {
+            mFriendListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Object selectObject = parent.getItemAtPosition(position);
+                    if (selectObject instanceof UserInfo) {
+                        UserInfo userInfo = (UserInfo) selectObject;
+                        DialogCreator.createForwardMsg(SearchContactsActivity.this, mWidth, true, null, null, user.get(userInfo.getUserName()), userInfo);
                     }
-                    intent.putExtra(JGApplication.GROUP_ID, groupID);
-                    intent.putExtra(JGApplication.CONV_TITLE, conversation.getTitle());
-                    startActivity(intent);
                 }
-            }
-        });
+            });
+        }else {
+            mFriendListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Object selectObject = parent.getItemAtPosition(position);
+                    if (selectObject instanceof UserInfo) {
+                        Intent intent = new Intent(SearchContactsActivity.this, FriendInfoActivity.class);
+                        UserInfo friend = (UserInfo) selectObject;
+                        intent.putExtra(JGApplication.TARGET_ID, friend.getUserName());
+                        intent.putExtra(JGApplication.TARGET_APP_KEY, friend.getAppKey());
+                        intent.putExtra("fromSearch", true);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+            });
+        }
+        //点击搜索出的群组条目
+        if (getIntent().getFlags() == 1) {
+            mGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Object selectObject = parent.getItemAtPosition(position);
+                    if (selectObject instanceof GroupInfo) {
+                        GroupInfo groupInfo = (GroupInfo) selectObject;
+                        DialogCreator.createForwardMsg(SearchContactsActivity.this, mWidth, false, null, groupInfo, group.get(groupInfo.getGroupID()), null);
+                    }
+                }
+            });
+        }else {
+            mGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Object selectObject = parent.getItemAtPosition(position);
+                    if (selectObject instanceof GroupInfo) {
+                        Intent intent = new Intent(SearchContactsActivity.this, ChatActivity.class);
+                        GroupInfo groupInfo = (GroupInfo) selectObject;
+                        long groupID = groupInfo.getGroupID();
 
+                        Conversation conversation = JMessageClient.getGroupConversation(groupID);
+                        if (conversation == null) {
+                            conversation = Conversation.createGroupConversation(groupID);
+                            EventBus.getDefault().post(new Event.Builder()
+                                    .setType(EventType.createConversation)
+                                    .setConversation(conversation)
+                                    .build());
+                        }
+                        intent.putExtra(JGApplication.GROUP_ID, groupID);
+                        intent.putExtra(JGApplication.CONV_TITLE, conversation.getTitle());
+                        startActivity(intent);
+                    }
+                }
+            });
+        }
         //搜索出的好友数量超过三条 点击加载更多
         mMoreFriendLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SearchContactsActivity.this, SearchMoreFriendsActivity.class);
                 intent.putExtra("filterString", mFilterString);
+                intent.putExtra("forwardMsg", true);
                 startActivity(intent);
             }
         });
@@ -316,6 +349,7 @@ public class SearchContactsActivity extends BaseActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(SearchContactsActivity.this, SearchMoreGroupActivity.class);
                 intent.putExtra("filterString", mFilterString);
+                intent.putExtra("forwardMsg", true);
                 startActivity(intent);
             }
         });
@@ -376,6 +410,7 @@ public class SearchContactsActivity extends BaseActivity {
                         }
                     }
                 });
+                user.put(userName, name);
                 viewHolder.nameSingleTextView.setText(mCharacterParser.getColoredName(mFilterString, name));
             }
 
@@ -450,7 +485,7 @@ public class SearchContactsActivity extends BaseActivity {
                 } else {
                     groupName = groupInfo.getGroupName();
                 }
-
+                group.put(groupInfo.getGroupID(), groupName);
                 viewHolder.nameSingleTextView.setText(mCharacterParser.getColoredGroupName(mFilterString, groupName));
 
             } else {

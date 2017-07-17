@@ -1,6 +1,5 @@
 package jiguang.chat.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -36,15 +35,17 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
+import jiguang.chat.controller.ActivityController;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
 import jiguang.chat.model.SearchResult;
+import jiguang.chat.utils.DialogCreator;
 import jiguang.chat.utils.photochoose.SelectableRoundedImageView;
 import jiguang.chat.utils.pinyin.CharacterParser;
 import jiguang.chat.utils.query.TextSearcher;
 
 
-public class SearchMoreFriendsActivity extends Activity implements AdapterView.OnItemClickListener {
+public class SearchMoreFriendsActivity extends BaseActivity implements AdapterView.OnItemClickListener {
 
     private String mFilterString;
 
@@ -56,15 +57,17 @@ public class SearchMoreFriendsActivity extends Activity implements AdapterView.O
 
     private AsyncTask mAsyncTask;
     private ThreadPoolExecutor mExecutor;
+    private boolean isForwardMsg;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_more_friends_detail_info);
+        ActivityController.addActivity(this);
 
         Intent intent = getIntent();
         mFilterString = intent.getStringExtra("filterString");
-
+        isForwardMsg = intent.getBooleanExtra("forwardMsg", false);
         initView();
         initData();
     }
@@ -177,9 +180,6 @@ public class SearchMoreFriendsActivity extends Activity implements AdapterView.O
         if (selectObject instanceof UserInfo) {
             UserInfo friend = (UserInfo) selectObject;
             final Intent intent = new Intent(SearchMoreFriendsActivity.this, ChatActivity.class);
-            //创建会话
-            intent.putExtra(JGApplication.TARGET_ID, friend.getUserName());
-            intent.putExtra(JGApplication.TARGET_APP_KEY, friend.getAppKey());
             String notename = friend.getNotename();
             if (TextUtils.isEmpty(notename)) {
                 notename = friend.getNickname();
@@ -187,7 +187,6 @@ public class SearchMoreFriendsActivity extends Activity implements AdapterView.O
                     notename = friend.getUserName();
                 }
             }
-            intent.putExtra(JGApplication.CONV_TITLE, notename);
             Conversation conv = JMessageClient.getSingleConversation(friend.getUserName(), friend.getAppKey());
             //如果会话为空，使用EventBus通知会话列表添加新会话
             if (conv == null) {
@@ -197,7 +196,15 @@ public class SearchMoreFriendsActivity extends Activity implements AdapterView.O
                         .setConversation(conv)
                         .build());
             }
-            startActivity(intent);
+
+            if (isForwardMsg) {
+                DialogCreator.createForwardMsg(SearchMoreFriendsActivity.this, mWidth,true, null, null, notename, friend);
+            }else {
+                intent.putExtra(JGApplication.TARGET_ID, friend.getUserName());
+                intent.putExtra(JGApplication.TARGET_APP_KEY, friend.getAppKey());
+                intent.putExtra(JGApplication.CONV_TITLE, notename);
+                startActivity(intent);
+            }
         }
     }
 
@@ -284,7 +291,7 @@ public class SearchMoreFriendsActivity extends Activity implements AdapterView.O
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         if (mAsyncTask != null) {
             mAsyncTask.cancel(true);
             mAsyncTask = null;

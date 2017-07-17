@@ -27,6 +27,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.MessageContent;
+import cn.jpush.im.android.api.content.PromptContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
@@ -186,12 +187,16 @@ public class ConversationListAdapter extends BaseAdapter {
                             contentStr = mContext.getString(R.string.type_custom);
                         }
                         break;
+                    case prompt:
+                        contentStr = ((PromptContent) lastMsg.getContent()).getPromptText();
+                        break;
                     default:
                         contentStr = ((TextContent) lastMsg.getContent()).getText();
                 }
 
                 MessageContent msgContent = lastMsg.getContent();
                 Boolean isRead = msgContent.getBooleanExtra("isRead");
+                Boolean isReadAtAll = msgContent.getBooleanExtra("isReadAtAll");
                 if (lastMsg.isAtMe()) {
                     if (null != isRead && isRead) {
                         mArray.delete(position);
@@ -201,7 +206,7 @@ public class ConversationListAdapter extends BaseAdapter {
                     }
                 }
                 if (lastMsg.isAtAll()) {
-                    if (null != isRead && isRead) {
+                    if (null != isReadAtAll && isReadAtAll) {
                         mAtAll.delete(position);
                         mAtAllConv.remove(convItem);
                     } else {
@@ -209,12 +214,17 @@ public class ConversationListAdapter extends BaseAdapter {
                     }
 
                 }
-                if (mAtAll.get(position) && JGApplication.isAtAll) {
+                long gid = 0;
+                if (convItem.getType().equals(ConversationType.group)) {
+                    gid = Long.parseLong(convItem.getTargetId());
+                }
+
+                if (mAtAll.get(position) && JGApplication.isAtall.get(gid) != null && JGApplication.isAtall.get(gid)) {
                     contentStr = "[@所有人] " + contentStr;
                     SpannableStringBuilder builder = new SpannableStringBuilder(contentStr);
                     builder.setSpan(new ForegroundColorSpan(Color.RED), 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     content.setText(builder);
-                } else if (mArray.get(position) && JGApplication.isNeedAtMsg) {
+                } else if (mArray.get(position) && JGApplication.isAtMe.get(gid) != null && JGApplication.isAtMe.get(gid)) {
                     //有人@我 文字提示
                     contentStr = mContext.getString(R.string.somebody_at_me) + contentStr;
                     SpannableStringBuilder builder = new SpannableStringBuilder(contentStr);
@@ -404,6 +414,7 @@ public class ConversationListAdapter extends BaseAdapter {
     public void delDraftFromMap(Conversation conv) {
         mArray.delete(mDatas.indexOf(conv));
         mAtConvMap.remove(conv);
+        mAtAllConv.remove(conv);
         mDraftMap.remove(conv.getId());
         notifyDataSetChanged();
     }
@@ -425,12 +436,33 @@ public class ConversationListAdapter extends BaseAdapter {
         return false;
     }
 
+    public boolean includeAtAllMsg(Conversation conv) {
+        if (mAtAllConv.size() > 0) {
+            Iterator<Map.Entry<Conversation, Integer>> iterator = mAtAllConv.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<Conversation, Integer> entry = iterator.next();
+                if (conv == entry.getKey()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public int getAtMsgId(Conversation conv) {
         return mAtConvMap.get(conv);
     }
 
+    public int getatAllMsgId(Conversation conv) {
+        return mAtAllConv.get(conv);
+    }
+
     public void putAtConv(Conversation conv, int msgId) {
         mAtConvMap.put(conv, msgId);
+    }
+
+    public void putAtAllConv(Conversation conv, int msgId) {
+        mAtAllConv.put(conv, msgId);
     }
 
     static class UIHandler extends Handler {

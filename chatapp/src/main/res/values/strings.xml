@@ -332,6 +332,7 @@
     <string name="jmui_server_803004">发送失败，此群已被删除</string>
     <string name="jmui_server_803005">您已被请出此群，不能发送消息</string>
     <string name="jmui_server_803008">消息已发出，但被对方拒收了。</string>
+    <string name="jmui_server_803009">发送失败,消息中包含敏感词。</string>
     <string name="jmui_server_803010">发送消息的频率超过限制，发送失败</string>
     <string name="jmui_server_805002">添加好友失败，双方已经是好友</string>
     <string name="jmui_server_805003">删除好友失败，目标用户不是自己的好友</string>

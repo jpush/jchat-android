@@ -17,7 +17,6 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Toast;
@@ -40,11 +39,13 @@ import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.event.MessageRetractEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
+import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.adapter.ChattingListAdapter;
 import jiguang.chat.application.JGApplication;
@@ -59,7 +60,6 @@ import jiguang.chat.pickerimage.utils.SendImageHelper;
 import jiguang.chat.pickerimage.utils.StorageType;
 import jiguang.chat.pickerimage.utils.StorageUtil;
 import jiguang.chat.pickerimage.utils.StringUtil;
-import jiguang.chat.utils.DialogCreator;
 import jiguang.chat.utils.IdHelper;
 import jiguang.chat.utils.SimpleCommonUtils;
 import jiguang.chat.utils.ToastUtil;
@@ -74,6 +74,8 @@ import jiguang.chat.utils.keyboard.widget.FuncLayout;
 import jiguang.chat.utils.photovideo.takevideo.CameraActivity;
 import jiguang.chat.view.ChatView;
 import jiguang.chat.view.SimpleAppsGridView;
+import jiguang.chat.view.TipItem;
+import jiguang.chat.view.TipView;
 import jiguang.chat.view.listview.DropDownListView;
 
 
@@ -120,8 +122,10 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     private UserInfo mMyInfo;
     private static final String GROUP_ID = "groupId";
     private int mAtMsgId;
+    private int mAtAllMsgId;
     private int mUnreadMsgCnt;
     private boolean mShowSoftInput = false;
+    private List<UserInfo> forDel = new ArrayList<>();
 
     Window mWindow;
     InputMethodManager mImm;
@@ -176,6 +180,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 mChatAdapter = new ChattingListAdapter(mContext, mConv, longClickListener);//长按聊天内容监听
             } else {
                 mAtMsgId = intent.getIntExtra("atMsgId", -1);
+                mAtAllMsgId = intent.getIntExtra("atAllMsgId", -1);
                 mConv = JMessageClient.getGroupConversation(mGroupId);
                 if (mConv != null) {
                     GroupInfo groupInfo = (GroupInfo) mConv.getTargetInfo();
@@ -254,6 +259,28 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 if (temp.length() > 0) {
                     mLongClick = false;
                 }
+
+                if (mAtList != null && mAtList.size() > 0) {
+                    for (UserInfo info : mAtList) {
+                        String name = info.getNotename();
+                        if (TextUtils.isEmpty(name)) {
+                            name = info.getNickname();
+                            if (TextUtils.isEmpty(name)) {
+                                name = info.getUserName();
+                            }
+                        }
+
+                        if (!arg0.toString().contains("@" + name + " ")) {
+                            forDel.add(info);
+                        }
+                    }
+                    mAtList.removeAll(forDel);
+                }
+
+                if (!arg0.toString().contains("@所有成员 ")) {
+                    mAtAll = false;
+                }
+
             }
 
             @Override
@@ -266,10 +293,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 temp = s;
                 if (s.length() > 0 && after >= 1 && s.subSequence(start, start + 1).charAt(0) == '@' && !mLongClick) {
                     if (null != mConv && mConv.getType() == ConversationType.group) {
-                        Intent intent = new Intent(mContext, ChooseAtMemberActivity.class);
-                        intent.putExtra(JGApplication.GROUP_ID, Long.parseLong(mConv.getTargetId()));
-                        ((Activity) mContext).startActivityForResult(intent, JGApplication
-                                .REQUEST_CODE_AT_MEMBER);
+                        ChooseAtMemberActivity.show(ChatActivity.this, ekBar.getEtChat(), mConv.getTargetId());
                     }
                 }
             }
@@ -293,7 +317,6 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             @Override
             public void onClick(View v) {
                 String mcgContent = ekBar.getEtChat().getText().toString();
-                ekBar.getEtChat().setText("");
                 scrollToBottom();
                 if (mcgContent.equals("")) {
                     return;
@@ -310,8 +333,12 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 }
                 mChatAdapter.addMsgToList(msg);
                 JMessageClient.sendMessage(msg);
+                ekBar.getEtChat().setText("");
                 if (mAtList != null) {
                     mAtList.clear();
+                }
+                if (forDel != null) {
+                    forDel.clear();
                 }
             }
         });
@@ -486,13 +513,16 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
     @Override
     protected void onResume() {
+        if (JGApplication.addForwardMsg != null && JGApplication.addForwardMsg.size() > 0) {
+            mChatAdapter.addMsgToList(JGApplication.addForwardMsg.get(0));
+        }
         mChatAdapter.notifyDataSetChanged();
         String targetId = getIntent().getStringExtra(TARGET_ID);
         if (!mIsSingle) {
             long groupId = getIntent().getLongExtra(GROUP_ID, 0);
             if (groupId != 0) {
-                JGApplication.isNeedAtMsg = false;
-                JGApplication.isAtAll = false;
+                JGApplication.isAtMe.put(groupId, false);
+                JGApplication.isAtall.put(groupId, false);
                 JMessageClient.enterGroupConversation(groupId);
             }
         } else if (null != targetId) {
@@ -588,6 +618,11 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         });
     }
 
+    public void onEvent(MessageRetractEvent event) {
+        Message retractedMessage = event.getRetractedMessage();
+        mChatAdapter.delMsgRetract(retractedMessage);
+    }
+
     private void refreshGroupNum() {
         Conversation conv = JMessageClient.getGroupConversation(mGroupId);
         GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
@@ -614,60 +649,79 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         @Override
         public void onContentLongClick(final int position, View view) {
             final Message msg = mChatAdapter.getMessage(position);
-            UserInfo userInfo = msg.getFromUser();
-            if (msg.getContentType() == ContentType.text || msg.getContentType() == ContentType.voice) {
-                String name = userInfo.getNickname();
-                View.OnClickListener listener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (v.getId() == R.id.jmui_copy_msg_btn) {
-                            if (msg.getContentType() == ContentType.text) {
-                                final String content = ((TextContent) msg.getContent()).getText();
-                                if (Build.VERSION.SDK_INT > 11) {
-                                    ClipboardManager clipboard = (ClipboardManager) mContext
-                                            .getSystemService(Context.CLIPBOARD_SERVICE);
-                                    ClipData clip = ClipData.newPlainText("Simple text", content);
-                                    clipboard.setPrimaryClip(clip);
-                                } else {
-                                    android.text.ClipboardManager clip = (android.text.ClipboardManager) mContext
-                                            .getSystemService(Context.CLIPBOARD_SERVICE);
-                                    if (clip.hasText()) {
-                                        clip.getText();
-                                    }
-                                }
 
-                                Toast.makeText(mContext, R.string.jmui_copy_toast, Toast.LENGTH_SHORT).show();
-                                mDialog.dismiss();
-                            }
-                        } else {
-                            mConv.deleteMessage(msg.getId());
-                            mChatAdapter.removeMessage(position);
-                            mDialog.dismiss();
-                        }
-                    }
-                };
-
-                boolean hide = msg.getContentType() == ContentType.voice;
-                mDialog = DialogCreator.createLongPressMessageDialog(mContext, name, hide, listener);
-                mDialog.show();
-                mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-            } else {
-                String name = msg.getFromUser().getNickname();
-                View.OnClickListener listener = new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        if (v.getId() == IdHelper.getViewID(mContext, "jmui_delete_msg_btn")) {
-                            mConv.deleteMessage(msg.getId());
-                            mChatAdapter.removeMessage(position);
-                            mDialog.dismiss();
-                        }
-                    }
-                };
-                mDialog = DialogCreator.createLongPressMessageDialog(mContext, name, true, listener);
-                mDialog.show();
-                mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
+            if (msg == null) {
+                return;
             }
+
+            int[] location = new int[2];
+            view.getLocationOnScreen(location);
+            float OldListY = (float) location[1];
+            float OldListX = (float) location[0];
+            new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
+                    .addItem(new TipItem("复制"))
+                    .addItem(new TipItem("转发"))
+                    .addItem(new TipItem("撤回"))
+                    .addItem(new TipItem("删除"))
+                    .setOnItemClickListener(new TipView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(String str, final int position) {
+                            if (position == 0) {
+                                if (msg.getContentType() == ContentType.text) {
+                                    final String content = ((TextContent) msg.getContent()).getText();
+                                    if (Build.VERSION.SDK_INT > 11) {
+                                        ClipboardManager clipboard = (ClipboardManager) mContext
+                                                .getSystemService(Context.CLIPBOARD_SERVICE);
+                                        ClipData clip = ClipData.newPlainText("Simple text", content);
+                                        clipboard.setPrimaryClip(clip);
+                                    } else {
+                                        android.text.ClipboardManager clip = (android.text.ClipboardManager) mContext
+                                                .getSystemService(Context.CLIPBOARD_SERVICE);
+                                        if (clip.hasText()) {
+                                            clip.getText();
+                                        }
+                                    }
+                                    Toast.makeText(ChatActivity.this, "已复制", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(ChatActivity.this, "只支持复制文字", Toast.LENGTH_SHORT).show();
+                                }
+                            } else if (position == 1) {
+                                //转发
+                                if (msg.getContentType() == ContentType.text || msg.getContentType() == ContentType.image ||
+                                        (msg.getContentType() == ContentType.file && (msg.getContent()).getStringExtra("video") != null)) {
+                                    Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
+                                    JGApplication.forwardMsg.clear();
+                                    JGApplication.forwardMsg.add(msg);
+                                    startActivity(intent);
+                                } else {
+                                    Toast.makeText(ChatActivity.this, "只支持转发文本,图片,小视频", Toast.LENGTH_SHORT).show();
+                                }
+                            } else if (position == 2) {
+                                //撤回
+                                mConv.retractMessage(msg, new BasicCallback() {
+                                    @Override
+                                    public void gotResult(int i, String s) {
+                                        if (i == 855001) {
+                                            Toast.makeText(ChatActivity.this, "消息发送超过3分钟，不能撤回", Toast.LENGTH_SHORT).show();
+                                        } else if (i == 0) {
+                                            mChatAdapter.delMsgRetract(msg);
+                                        }
+                                    }
+                                });
+                            } else {
+                                //删除
+                                mConv.deleteMessage(msg.getId());
+                                mChatAdapter.removeMessage(msg);
+                            }
+                        }
+
+                        @Override
+                        public void dismiss() {
+
+                        }
+                    })
+                    .create();
+
         }
     };
 
@@ -734,7 +788,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     }
                     mAtList.add(userInfo);
                     mLongClick = true;
-                    ekBar.getEtChat().setText(ekBar.getEtChat().getText().toString() + data.getStringExtra(JGApplication.NAME) + " ");
+                    ekBar.getEtChat().appendMention(data.getStringExtra(JGApplication.NAME));
                     ekBar.getEtChat().setSelection(ekBar.getEtChat().getText().length());
                 }
                 break;

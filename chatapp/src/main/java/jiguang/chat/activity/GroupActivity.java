@@ -14,6 +14,7 @@ import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.model.GroupInfo;
 import jiguang.chat.R;
 import jiguang.chat.adapter.GroupListAdapter;
+import jiguang.chat.controller.ActivityController;
 import jiguang.chat.utils.DialogCreator;
 
 /**
@@ -25,7 +26,7 @@ public class GroupActivity extends BaseActivity {
     private ListView mGroupList;
     private GroupListAdapter mGroupListAdapter;
     private Context mContext;
-    private List<GroupInfo> mAdapter;
+    private boolean isFromForward = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,7 @@ public class GroupActivity extends BaseActivity {
         this.mContext = this;
         setContentView(R.layout.activity_group);
         initTitle(true, true, "群组", "", false, "");
+        ActivityController.addActivity(this);
 
         mGroupList = (ListView) findViewById(R.id.group_list);
 
@@ -71,7 +73,11 @@ public class GroupActivity extends BaseActivity {
 
     public void setAdapter(List<GroupInfo> infoList, Dialog dialog) {
         dialog.dismiss();
-        mGroupListAdapter = new GroupListAdapter(mContext,infoList);
+        //来自转发时flag是1
+        if (getIntent().getFlags() == 1) {
+            isFromForward = true;
+        }
+        mGroupListAdapter = new GroupListAdapter(mContext,infoList, isFromForward, mWidth);
         mGroupList.setAdapter(mGroupListAdapter);
     }
 }

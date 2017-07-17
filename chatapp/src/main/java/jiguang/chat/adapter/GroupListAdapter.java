@@ -1,5 +1,6 @@
 package jiguang.chat.adapter;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
@@ -25,6 +26,7 @@ import jiguang.chat.activity.ChatActivity;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
+import jiguang.chat.utils.DialogCreator;
 
 /**
  * Created by ${chenyn} on 2017/4/26.
@@ -36,12 +38,16 @@ public class GroupListAdapter extends BaseAdapter {
     private String groupName;
     private Map<Long, String> mGroupName = new HashMap<>();
     private List<GroupInfo> mGroupInfo;
+    private boolean mIsForward;
+    private Dialog mLoadingDialog;
+    private int mWidth;
 
-    public GroupListAdapter(Context context, List<GroupInfo> groupInfo) {
+    public GroupListAdapter(Context context, List<GroupInfo> groupInfo, boolean isFromForward, int width) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mGroupInfo = groupInfo;
-
+        this.mIsForward = isFromForward;
+        this.mWidth = width;
     }
 
     @Override
@@ -109,26 +115,34 @@ public class GroupListAdapter extends BaseAdapter {
         holder.groupName.setText(groupName);
         holder.avatar.setImageResource(R.drawable.group);
 
-        holder.itemLl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Conversation groupConversation = JMessageClient.getGroupConversation(groupInfo.getGroupID());
-                if (groupConversation == null) {
-                    groupConversation = Conversation.createGroupConversation(groupInfo.getGroupID());
-                    EventBus.getDefault().post(new Event.Builder()
-                            .setType(EventType.createConversation)
-                            .setConversation(groupConversation)
-                            .build());
+        if (mIsForward) {
+            holder.itemLl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DialogCreator.createForwardMsg(mContext, mWidth, false, null, groupInfo, mGroupName.get(groupInfo.getGroupID()), null);
                 }
+            });
+        } else {
+            holder.itemLl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Conversation groupConversation = JMessageClient.getGroupConversation(groupInfo.getGroupID());
+                    if (groupConversation == null) {
+                        groupConversation = Conversation.createGroupConversation(groupInfo.getGroupID());
+                        EventBus.getDefault().post(new Event.Builder()
+                                .setType(EventType.createConversation)
+                                .setConversation(groupConversation)
+                                .build());
+                    }
 
-                Intent intent = new Intent(mContext, ChatActivity.class);
-                intent.putExtra(JGApplication.CONV_TITLE, mGroupName.get(groupInfo.getGroupID()));
-                intent.putExtra(JGApplication.GROUP_ID, groupInfo.getGroupID());
-                mContext.startActivity(intent);
+                    Intent intent = new Intent(mContext, ChatActivity.class);
+                    intent.putExtra(JGApplication.CONV_TITLE, mGroupName.get(groupInfo.getGroupID()));
+                    intent.putExtra(JGApplication.GROUP_ID, groupInfo.getGroupID());
+                    mContext.startActivity(intent);
 
-            }
-        });
-
+                }
+            });
+        }
         return convertView;
     }
 

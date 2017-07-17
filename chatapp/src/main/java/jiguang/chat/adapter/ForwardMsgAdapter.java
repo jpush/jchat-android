@@ -14,38 +14,39 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import jiguang.chat.R;
-import jiguang.chat.utils.ViewHolder;
-import jiguang.chat.utils.pinyin.HanziToPinyin;
+import jiguang.chat.database.FriendEntry;
+import jiguang.chat.utils.NativeImageLoader;
 
-public class AtMemberAdapter extends BaseAdapter implements StickyListHeadersAdapter, SectionIndexer {
+/**
+ * Created by ${chenyn} on 2017/7/16.
+ */
 
+public class ForwardMsgAdapter extends BaseAdapter implements StickyListHeadersAdapter, SectionIndexer {
     private Context mContext;
-    private List<UserInfo> mList = new ArrayList<UserInfo>();
-    private String letter;
+    private List<FriendEntry> mFriends;
     private int[] mSectionIndices;
     private String[] mSectionLetters;
 
-    public AtMemberAdapter(Context context, List<UserInfo> list) {
+    public ForwardMsgAdapter(Context context, List<FriendEntry> friends) {
         this.mContext = context;
-        this.mList = list;
-        //数量从0开始
+        this.mFriends = friends;
         mSectionIndices = getSectionIndices();
-        //所有名字的首字母
         mSectionLetters = getSectionLetters();
     }
 
     private int[] getSectionIndices() {
         ArrayList<Integer> sectionIndices = new ArrayList<Integer>();
-        if (mList.size() > 0) {
-            char lastFirstChar = getLetter(mList.get(0)).charAt(0);
-
+        if (mFriends.size() > 0) {
+            char lastFirstChar = mFriends.get(0).letter.charAt(0);
             sectionIndices.add(0);
-            for (int i = 1; i < mList.size(); i++) {
-                if (getLetter(mList.get(i)).charAt(0) != lastFirstChar) {
-                    lastFirstChar = getLetter(mList.get(i)).charAt(0);
+            for (int i = 1; i < mFriends.size(); i++) {
+                if (mFriends.get(i).letter.charAt(0) != lastFirstChar) {
+                    lastFirstChar = mFriends.get(i).letter.charAt(0);
                     sectionIndices.add(i);
                 }
             }
@@ -62,7 +63,7 @@ public class AtMemberAdapter extends BaseAdapter implements StickyListHeadersAda
         if (null != mSectionIndices) {
             String[] letters = new String[mSectionIndices.length];
             for (int i = 0; i < mSectionIndices.length; i++) {
-                letters[i] = getLetter(mList.get(mSectionIndices[i]));
+                letters[i] = mFriends.get(mSectionIndices[i]).letter;
             }
             return letters;
         }
@@ -72,7 +73,7 @@ public class AtMemberAdapter extends BaseAdapter implements StickyListHeadersAda
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
         HeaderViewHolder holder;
-        UserInfo userInfo = mList.get(position);
+        FriendEntry friendEntry = mFriends.get(position);
         if (convertView == null) {
             holder = new HeaderViewHolder();
             convertView = LayoutInflater.from(mContext).inflate(R.layout.header, parent, false);
@@ -81,95 +82,76 @@ public class AtMemberAdapter extends BaseAdapter implements StickyListHeadersAda
         } else {
             holder = (HeaderViewHolder) convertView.getTag();
         }
-        String letters = getLetter(userInfo);
-        holder.text.setText(letters);
+        holder.text.setText(friendEntry.letter);
         return convertView;
-    }
-
-    private static class HeaderViewHolder {
-        TextView text;
     }
 
     @Override
     public long getHeaderId(int position) {
-        return getLetter(mList.get(position)).charAt(0);
+        return mFriends.get(position).letter.charAt(0);
     }
 
     @Override
     public int getCount() {
-        return mList.size();
+        return mFriends.size();
     }
 
     @Override
-    public Object getItem(int i) {
-        return mList.get(i);
+    public Object getItem(int position) {
+        return mFriends.get(position);
     }
 
     @Override
-    public long getItemId(int i) {
-        return i;
-    }
-
-    private String getLetter(UserInfo userInfo) {
-        String displayName = userInfo.getNotename();
-        if (TextUtils.isEmpty(displayName)) {
-            displayName = userInfo.getNickname();
-            if (TextUtils.isEmpty(displayName)) {
-                displayName = userInfo.getUserName();
-            }
-        }
-
-        ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
-                .get(displayName);
-        StringBuilder sb = new StringBuilder();
-        if (tokens != null && tokens.size() > 0) {
-            for (HanziToPinyin.Token token : tokens) {
-                if (token.type == HanziToPinyin.Token.PINYIN) {
-                    sb.append(token.target);
-                } else {
-                    sb.append(token.source);
-                }
-            }
-        }
-        String sortString = sb.toString().substring(0, 1).toUpperCase();
-        if (sortString.matches("[A-Z]")) {
-            letter = sortString.toUpperCase();
-        } else {
-            letter = "#";
-        }
-        return letter;
+    public long getItemId(int position) {
+        return position;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup viewGroup) {
-
+    public View getView(int position, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
         if (null == convertView) {
+            holder = new ViewHolder();
             convertView = LayoutInflater.from(mContext).inflate(R.layout.item_contact, null);
+            holder.name = (TextView) convertView.findViewById(R.id.name);
+            holder.avatar = (ImageView) convertView.findViewById(R.id.head_icon_iv);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
         }
-        final ImageView headIcon = ViewHolder.get(convertView, R.id.head_icon_iv);
-        TextView name = ViewHolder.get(convertView, R.id.name);
 
-        final UserInfo userInfo = mList.get(position);
 
-        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-            @Override
-            public void gotResult(int status, String desc, Bitmap bitmap) {
-                if (status == 0) {
-                    headIcon.setImageBitmap(bitmap);
-                } else {
-                    headIcon.setImageResource(R.drawable.jmui_head_icon);
+        final FriendEntry friendEntry = mFriends.get(position);
+
+        if (friendEntry.avatar != null && !TextUtils.isEmpty(friendEntry.avatar)) {
+            Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(friendEntry.username);
+            if (bitmap != null) {
+                holder.avatar.setImageBitmap(bitmap);
+            } else {
+                holder.avatar.setImageResource(R.drawable.jmui_head_icon);
+            }
+        } else {
+            JMessageClient.getUserInfo(friendEntry.username, friendEntry.appKey, new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int i, String s, final UserInfo userInfo) {
+                    if (i == 0) {
+                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int i, String s, Bitmap bitmap) {
+                                if (i == 0) {
+                                    friendEntry.avatar = userInfo.getAvatarFile().getAbsolutePath();
+                                    friendEntry.save();
+                                    holder.avatar.setImageBitmap(bitmap);
+                                    NativeImageLoader.getInstance().updateBitmapFromCache(friendEntry.username, bitmap);
+                                }
+                            }
+                        });
+                    }
                 }
-            }
-        });
-
-        String displayName = userInfo.getNotename();
-        if (TextUtils.isEmpty(displayName)) {
-            displayName = userInfo.getNickname();
-            if (TextUtils.isEmpty(displayName)) {
-                displayName = userInfo.getUserName();
-            }
+            });
+            holder.avatar.setImageResource(R.drawable.jmui_head_icon);
         }
-        name.setText(displayName);
+
+        holder.name.setText(friendEntry.displayName);
 
         return convertView;
     }
@@ -216,4 +198,16 @@ public class AtMemberAdapter extends BaseAdapter implements StickyListHeadersAda
         }
         return -1;
     }
+
+    private static class HeaderViewHolder {
+        TextView text;
+    }
+
+    private static class ViewHolder {
+        TextView name;
+        ImageView avatar;
+
+    }
+
+
 }

@@ -7,10 +7,13 @@ import com.baidu.mapapi.SDKInitializer;
 import com.facebook.drawee.backends.pipeline.Fresco;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import jiguang.chat.database.UserEntry;
 import jiguang.chat.entity.NotificationClickEventReceiver;
@@ -38,8 +41,10 @@ public class JGApplication extends com.activeandroid.app.Application {
 
 
     public static final int RESULT_CODE_ALL_MEMBER = 22;
-    public static boolean isNeedAtMsg = true;
-    public static boolean isAtAll = true;
+    public static Map<Long, Boolean> isAtMe = new HashMap<>();
+    public static Map<Long, Boolean> isAtall = new HashMap<>();
+    public static List<Message> forwardMsg = new ArrayList<>();
+    public static List<Message> addForwardMsg = new ArrayList<>();
 
     public static long registerOrLogin = 1;
     public static final int REQUEST_CODE_TAKE_PHOTO = 4;
@@ -91,6 +96,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static String FILE_DIR = "sdcard/JChatDemo/recvFiles/";
     public static String VIDEO_DIR = "sdcarVIDEOd/JChatDemo/sendFiles/";
     public static final String TARGET_ID = "targetId";
+    public static final String ATUSER = "atuser";
     public static final String TARGET_APP_KEY = "targetAppKey";
     public static int maxImgCount;               //允许选择图片最大数
     public static final String GROUP_NAME = "groupName";

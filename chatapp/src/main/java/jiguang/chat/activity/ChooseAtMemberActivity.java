@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,9 +20,12 @@ import cn.jpush.im.android.api.model.UserInfo;
 import jiguang.chat.R;
 import jiguang.chat.adapter.AtMemberAdapter;
 import jiguang.chat.application.JGApplication;
+import jiguang.chat.model.ParentLinkedHolder;
+import jiguang.chat.utils.keyboard.widget.EmoticonsEditText;
 import jiguang.chat.utils.pinyin.UserComparator;
 import jiguang.chat.utils.sidebar.SideBar;
 import jiguang.chat.view.listview.StickyListHeadersListView;
+
 
 /**
  * @ 功能, 选择群组中成员
@@ -36,6 +40,20 @@ public class ChooseAtMemberActivity extends BaseActivity {
     private StickyListHeadersListView mListView;
     private LinearLayout mLl_groupAll;
     private LinearLayout mSearch_title;
+    private static ParentLinkedHolder<EmoticonsEditText> textParentLinkedHolder;
+    private List<UserInfo> forDel = new ArrayList<>();
+
+    public static void show(ChatActivity textWatcher, EmoticonsEditText editText, String targetId) {
+        synchronized (ChooseAtMemberActivity.class) {
+            ParentLinkedHolder<EmoticonsEditText> holder = new ParentLinkedHolder<>(editText);
+            textParentLinkedHolder = holder.addParent(textParentLinkedHolder);
+        }
+
+        Intent intent = new Intent(textWatcher, ChooseAtMemberActivity.class);
+        intent.putExtra(JGApplication.GROUP_ID, Long.parseLong(targetId));
+        textWatcher.startActivityForResult(intent, JGApplication
+                .REQUEST_CODE_AT_MEMBER);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +73,13 @@ public class ChooseAtMemberActivity extends BaseActivity {
             Conversation conv = JMessageClient.getGroupConversation(groupId);
             GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
             mList = groupInfo.getGroupMembers();
-            mList.remove(JMessageClient.getMyInfo());
-
+            for (UserInfo info : mList) {
+                if (info.getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                    forDel.clear();
+                    forDel.add(info);
+                }
+            }
+            mList.removeAll(forDel);
             Collections.sort(mList, new UserComparator());
 
             mAdapter = new AtMemberAdapter(this, mList);
@@ -85,7 +108,15 @@ public class ChooseAtMemberActivity extends BaseActivity {
                         atName = userInfo.getUserName();
                     }
                 }
-                intent.putExtra(JGApplication.NAME, atName);
+
+                synchronized (ChooseAtMemberActivity.class) {
+                    if (textParentLinkedHolder != null) {
+                        EmoticonsEditText editText = textParentLinkedHolder.item;
+                        if (editText != null)
+                            intent.putExtra(JGApplication.NAME, atName);
+                    }
+                }
+
                 intent.putExtra(JGApplication.TARGET_ID, userInfo.getUserName());
                 intent.putExtra(JGApplication.TARGET_APP_KEY, userInfo.getAppKey());
                 setResult(JGApplication.RESULT_CODE_AT_MEMBER, intent);
@@ -117,7 +148,7 @@ public class ChooseAtMemberActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 33) {
+        if (requestCode == 33 && data != null) {
             Intent intent = new Intent();
             intent.putExtra(JGApplication.NAME, data.getStringExtra(JGApplication.SEARCH_AT_MEMBER_NAME));
             intent.putExtra(JGApplication.TARGET_ID, data.getStringExtra(JGApplication.SEARCH_AT_MEMBER_USERNAME));
@@ -126,4 +157,16 @@ public class ChooseAtMemberActivity extends BaseActivity {
             finish();
         }
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        synchronized (ChooseAtMemberActivity.class) {
+            if (textParentLinkedHolder != null) {
+                textParentLinkedHolder = textParentLinkedHolder.putParent();
+            }
+        }
+    }
+
+
 }

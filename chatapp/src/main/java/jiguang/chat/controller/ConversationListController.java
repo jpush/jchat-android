@@ -89,6 +89,10 @@ public class ConversationListController implements View.OnClickListener,
                 if (mListAdapter.includeAtMsg(conv)) {
                     intent.putExtra("atMsgId", mListAdapter.getAtMsgId(conv));
                 }
+
+                if (mListAdapter.includeAtAllMsg(conv)) {
+                    intent.putExtra("atAllMsgId", mListAdapter.getatAllMsgId(conv));
+                }
                 long groupId = ((GroupInfo) conv.getTargetInfo()).getGroupID();
                 intent.putExtra(JGApplication.GROUP_ID, groupId);
                 intent.putExtra(JGApplication.DRAFT, getAdapter().getDraft(conv.getId()));

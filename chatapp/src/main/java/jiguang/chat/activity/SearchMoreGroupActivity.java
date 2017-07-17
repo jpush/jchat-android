@@ -32,9 +32,11 @@ import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.adapter.SearchGroupListAdapter;
 import jiguang.chat.application.JGApplication;
+import jiguang.chat.controller.ActivityController;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
 import jiguang.chat.model.SearchResult;
+import jiguang.chat.utils.DialogCreator;
 import jiguang.chat.utils.query.TextSearcher;
 
 /**
@@ -53,14 +55,16 @@ public class SearchMoreGroupActivity extends BaseActivity {
 
     private AsyncTask mAsyncTask;
     private ThreadPoolExecutor mExecutor;
-
+    private boolean isForwardMsg;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_more_groups_info);
+        ActivityController.addActivity(this);
 
         Intent intent = getIntent();
         mFilterString = intent.getStringExtra("filterString");
+        isForwardMsg = intent.getBooleanExtra("forwardMsg", false);
         initView();
         initData();
     }
@@ -167,7 +171,6 @@ public class SearchMoreGroupActivity extends BaseActivity {
                 if (selectObject instanceof GroupInfo) {
                     GroupInfo groupInfo = (GroupInfo) selectObject;
                     long groupID = groupInfo.getGroupID();
-                    final Intent intent = new Intent(SearchMoreGroupActivity.this, ChatActivity.class);
                     Conversation conversation = JMessageClient.getGroupConversation(groupID);
                     if (conversation == null) {
                         conversation = Conversation.createGroupConversation(groupID);
@@ -176,10 +179,15 @@ public class SearchMoreGroupActivity extends BaseActivity {
                                 .setConversation(conversation)
                                 .build());
                     }
-                    intent.putExtra(JGApplication.GROUP_ID, groupID);
-                    intent.putExtra(JGApplication.MEMBERS_COUNT, groupInfo.getGroupMembers().size());
-                    intent.putExtra(JGApplication.CONV_TITLE, conversation.getTitle());
-                    startActivity(intent);
+                    if (isForwardMsg) {
+                        DialogCreator.createForwardMsg(SearchMoreGroupActivity.this, mWidth, false, null, groupInfo, conversation.getTitle(), null);
+                    }else {
+                        final Intent intent = new Intent(SearchMoreGroupActivity.this, ChatActivity.class);
+                        intent.putExtra(JGApplication.GROUP_ID, groupID);
+                        intent.putExtra(JGApplication.MEMBERS_COUNT, groupInfo.getGroupMembers().size());
+                        intent.putExtra(JGApplication.CONV_TITLE, conversation.getTitle());
+                        startActivity(intent);
+                    }
                 }
             }
         });

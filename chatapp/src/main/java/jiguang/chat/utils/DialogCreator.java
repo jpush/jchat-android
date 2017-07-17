@@ -3,12 +3,16 @@ package jiguang.chat.utils;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
+import android.os.Environment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -16,10 +20,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.FileContent;
+import cn.jpush.im.android.api.content.ImageContent;
+import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.eventbus.EventBus;
+import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
+import jiguang.chat.application.JGApplication;
+import jiguang.chat.controller.ActivityController;
+import jiguang.chat.database.FriendEntry;
+import jiguang.chat.entity.Event;
+import jiguang.chat.entity.EventType;
 
 
 public class DialogCreator {
+    public static Dialog mLoadingDialog;
+
     public static Dialog createLoadingDialog(Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(IdHelper.getLayout(context, "jmui_loading_view"), null);
@@ -71,7 +91,7 @@ public class DialogCreator {
     }
 
     public static Dialog createDelConversationDialog(Context context, String title,
-                                                     View.OnClickListener listener){
+                                                     View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         View v = LayoutInflater.from(context).inflate(
                 IdHelper.getLayout(context, "jmui_dialog_delete_conv"), null);
@@ -98,7 +118,7 @@ public class DialogCreator {
     }
 
     public static Dialog createLongPressMessageDialog(Context context, String title, boolean hide,
-                                                      View.OnClickListener listener){
+                                                      View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         View view = LayoutInflater.from(context).inflate(IdHelper.getLayout(context, "jmui_dialog_msg_alert"), null);
         dialog.setContentView(view);
@@ -114,7 +134,7 @@ public class DialogCreator {
         return dialog;
     }
 
-    public static Dialog createResendDialog(Context context, View.OnClickListener listener){
+    public static Dialog createResendDialog(Context context, View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         View view = LayoutInflater.from(context).inflate(
                 IdHelper.getLayout(context, "jmui_dialog_base_with_button"), null);
@@ -128,7 +148,7 @@ public class DialogCreator {
         return dialog;
     }
 
-    public static Dialog createDeleteMessageDialog(Context context, View.OnClickListener listener){
+    public static Dialog createDeleteMessageDialog(Context context, View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(IdHelper.getLayout(context, "jmui_dialog_base_with_button"), null);
@@ -145,7 +165,7 @@ public class DialogCreator {
         return dialog;
     }
 
-    public static Dialog createExitGroupDialog(Context context, View.OnClickListener listener){
+    public static Dialog createExitGroupDialog(Context context, View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(IdHelper.getLayout(context, "jmui_dialog_base_with_button"), null);
@@ -162,7 +182,7 @@ public class DialogCreator {
         return dialog;
     }
 
-    public static Dialog createSetAvatarDialog(Context context, View.OnClickListener listener){
+    public static Dialog createSetAvatarDialog(Context context, View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         final LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(IdHelper.getLayout(context, "jmui_dialog_set_avatar"), null);
@@ -176,7 +196,7 @@ public class DialogCreator {
         return dialog;
     }
 
-    public static Dialog createLogoutDialog(Context context, View.OnClickListener listener){
+    public static Dialog createLogoutDialog(Context context, View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         View view = LayoutInflater.from(context).inflate(IdHelper.getLayout(context,
                 "jmui_dialog_base_with_button"), null);
@@ -211,7 +231,7 @@ public class DialogCreator {
         return dialog;
     }
 
-    public static Dialog createResetPwdDialog(final Context context){
+    public static Dialog createResetPwdDialog(final Context context) {
         final Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         final LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(IdHelper.getLayout(context, "jmui_dialog_reset_password"), null);
@@ -226,13 +246,13 @@ public class DialogCreator {
                     dialog.cancel();
                 } else {
                     String input = pwdEt.getText().toString().trim();
-                    if(JMessageClient.isCurrentUserPasswordValid(input)){
+                    if (JMessageClient.isCurrentUserPasswordValid(input)) {
                         Intent intent = new Intent();
                         intent.putExtra("oldPassword", input);
 //                        intent.setClass(context, ResetPasswordActivity.class);
                         context.startActivity(intent);
                         dialog.cancel();
-                    }else {
+                    } else {
                         Toast toast = Toast.makeText(context, IdHelper.getString(context,
                                 "jmui_input_password_error_toast"), Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.CENTER, 0, 0);
@@ -268,6 +288,129 @@ public class DialogCreator {
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;
+    }
+
+    public static void createForwardMsg(final Context context, int mWidth, final boolean isSingle, Object itemAtPosition, final GroupInfo groupInfo, String groupName, final UserInfo userInfo) {
+        final Dialog dialog = new Dialog(context, R.style.jmui_default_dialog_style);
+        View forwardView = LayoutInflater.from(context).inflate(R.layout.jmui_dialog_forward_text_button, null);
+        dialog.setContentView(forwardView);
+        TextView name = (TextView) forwardView.findViewById(R.id.tv_forward_name);
+        TextView content = (TextView) forwardView.findViewById(R.id.tv_forward_text);
+        ImageView imageContent = (ImageView) forwardView.findViewById(R.id.iv_forward_image);
+        ImageView videoContent = (ImageView) forwardView.findViewById(R.id.iv_forward_video);
+        FrameLayout videoLayout = (FrameLayout) forwardView.findViewById(R.id.fl_forward_video);
+        final Button cancel = (Button) forwardView.findViewById(R.id.btn_cancel);
+        final Button commit = (Button) forwardView.findViewById(R.id.btn_send);
+
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
+        dialog.show();
+
+        FriendEntry entry = null;
+        if (itemAtPosition != null) {
+            entry = (FriendEntry) itemAtPosition;
+            name.setText(entry.displayName);
+        }
+        if (groupName != null) {
+            name.setText(groupName);
+        }
+        final Message message = JGApplication.forwardMsg.get(0);
+
+        switch (message.getContentType()) {
+            case text:
+                content.setVisibility(View.VISIBLE);
+                TextContent text = (TextContent) message.getContent();
+                content.setText(text.getText());
+                break;
+            case image:
+                imageContent.setVisibility(View.VISIBLE);
+                ImageContent image = (ImageContent) message.getContent();
+                String imagePath = image.getLocalThumbnailPath();
+                imageContent.setImageBitmap(BitmapFactory.decodeFile(imagePath));
+                break;
+            case file:
+                videoLayout.setVisibility(View.VISIBLE);
+                FileContent fileVideo = (FileContent) message.getContent();
+                String videoExtra = fileVideo.getStringExtra("video");
+                if (videoExtra != null && videoExtra.equals("mp4")) {
+                    if (fileVideo.isFileUploaded()) {
+                        String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + fileVideo.getFileName();
+                        String thumbPath = absolutePath.substring(0, absolutePath.lastIndexOf("."));
+                        videoContent.setImageBitmap(BitmapFactory.decodeFile(thumbPath));
+                    } else {
+                        videoContent.setImageResource(R.drawable.video_not_found);
+                    }
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        final FriendEntry finalEntry = entry;
+        commit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mLoadingDialog = DialogCreator.createLoadingDialog(context, "发送中");
+                mLoadingDialog.show();
+                String userName = null;
+                String appKey = null;
+                if (finalEntry != null) {
+                    userName = finalEntry.username;
+                    appKey = finalEntry.appKey;
+                }
+
+                if (userInfo != null) {
+                    userName = userInfo.getUserName();
+                    appKey = userInfo.getAppKey();
+                }
+                Conversation conversation = null;
+                if (isSingle) {
+                    conversation = JMessageClient.getSingleConversation(userName, appKey);
+                    if (conversation == null) {
+                        conversation = Conversation.createSingleConversation(userName, appKey);
+                        EventBus.getDefault().post(new Event.Builder()
+                                .setType(EventType.createConversation)
+                                .setConversation(conversation)
+                                .build());
+                    }
+                } else {
+                    conversation = JMessageClient.getGroupConversation(groupInfo.getGroupID());
+                    if (conversation == null) {
+                        conversation = Conversation.createGroupConversation(groupInfo.getGroupID());
+                        EventBus.getDefault().post(new Event.Builder()
+                                .setType(EventType.createConversation)
+                                .setConversation(conversation)
+                                .build());
+                    }
+                }
+                final Message sendMessage = conversation.createSendMessage(message.getContent());
+                sendMessage.setOnSendCompleteCallback(new BasicCallback() {
+                    @Override
+                    public void gotResult(int i, String s) {
+                        mLoadingDialog.dismiss();
+                        dialog.dismiss();
+                        if (i == 0) {
+                            JGApplication.addForwardMsg.clear();
+                            JGApplication.addForwardMsg.add(sendMessage);
+                            Toast.makeText(context, "已发送", Toast.LENGTH_SHORT).show();
+                            ActivityController.finishAll();
+                        } else {
+                            HandleResponseCode.onHandle(context, i, false);
+                        }
+                    }
+                });
+                JMessageClient.sendMessage(sendMessage);
+            }
+        });
     }
 
 }

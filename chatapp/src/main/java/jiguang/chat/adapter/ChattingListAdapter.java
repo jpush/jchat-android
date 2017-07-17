@@ -288,6 +288,22 @@ public class ChattingListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    List<Message> forDel = new ArrayList<>();
+    int i;
+
+    //找到撤回的那一条消息,并且用撤回后event下发的去替换掉这条消息在集合中的原位置
+    public void delMsgRetract(Message msg) {
+        for (Message message : mMsgList) {
+            if (msg.getServerMessageId().equals(message.getServerMessageId())) {
+                i = mMsgList.indexOf(message);
+                forDel.add(message);
+            }
+        }
+        mMsgList.removeAll(forDel);
+        mMsgList.add(i, msg);
+        notifyDataSetChanged();
+    }
+
     public Message getLastMsg() {
         if (mMsgList.size() > 0) {
             return mMsgList.get(mMsgList.size() - 1);
@@ -300,8 +316,14 @@ public class ChattingListAdapter extends BaseAdapter {
         return mMsgList.get(position);
     }
 
-    public void removeMessage(int position) {
-        mMsgList.remove(position);
+    List<Message> del = new ArrayList<>();
+    public void removeMessage(Message message) {
+        for (Message msg  : mMsgList) {
+            if (msg.getServerMessageId().equals(message.getServerMessageId())) {
+                del.add(msg);
+            }
+        }
+        mMsgList.removeAll(del);
         notifyDataSetChanged();
     }
 
@@ -338,6 +360,7 @@ public class ChattingListAdapter extends BaseAdapter {
                 return msg.getDirect() == MessageDirect.send ? TYPE_SEND_LOCATION
                         : TYPE_RECEIVER_LOCATION;
             case eventNotification:
+            case prompt:
                 return TYPE_GROUP_CHANGE;
             default:
                 return TYPE_CUSTOM_TXT;
@@ -381,6 +404,7 @@ public class ChattingListAdapter extends BaseAdapter {
                         mInflater.inflate(R.layout.jmui_chat_item_send_location, null) :
                         mInflater.inflate(R.layout.jmui_chat_item_receive_location, null);
             case eventNotification:
+            case prompt:
                 if (getItemViewType(position) == TYPE_GROUP_CHANGE) {
                     return mInflater.inflate(R.layout.jmui_chat_item_group_change, null);
                 }
@@ -443,6 +467,7 @@ public class ChattingListAdapter extends BaseAdapter {
                     holder.picture = (ImageView) convertView.findViewById(R.id.jmui_picture_iv);
                     break;
                 case custom:
+                case prompt:
                 case eventNotification:
                     holder.groupChange = (TextView) convertView.findViewById(R.id.jmui_group_content);
                     break;
@@ -581,6 +606,9 @@ public class ChattingListAdapter extends BaseAdapter {
                 break;
             case eventNotification:
                 mController.handleGroupChangeMsg(msg, holder);
+                break;
+            case prompt:
+                mController.handlePromptMsg(msg, holder);
                 break;
             default:
                 mController.handleCustomMsg(msg, holder);

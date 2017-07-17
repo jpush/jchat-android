@@ -3,14 +3,14 @@ package jiguang.chat.utils.keyboard.widget;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import jiguang.chat.utils.RichEditText;
 import jiguang.chat.utils.keyboard.interfaces.EmoticonFilter;
 
-public class EmoticonsEditText extends EditText {
+public class EmoticonsEditText extends RichEditText {
 
     private List<EmoticonFilter> mFilterList;
 

@@ -280,6 +280,10 @@
             android:name=".activity.SearchAtMemberActivity"
             android:theme="@style/BaseThemes"
             android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".activity.ForwardMsgActivity"
+            android:theme="@style/BaseThemes"
+            android:windowSoftInputMode="adjustResize"/>
     </application>
 
 </manifest>

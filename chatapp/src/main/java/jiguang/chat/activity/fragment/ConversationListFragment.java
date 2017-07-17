@@ -25,6 +25,7 @@ import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ConversationRefreshEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.event.MessageRetractEvent;
 import cn.jpush.im.android.api.event.OfflineMessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -155,12 +156,12 @@ public class ConversationListFragment extends BaseFragment {
             Conversation conv = JMessageClient.getGroupConversation(groupId);
             if (conv != null && mConvListController != null) {
                 if (msg.isAtMe()) {
-                    JGApplication.isNeedAtMsg = true;
+                    JGApplication.isAtMe.put(groupId, true);
                     mConvListController.getAdapter().putAtConv(conv, msg.getId());
                 }
                 if (msg.isAtAll()) {
-                    JGApplication.isAtAll = true;
-                    mConvListController.getAdapter().putAtConv(conv, msg.getId());
+                    JGApplication.isAtall.put(groupId, true);
+                    mConvListController.getAdapter().putAtAllConv(conv, msg.getId());
                 }
                 mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST,
                         conv));
@@ -198,6 +199,11 @@ public class ConversationListFragment extends BaseFragment {
     public void onEvent(OfflineMessageEvent event) {
         Conversation conv = event.getConversation();
         mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
+    }
+
+    public void onEvent(MessageRetractEvent event) {
+        Conversation conversation = event.getConversation();
+        mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conversation));
     }
 
     /**
