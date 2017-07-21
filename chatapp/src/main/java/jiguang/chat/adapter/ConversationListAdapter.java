@@ -36,6 +36,7 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
+import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.SortConvList;
 import jiguang.chat.utils.ThreadUtil;
 import jiguang.chat.utils.TimeFormat;
@@ -93,6 +94,18 @@ public class ConversationListAdapter extends BaseAdapter {
         mDatas.add(0, conv);
         mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
         mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
+    }
+
+    public void setConvTop(Conversation convTop) {
+        for (Conversation conversation : mDatas) {
+            if (convTop.getId().equals(conversation.getId())) {
+                mDatas.remove(conversation);
+                mDatas.add(SharePreferenceManager.getTopSize(), convTop);
+                mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+                mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
+                return;
+            }
+        }
     }
 
     @Override
@@ -166,7 +179,7 @@ public class ConversationListAdapter extends BaseAdapter {
                         break;
                     case file:
                         String extra = lastMsg.getContent().getStringExtra("video");
-                        if (extra != null && extra.equals("mp4")) {
+                        if (!TextUtils.isEmpty(extra)) {
                             contentStr = mContext.getString(R.string.type_smallvideo);
                         } else {
                             contentStr = mContext.getString(R.string.type_file);
@@ -240,9 +253,21 @@ public class ConversationListAdapter extends BaseAdapter {
                                 fromName = info.getUserName();
                             }
                         }
-                        content.setText(fromName + ": " + contentStr);
+                        if (JGApplication.isAtall.get(gid) != null && JGApplication.isAtall.get(gid)) {
+                            content.setText("[@所有人] " + fromName + ": " + contentStr);
+                        } else if (JGApplication.isAtMe.get(gid) != null && JGApplication.isAtMe.get(gid)) {
+                            content.setText("[有人@我] " + fromName + ": " + contentStr);
+                        } else {
+                            content.setText(fromName + ": " + contentStr);
+                        }
                     } else {
-                        content.setText(contentStr);
+                        if (JGApplication.isAtall.get(gid) != null && JGApplication.isAtall.get(gid)) {
+                            content.setText("[@所有人] " + contentStr);
+                        } else if (JGApplication.isAtMe.get(gid) != null && JGApplication.isAtMe.get(gid)) {
+                            content.setText("[有人@我] " + contentStr);
+                        } else {
+                            content.setText(contentStr);
+                        }
                     }
                 }
             } else {
@@ -378,10 +403,26 @@ public class ConversationListAdapter extends BaseAdapter {
         return convertView;
     }
 
+//    List<Conversation> mCon = new ArrayList<>();
 
     public void sortConvList() {
         SortConvList sortConvList = new SortConvList();
         Collections.sort(mDatas, sortConvList);
+
+        /*for (int i = 0; i < SharePreferenceManager.getTopSize(); i++) {
+            ConversationEntry topConversation = ConversationEntry.getTopConversation(i);
+            for (int x = 0; x < mDatas.size(); x++) {
+                if (topConversation.targetname.equals(mDatas.get(x).getTargetId())) {
+                    mCon.add(mDatas.get(x));
+                    mDatas.remove(mDatas.get(x));
+
+                    mDatas.add(i, mCon.get(0));
+                    mCon.clear();
+                    break;
+
+                }
+            }
+        }*/
         notifyDataSetChanged();
     }
 
@@ -395,10 +436,26 @@ public class ConversationListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+//    List<Conversation> mConv = new ArrayList<>();
+
     public void addAndSort(Conversation conv) {
         mDatas.add(conv);
         SortConvList sortConvList = new SortConvList();
         Collections.sort(mDatas, sortConvList);
+        /*for (int i = 0; i < SharePreferenceManager.getTopSize(); i++) {
+            ConversationEntry topConversation = ConversationEntry.getTopConversation(i);
+            for (int x = 0; x < mDatas.size(); x++) {
+                if (topConversation.targetname.equals(mDatas.get(x).getTargetId())) {
+                    mConv.add(mDatas.get(x));
+                    mDatas.remove(mDatas.get(x));
+
+                    mDatas.add(i, mConv.get(0));
+                    mConv.clear();
+                    break;
+
+                }
+            }
+        }*/
         notifyDataSetChanged();
     }
 

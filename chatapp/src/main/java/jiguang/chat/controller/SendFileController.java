@@ -151,7 +151,7 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                     switch (entry.getKey()) {
                         case image:
                             Bitmap bitmap;
-                            for (String path : list) {
+                            for (final String path : list) {
                                 if (BitmapLoader.verifyPictureSize(path)) {
                                     File file = new File(path);
                                     ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
@@ -197,8 +197,10 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                 if (index > 0) {
                                     fileName = path.substring(index + 1);
                                     try {
+                                        String substring = path.substring(path.lastIndexOf(".") + 1, path.length());
                                         FileContent content = new FileContent(file, fileName);
-                                        content.setStringExtra("fileType", entry.getKey().toString());
+                                        content.setStringExtra("fileType", substring);
+//                                        content.setStringExtra("fileType", entry.getKey().toString());
                                         NumberFormat ddf1 = NumberFormat.getNumberInstance();
                                         //保留小数点后两位
                                         ddf1.setMaximumFractionDigits(2);

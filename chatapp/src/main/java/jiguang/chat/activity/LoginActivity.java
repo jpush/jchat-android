@@ -3,6 +3,7 @@ package jiguang.chat.activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -13,9 +14,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.lang.reflect.Method;
+
+import cn.jpush.im.android.api.JMessageClient;
 import jiguang.chat.R;
 import jiguang.chat.controller.LoginController;
 import jiguang.chat.utils.BitmapLoader;
@@ -41,6 +47,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private View mView;
     private View mUserLine;
     private View mPswLine;
+    //内部测试环境使用,发布时会置为false;此处对开发者来说即使打开也是没有效果的.
+    private boolean isTestVisibility = false;
+    private RadioGroup mRadioGroup;
+    private RadioButton mRelease;
+    private RadioButton mTest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +172,22 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 }
             }
         });
+
+        mRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                switch (checkedId) {
+                    case R.id.rb_release:
+                        swapEnvironment(LoginActivity.this.getApplicationContext(), false);
+                        break;
+                    case R.id.rb_test:
+                        swapEnvironment(LoginActivity.this.getApplicationContext(), true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
     }
 
 
@@ -192,6 +219,22 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
         mNewUser = (TextView) findViewById(R.id.new_user);
         mLogin_desc = (TextView) findViewById(R.id.login_desc);
+
+        mRadioGroup = (RadioGroup) findViewById(R.id.rg_group);
+        mRelease = (RadioButton) findViewById(R.id.rb_release);
+        mTest = (RadioButton) findViewById(R.id.rb_test);
+
+        if (!isTestVisibility) {
+            mRadioGroup.setVisibility(View.GONE);
+        } else {
+            //供jmessage sdk测试使用，开发者无需关心。
+            Boolean isTestEvn = invokeIsTestEvn();
+            if (isTestEvn) {
+                mTest.setChecked(true);
+            } else {
+                mRelease.setChecked(true);
+            }
+        }
 
         if (mLogin_userName.getText().length() == 0 || mLogin_passWord.getText().length() == 0) {
             mBtn_login.setEnabled(false);
@@ -261,6 +304,26 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
     public String getPassword() {
         return mLogin_passWord.getText().toString().trim();
+    }
+
+    public static Boolean invokeIsTestEvn() {
+        try {
+            Method method = JMessageClient.class.getDeclaredMethod("isTestEnvironment");
+            Object result = method.invoke(null);
+            return (Boolean) result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void swapEnvironment(Context context, boolean isTest) {
+        try {
+            Method method = JMessageClient.class.getDeclaredMethod("swapEnvironment", Context.class, Boolean.class);
+            method.invoke(null, context, isTest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -1,16 +1,20 @@
 package jiguang.chat.activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -660,7 +664,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             float OldListX = (float) location[0];
             new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
                     .addItem(new TipItem("复制"))
-                    .addItem(new TipItem("转发"))
+//                    .addItem(new TipItem("转发"))
                     .addItem(new TipItem("撤回"))
                     .addItem(new TipItem("删除"))
                     .setOnItemClickListener(new TipView.OnItemClickListener() {
@@ -685,7 +689,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                 } else {
                                     Toast.makeText(ChatActivity.this, "只支持复制文字", Toast.LENGTH_SHORT).show();
                                 }
-                            } else if (position == 1) {
+                            } /*else if (position == 1) {
                                 //转发
                                 if (msg.getContentType() == ContentType.text || msg.getContentType() == ContentType.image ||
                                         (msg.getContentType() == ContentType.file && (msg.getContent()).getStringExtra("video") != null)) {
@@ -696,7 +700,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                 } else {
                                     Toast.makeText(ChatActivity.this, "只支持转发文本,图片,小视频", Toast.LENGTH_SHORT).show();
                                 }
-                            } else if (position == 2) {
+                            } */ else if (position == 1) {
                                 //撤回
                                 mConv.retractMessage(msg, new BasicCallback() {
                                     @Override
@@ -731,27 +735,57 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             case JGApplication.IMAGE_MESSAGE:
                 int from = PickImageActivity.FROM_LOCAL;
                 int requestCode = RequestCode.PICK_IMAGE;
-                PickImageActivity.start(ChatActivity.this, requestCode, from, tempFile(), true, 9,
-                        true, false, 0, 0);
+                if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    //申请WRITE_EXTERNAL_STORAGE权限
+                    ActivityCompat.requestPermissions(ChatActivity.this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            11);
+                }else {
+                    PickImageActivity.start(ChatActivity.this, requestCode, from, tempFile(), true, 9,
+                            true, false, 0, 0);
+                }
                 break;
             case JGApplication.TAKE_PHOTO_MESSAGE:
-                intent = new Intent(ChatActivity.this, CameraActivity.class);
-                startActivityForResult(intent, RequestCode.TAKE_PHOTO);
+                if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    //申请WRITE_EXTERNAL_STORAGE权限
+                    ActivityCompat.requestPermissions(ChatActivity.this, new String[] {Manifest.permission.CAMERA},
+                            1);
+                } else {
+                    intent = new Intent(ChatActivity.this, CameraActivity.class);
+                    startActivityForResult(intent, RequestCode.TAKE_PHOTO);
+                }
                 break;
             case JGApplication.TAKE_LOCATION:
-                intent = new Intent(mContext, MapPickerActivity.class);
-                intent.putExtra(JGApplication.TARGET_ID, mTargetId);
-                intent.putExtra(JGApplication.TARGET_APP_KEY, mTargetAppKey);
-                intent.putExtra(JGApplication.GROUP_ID, mGroupId);
-                intent.putExtra("sendLocation", true);
-                startActivityForResult(intent, JGApplication.REQUEST_CODE_SEND_LOCATION);
+                if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.LOCATION_HARDWARE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    //申请WRITE_EXTERNAL_STORAGE权限
+                    ActivityCompat.requestPermissions(ChatActivity.this, new String[] {Manifest.permission.LOCATION_HARDWARE},
+                            13);
+                }else {
+                    intent = new Intent(mContext, MapPickerActivity.class);
+                    intent.putExtra(JGApplication.TARGET_ID, mTargetId);
+                    intent.putExtra(JGApplication.TARGET_APP_KEY, mTargetAppKey);
+                    intent.putExtra(JGApplication.GROUP_ID, mGroupId);
+                    intent.putExtra("sendLocation", true);
+                    startActivityForResult(intent, JGApplication.REQUEST_CODE_SEND_LOCATION);
+                }
                 break;
             case JGApplication.FILE_MESSAGE:
-                intent = new Intent(mContext, SendFileActivity.class);
-                intent.putExtra(JGApplication.TARGET_ID, mTargetId);
-                intent.putExtra(JGApplication.TARGET_APP_KEY, mTargetAppKey);
-                intent.putExtra(JGApplication.GROUP_ID, mGroupId);
-                startActivityForResult(intent, JGApplication.REQUEST_CODE_SEND_FILE);
+                if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            12);
+
+                } else {
+                    intent = new Intent(mContext, SendFileActivity.class);
+                    intent.putExtra(JGApplication.TARGET_ID, mTargetId);
+                    intent.putExtra(JGApplication.TARGET_APP_KEY, mTargetAppKey);
+                    intent.putExtra(JGApplication.GROUP_ID, mGroupId);
+                    startActivityForResult(intent, JGApplication.REQUEST_CODE_SEND_FILE);
+                }
                 break;
             case JGApplication.TACK_VIDEO:
             case JGApplication.TACK_VOICE:
@@ -1005,6 +1039,55 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                         break;
                 }
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        doNext(requestCode, grantResults);
+    }
+
+    private void doNext(int requestCode, int[] grantResults) {
+
+        switch (requestCode) {
+            case 12:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission Granted
+
+                } else {
+                    Toast.makeText(this, "请在应用管理中打开“存储卡”访问权限！", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case 1:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission Granted
+
+                } else {
+                    // Permission Denied
+                    Toast.makeText(this, "请在应用管理中打开“相机”访问权限！", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case 11:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission Granted
+
+                } else {
+                    // Permission Denied
+                    Toast.makeText(this, "请在应用管理中打开“相册”访问权限！", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case 13:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission Granted
+
+                } else {
+                    // Permission Denied
+                    Toast.makeText(this, "请在应用管理中打开“位置”访问权限！", Toast.LENGTH_LONG).show();
+                }
+                break;
+            default:
+                break;
         }
     }
 }

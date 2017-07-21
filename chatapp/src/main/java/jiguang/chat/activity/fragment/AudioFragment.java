@@ -73,10 +73,18 @@ public class AudioFragment extends BaseFragment {
                 ContentResolver contentResolver = mContext.getContentResolver();
                 String[] projection = new String[] {MediaStore.Audio.AudioColumns.DATA,
                         MediaStore.Audio.AudioColumns.DISPLAY_NAME, MediaStore.Audio.AudioColumns.SIZE,
-                        MediaStore.Audio.AudioColumns.DATE_MODIFIED};
+                        MediaStore.Audio.AudioColumns.DATE_MODIFIED, MediaStore.Audio.AudioColumns.MIME_TYPE};
+
+                String selection = MediaStore.Audio.AudioColumns.MIME_TYPE + "= ? "
+                        + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                        + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                        + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? ";
+
+                String[] selectionArgs = new String[] {
+                        "audio/mpeg", "audio/x-ms-wma", "audio/x-wav", "audio/midi"};
 
                 Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        projection, null, null, MediaStore.Audio.AudioColumns.DATE_MODIFIED + " desc");
+                        projection, selection, selectionArgs, MediaStore.Audio.AudioColumns.DATE_MODIFIED + " desc");
 
                 if (cursor != null) {
                     while (cursor.moveToNext()) {

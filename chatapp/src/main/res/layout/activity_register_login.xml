@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#fff">
@@ -161,6 +162,35 @@
                 android:textSize="16sp"/>
         </LinearLayout>
     </LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/rg_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_name_psw"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rb_release"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:buttonTintMode="src_atop"
+            android:text="生产环境"
+            android:textColor="#808080"/>
+
+        <RadioButton
+            android:id="@+id/rb_test"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:buttonTintMode="src_atop"
+            android:text="测试环境"
+            android:textColor="#808080"/>
+    </RadioGroup>
 
     <LinearLayout
         android:layout_width="wrap_content"

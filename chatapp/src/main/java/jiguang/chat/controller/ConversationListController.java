@@ -37,6 +37,7 @@ public class ConversationListController implements View.OnClickListener,
     private int mWidth;
     private ConversationListAdapter mListAdapter;
     private List<Conversation> mDatas = new ArrayList<Conversation>();
+    private List<Conversation> mConv = new ArrayList<Conversation>();
     private Dialog mDialog;
 
     public ConversationListController(ConversationListView listView, ConversationListFragment context,
@@ -54,7 +55,21 @@ public class ConversationListController implements View.OnClickListener,
             mConvListView.setNullConversation(true);
             SortConvList sortConvList = new SortConvList();
             Collections.sort(mDatas, sortConvList);
-        }else {
+         /*   for (int i = 0; i < SharePreferenceManager.getTopSize(); i++) {
+                ConversationEntry topConversation = ConversationEntry.getTopConversation(i);
+                for (int x = 0; x < mDatas.size(); x++) {
+                    if (topConversation.targetname.equals(mDatas.get(x).getTargetId())) {
+                        mConv.add(mDatas.get(x));
+                        mDatas.remove(mDatas.get(x));
+
+                        mDatas.add(i, mConv.get(0));
+                        mConv.clear();
+                        break;
+
+                    }
+                }
+            }*/
+        } else {
             mConvListView.setNullConversation(false);
         }
         mListAdapter = new ConversationListAdapter(mContext.getActivity(), mDatas, mConvListView);
@@ -124,23 +139,40 @@ public class ConversationListController implements View.OnClickListener,
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (conv.getType() == ConversationType.group) {
-                        JMessageClient.deleteGroupConversation(((GroupInfo) conv.getTargetInfo()).getGroupID());
-                    } else {
-                        JMessageClient.deleteSingleConversation(((UserInfo) conv.getTargetInfo()).getUserName());
+                    switch (v.getId()) {
+                        //会话置顶
+                        /*case R.id.jmui_top_conv_ll:
+                            mListAdapter.setConvTop(conv);
+                            int topSize = SharePreferenceManager.getTopSize();
+                            ConversationEntry entry = new ConversationEntry(conv.getTargetId(), topSize);
+                            entry.save();
+                            ++topSize;
+                            SharePreferenceManager.setTopSize(topSize);
+                            mDialog.dismiss();
+                            break;*/
+                        //删除会话
+                        case R.id.jmui_delete_conv_ll:
+                            if (conv.getType() == ConversationType.group) {
+                                JMessageClient.deleteGroupConversation(((GroupInfo) conv.getTargetInfo()).getGroupID());
+                            } else {
+                                JMessageClient.deleteSingleConversation(((UserInfo) conv.getTargetInfo()).getUserName());
+                            }
+                            mDatas.remove(position - 3);
+                            if (mDatas.size() > 0) {
+                                mConvListView.setNullConversation(true);
+                            } else {
+                                mConvListView.setNullConversation(false);
+                            }
+                            mListAdapter.notifyDataSetChanged();
+                            mDialog.dismiss();
+                            break;
+                        default:
+                            break;
                     }
-                    mDatas.remove(position - 3);
-                    if (mDatas.size() > 0) {
-                        mConvListView.setNullConversation(true);
-                    }else {
-                        mConvListView.setNullConversation(false);
-                    }
-                    mListAdapter.notifyDataSetChanged();
-                    mDialog.dismiss();
+
                 }
             };
-            mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), conv.getTitle(),
-                    listener);
+            mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), listener);
             mDialog.show();
             mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         }

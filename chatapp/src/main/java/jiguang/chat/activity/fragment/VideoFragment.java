@@ -74,26 +74,43 @@ public class VideoFragment extends BaseFragment {
                 String[] projection = new String[] {MediaStore.Video.VideoColumns.DATA,
                         MediaStore.Video.VideoColumns.DISPLAY_NAME, MediaStore.Video.VideoColumns.SIZE,
                         MediaStore.Video.VideoColumns.DATE_MODIFIED};
+                try {
+                    String selection = MediaStore.Audio.AudioColumns.MIME_TYPE + "= ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? ";
 
-                Cursor cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection,
-                        null, null, MediaStore.Video.VideoColumns.DATE_MODIFIED + " desc");
+                    //类型是在http://qd5.iteye.com/blog/1564040找的
+                    String[] selectionArgs = new String[] {
+                            "video/quicktime", "video/mp4", "application/vnd.rn-realmedia", "aapplication/vnd.rn-realmedia",
+                            "video/x-ms-wmv", "video/x-msvideo", "video/3gpp", "video/x-matroska"};
 
-                if (cursor != null) {
-                    while (cursor.moveToNext()) {
-                        String fileName = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DISPLAY_NAME));
-                        String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATA));
-                        String size = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.SIZE));
-                        String date = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATE_MODIFIED));
-                        if (scannerFile(filePath)) {
-                            FileItem fileItem = new FileItem(filePath, fileName, size, date);
-                            mVideos.add(fileItem);
+                    Cursor cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection,
+                            selection, selectionArgs, MediaStore.Video.VideoColumns.DATE_MODIFIED + " desc");
+
+                    if (cursor != null) {
+                        while (cursor.moveToNext()) {
+                            String fileName = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DISPLAY_NAME));
+                            String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATA));
+                            String size = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.SIZE));
+                            String date = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATE_MODIFIED));
+                            if (scannerFile(filePath)) {
+                                FileItem fileItem = new FileItem(filePath, fileName, size, date);
+                                mVideos.add(fileItem);
+                            }
                         }
+                        cursor.close();
+                        cursor = null;
+                        myHandler.sendEmptyMessage(SCAN_OK);
+                    } else {
+                        myHandler.sendEmptyMessage(SCAN_ERROR);
                     }
-                    cursor.close();
-                    cursor = null;
-                    myHandler.sendEmptyMessage(SCAN_OK);
-                } else {
-                    myHandler.sendEmptyMessage(SCAN_ERROR);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }).start();

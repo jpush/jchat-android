@@ -44,7 +44,7 @@
         <meta-data
             android:name="AA_MODELS"
             android:value="jiguang.chat.database.UserEntry, jiguang.chat.database.FriendEntry,
-             jiguang.chat.database.FriendRecommendEntry"/>
+             jiguang.chat.database.FriendRecommendEntry, jiguang.chat.database.ConversationEntry"/>
         <meta-data
             android:name="AA_DB_VERSION"
             android:value="4"/>

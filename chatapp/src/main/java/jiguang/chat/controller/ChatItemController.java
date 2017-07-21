@@ -62,7 +62,6 @@ import jiguang.chat.activity.DownLoadActivity;
 import jiguang.chat.adapter.ChattingListAdapter;
 import jiguang.chat.adapter.ChattingListAdapter.ViewHolder;
 import jiguang.chat.application.JGApplication;
-import jiguang.chat.entity.FileType;
 import jiguang.chat.location.activity.MapPickerActivity;
 import jiguang.chat.pickerimage.utils.BitmapDecoder;
 import jiguang.chat.utils.FileHelper;
@@ -669,14 +668,18 @@ public class ChatItemController {
             holder.sizeTv.setText(fileSize);
         String fileType = content.getStringExtra("fileType");
         Drawable drawable;
-        if (fileType != null && fileType.equals(FileType.video.toString())) {
+        if (fileType != null && (fileType.equals("mp4") || fileType.equals("mov") || fileType.equals("rm") ||
+                fileType.equals("rmvb") || fileType.equals("wmv") || fileType.equals("avi") ||
+                fileType.equals("3gp") || fileType.equals("mkv"))) {
             drawable = mContext.getResources().getDrawable(R.drawable.jmui_video);
-        } else if (fileType != null && fileType.equals(FileType.audio.toString())) {
+        } else if (fileType != null && (fileType.equals("wav") || fileType.equals("mp3") || fileType.equals("wma") || fileType.equals("midi"))) {
             drawable = mContext.getResources().getDrawable(R.drawable.jmui_audio);
-        } else if (fileType != null && fileType.equals(FileType.other.toString())) {
-            drawable = mContext.getResources().getDrawable(R.drawable.jmui_other);
-        } else {
+        } else if (fileType != null && (fileType.equals("ppt") || fileType.equals("pptx") || fileType.equals("doc") ||
+                fileType.equals("docx") || fileType.equals("pdf") || fileType.equals("xls") ||
+                fileType.equals("xlsx") || fileType.equals("txt") || fileType.equals("wps"))) {
             drawable = mContext.getResources().getDrawable(R.drawable.jmui_document);
+        } else {
+            drawable = mContext.getResources().getDrawable(R.drawable.jmui_other);
         }
         BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
         if (holder.ivDocument != null)

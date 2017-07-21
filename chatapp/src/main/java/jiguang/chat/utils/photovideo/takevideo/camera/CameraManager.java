@@ -1,6 +1,7 @@
 package jiguang.chat.utils.photovideo.takevideo.camera;
 
 import android.app.Application;
+import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
@@ -79,17 +80,16 @@ public final class CameraManager {
     /**
      * 打开camera
      */
-    public void openCamera(SurfaceTexture surfaceTexture, int width, int height) {
+    public void openCamera(Context context, SurfaceTexture surfaceTexture, int width, int height) {
         if (mCamera == null) {
-            mCamera = Camera.open(cameraFacing);//打开当前选中的摄像头
-            mProfile = CamcorderProfile.get(cameraFacing, CamcorderProfile.QUALITY_HIGH);
             try {
+                mCamera = Camera.open(cameraFacing);//打开当前选中的摄像头
+                mProfile = CamcorderProfile.get(cameraFacing, CamcorderProfile.QUALITY_HIGH);
                 mCamera.setDisplayOrientation(90);//默认竖直拍照
                 mCamera.setPreviewTexture(surfaceTexture);
                 initCameraParameters(cameraFacing, width, height);
                 mCamera.startPreview();
             } catch (Exception e) {
-                LogUtils.i(e);
                 if (mCamera != null) {
                     mCamera.release();
                     mCamera = null;
@@ -97,6 +97,7 @@ public final class CameraManager {
             }
         }
     }
+
 
     /**
      * 开启预览,前提是camera初始化了
@@ -159,7 +160,7 @@ public final class CameraManager {
             }*/
             Camera.Size optimalPicSize = getOptimalSize(pictureSizes, width, height);
             Camera.Size optimalPreSize = getOptimalSize(previewSizes, width, height);
-            LogUtils.i("TextureSize "+width+" "+height+" optimalSize pic " + optimalPicSize.width + " " + optimalPicSize.height + " pre " + optimalPreSize.width + " " + optimalPreSize.height);
+            LogUtils.i("TextureSize " + width + " " + height + " optimalSize pic " + optimalPicSize.width + " " + optimalPicSize.height + " pre " + optimalPreSize.width + " " + optimalPreSize.height);
             parameters.setPictureSize(optimalPicSize.width, optimalPicSize.height);
             parameters.setPreviewSize(optimalPreSize.width, optimalPreSize.height);
             mProfile.videoFrameWidth = optimalPreSize.width;
@@ -231,6 +232,7 @@ public final class CameraManager {
 
     /**
      * 缩放
+     *
      * @param isZoomIn
      */
     public void handleZoom(boolean isZoomIn) {
@@ -255,26 +257,26 @@ public final class CameraManager {
     /**
      * 更换前后置摄像
      */
-    public void changeCameraFacing(SurfaceTexture surfaceTexture, int width, int height) {
-        if(isSupportFrontCamera) {
+    public void changeCameraFacing(Context context, SurfaceTexture surfaceTexture, int width, int height) {
+        if (isSupportFrontCamera) {
             Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
             int cameraCount = Camera.getNumberOfCameras();//得到摄像头的个数
-            for(int i = 0; i < cameraCount; i++) {
+            for (int i = 0; i < cameraCount; i++) {
                 Camera.getCameraInfo(i, cameraInfo);//得到每一个摄像头的信息
-                if(cameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) { //现在是后置，变更为前置
-                    if(cameraInfo.facing  == Camera.CameraInfo.CAMERA_FACING_FRONT) {//代表摄像头的方位为前置
+                if (cameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) { //现在是后置，变更为前置
+                    if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {//代表摄像头的方位为前置
                         closeCamera();
                         cameraFacing = Camera.CameraInfo.CAMERA_FACING_BACK;
                         CameraUtils.setCameraFacing(context, cameraFacing);
-                        openCamera(surfaceTexture, width, height);
+                        openCamera(context, surfaceTexture, width, height);
                         break;
                     }
                 } else {//现在是前置， 变更为后置
-                    if(cameraInfo.facing  == Camera.CameraInfo.CAMERA_FACING_BACK) {//代表摄像头的方位
+                    if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {//代表摄像头的方位
                         closeCamera();
                         cameraFacing = Camera.CameraInfo.CAMERA_FACING_FRONT;
                         CameraUtils.setCameraFacing(context, cameraFacing);
-                        openCamera(surfaceTexture, width, height);
+                        openCamera(context, surfaceTexture, width, height);
                         break;
                     }
                 }
@@ -292,9 +294,9 @@ public final class CameraManager {
             Toast.makeText(context, "您的手机不支闪光", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(mCamera != null) {
+        if (mCamera != null) {
             Camera.Parameters parameters = mCamera.getParameters();
-            if(parameters != null) {
+            if (parameters != null) {
                 int newState = cameraFlash;
                 switch (cameraFlash) {
                     case 0: //自动
@@ -324,12 +326,11 @@ public final class CameraManager {
         if (mCamera != null) {
             try {
                 mCamera.takePicture(null, null, callback);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Toast.makeText(context, "拍摄失败", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
 
 
     /**
@@ -409,6 +410,7 @@ public final class CameraManager {
 
     /**
      * 设置对焦类型
+     *
      * @param cameraType
      */
     public void setCameraType(int cameraType) {
@@ -438,6 +440,7 @@ public final class CameraManager {
 
     /**
      * 对焦
+     *
      * @param x
      * @param y
      */

@@ -114,6 +114,23 @@ public class SharePreferenceManager {
         }
         return null;
     }
+
+    private static final String CONVERSATION_TOP = "conversation_top";
+
+    public static void setTopSize(int num) {
+        if (null != sp) {
+            sp.edit().putInt(CONVERSATION_TOP, num).apply();
+        }
+    }
+
+    public static int getTopSize() {
+        if (null != sp) {
+            return sp.getInt(CONVERSATION_TOP, 0);
+        }
+        return 0;
+    }
+
+
     private static final String KEY_REGISTER_AVATAR_PATH = "jchat_register_avatar_path";
 
     public static void setRegisterAvatarPath(String path) {

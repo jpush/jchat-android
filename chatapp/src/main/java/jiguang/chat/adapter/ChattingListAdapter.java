@@ -346,7 +346,7 @@ public class ChattingListAdapter extends BaseAdapter {
                         : TYPE_RECEIVER_IMAGE;
             case file:
                 String extra = msg.getContent().getStringExtra("video");
-                if (!TextUtils.isEmpty(extra) && extra.equals("mp4")) {
+                if (!TextUtils.isEmpty(extra)) {
                     return msg.getDirect() == MessageDirect.send ? TYPE_SEND_VIDEO
                             : TYPE_RECEIVE_VIDEO;
                 } else {
@@ -446,7 +446,7 @@ public class ChattingListAdapter extends BaseAdapter {
                     break;
                 case file:
                     String extra = msg.getContent().getStringExtra("video");
-                    if (!TextUtils.isEmpty(extra) && extra.equals("mp4")) {
+                    if (!TextUtils.isEmpty(extra)) {
                         holder.picture = (ImageView) convertView.findViewById(R.id.jmui_picture_iv);
                         holder.progressTv = (TextView) convertView.findViewById(R.id.jmui_progress_tv);
                         holder.videoPlay = (LinearLayout) convertView.findViewById(R.id.message_item_video_play);

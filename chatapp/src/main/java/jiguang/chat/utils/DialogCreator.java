@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -90,7 +91,7 @@ public class DialogCreator {
         return dialog;
     }
 
-    public static Dialog createDelConversationDialog(Context context, String title,
+    public static Dialog createDelConversationDialog(Context context,
                                                      View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         View v = LayoutInflater.from(context).inflate(
@@ -98,7 +99,12 @@ public class DialogCreator {
         dialog.setContentView(v);
         final LinearLayout deleteLl = (LinearLayout) v.findViewById(IdHelper
                 .getViewID(context, "jmui_delete_conv_ll"));
+        final LinearLayout top = (LinearLayout) v.findViewById(IdHelper
+                .getViewID(context, "jmui_top_conv_ll"));
+        TextView isTop = (TextView) v.findViewById(IdHelper.getViewID(context, "tv_conv_top"));
+
         deleteLl.setOnClickListener(listener);
+        top.setOnClickListener(listener);
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;
@@ -333,7 +339,7 @@ public class DialogCreator {
                 videoLayout.setVisibility(View.VISIBLE);
                 FileContent fileVideo = (FileContent) message.getContent();
                 String videoExtra = fileVideo.getStringExtra("video");
-                if (videoExtra != null && videoExtra.equals("mp4")) {
+                if (!TextUtils.isEmpty(videoExtra)) {
                     if (fileVideo.isFileUploaded()) {
                         String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + fileVideo.getFileName();
                         String thumbPath = absolutePath.substring(0, absolutePath.lastIndexOf("."));

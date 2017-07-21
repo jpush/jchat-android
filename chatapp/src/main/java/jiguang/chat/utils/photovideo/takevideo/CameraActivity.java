@@ -298,7 +298,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             } else {
                 iv_choice.setVisibility(View.GONE);
                 setTakeButtonShow(true);
-                cameraManager.openCamera(mTextureView.getSurfaceTexture(),
+                cameraManager.openCamera(this, mTextureView.getSurfaceTexture(),
                         mTextureView.getWidth(), mTextureView.getHeight());
             }
         } else {
@@ -339,7 +339,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                     playerManager.stopMedia();
                     setTakeButtonShow(true);
                     iv_choice.setVisibility(View.GONE);
-                    cameraManager.openCamera(mTextureView.getSurfaceTexture(), mTextureView.getWidth(), mTextureView.getHeight());
+                    cameraManager.openCamera(this, mTextureView.getSurfaceTexture(), mTextureView.getWidth(), mTextureView.getHeight());
                 } else if (isPhotoTakingState) {
                     isPhotoTakingState = false;
                     iv_choice.setVisibility(View.GONE);
@@ -367,7 +367,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 setCameraFlashState();
                 break;
             case R.id.iv_facing:
-                cameraManager.changeCameraFacing(mTextureView.getSurfaceTexture(),
+                cameraManager.changeCameraFacing(this, mTextureView.getSurfaceTexture(),
                         mTextureView.getWidth(), mTextureView.getHeight());
                 break;
         }
@@ -386,7 +386,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             } else {
                 setTakeButtonShow(true);
                 iv_choice.setVisibility(View.GONE);
-                cameraManager.openCamera(texture, width, height);
+                cameraManager.openCamera(CameraActivity.this, texture, width, height);
             }
         }
 
