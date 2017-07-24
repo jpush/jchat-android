@@ -386,7 +386,7 @@ public class ChattingListAdapter extends BaseAdapter {
                         mInflater.inflate(R.layout.jmui_chat_item_receive_image, null);
             case file:
                 String extra = msg.getContent().getStringExtra("video");
-                if (!TextUtils.isEmpty(extra) && extra.equals("mp4")) {
+                if (!TextUtils.isEmpty(extra)) {
                     return getItemViewType(position) == TYPE_SEND_VIDEO ?
                             mInflater.inflate(R.layout.jmui_chat_item_send_video, null) :
                             mInflater.inflate(R.layout.jmui_chat_item_receive_video, null);
@@ -575,7 +575,7 @@ public class ChattingListAdapter extends BaseAdapter {
             case file:
                 FileContent fileContent = (FileContent) msg.getContent();
                 String extra = fileContent.getStringExtra("video");
-                if (!TextUtils.isEmpty(extra) && extra.equals("mp4")) {
+                if (!TextUtils.isEmpty(extra)) {
                     boolean fileUploaded = fileContent.isFileUploaded();
                     if (msg.getDirect() == MessageDirect.send) {
                         mController.handleVideo(msg, holder, position);
