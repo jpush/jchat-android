@@ -65,6 +65,7 @@ import jiguang.chat.application.JGApplication;
 import jiguang.chat.location.activity.MapPickerActivity;
 import jiguang.chat.pickerimage.utils.BitmapDecoder;
 import jiguang.chat.utils.FileHelper;
+import jiguang.chat.utils.FileUtils;
 import jiguang.chat.utils.SimpleCommonUtils;
 import jiguang.chat.utils.ToastUtil;
 
@@ -663,9 +664,11 @@ public class ChatItemController {
         if (holder.txtContent != null) {
             holder.txtContent.setText(content.getFileName());
         }
-        String fileSize = content.getStringExtra("fileSize");
-        if (holder.sizeTv != null)
-            holder.sizeTv.setText(fileSize);
+        Number fileSize = content.getNumberExtra("fileSize");
+        if (fileSize != null && holder.sizeTv != null) {
+            String size = FileUtils.getFileSize(fileSize);
+            holder.sizeTv.setText(size);
+        }
         String fileType = content.getStringExtra("fileType");
         Drawable drawable;
         if (fileType != null && (fileType.equals("mp4") || fileType.equals("mov") || fileType.equals("rm") ||
@@ -678,7 +681,11 @@ public class ChatItemController {
                 fileType.equals("docx") || fileType.equals("pdf") || fileType.equals("xls") ||
                 fileType.equals("xlsx") || fileType.equals("txt") || fileType.equals("wps"))) {
             drawable = mContext.getResources().getDrawable(R.drawable.jmui_document);
-        } else {
+            //.jpeg .jpg .png .bmp .gif
+        } else if (fileType != null && (fileType.equals("jpeg") || fileType.equals("jpg") || fileType.equals("png") ||
+                fileType.equals("bmp") || fileType.equals("gif") )) {
+            drawable = mContext.getResources().getDrawable(R.drawable.image_file);
+        }else {
             drawable = mContext.getResources().getDrawable(R.drawable.jmui_other);
         }
         BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;

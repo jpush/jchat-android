@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,6 +31,7 @@ import jiguang.chat.pickerimage.view.BaseZoomableImageView;
 import jiguang.chat.pickerimage.view.ToolBarOptions;
 import jiguang.chat.pickerimage.view.UIView;
 import jiguang.chat.utils.ToastUtil;
+import jiguang.chat.utils.imagepicker.view.ViewPagerFixed;
 
 public class PickerAlbumPreviewActivity extends UIView implements OnClickListener, OnPageChangeListener {
 
@@ -59,7 +59,7 @@ public class PickerAlbumPreviewActivity extends UIView implements OnClickListene
         fragment.startActivityForResult(intent, RequestCode.PICKER_IMAGE_PREVIEW);
     }
 
-    private ViewPager imageViewPager;
+    private ViewPagerFixed imageViewPager;
 
     private PickerPreviewPagerAdapter imageViewPagerAdapter;
 
@@ -139,7 +139,7 @@ public class PickerAlbumPreviewActivity extends UIView implements OnClickListene
         updateSelectBtnStatus();
         updateOriImageSizeTip(isSendOriginalImage);
 
-        imageViewPager = (ViewPager) findViewById(R.id.picker_image_preview_viewpager);
+        imageViewPager = (ViewPagerFixed) findViewById(R.id.picker_image_preview_viewpager);
         imageViewPager.setOnPageChangeListener(this);
         imageViewPager.setOffscreenPageLimit(2);
         imageViewPagerAdapter = new PickerPreviewPagerAdapter(this, photoLists, getLayoutInflater(),

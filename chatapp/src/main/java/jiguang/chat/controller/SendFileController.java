@@ -201,21 +201,7 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                         FileContent content = new FileContent(file, fileName);
                                         content.setStringExtra("fileType", substring);
 //                                        content.setStringExtra("fileType", entry.getKey().toString());
-                                        NumberFormat ddf1 = NumberFormat.getNumberInstance();
-                                        //保留小数点后两位
-                                        ddf1.setMaximumFractionDigits(2);
-                                        String sizeDisplay;
-                                        if (file.length() > 1048576.0) {
-                                            double result = file.length() / 1048576.0;
-                                            sizeDisplay = ddf1.format(result) + " MB";
-                                        } else if (file.length() > 1024) {
-                                            double result = file.length() / 1024;
-                                            sizeDisplay = ddf1.format(result) + " KB";
-
-                                        } else {
-                                            sizeDisplay = ddf1.format(file.length()) + " B";
-                                        }
-                                        content.setStringExtra("fileSize", sizeDisplay);
+                                        content.setNumberExtra("fileSize", file.length());
                                         Message msg = mConv.createSendMessage(content);
                                         if (mIndex.get() < mSize) {
                                             mMsgIds[mIndex.get()] = msg.getId();

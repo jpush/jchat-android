@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.NumberFormat;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -57,6 +58,25 @@ public class FileUtils {
             zip.closeEntry();
             fout.close();
         }
+    }
+
+    public static String getFileSize(Number fileSize) {
+        NumberFormat ddf1 = NumberFormat.getNumberInstance();
+        //保留小数点后两位
+        ddf1.setMaximumFractionDigits(2);
+        double size = fileSize.doubleValue();
+        String sizeDisplay;
+        if (size> 1048576.0) {
+            double result = size / 1048576.0;
+            sizeDisplay = ddf1.format(result) + " MB";
+        } else if (size > 1024) {
+            double result = size/ 1024;
+            sizeDisplay = ddf1.format(result) + " KB";
+
+        } else {
+            sizeDisplay = ddf1.format(size) + " B";
+        }
+        return sizeDisplay;
     }
 }
 
