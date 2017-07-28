@@ -28,15 +28,17 @@ public class SimpleAppsGridView extends RelativeLayout {
         init();
     }
 
-    protected void init(){
+    protected void init() {
         GridView gv_apps = (GridView) view.findViewById(R.id.gv_apps);
         ArrayList<AppBean> mAppBeanList = new ArrayList<>();
         mAppBeanList.add(new AppBean(R.mipmap.icon_photo, "图片"));
         mAppBeanList.add(new AppBean(R.mipmap.icon_camera, "拍摄"));
         mAppBeanList.add(new AppBean(R.mipmap.icon_file, "文件"));
         mAppBeanList.add(new AppBean(R.mipmap.icon_loaction, "位置"));
-        mAppBeanList.add(new AppBean(R.mipmap.icon_audio, "视频"));
-        mAppBeanList.add(new AppBean(R.mipmap.icon_voice, "语音"));
+        mAppBeanList.add(new AppBean(0, ""));
+        mAppBeanList.add(new AppBean(0, ""));
+//        mAppBeanList.add(new AppBean(R.mipmap.icon_audio, "视频"));
+//        mAppBeanList.add(new AppBean(R.mipmap.icon_voice, "语音"));
         AppsAdapter adapter = new AppsAdapter(getContext(), mAppBeanList);
         gv_apps.setAdapter(adapter);
     }

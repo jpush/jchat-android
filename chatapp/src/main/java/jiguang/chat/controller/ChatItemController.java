@@ -238,13 +238,8 @@ public class ChatItemController {
                 case created:
                     holder.picture.setEnabled(false);
                     holder.resend.setEnabled(false);
-                    if (null != mUserInfo) {
-                        holder.sendingIv.setVisibility(View.GONE);
-                        holder.resend.setVisibility(View.VISIBLE);
-                    } else {
-                        holder.sendingIv.setVisibility(View.VISIBLE);
-                        holder.resend.setVisibility(View.GONE);
-                    }
+                    holder.sendingIv.setVisibility(View.VISIBLE);
+                    holder.resend.setVisibility(View.GONE);
                     holder.progressTv.setText("0%");
                     break;
                 case send_success:
@@ -267,6 +262,7 @@ public class ChatItemController {
                 case send_going:
                     holder.picture.setEnabled(false);
                     holder.resend.setEnabled(false);
+                    holder.resend.setVisibility(View.GONE);
                     sendingImage(msg, holder);
                     break;
                 default:
@@ -683,9 +679,9 @@ public class ChatItemController {
             drawable = mContext.getResources().getDrawable(R.drawable.jmui_document);
             //.jpeg .jpg .png .bmp .gif
         } else if (fileType != null && (fileType.equals("jpeg") || fileType.equals("jpg") || fileType.equals("png") ||
-                fileType.equals("bmp") || fileType.equals("gif") )) {
+                fileType.equals("bmp") || fileType.equals("gif"))) {
             drawable = mContext.getResources().getDrawable(R.drawable.image_file);
-        }else {
+        } else {
             drawable = mContext.getResources().getDrawable(R.drawable.jmui_other);
         }
         BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
@@ -1141,12 +1137,15 @@ public class ChatItemController {
     }
 
     private ImageView setDensity(String extra, Message message, double imageWidth, double imageHeight, ImageView imageView) {
-        if (message.getDirect() == MessageDirect.receive) {
-            if (extra == null) {
-                imageWidth = 90;
-                imageHeight = 1320;
-            }
+
+        if (extra == null) {
+            imageWidth = 90;
+            imageHeight = 1320;
+        } else {
+            imageWidth = 90;
+            imageHeight = 100;
         }
+
         if (imageWidth > 150 * mDensity || imageHeight > 200 * mDensity) {
             imageHeight = 150 * mDensity;
             imageWidth = 100 * mDensity;

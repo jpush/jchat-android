@@ -2,13 +2,13 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="250dp"
-    android:layout_height="94dp"
+    android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:background="@drawable/jmui_bottom_rounded_bg"
     android:clickable="true"
     android:orientation="vertical">
 
-    <LinearLayout
+   <!-- <LinearLayout
         android:id="@+id/jmui_top_conv_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
             android:text="会话置顶"
             android:textColor="#2C2C2C"
             android:textSize="@dimen/text_medium_size"/>
-    </LinearLayout>
+    </LinearLayout>-->
 
     <LinearLayout
         android:id="@+id/jmui_delete_conv_ll"

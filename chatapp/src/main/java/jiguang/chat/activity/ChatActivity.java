@@ -737,18 +737,18 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 int requestCode = RequestCode.PICK_IMAGE;
                 if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
-                    //申请WRITE_EXTERNAL_STORAGE权限
                     ActivityCompat.requestPermissions(ChatActivity.this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             11);
-                }else {
+                } else {
                     PickImageActivity.start(ChatActivity.this, requestCode, from, tempFile(), true, 9,
                             true, false, 0, 0);
                 }
                 break;
             case JGApplication.TAKE_PHOTO_MESSAGE:
-                if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.CAMERA)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    //申请WRITE_EXTERNAL_STORAGE权限
+                if ((ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED)||(ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) ||(ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.RECORD_AUDIO)
+                        != PackageManager.PERMISSION_GRANTED)) {
                     ActivityCompat.requestPermissions(ChatActivity.this, new String[] {Manifest.permission.CAMERA},
                             1);
                 } else {
@@ -757,12 +757,11 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 }
                 break;
             case JGApplication.TAKE_LOCATION:
-                if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.LOCATION_HARDWARE)
+                if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED) {
-                    //申请WRITE_EXTERNAL_STORAGE权限
-                    ActivityCompat.requestPermissions(ChatActivity.this, new String[] {Manifest.permission.LOCATION_HARDWARE},
+                    ActivityCompat.requestPermissions(ChatActivity.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
                             13);
-                }else {
+                } else {
                     intent = new Intent(mContext, MapPickerActivity.class);
                     intent.putExtra(JGApplication.TARGET_ID, mTargetId);
                     intent.putExtra(JGApplication.TARGET_APP_KEY, mTargetAppKey);
@@ -1056,7 +1055,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     // Permission Granted
 
                 } else {
-                    Toast.makeText(this, "请在应用管理中打开“存储卡”访问权限！", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "请在应用管理中打开“读写存储”访问权限！", Toast.LENGTH_LONG).show();
                 }
                 break;
             case 1:
@@ -1065,7 +1064,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
                 } else {
                     // Permission Denied
-                    Toast.makeText(this, "请在应用管理中打开“相机”访问权限！", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "请在应用管理中打开“相机,读写存储,录音”访问权限！", Toast.LENGTH_LONG).show();
                 }
                 break;
             case 11:
@@ -1074,7 +1073,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
                 } else {
                     // Permission Denied
-                    Toast.makeText(this, "请在应用管理中打开“相册”访问权限！", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "请在应用管理中打开“读写存储”访问权限！", Toast.LENGTH_LONG).show();
                 }
                 break;
             case 13:

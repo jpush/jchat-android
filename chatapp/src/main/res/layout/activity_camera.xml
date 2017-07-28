@@ -44,6 +44,7 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/take_photo"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
@@ -58,12 +59,12 @@
             android:src="@drawable/camera_close"/>
 
         <ImageView
-            android:clickable="true"
             android:id="@+id/iv_choice"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:clickable="true"
             android:src="@drawable/camera_choice"
             android:visibility="invisible"/>
 
@@ -77,6 +78,14 @@
             app:progressWidth="4dp"/>
 
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_tack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/take_photo"
+        android:layout_centerHorizontal="true"
+        android:text="点击拍照,长按录制小视频"/>
 
 
 </RelativeLayout>

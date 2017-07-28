@@ -113,6 +113,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
      * 是否为点了拍摄状态(没有拍照预览的状态)
      */
     private boolean isPhotoTakingState;
+    private TextView mTv_tack;
 
     public static void lanuchForPhoto(Activity context) {
         Intent intent = new Intent(context, CameraActivity.class);
@@ -138,6 +139,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         iv_choice = (ImageView) findViewById(R.id.iv_choice);
         iv_facing = (ImageView) findViewById(R.id.iv_facing);
         tv_flash = (TextView) findViewById(R.id.tv_flash);
+        mTv_tack = (TextView) findViewById(R.id.tv_tack);
         iv_close.setOnClickListener(this);
         iv_choice.setOnClickListener(this);
         iv_facing.setOnClickListener(this);
@@ -166,6 +168,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
             @Override
             public void onLongClick(CameraProgressBar progressBar) {
+                mTv_tack.setVisibility(View.GONE);
                 isSupportRecord = true;
                 cameraManager.setCameraType(1);
                 rl_camera.setVisibility(View.GONE);
@@ -332,6 +335,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_close:
+                mTv_tack.setVisibility(View.VISIBLE);
                 if (recorderPath != null) {//有拍摄好的正在播放,重新拍摄
                     FileUtils.delteFiles(new File(recorderPath));
                     recorderPath = null;

@@ -1,11 +1,14 @@
 package jiguang.chat.activity;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -14,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -23,6 +27,7 @@ import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.UserEntry;
+import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.ThreadUtil;
 import jiguang.chat.utils.photochoose.ChoosePhoto;
@@ -80,7 +85,12 @@ public class FinishRegisterActivity extends BaseActivity {
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.mine_header:
-                    mChoosePhoto.showPhotoDialog(FinishRegisterActivity.this);
+                    if ((ContextCompat.checkSelfPermission(FinishRegisterActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) ||
+                            (ContextCompat.checkSelfPermission(FinishRegisterActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+                        Toast.makeText(FinishRegisterActivity.this, "请在应用管理中打开“读写存储”和“相机”访问权限！", Toast.LENGTH_SHORT).show();
+                    } else {
+                        mChoosePhoto.showPhotoDialog(FinishRegisterActivity.this);
+                    }
                     break;
                 case R.id.iv_back:
                     finish();
@@ -144,13 +154,14 @@ public class FinishRegisterActivity extends BaseActivity {
                                                         });
                                                     }
                                                 });
-                                            }else {
+                                            } else {
                                                 SharePreferenceManager.setCachedAvatarPath(null);
                                             }
                                         }
                                     }
                                 });
                             } else {
+                                HandleResponseCode.onHandle(mContext, responseCode, false);
                                 mDialog.dismiss();
                             }
                         }
