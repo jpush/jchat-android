@@ -54,7 +54,7 @@
             </RelativeLayout>
 
             <TextView
-                android:layout_marginRight="4dp"
+                android:layout_marginRight="14dp"
                 android:layout_gravity="center_vertical|end"
                 android:id="@+id/jmui_voice_length_tv"
                 android:layout_width="wrap_content"

@@ -76,7 +76,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:paddingLeft="11.67dp"
+                    android:paddingLeft="5.67dp"
                     android:text="验证消息"
                     android:textColor="#2C2C2C"
                     android:textSize="16sp"/>
@@ -121,7 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:paddingLeft="11.67dp"
+                    android:paddingLeft="5.67dp"
                     android:text="群组"
                     android:textColor="#2C2C2C"
                     android:textSize="16sp"/>

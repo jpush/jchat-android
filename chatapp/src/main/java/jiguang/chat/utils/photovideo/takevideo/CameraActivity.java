@@ -163,6 +163,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         mProgressbar.setOnProgressTouchListener(new CameraProgressBar.OnProgressTouchListener() {
             @Override
             public void onClick(CameraProgressBar progressBar) {
+                mTv_tack.setVisibility(View.GONE);
                 cameraManager.takePhoto(callback);
             }
 

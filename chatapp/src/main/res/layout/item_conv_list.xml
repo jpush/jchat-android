@@ -52,6 +52,7 @@
                     android:gravity="center_vertical">
 
                     <ImageView
+                        android:scaleType="centerCrop"
                         android:id="@+id/msg_item_head_icon"
                         android:layout_width="47.33dp"
                         android:layout_height="47.33dp"

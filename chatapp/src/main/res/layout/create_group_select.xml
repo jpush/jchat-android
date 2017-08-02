@@ -6,6 +6,7 @@
               android:layout_height="wrap_content">
     <ImageView
         android:id="@+id/contact_select_area_image"
+        android:scaleType="centerCrop"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_centerInParent="true"

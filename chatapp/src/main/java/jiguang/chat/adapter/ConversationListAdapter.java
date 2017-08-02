@@ -29,6 +29,7 @@ import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.MessageContent;
 import cn.jpush.im.android.api.content.PromptContent;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -257,7 +258,12 @@ public class ConversationListAdapter extends BaseAdapter {
                             content.setText("[@所有人] " + fromName + ": " + contentStr);
                         } else if (JGApplication.isAtMe.get(gid) != null && JGApplication.isAtMe.get(gid)) {
                             content.setText("[有人@我] " + fromName + ": " + contentStr);
-                        } else {
+                            //如果content是撤回的那么就不显示最后一条消息的发起人名字了
+                        } else if (msgContent.getContentType() == ContentType.prompt) {
+                            content.setText(contentStr);
+                        }else if(info.getUserName().equals(JMessageClient.getMyInfo().getUserName())){
+                            content.setText(contentStr);
+                        }else {
                             content.setText(fromName + ": " + contentStr);
                         }
                     } else {

@@ -452,7 +452,7 @@ public class RichEditText extends android.support.v7.widget.AppCompatEditText {
         @Override
         public void updateDrawState(TextPaint ds) {
             //log("TagSpan:updateDrawState:" + isPreDeleteState);
-            ds.setFakeBoldText(true);
+//            ds.setFakeBoldText(true);//设置@后的名字加粗和文字颜色
             if (willRemove) {
                 ds.setColor(0xFFFFFFFF);
                 ds.bgColor = 0xFF24cf5f;

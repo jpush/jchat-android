@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -74,12 +75,13 @@ public class ChatView extends RelativeLayout {
     }
     public void setToBottom() {
         mChatListView.clearFocus();
-        mChatListView.post(new Runnable() {
+        mChatListView.setSelection(ListView.FOCUS_DOWN);
+        mChatListView.postDelayed(new Runnable() {
             @Override
             public void run() {
                 mChatListView.setSelection(mChatListView.getAdapter().getCount() - 1);
             }
-        });
+        }, 500);
     }
     public void setConversation(Conversation conv) {
         this.mConv = conv;

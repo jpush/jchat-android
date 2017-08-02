@@ -104,7 +104,7 @@ public class DialogCreator {
         TextView isTop = (TextView) v.findViewById(IdHelper.getViewID(context, "tv_conv_top"));
 
         deleteLl.setOnClickListener(listener);
-        top.setOnClickListener(listener);
+//        top.setOnClickListener(listener);
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;

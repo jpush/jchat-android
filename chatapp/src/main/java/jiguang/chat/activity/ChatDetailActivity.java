@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
@@ -124,6 +125,11 @@ public class ChatDetailActivity extends BaseActivity {
                     break;
                 case GROUP_NAME://修改群组名
                     final String groupName = extras.getString(GROUP_NAME_KEY);
+                    if (TextUtils.isEmpty(groupName)) {
+                        mDialog.dismiss();
+                        ToastUtil.shortToast(mContext, "输入不能是空");
+                        break;
+                    }
                     JMessageClient.updateGroupName(groupID, groupName, new BasicCallback() {
                         @Override
                         public void gotResult(int responseCode, String responseMessage) {

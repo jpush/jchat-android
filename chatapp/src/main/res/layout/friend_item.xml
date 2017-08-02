@@ -28,7 +28,7 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="14.67dp"
             android:scaleType="centerCrop"
             android:src="@drawable/rc_default_portrait"/>
 
@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="12dp"
+            android:layout_marginLeft="14dp"
             android:ellipsize="end"
             android:lines="1"
             android:maxLength="32"

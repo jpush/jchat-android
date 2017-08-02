@@ -5,7 +5,12 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,7 +124,7 @@ public class LoginController implements View.OnClickListener {
                                 //登陆成功,如果用户有头像就把头像存起来,没有就设置null
                                 if (avatarFile != null) {
                                     SharePreferenceManager.setCachedAvatarPath(avatarFile.getAbsolutePath());
-                                }else {
+                                } else {
                                     SharePreferenceManager.setCachedAvatarPath(null);
                                 }
                                 String username = myInfo.getUserName();
@@ -139,9 +144,27 @@ public class LoginController implements View.OnClickListener {
                     });
                     //注册
                 } else {
-                    SharePreferenceManager.setRegisterName(userId);
-                    SharePreferenceManager.setRegistePass(password);
-                    mContext.startActivity(new Intent(mContext, FinishRegisterActivity.class));
+                    final String uri = "https://api.im.jpush.cn/v1" + "/users/" + userId;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String httpGet = executeHttpPost(uri);
+                            if (httpGet == null) {
+                                SharePreferenceManager.setRegisterName(userId);
+                                SharePreferenceManager.setRegistePass(password);
+                                mContext.startActivity(new Intent(mContext, FinishRegisterActivity.class));
+                            } else {
+                                mContext.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ToastUtil.shortToast(mContext, "该用户已经存在");
+                                    }
+                                });
+                            }
+
+                        }
+                    }).start();
+
                 }
                 break;
             case R.id.login_register:
@@ -162,4 +185,47 @@ public class LoginController implements View.OnClickListener {
                 break;
         }
     }
+
+    public String executeHttpPost(final String uid) {
+        BufferedReader in = null;
+        StringBuilder result = new StringBuilder();
+        try {
+            //GET请求直接在链接后面拼上请求参数
+            URL url = new URL(uid);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            //Get请求不需要DoOutPut
+            conn.setDoOutput(false);
+            conn.setDoInput(true);
+            //设置连接超时时间和读取超时时间
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(10000);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Authorization", "Basic NGY3YWVmMzRmYjM2MTI5MmM1NjZhMWNkOjA1NGQ2MTAzODIzYTcyNmZjMTJkMDQ2Ng==");
+            //连接服务器
+            conn.connect();
+            // 取得输入流，并使用Reader读取
+            in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result.append(line);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        //关闭输入流
+        finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return result.toString();
+    }
+
+
 }

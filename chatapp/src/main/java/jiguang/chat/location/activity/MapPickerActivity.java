@@ -50,9 +50,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.content.LocationContent;
 import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.model.Message;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.location.adapter.MapPickerAdapter;
@@ -280,15 +278,15 @@ public class MapPickerActivity extends AppCompatActivity implements AdapterView.
                     @Override
                     public void onSnapshotReady(Bitmap bitmap) {
                         if (null != bitmap && null != conv) {
-                            LocationContent locationContent = new LocationContent(mLatitude,
-                                    mLongitude, mMapView.getMapLevel(), mStreet);
                             String fileName = UUID.randomUUID().toString();
                             String path = BitmapLoader.saveBitmapToLocal(bitmap, fileName);
-                            locationContent.setStringExtra("path", path);
                             Intent intent = new Intent();
-                            Message msg = conv.createSendMessage(locationContent);
-                            intent.putExtra(JGApplication.MsgIDs, msg.getId());
-                            JMessageClient.sendMessage(msg);
+
+                            intent.putExtra("latitude", mLatitude);
+                            intent.putExtra("longitude", mLongitude);
+                            intent.putExtra("mapview", mMapView.getMapLevel());
+                            intent.putExtra("street", mStreet);
+                            intent.putExtra("path", path);
 
                             setResult(JGApplication.RESULT_CODE_SEND_LOCATION, intent);
                             finish();

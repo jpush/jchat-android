@@ -41,6 +41,7 @@
     </RelativeLayout>
 
     <ImageView
+        android:scaleType="centerCrop"
         android:id="@+id/iv_friendPhoto"
         android:layout_width="80dp"
         android:layout_height="80dp"

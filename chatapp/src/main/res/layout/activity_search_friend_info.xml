@@ -8,6 +8,7 @@
     <include layout="@layout/menu_title_bar_with_button"/>
 
     <ImageView
+        android:scaleType="centerCrop"
         android:id="@+id/iv_photo"
         android:layout_width="80dp"
         android:layout_height="80dp"

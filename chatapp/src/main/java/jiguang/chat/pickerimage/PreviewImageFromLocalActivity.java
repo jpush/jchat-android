@@ -102,6 +102,7 @@ public class PreviewImageFromLocalActivity extends UIView {
 		sendButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+                //发送原图还是缩略图
 				if (isSendOriginalImage) {
 					sendOrigImage();
 				} else {

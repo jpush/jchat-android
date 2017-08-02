@@ -35,6 +35,7 @@
 
             <jiguang.chat.utils.photochoose.SelectableRoundedImageView
                 android:id="@+id/take_photo_iv"
+                android:scaleType="centerCrop"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:layout_alignParentLeft="true"
