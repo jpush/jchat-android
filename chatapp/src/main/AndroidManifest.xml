@@ -200,9 +200,6 @@
             android:name=".utils.imagepicker.ImagePreviewDelActivity"
             android:theme="@style/ImagePickerThemeFullScreen"/>
         <activity
-            android:name=".pickerimage.PreviewImageFromLocalActivity"
-            android:theme="@style/BaseThemes"/>
-        <activity
             android:name=".pickerimage.PickerAlbumActivity"
             android:theme="@style/BaseThemes"/>
         <activity android:name=".pickerimage.PickerAlbumPreviewActivity"/>

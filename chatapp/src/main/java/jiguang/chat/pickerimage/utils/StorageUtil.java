@@ -103,22 +103,13 @@ public class StorageUtil {
 		return getWritePath(context, fileName, fileType, true);
 	}
 
-	public static String getDirectoryByDirType(StorageType fileType) {
-		return ExternalStorage.getInstance().getDirectoryByDirType(fileType);
-	}
-
     public static String getSystemImagePath() {
         if (Build.VERSION.SDK_INT > 7) {
             String picturePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
-            return picturePath + "/nim/";
+            return picturePath + "/im/";
         } else {
             String picturePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
-            return picturePath + "/nim/";
+            return picturePath + "/im/";
         }
     }
-
-	public static boolean isInvalidVideoFile(String filePath) {
-		return filePath.toLowerCase().endsWith(".3gp")
-				|| filePath.toLowerCase().endsWith(".mp4");
-	}
 }

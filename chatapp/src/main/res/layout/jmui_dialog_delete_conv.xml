@@ -33,6 +33,7 @@
         android:background="@drawable/white_btn_selector">
 
         <TextView
+            android:id="@+id/tv_dialogText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="11.43dp"

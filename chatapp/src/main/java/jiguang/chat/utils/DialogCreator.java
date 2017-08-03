@@ -109,6 +109,22 @@ public class DialogCreator {
         dialog.setCanceledOnTouchOutside(true);
         return dialog;
     }
+    public static Dialog createSavePictureDialog(Context context,
+                                                     View.OnClickListener listener) {
+        Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
+        View v = LayoutInflater.from(context).inflate(
+                IdHelper.getLayout(context, "jmui_dialog_delete_conv"), null);
+        dialog.setContentView(v);
+        final LinearLayout deleteLl = (LinearLayout) v.findViewById(IdHelper
+                .getViewID(context, "jmui_delete_conv_ll"));
+        TextView textView = (TextView) v.findViewById(IdHelper.getViewID(context, "tv_dialogText"));
+        textView.setText("保存到手机");
+
+        deleteLl.setOnClickListener(listener);
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        return dialog;
+    }
 
     public static Dialog createDelRecommendDialog(Context context, View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));

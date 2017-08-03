@@ -1,6 +1,8 @@
 package jiguang.chat.activity;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,6 +11,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -18,6 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -43,7 +47,10 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
+import jiguang.chat.pickerimage.utils.AttachmentStore;
+import jiguang.chat.pickerimage.utils.StorageUtil;
 import jiguang.chat.utils.BitmapLoader;
+import jiguang.chat.utils.DialogCreator;
 import jiguang.chat.utils.NativeImageLoader;
 import jiguang.chat.view.ImgBrowserViewPager;
 import jiguang.chat.view.PhotoView;
@@ -57,7 +64,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private ImgBrowserViewPager mViewPager;
     private ProgressDialog mProgressDialog;
     //存放所有图片的路径
-    private List<String> mPathList = new ArrayList <String>();
+    private List<String> mPathList = new ArrayList<String>();
     //存放图片消息的ID
     private List<Integer> mMsgIdList = new ArrayList<Integer>();
     private TextView mNumberTv;
@@ -90,6 +97,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private final static int INIT_ADAPTER = 0x2001;
     private final static int GET_NEXT_PAGE_OF_PICTURE = 0x2002;
     private final static int SET_CURRENT_POSITION = 0x2003;
+    private Dialog mDialog;
+
 
     /**
      * 用来存储图片的选中情况
@@ -229,6 +238,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 photoView.setImageResource(R.drawable.jmui_picture_not_found);
             }
             container.addView(photoView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            //图片长按保存到手机
+            onImageViewFound(photoView, path);
             return photoView;
         }
 
@@ -254,6 +265,51 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
 
     };
+
+    private void onImageViewFound(PhotoView photoView, final String path) {
+        photoView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                View.OnClickListener listener = new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        savePicture(path, mDialog);
+                    }
+                };
+                mDialog = DialogCreator.createSavePictureDialog(mContext, listener);
+                mDialog.show();
+                mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
+                return false;
+            }
+        });
+    }
+
+    // 保存图片
+    public void savePicture(String path, Dialog dialog) {
+        if (TextUtils.isEmpty(path)) {
+            return;
+        }
+
+        String picPath = StorageUtil.getSystemImagePath();
+        String dstPath = picPath + path;
+        if (AttachmentStore.copy(path, dstPath) != -1) {
+            try {
+                ContentValues values = new ContentValues(2);
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                values.put(MediaStore.Images.Media.DATA, dstPath);
+                getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                Toast.makeText(mContext, getString(R.string.picture_save_to), Toast.LENGTH_LONG).show();
+                dialog.dismiss();
+            } catch (Exception e) {
+                dialog.dismiss();
+                Toast.makeText(mContext, getString(R.string.picture_save_fail), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            dialog.dismiss();
+            Toast.makeText(mContext, getString(R.string.picture_save_fail), Toast.LENGTH_LONG).show();
+        }
+    }
 
     private void setLoadBtnText(ImageContent ic) {
         NumberFormat ddf1 = NumberFormat.getNumberInstance();
@@ -295,7 +351,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
     /**
      * 点击发送原图CheckBox，触发事件
-     *
      */
     private void checkOriginPictureSelected() {
         mOriginPictureCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -314,7 +369,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private void showTotalSize() {
         if (mSelectMap.size() > 0) {
             List<String> pathList = new ArrayList<String>();
-            for (int i=0; i < mSelectMap.size(); i++) {
+            for (int i = 0; i < mSelectMap.size(); i++) {
                 pathList.add(mPathList.get(mSelectMap.keyAt(i)));
             }
             String totalSize = BitmapLoader.getPictureSize(pathList);
@@ -572,7 +627,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
     /**
      * 根据图片路径生成ImageContent
-     * @param path 图片路径
+     *
+     * @param path       图片路径
      * @param isOriginal 是否发送原图
      */
     private void createImageContent(String path, final boolean isOriginal) {
@@ -584,7 +640,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 public void gotResult(int status, String desc, ImageContent imageContent) {
                     if (status == 0) {
                         if (isOriginal) {
-                            imageContent.setBooleanExtra("originalPicture" , true);
+                            imageContent.setBooleanExtra("originalPicture", true);
                         }
                         Message msg = mConv.createSendMessage(imageContent);
                         mMsgIds[mIndex] = msg.getId();
@@ -700,10 +756,10 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
     }
 
-    private static class UIHandler extends Handler{
+    private static class UIHandler extends Handler {
         private final WeakReference<BrowserViewPagerActivity> mActivity;
 
-        public UIHandler(BrowserViewPagerActivity activity){
+        public UIHandler(BrowserViewPagerActivity activity) {
             mActivity = new WeakReference<BrowserViewPagerActivity>(activity);
         }
 

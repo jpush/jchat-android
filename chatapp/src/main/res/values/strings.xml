@@ -65,6 +65,9 @@
     <string name="jmui_forward_msg">转发</string>
     <string name="jmui_copy_toast">已复制</string>
     <string name="jmui_delete">删除</string>
+    <string name="save_to_device">保存到手机</string>
+    <string name="picture_save_fail">图片保存失败</string>
+    <string name="picture_save_to">图片已保存到手机</string>
     <string name="jmui_delete_conv">删除该聊天</string>
     <string name="jmui_create_file_failed">创建文件失败</string>
     <string name="jmui_record_voice_hint">按住 说话</string>
