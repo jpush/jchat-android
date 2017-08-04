@@ -30,7 +30,7 @@
             <ImageView
                 android:id="@+id/jmui_picture_iv"
                 android:layout_width="163dp"
-                android:layout_height="wrap_content"
+                android:layout_height="90dp"
                 android:gravity="center|bottom"
                 android:scaleType="fitXY"
                 android:src="@drawable/jmui_location_default"/>

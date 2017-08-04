@@ -1137,22 +1137,28 @@ public class ChatItemController {
     }
 
     private ImageView setDensity(String extra, Message message, double imageWidth, double imageHeight, ImageView imageView) {
-
         if (extra != null) {
             imageWidth = 200;
             imageHeight = 200;
         } else {
             if (imageWidth > 300) {
-                imageWidth = 450;
-                imageHeight = 300;
+                imageWidth = 550;
+                imageHeight = 250;
             } else if (imageHeight > 450) {
                 imageWidth = 300;
                 imageHeight = 450;
+            } else if ((imageWidth < 50 && imageWidth > 20) || (imageHeight < 50 && imageHeight > 20)) {
+                imageWidth = 200;
+                imageHeight = 300;
+            } else if (imageWidth < 20 || imageHeight < 20) {
+                imageWidth = 100;
+                imageHeight = 150;
             } else {
                 imageWidth = 300;
                 imageHeight = 450;
             }
         }
+
         ViewGroup.LayoutParams params = imageView.getLayoutParams();
         params.width = (int) imageWidth;
         params.height = (int) imageHeight;

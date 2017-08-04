@@ -27,7 +27,7 @@
 
         <TextView
             android:id="@+id/jmui_msg_content"
-            android:autoLink="email|phone|web"
+            android:autoLink="web"
             android:textColorLink="#157BFB"
             style="@style/jmui_msg_text_style"
             android:layout_width="wrap_content"
