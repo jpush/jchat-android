@@ -40,7 +40,8 @@
         android:theme="@style/Theme.AppCompat.NoActionBar">
 
         <meta-data
-            android:name="AA_DB_NAME" android:value="jchat.db"/>
+            android:name="AA_DB_NAME"
+            android:value="jchat.db"/>
         <meta-data
             android:name="AA_MODELS"
             android:value="jiguang.chat.database.UserEntry, jiguang.chat.database.FriendEntry,
@@ -124,6 +125,7 @@
 
         <activity
             android:name=".activity.WelcomeActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/WelcomeStyle">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -131,153 +133,201 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activity.LoginActivity"/>
+        <activity
+            android:name=".activity.LoginActivity"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".activity.MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppBaseTheme"
             android:windowSoftInputMode="adjustPan|stateHidden"/>
         <activity android:name=".activity.BaseActivity"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.FinishRegisterActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.ResetPasswordActivity"
             android:theme="@style/BaseThemes">
         </activity>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.FeedbackActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.AboutJChatActivity"
             android:theme="@style/BaseThemes"/>
         <!--这里有个需要注意的地方就是,自定义的弹窗需要自定义一个theme否则系统会默认给设置padding自己设置的属性不生效-->
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.PersonalActivity"
             android:theme="@style/AppBaseTheme"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.NickSignActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SearchForAddFriendActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SearchFriendInfoActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.VerificationActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.FriendRecommendActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SearchFriendDetailActivity"
             android:theme="@style/BaseThemes"/>
 
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.ChatActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SearchContactsActivity"
             android:theme="@style/BaseThemes"
             android:windowSoftInputMode="adjustResize"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".utils.imagepicker.ImageBaseActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".utils.imagepicker.ImageGridActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/ImagePickerTheme"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".utils.imagepicker.ImageCropActivity"
             android:configChanges="orientation|screenSize"
             android:hardwareAccelerated="false"
             android:theme="@style/ImagePickerTheme"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".utils.imagepicker.ImagePreviewActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/ImagePickerThemeFullScreen"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".utils.imagepicker.ImagePreviewDelActivity"
             android:theme="@style/ImagePickerThemeFullScreen"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".pickerimage.PickerAlbumActivity"
             android:theme="@style/BaseThemes"/>
-        <activity android:name=".pickerimage.PickerAlbumPreviewActivity"/>
-        <activity android:name=".pickerimage.PickImageActivity"/>
-        <activity android:name=".activity.BrowserViewPagerActivity"/>
-        <activity android:name=".activity.WatchVideoActivity"/>
+        <activity android:name=".pickerimage.PickerAlbumPreviewActivity"
+                  android:screenOrientation="portrait"/>
+        <activity android:name=".pickerimage.PickImageActivity"
+                  android:screenOrientation="portrait"/>
+        <activity android:name=".activity.BrowserViewPagerActivity"
+                  android:screenOrientation="portrait"/>
+        <activity android:name=".activity.WatchVideoActivity"
+                  android:screenOrientation="portrait"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SendFileActivity"
             android:launchMode="singleInstance"
             android:theme="@style/AppBaseTheme"/>
-        <activity android:name=".activity.PlayVideoActivity"/>
+        <activity android:name=".activity.PlayVideoActivity"
+                  android:screenOrientation="portrait"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".location.activity.MapPickerActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.FriendInfoActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.ChatDetailActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.MembersInChatActivity"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@style/BaseThemes"
             android:windowSoftInputMode="adjustPan|stateHidden"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.GroupActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SearchMoreFriendsActivity"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@style/BaseThemes"
             android:windowSoftInputMode="adjustPan|stateHidden"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SearchMoreGroupActivity"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@style/AppBaseTheme"
             android:windowSoftInputMode="adjustPan|stateHidden"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.FriendSettingActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SetNoteNameActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.ChooseAtMemberActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.GroupGridViewActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.GroupNotFriendActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SelectFriendActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.DownLoadActivity"
             android:theme="@style/BaseThemes"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.CreateGroupActivity"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@style/BaseThemes"
             android:windowSoftInputMode="adjustPan|stateHidden"/>
-        <activity android:name=".utils.photovideo.takevideo.CameraActivity"
-                  android:configChanges="orientation|keyboardHidden"
-                  android:screenOrientation="portrait"
-                  android:theme="@style/AppBaseFullTheme"
-                  android:launchMode="singleTask"/>
         <activity
+            android:name=".utils.photovideo.takevideo.CameraActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppBaseFullTheme"/>
+        <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SearchGroupActivity"
             android:theme="@style/BaseThemes"
             android:windowSoftInputMode="adjustResize"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.SearchAtMemberActivity"
             android:theme="@style/BaseThemes"
             android:windowSoftInputMode="adjustResize"/>
         <activity
+            android:screenOrientation="portrait"
             android:name=".activity.ForwardMsgActivity"
             android:theme="@style/BaseThemes"
             android:windowSoftInputMode="adjustResize"/>
