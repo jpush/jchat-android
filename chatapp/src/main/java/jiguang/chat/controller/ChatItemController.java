@@ -31,6 +31,9 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -74,7 +77,7 @@ import jiguang.chat.utils.ToastUtil;
 public class ChatItemController {
 
     private ChattingListAdapter mAdapter;
-    private Context mContext;
+    private Activity mContext;
     private Conversation mConv;
     private List<Message> mMsgList;
     private ChattingListAdapter.ContentLongClickListener mLongClickListener;
@@ -94,7 +97,7 @@ public class ChatItemController {
     private Queue<Message> mMsgQueue = new LinkedList<Message>();
     private UserInfo mUserInfo;
 
-    public ChatItemController(ChattingListAdapter adapter, Context context, Conversation conv, List<Message> msgList,
+    public ChatItemController(ChattingListAdapter adapter, Activity context, Conversation conv, List<Message> msgList,
                               float density, ChattingListAdapter.ContentLongClickListener longClickListener) {
         this.mAdapter = adapter;
         this.mContext = context;
@@ -451,7 +454,7 @@ public class ChatItemController {
     }
 
     public void handleLocationMsg(final Message msg, final ViewHolder holder, int position) {
-        LocationContent content = (LocationContent) msg.getContent();
+        final LocationContent content = (LocationContent) msg.getContent();
         String path = content.getStringExtra("path");
 
         holder.location.setText(content.getAddress());
@@ -460,7 +463,21 @@ public class ChatItemController {
                 case receive_going:
                     break;
                 case receive_success:
-
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Bitmap locationBitmap = createLocationBitmap(content.getLongitude(), content.getLatitude());
+                            if (locationBitmap != null) {
+                                mContext.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        holder.locationView.setVisibility(View.VISIBLE);
+                                        holder.picture.setImageBitmap(locationBitmap);
+                                    }
+                                });
+                            }
+                        }
+                    }).start();
                     break;
                 case receive_fail:
                     break;
@@ -520,6 +537,27 @@ public class ChatItemController {
                 }
             });
         }
+    }
+
+    private Bitmap createLocationBitmap(Number longitude, Number latitude) {
+        String mapUrl = "http://api.map.baidu.com/staticimage?width=160&height=90&center="
+                + longitude + "," + latitude + "&zoom=18";
+        try {
+            URL url = new URL(mapUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setDoOutput(false);
+            conn.setDoInput(true);
+            conn.setConnectTimeout(5000);
+            conn.connect();
+            if (conn.getResponseCode() == 200) {
+                InputStream inputStream = conn.getInputStream();
+                return BitmapFactory.decodeStream(inputStream);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     //正在发送文字或语音

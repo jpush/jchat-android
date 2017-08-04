@@ -110,7 +110,7 @@ public class ChattingListAdapter extends BaseAdapter {
         this.mMsgList = mConv.getMessagesFromNewest(0, mOffset);
         reverse(mMsgList);
         mLongClickListener = longClickListener;
-        this.mController = new ChatItemController(this, context, conv, mMsgList, dm.density,
+        this.mController = new ChatItemController(this, mActivity, conv, mMsgList, dm.density,
                 longClickListener);
         mStart = mOffset;
         if (mConv.getType() == ConversationType.single) {
@@ -152,7 +152,7 @@ public class ChattingListAdapter extends BaseAdapter {
         }
         reverse(mMsgList);
         mLongClickListener = longClickListener;
-        this.mController = new ChatItemController(this, context, conv, mMsgList, dm.density,
+        this.mController = new ChatItemController(this, mActivity, conv, mMsgList, dm.density,
                 longClickListener);
         GroupInfo groupInfo = (GroupInfo) mConv.getTargetInfo();
         mGroupId = groupInfo.getGroupID();
@@ -465,6 +465,7 @@ public class ChattingListAdapter extends BaseAdapter {
                 case location:
                     holder.location = (TextView) convertView.findViewById(R.id.jmui_loc_desc);
                     holder.picture = (ImageView) convertView.findViewById(R.id.jmui_picture_iv);
+                    holder.locationView = convertView.findViewById(R.id.location_view);
                     break;
                 case custom:
                 case prompt:
@@ -766,6 +767,7 @@ public class ChattingListAdapter extends BaseAdapter {
         public TextView sizeTv;
         public LinearLayout videoPlay;
         public TextView alreadySend;
+        public View locationView;
     }
 
 

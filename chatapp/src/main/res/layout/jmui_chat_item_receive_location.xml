@@ -46,7 +46,17 @@
                 android:scaleType="fitXY"
                 android:src="@drawable/jmui_location_default"/>
 
+            <View
+                android:visibility="gone"
+                android:id="@+id/location_view"
+                android:layout_width="163dp"
+                android:layout_height="30dp"
+                android:layout_gravity="bottom"
+                android:alpha="0.6"
+                android:background="#000000"/>
+
             <TextView
+                android:layout_marginBottom="6dp"
                 android:id="@+id/jmui_loc_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
