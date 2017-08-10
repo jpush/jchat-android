@@ -56,8 +56,8 @@ public class ConversationListView {
         mNull_conversation = (TextView) mConvListFragment.findViewById(R.id.null_conversation);
         mAllUnReadMsg = (TextView) mFragment.getActivity().findViewById(R.id.all_unread_number);
         mConvListView.addHeaderView(mLoadingHeader);
-        mConvListView.addHeaderView(mHeader);
         mConvListView.addHeaderView(mSearchHead);
+        mConvListView.addHeaderView(mHeader);
     }
 
     public void setConvListAdapter(ListAdapter adapter) {

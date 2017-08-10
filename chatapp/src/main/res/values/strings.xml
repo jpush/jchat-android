@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">极光 IM</string>
+    <string name="app_name">JChat</string>
     <string name="userName">用户名</string>
 
     <!-- ReLogin/login/register界面中使用到的字符串 -->
