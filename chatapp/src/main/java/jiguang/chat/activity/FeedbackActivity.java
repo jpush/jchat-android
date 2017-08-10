@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -124,15 +125,28 @@ public class FeedbackActivity extends BaseActivity implements View.OnClickListen
                     e.printStackTrace();
                 }
             } else {
-                mLoadingDialog.dismiss();
-                ToastUtil.shortToast(FeedbackActivity.this, "极光已接收,感谢您的宝贵意见!");
+                cancelDialog();
+            }
+        } else {
+            cancelDialog();
+        }
+    }
+
+    private void cancelDialog() {
+        mLoadingDialog.dismiss();
+        final Dialog dialog = new Dialog(FeedbackActivity.this, R.style.jmui_default_dialog_style);
+        LayoutInflater inflater = LayoutInflater.from(FeedbackActivity.this);
+        View view = inflater.inflate(R.layout.feed_back_dialog, null);
+        dialog.setContentView(view);
+        dialog.show();
+        dialog.setCanceledOnTouchOutside(false);
+        view.findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
                 finish();
             }
-        }else {
-            mLoadingDialog.dismiss();
-            ToastUtil.shortToast(FeedbackActivity.this, "极光已接收,感谢您的宝贵意见!");
-            finish();
-        }
+        });
     }
 
     @Override
