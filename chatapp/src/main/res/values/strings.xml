@@ -406,6 +406,11 @@
     <string name="btn_text_speak_over">松开结束</string>
     <string name="btn_send">发送</string>
     <string name="set_to_block">屏蔽群消息</string>
-
+    <string name="scan_barcode_title">条形码扫描</string>
+    <string name="scan_qrcode_title">二维码扫描</string>
+    <string name="scan_allcode_title">二维码或条形码扫描</string>
+    <string name="scan_barcode_hint">将条形码对入取景框，即可自动扫描</string>
+    <string name="scan_qrcode_hint">将二维码对入取景框，即可自动扫描</string>
+    <string name="scan_allcode_hint">将二维码或条形码对入取景框，即可自动扫描</string>
 
 </resources>

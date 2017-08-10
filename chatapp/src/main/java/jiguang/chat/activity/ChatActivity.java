@@ -752,7 +752,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                             @Override
                                             public void gotResult(int i, String s) {
                                                 if (i == 855001) {
-                                                    Toast.makeText(ChatActivity.this, "消息发送超过3分钟，不能撤回", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(ChatActivity.this, "发送时间过长，不能撤回", Toast.LENGTH_SHORT).show();
                                                 } else if (i == 0) {
                                                     mChatAdapter.delMsgRetract(msg);
                                                 }
@@ -813,7 +813,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                             @Override
                                             public void gotResult(int i, String s) {
                                                 if (i == 855001) {
-                                                    Toast.makeText(ChatActivity.this, "消息发送超过3分钟，不能撤回", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(ChatActivity.this, "发送时间过长，不能撤回", Toast.LENGTH_SHORT).show();
                                                 } else if (i == 0) {
                                                     mChatAdapter.delMsgRetract(msg);
                                                 }

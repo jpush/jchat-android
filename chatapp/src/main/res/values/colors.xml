@@ -99,6 +99,7 @@
     <color name="picker_map_nearby_divider">@color/picker_list_divider</color>
 
     <color name="chat_detail_item_hit_color">#555555</color>
+    <color name="scan_bg">#7f000000</color>
 
 
     <color name="blue_btn_cannot_pressed">#6CDEDD</color>

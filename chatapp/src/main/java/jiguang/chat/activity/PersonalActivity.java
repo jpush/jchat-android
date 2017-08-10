@@ -2,27 +2,51 @@ package jiguang.chat.activity;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
+import jiguang.chat.pickerimage.utils.AttachmentStore;
+import jiguang.chat.pickerimage.utils.StorageUtil;
 import jiguang.chat.utils.DialogCreator;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.ThreadUtil;
@@ -31,6 +55,8 @@ import jiguang.chat.utils.citychoose.view.SelectAddressDialog;
 import jiguang.chat.utils.citychoose.view.myinterface.SelectAddressInterface;
 import jiguang.chat.utils.photochoose.ChoosePhoto;
 import jiguang.chat.utils.photochoose.PhotoUtils;
+
+import static jiguang.chat.R.id.iv_erWeiMa;
 
 /**
  * Created by ${chenyn} on 2017/2/23.
@@ -45,6 +71,9 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
     public static final int NICK_NAME = 4;
     public static final int FLAGS_NICK = 3;
     public static final String NICK_NAME_KEY = "nick_name_key";
+
+    private static final String SD_PATH = "/sdcard/dskqxt/pic/";
+    private static final String IN_PATH = "/dskqxt/pic/";
 
     private RelativeLayout mRl_cityChoose;
     private TextView mTv_city;
@@ -65,6 +94,7 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
     private ChoosePhoto mChoosePhoto;
     private UserInfo mMyInfo;
     private TextView mTv_userName;
+    private RelativeLayout mRl_zxing;
 
 
     @Override
@@ -135,6 +165,7 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
         mSign.setOnClickListener(this);
         mRl_nickName.setOnClickListener(this);
         mIv_photo.setOnClickListener(this);
+        mRl_zxing.setOnClickListener(this);
     }
 
     private void initView() {
@@ -151,6 +182,7 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
         mTv_nickName = (TextView) findViewById(R.id.tv_nickName);
         mIv_photo = (ImageView) findViewById(R.id.iv_photo);
         mTv_userName = (TextView) findViewById(R.id.tv_userName);
+        mRl_zxing = (RelativeLayout) findViewById(R.id.rl_zxing);
 
         mChoosePhoto = new ChoosePhoto();
         mChoosePhoto.setPortraitChangeListener(PersonalActivity.this, mIv_photo, 2);
@@ -213,9 +245,187 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
                         PersonalActivity.this, SelectAddressDialog.STYLE_THREE, null, mMyInfo);
                 dialog.showDialog();
                 break;
+            //二维码
+            case R.id.rl_zxing:
+                final Dialog dialog = new Dialog(PersonalActivity.this, R.style.jmui_default_dialog_style);
+                View erWeiMa = LayoutInflater.from(PersonalActivity.this).inflate(R.layout.dialog_zxing, null);
+                dialog.setContentView(erWeiMa);
+
+                ImageView avatar = (ImageView) erWeiMa.findViewById(R.id.iv_avatar);
+                TextView nickName = (TextView) erWeiMa.findViewById(R.id.tv_nickName);
+                ImageView zxing = (ImageView) erWeiMa.findViewById(iv_erWeiMa);
+
+                avatar.setImageBitmap(BitmapFactory.decodeFile(mMyInfo.getAvatarFile().getAbsolutePath()));
+                nickName.setText(mMyInfo.getNickname());
+                final Bitmap bitmap = generateBitmap(mMyInfo.getUserName(), 600, 600);
+                zxing.setImageBitmap(bitmap);
+
+                //如果需要设置二维码中间logo就用这个
+//                Bitmap generateBitmap = generateBitmap(mMyInfo.getUserName(), 600, 600);
+//                Bitmap logoBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+//                Bitmap bitmap = addLogo(generateBitmap, logoBitmap);
+//                zxing.setImageBitmap(bitmap);
+
+                zxing.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        //保存二维码的底部弹窗
+                        final Dialog photoDialog = new Dialog(PersonalActivity.this, R.style.jmui_default_dialog_style);
+                        LayoutInflater inflater = LayoutInflater.from(PersonalActivity.this);
+                        View view = inflater.inflate(R.layout.save_erweima, null);
+                        photoDialog.setContentView(view);
+                        Window window = photoDialog.getWindow();
+                        window.setWindowAnimations(R.style.mystyle); // 添加动画
+                        window.setGravity(Gravity.BOTTOM);
+                        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        photoDialog.show();
+                        photoDialog.setCanceledOnTouchOutside(true);
+                        Button savePhoto = (Button) view.findViewById(R.id.btn_save);
+                        Button cancel = (Button) view.findViewById(R.id.btn_cancel);
+
+                        View.OnClickListener listener = new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (v.getId() == R.id.btn_save) {
+                                    //截屏dialog并保存到手机
+                                    View view = dialog.getWindow().getDecorView();
+                                    String path = screenShotView(view);
+                                    savePicture(path, dialog);
+                                    photoDialog.dismiss();
+
+                                } else {
+                                    photoDialog.cancel();
+                                }
+                            }
+                        };
+                        savePhoto.setOnClickListener(listener);
+                        cancel.setOnClickListener(listener);
+                        return false;
+                    }
+                });
+
+                dialog.setCancelable(true);
+                dialog.setCanceledOnTouchOutside(true);
+                dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
+                dialog.show();
+
+                break;
             default:
                 break;
         }
+    }
+
+
+    private String screenShotView(View view) {
+        Bitmap temBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(temBitmap);
+        view.draw(canvas);
+
+        return saveBitmap(PersonalActivity.this, temBitmap);
+    }
+
+
+    public static String saveBitmap(Context context, Bitmap mBitmap) {
+        String savePath;
+        File filePic;
+        if (Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) {
+            savePath = SD_PATH;
+        } else {
+            savePath = context.getApplicationContext().getFilesDir()
+                    .getAbsolutePath()
+                    + IN_PATH;
+        }
+        try {
+            filePic = new File(savePath + generateFileName() + ".jpg");
+            if (!filePic.exists()) {
+                filePic.getParentFile().mkdirs();
+                filePic.createNewFile();
+            }
+            FileOutputStream fos = new FileOutputStream(filePic);
+            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return filePic.getAbsolutePath();
+    }
+
+    private static String generateFileName() {
+        return UUID.randomUUID().toString();
+    }
+
+    public void savePicture(String path, Dialog dialog) {
+        if (path == null) {
+            return;
+        }
+
+        String picPath = StorageUtil.getSystemImagePath();
+        String dstPath = picPath + path;
+        if (AttachmentStore.copy(path, dstPath) != -1) {
+            try {
+                ContentValues values = new ContentValues(2);
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                values.put(MediaStore.Images.Media.DATA, dstPath);
+                getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                Toast.makeText(PersonalActivity.this, getString(R.string.picture_save_to), Toast.LENGTH_LONG).show();
+                dialog.dismiss();
+            } catch (Exception e) {
+                dialog.dismiss();
+                Toast.makeText(PersonalActivity.this, getString(R.string.picture_save_fail), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            dialog.dismiss();
+            Toast.makeText(PersonalActivity.this, getString(R.string.picture_save_fail), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    //生成二维码
+    private Bitmap generateBitmap(String content, int width, int height) {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        Map<EncodeHintType, String> hints = new HashMap<>();
+        hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+        try {
+            BitMatrix encode = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, width, height, hints);
+            int[] pixels = new int[width * height];
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    if (encode.get(j, i)) {
+                        pixels[i * width + j] = 0x00000000;
+                    } else {
+                        pixels[i * width + j] = 0xffffffff;
+                    }
+                }
+            }
+            return Bitmap.createBitmap(pixels, 0, width, width, height, Bitmap.Config.RGB_565);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //二维码中间的logo
+    private Bitmap addLogo(Bitmap qrBitmap, Bitmap logoBitmap) {
+        int qrBitmapWidth = qrBitmap.getWidth();
+        int qrBitmapHeight = qrBitmap.getHeight();
+        int logoBitmapWidth = logoBitmap.getWidth();
+        int logoBitmapHeight = logoBitmap.getHeight();
+        Bitmap blankBitmap = Bitmap.createBitmap(qrBitmapWidth, qrBitmapHeight, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(blankBitmap);
+        canvas.drawBitmap(qrBitmap, 0, 0, null);
+        canvas.save(Canvas.ALL_SAVE_FLAG);
+        float scaleSize = 1.0f;
+        while ((logoBitmapWidth / scaleSize) > (qrBitmapWidth / 5) || (logoBitmapHeight / scaleSize) > (qrBitmapHeight / 5)) {
+            scaleSize *= 2;
+        }
+        float sx = 1.0f / scaleSize;
+        canvas.scale(sx, sx, qrBitmapWidth / 2, qrBitmapHeight / 2);
+        canvas.drawBitmap(logoBitmap, (qrBitmapWidth - logoBitmapWidth) / 2, (qrBitmapHeight - logoBitmapHeight) / 2, null);
+        canvas.restore();
+        return blankBitmap;
     }
 
     @Override

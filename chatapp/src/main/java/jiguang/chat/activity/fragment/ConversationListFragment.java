@@ -87,7 +87,7 @@ public class ConversationListFragment extends BaseFragment {
         mMenuItemView = new MenuItemView(mMenuView);
         mMenuItemView.initModule();
 
-        mMenuController = new MenuItemController(mMenuItemView, this, mConvListController, mWidth);
+        mMenuController = new MenuItemController(this);
         mMenuItemView.setListeners(mMenuController);
 
 

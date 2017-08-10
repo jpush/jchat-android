@@ -12,7 +12,6 @@ android {
         versionName "2.1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
     buildTypes {
         release {
@@ -69,4 +68,5 @@ dependencies {
     compile project(':reclib-qq')
     compile project(':reclib-testemoticons')
     compile files('libs/picasso-2.5.2.jar')
+    compile files('libs/core-3.2.1.jar')
 }
