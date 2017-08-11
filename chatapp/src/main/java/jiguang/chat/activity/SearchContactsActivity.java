@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -83,6 +84,7 @@ public class SearchContactsActivity extends BaseActivity {
     private TextView mNoConnect;
     private Map<String, String> user = new HashMap<>();
     private Map<Long, String> group = new HashMap<>();
+    private List<UserInfo> allUser = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -539,6 +541,7 @@ public class SearchContactsActivity extends BaseActivity {
     }
 
     private SearchResult filterInfo(String filterStr) {
+        allUser.clear();
         SearchResult searchResult = new SearchResult();
         List<GroupInfo> filterGroup = new ArrayList<>();
         List<UserInfo> filterFriend = new ArrayList<>();
@@ -582,9 +585,21 @@ public class SearchContactsActivity extends BaseActivity {
             }
         }
 
+        //所有的单聊会话非好友名单
+        List<Conversation> conversationList = JMessageClient.getConversationList();
+        for (Conversation conv : conversationList) {
+            if (conv.getType() == ConversationType.single) {
+                UserInfo convUserInfo = (UserInfo) conv.getTargetInfo();
+                if (!convUserInfo.isFriend()) {
+                    allUser.add(convUserInfo);
+                }
+            }
+        }
+
         //所有好友名单
-        final List<UserInfo> mFriendInfoList = JGApplication.mFriendInfoList;
-        for (UserInfo friendInfo : mFriendInfoList) {
+        allUser.addAll(JGApplication.mFriendInfoList);
+
+        for (UserInfo friendInfo : allUser) {
             String userName = friendInfo.getUserName();
             String noteName = friendInfo.getNotename();
             String nickName = friendInfo.getNickname();
@@ -638,6 +653,7 @@ public class SearchContactsActivity extends BaseActivity {
 
     @Override
     protected void onPause() {
+        allUser.clear();
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
         super.onPause();
