@@ -111,14 +111,7 @@ public class AtMemberAdapter extends BaseAdapter implements StickyListHeadersAda
     }
 
     private String getLetter(UserInfo userInfo) {
-        String displayName = userInfo.getNotename();
-        if (TextUtils.isEmpty(displayName)) {
-            displayName = userInfo.getNickname();
-            if (TextUtils.isEmpty(displayName)) {
-                displayName = userInfo.getUserName();
-            }
-        }
-
+        String displayName = userInfo.getDisplayName();
         ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
                 .get(displayName);
         StringBuilder sb = new StringBuilder();

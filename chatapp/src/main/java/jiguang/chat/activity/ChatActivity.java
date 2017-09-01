@@ -267,13 +267,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
                 if (mAtList != null && mAtList.size() > 0) {
                     for (UserInfo info : mAtList) {
-                        String name = info.getNotename();
-                        if (TextUtils.isEmpty(name)) {
-                            name = info.getNickname();
-                            if (TextUtils.isEmpty(name)) {
-                                name = info.getUserName();
-                            }
-                        }
+                        String name = info.getDisplayName();
 
                         if (!arg0.toString().contains("@" + name + " ")) {
                             forDel.add(info);

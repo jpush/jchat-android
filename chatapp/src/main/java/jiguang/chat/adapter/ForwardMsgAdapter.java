@@ -63,8 +63,7 @@ public class ForwardMsgAdapter extends BaseAdapter {
             holder.avatar.setImageResource(R.drawable.group);
         } else {
             UserInfo userInfo = (UserInfo) conversation.getTargetInfo();
-            //这里应该用displayName
-            holder.name.setText(userInfo.getUserName());
+            holder.name.setText(userInfo.getDisplayName());
             if (userInfo.getAvatarFile() != null) {
                 holder.avatar.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
             }else {

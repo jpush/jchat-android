@@ -97,13 +97,7 @@ public class GroupGridViewAdapter extends BaseAdapter {
                 viewTag.icon.setImageResource(R.drawable.jmui_head_icon);
             }
 
-            String displayName = userInfo.getNotename();
-            if (TextUtils.isEmpty(displayName)) {
-                displayName = userInfo.getNickname();
-                if (TextUtils.isEmpty(displayName)) {
-                    displayName = userInfo.getUserName();
-                }
-            }
+            String displayName = userInfo.getDisplayName();
             viewTag.name.setText(displayName);
         }
         viewTag.deleteIcon.setVisibility(View.INVISIBLE);

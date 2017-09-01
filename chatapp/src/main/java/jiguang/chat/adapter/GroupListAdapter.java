@@ -83,13 +83,7 @@ public class GroupListAdapter extends BaseAdapter {
 
     private String getGroupName(List<UserInfo> groupMembers, StringBuilder builder) {
         for (UserInfo info : groupMembers) {
-            String noteName = info.getNotename();
-            if (TextUtils.isEmpty(noteName)) {
-                noteName = info.getNickname();
-                if (TextUtils.isEmpty(noteName)) {
-                    noteName = info.getUserName();
-                }
-            }
+            String noteName = info.getDisplayName();
             builder.append(noteName);
             builder.append(",");
         }

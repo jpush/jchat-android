@@ -255,13 +255,7 @@ public class ConversationListAdapter extends BaseAdapter {
                 } else {
                     if (lastMsg.getTargetType() == ConversationType.group && !contentStr.equals("[群成员变动]")) {
                         UserInfo info = lastMsg.getFromUser();
-                        String fromName = info.getNotename();
-                        if (TextUtils.isEmpty(fromName)) {
-                            fromName = info.getNickname();
-                            if (TextUtils.isEmpty(fromName)) {
-                                fromName = info.getUserName();
-                            }
-                        }
+                        String fromName = info.getDisplayName();
                         if (JGApplication.isAtall.get(gid) != null && JGApplication.isAtall.get(gid)) {
                             content.setText("[@所有人] " + fromName + ": " + contentStr);
                         } else if (JGApplication.isAtMe.get(gid) != null && JGApplication.isAtMe.get(gid)) {

@@ -86,13 +86,7 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
                         ActiveAndroid.beginTransaction();
                         try {
                             for (UserInfo userInfo : userInfoList) {
-                                String displayName = userInfo.getNotename();
-                                if (TextUtils.isEmpty(displayName)) {
-                                    displayName = userInfo.getNickname();
-                                    if (TextUtils.isEmpty(displayName)) {
-                                        displayName = userInfo.getUserName();
-                                    }
-                                }
+                                String displayName = userInfo.getDisplayName();
                                 String letter;
                                 ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
                                         .get(displayName);

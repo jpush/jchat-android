@@ -3,7 +3,6 @@ package jiguang.chat.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
@@ -101,13 +100,7 @@ public class ChooseAtMemberActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 UserInfo userInfo = mList.get(position);
                 Intent intent = new Intent();
-                String atName = userInfo.getNotename();
-                if (TextUtils.isEmpty(atName)) {
-                    atName = userInfo.getNickname();
-                    if (TextUtils.isEmpty(atName)) {
-                        atName = userInfo.getUserName();
-                    }
-                }
+                String atName = userInfo.getDisplayName();
 
                 synchronized (ChooseAtMemberActivity.class) {
                     if (textParentLinkedHolder != null) {

@@ -211,13 +211,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
                 if (responseCode == 0)
                     uid[0] = info.getUserID();
                 if (!mIsSearch) {
-                    String name = info.getNotename();
-                    if (TextUtils.isEmpty(name)) {
-                        name = info.getNickname();
-                        if (TextUtils.isEmpty(name)) {
-                            name = user;
-                        }
-                    }
+                    String name = info.getDisplayName();
                     holder.displayName.setText(name);
                 } else {
                     String noteName = info.getNotename();
@@ -231,13 +225,7 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
                             holder.displayName.setText(user);
                         }
                     } else {
-                        String name = info.getNotename();
-                        if (TextUtils.isEmpty(name)) {
-                            name = info.getNickname();
-                            if (TextUtils.isEmpty(name)) {
-                                name = user;
-                            }
-                        }
+                        String name = info.getDisplayName();
                         holder.displayName.setText(name);
                     }
                 }

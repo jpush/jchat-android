@@ -368,8 +368,7 @@ public class DialogCreator {
 
         if (conv != null) {
             if (conv.getType() == ConversationType.single) {
-                //这里应该用displayName
-                name.setText(((UserInfo) conv.getTargetInfo()).getUserName());
+                name.setText(((UserInfo) conv.getTargetInfo()).getDisplayName());
             } else {
                 name.setText(((GroupInfo) conv.getTargetInfo()).getGroupName());
             }
@@ -454,9 +453,7 @@ public class DialogCreator {
                         }
                     }
                 }
-                final Message sendMessage = conversation.createSendMessage(message.getContent());
-                JMessageClient.sendMessage(sendMessage);
-                sendMessage.setOnSendCompleteCallback(new BasicCallback() {
+                JMessageClient.forwardMessage(message, conversation, new BasicCallback() {
                     @Override
                     public void gotResult(int i, String s) {
                         mLoadingDialog.dismiss();

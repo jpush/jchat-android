@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
@@ -189,13 +188,7 @@ public class SearchMoreFriendsActivity extends BaseActivity implements AdapterVi
         if (selectObject instanceof UserInfo) {
             UserInfo friend = (UserInfo) selectObject;
             final Intent intent = new Intent(SearchMoreFriendsActivity.this, ChatActivity.class);
-            String notename = friend.getNotename();
-            if (TextUtils.isEmpty(notename)) {
-                notename = friend.getNickname();
-                if (TextUtils.isEmpty(notename)) {
-                    notename = friend.getUserName();
-                }
-            }
+            String notename = friend.getDisplayName();
             Conversation conv = JMessageClient.getSingleConversation(friend.getUserName(), friend.getAppKey());
             //如果会话为空，使用EventBus通知会话列表添加新会话
             if (conv == null) {
@@ -274,10 +267,9 @@ public class SearchMoreFriendsActivity extends BaseActivity implements AdapterVi
         };
         String name;
         if (userInfo == null) {
-            //这里应该用displayName
             name = groupInfo.getGroupName();
         } else {
-            name = userInfo.getUserName();
+            name = userInfo.getDisplayName();
         }
         mDialog = DialogCreator.createBusinessCardDialog(SearchMoreFriendsActivity.this, listener, name,
                 intent.getStringExtra("userName"), intent.getStringExtra("avatar"));

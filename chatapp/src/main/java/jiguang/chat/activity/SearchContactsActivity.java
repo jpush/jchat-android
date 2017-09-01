@@ -455,10 +455,9 @@ public class SearchContactsActivity extends BaseActivity {
         };
         String name;
         if (userInfo == null) {
-            //这里应该用displayName
             name = groupInfo.getGroupName();
         } else {
-            name = userInfo.getUserName();
+            name = userInfo.getDisplayName();
         }
         mDialog = DialogCreator.createBusinessCardDialog(context, listener, name,
                 intent.getStringExtra("userName"), intent.getStringExtra("avatar"));
@@ -623,13 +622,7 @@ public class SearchContactsActivity extends BaseActivity {
 
         private String getGroupName(List<UserInfo> groupMembers, StringBuilder builder) {
             for (UserInfo info : groupMembers) {
-                String noteName = info.getNotename();
-                if (TextUtils.isEmpty(noteName)) {
-                    noteName = info.getNickname();
-                    if (TextUtils.isEmpty(noteName)) {
-                        noteName = info.getUserName();
-                    }
-                }
+                String noteName = info.getDisplayName();
                 builder.append(noteName);
                 builder.append(",");
             }
@@ -729,13 +722,7 @@ public class SearchContactsActivity extends BaseActivity {
 
     private String getGroupName(List<UserInfo> groupMembers, StringBuilder builder) {
         for (UserInfo info : groupMembers) {
-            String noteName = info.getNotename();
-            if (TextUtils.isEmpty(noteName)) {
-                noteName = info.getNickname();
-                if (TextUtils.isEmpty(noteName)) {
-                    noteName = info.getUserName();
-                }
-            }
+            String noteName = info.getDisplayName();
             builder.append(noteName);
             builder.append(",");
         }
