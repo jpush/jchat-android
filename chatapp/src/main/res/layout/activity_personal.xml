@@ -94,7 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="14dp"
-            android:src="@drawable/nick_logo"/>
+            android:src="@drawable/erweima"/>
 
         <TextView
             style="@style/info_left_txt_style"
@@ -109,13 +109,14 @@
             android:layout_marginRight="13.93dp"
             android:background="@drawable/arrow"/>
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="我的二维码"
+            android:textColor="#FF999999"
+            android:textSize="14sp"
             android:layout_centerVertical="true"
-            android:layout_marginRight="5dp"
-            android:layout_toLeftOf="@+id/iv_arrow"
-            android:src="@drawable/jmui_head_icon"/>
+            android:layout_toLeftOf="@+id/iv_arrow"/>
     </RelativeLayout>
 
     <View

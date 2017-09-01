@@ -169,17 +169,14 @@ public class ScanManager implements SurfaceHolder.Callback{
 			// RuntimeException.
 			if (handler == null) {
 				handler = new CaptureActivityHandler(this, cameraManager, scanMode);
-				Log.e("hongliang1", "handler new成功！:"+handler);
 			}
 
 			initCrop();
 		} catch (IOException ioe) {
-			Log.e(TAG,"hongliang", ioe);
 			//弹出提示，报错
 			ioe.printStackTrace();
 			listener.scanError(new Exception("相机打开出错，请检查是否被禁止了该权限！"));
 		} catch (RuntimeException e) {
-			Log.e(TAG, "hongliang", e);
 			//弹出提示，报错
 			e.printStackTrace();
 			listener.scanError(new Exception("相机打开出错，请检查是否被禁止了该权限！"));

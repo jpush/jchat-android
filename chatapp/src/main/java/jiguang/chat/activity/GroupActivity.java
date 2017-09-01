@@ -27,6 +27,10 @@ public class GroupActivity extends BaseActivity {
     private GroupListAdapter mGroupListAdapter;
     private Context mContext;
     private boolean isFromForward = false;
+    private boolean isBusinessCard = false;
+    private String mUserName;
+    private String mAppKey;
+    private String mAvatarPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +39,12 @@ public class GroupActivity extends BaseActivity {
         setContentView(R.layout.activity_group);
         initTitle(true, true, "群组", "", false, "");
         ActivityController.addActivity(this);
-
         mGroupList = (ListView) findViewById(R.id.group_list);
+
+        //待发送名片的参数
+        mUserName = getIntent().getStringExtra("userName");
+        mAppKey = getIntent().getStringExtra("appKey");
+        mAvatarPath = getIntent().getStringExtra("avatar");
 
         initData();
     }
@@ -77,7 +85,11 @@ public class GroupActivity extends BaseActivity {
         if (getIntent().getFlags() == 1) {
             isFromForward = true;
         }
-        mGroupListAdapter = new GroupListAdapter(mContext,infoList, isFromForward, mWidth);
+        //来自名片的请求设置flag==2
+        if (getIntent().getFlags() == 2) {
+            isBusinessCard = true;
+        }
+        mGroupListAdapter = new GroupListAdapter(mContext, infoList, isFromForward, mWidth, isBusinessCard, mUserName, mAppKey, mAvatarPath);
         mGroupList.setAdapter(mGroupListAdapter);
     }
 }

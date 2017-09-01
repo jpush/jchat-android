@@ -24,6 +24,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
@@ -33,7 +34,6 @@ import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ActivityController;
-import jiguang.chat.database.FriendEntry;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
 
@@ -92,7 +92,7 @@ public class DialogCreator {
     }
 
     public static Dialog createDelConversationDialog(Context context,
-                                                     View.OnClickListener listener) {
+                                                     View.OnClickListener listener, boolean isTop) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         View v = LayoutInflater.from(context).inflate(
                 IdHelper.getLayout(context, "jmui_dialog_delete_conv"), null);
@@ -101,22 +101,31 @@ public class DialogCreator {
                 .getViewID(context, "jmui_delete_conv_ll"));
         final LinearLayout top = (LinearLayout) v.findViewById(IdHelper
                 .getViewID(context, "jmui_top_conv_ll"));
-        TextView isTop = (TextView) v.findViewById(IdHelper.getViewID(context, "tv_conv_top"));
+        TextView tv_top = (TextView) v.findViewById(IdHelper.getViewID(context, "tv_conv_top"));
+        if (isTop) {
+            tv_top.setText("取消置顶");
+        } else {
+            tv_top.setText("会话置顶");
+        }
 
         deleteLl.setOnClickListener(listener);
-//        top.setOnClickListener(listener);
+        top.setOnClickListener(listener);
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;
     }
+
     public static Dialog createSavePictureDialog(Context context,
-                                                     View.OnClickListener listener) {
+                                                 View.OnClickListener listener) {
         Dialog dialog = new Dialog(context, IdHelper.getStyle(context, "jmui_default_dialog_style"));
         View v = LayoutInflater.from(context).inflate(
                 IdHelper.getLayout(context, "jmui_dialog_delete_conv"), null);
         dialog.setContentView(v);
         final LinearLayout deleteLl = (LinearLayout) v.findViewById(IdHelper
                 .getViewID(context, "jmui_delete_conv_ll"));
+        final LinearLayout top = (LinearLayout) v.findViewById(IdHelper
+                .getViewID(context, "jmui_top_conv_ll"));
+        top.setVisibility(View.GONE);
         TextView textView = (TextView) v.findViewById(IdHelper.getViewID(context, "tv_dialogText"));
         textView.setText("保存到手机");
 
@@ -312,7 +321,35 @@ public class DialogCreator {
         return dialog;
     }
 
-    public static void createForwardMsg(final Context context, int mWidth, final boolean isSingle, Object itemAtPosition, final GroupInfo groupInfo, String groupName, final UserInfo userInfo) {
+    public static Dialog createBusinessCardDialog(Context context, View.OnClickListener listener,
+                                                  String nameTo, String name, String avatarPath) {
+        Dialog dialog = new Dialog(context, R.style.jmui_default_dialog_style);
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.jmui_dialog_business_card, null);
+        dialog.setContentView(view);
+        TextView cardTo = (TextView) view.findViewById(R.id.tv_businessCardTo);
+        TextView cardName = (TextView) view.findViewById(R.id.tv_businessCard);
+        ImageView imageView = (ImageView) view.findViewById(R.id.iv_businessHead);
+
+        cardTo.setText(nameTo);
+        cardName.setText(name);
+        if (avatarPath != null) {
+            imageView.setImageBitmap(BitmapFactory.decodeFile(avatarPath));
+        }
+
+        final Button cancel = (Button) view.findViewById(R.id.btn_cancel);
+        final Button commit = (Button) view.findViewById(R.id.btn_sure);
+
+        cancel.setOnClickListener(listener);
+        commit.setOnClickListener(listener);
+
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        return dialog;
+    }
+
+    public static void createForwardMsg(final Context context, int mWidth, final boolean isSingle, final Conversation conv,
+                                        final GroupInfo groupInfo, String groupName, final UserInfo userInfo) {
         final Dialog dialog = new Dialog(context, R.style.jmui_default_dialog_style);
         View forwardView = LayoutInflater.from(context).inflate(R.layout.jmui_dialog_forward_text_button, null);
         dialog.setContentView(forwardView);
@@ -329,10 +366,13 @@ public class DialogCreator {
         dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         dialog.show();
 
-        FriendEntry entry = null;
-        if (itemAtPosition != null) {
-            entry = (FriendEntry) itemAtPosition;
-            name.setText(entry.displayName);
+        if (conv != null) {
+            if (conv.getType() == ConversationType.single) {
+                //这里应该用displayName
+                name.setText(((UserInfo) conv.getTargetInfo()).getUserName());
+            } else {
+                name.setText(((GroupInfo) conv.getTargetInfo()).getGroupName());
+            }
         }
         if (groupName != null) {
             name.setText(groupName);
@@ -377,7 +417,7 @@ public class DialogCreator {
             }
         });
 
-        final FriendEntry finalEntry = entry;
+
         commit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -385,44 +425,43 @@ public class DialogCreator {
                 mLoadingDialog.show();
                 String userName = null;
                 String appKey = null;
-                if (finalEntry != null) {
-                    userName = finalEntry.username;
-                    appKey = finalEntry.appKey;
-                }
 
                 if (userInfo != null) {
                     userName = userInfo.getUserName();
                     appKey = userInfo.getAppKey();
                 }
                 Conversation conversation = null;
-                if (isSingle) {
-                    conversation = JMessageClient.getSingleConversation(userName, appKey);
-                    if (conversation == null) {
-                        conversation = Conversation.createSingleConversation(userName, appKey);
-                        EventBus.getDefault().post(new Event.Builder()
-                                .setType(EventType.createConversation)
-                                .setConversation(conversation)
-                                .build());
-                    }
+                if (userInfo == null && groupInfo == null) {
+                    conversation = conv;
                 } else {
-                    conversation = JMessageClient.getGroupConversation(groupInfo.getGroupID());
-                    if (conversation == null) {
-                        conversation = Conversation.createGroupConversation(groupInfo.getGroupID());
-                        EventBus.getDefault().post(new Event.Builder()
-                                .setType(EventType.createConversation)
-                                .setConversation(conversation)
-                                .build());
+                    if (isSingle) {
+                        conversation = JMessageClient.getSingleConversation(userName, appKey);
+                        if (conversation == null) {
+                            conversation = Conversation.createSingleConversation(userName, appKey);
+                            EventBus.getDefault().post(new Event.Builder()
+                                    .setType(EventType.createConversation)
+                                    .setConversation(conversation)
+                                    .build());
+                        }
+                    } else {
+                        conversation = JMessageClient.getGroupConversation(groupInfo.getGroupID());
+                        if (conversation == null) {
+                            conversation = Conversation.createGroupConversation(groupInfo.getGroupID());
+                            EventBus.getDefault().post(new Event.Builder()
+                                    .setType(EventType.createConversation)
+                                    .setConversation(conversation)
+                                    .build());
+                        }
                     }
                 }
                 final Message sendMessage = conversation.createSendMessage(message.getContent());
+                JMessageClient.sendMessage(sendMessage);
                 sendMessage.setOnSendCompleteCallback(new BasicCallback() {
                     @Override
                     public void gotResult(int i, String s) {
                         mLoadingDialog.dismiss();
                         dialog.dismiss();
                         if (i == 0) {
-                            JGApplication.addForwardMsg.clear();
-                            JGApplication.addForwardMsg.add(sendMessage);
                             Toast.makeText(context, "已发送", Toast.LENGTH_SHORT).show();
                             ActivityController.finishAll();
                         } else {
@@ -430,7 +469,6 @@ public class DialogCreator {
                         }
                     }
                 });
-                JMessageClient.sendMessage(sendMessage);
             }
         });
     }

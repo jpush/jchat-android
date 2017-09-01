@@ -261,8 +261,7 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         } else {
             intent.setClass(mContext, FriendInfoActivity.class);
             intent.putExtra(JGApplication.TARGET_APP_KEY, userInfo.getAppKey());
-            intent.putExtra(JGApplication.TARGET_ID,
-                    userInfo.getUserName());
+            intent.putExtra(JGApplication.TARGET_ID, userInfo.getUserName());
             intent.putExtra(JGApplication.GROUP_ID, mGroupId);
             mContext.startActivity(intent);
         }

@@ -42,6 +42,7 @@ import java.util.Queue;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
@@ -62,6 +63,8 @@ import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.activity.BrowserViewPagerActivity;
 import jiguang.chat.activity.DownLoadActivity;
+import jiguang.chat.activity.FriendInfoActivity;
+import jiguang.chat.activity.GroupNotFriendActivity;
 import jiguang.chat.adapter.ChattingListAdapter;
 import jiguang.chat.adapter.ChattingListAdapter.ViewHolder;
 import jiguang.chat.application.JGApplication;
@@ -96,6 +99,9 @@ public class ChatItemController {
     private int mSendMsgId;
     private Queue<Message> mMsgQueue = new LinkedList<Message>();
     private UserInfo mUserInfo;
+    private Boolean isFriend;
+    private String mUserName;
+    private String mAppKey;
 
     public ChatItemController(ChattingListAdapter adapter, Activity context, Conversation conv, List<Message> msgList,
                               float density, ChattingListAdapter.ContentLongClickListener longClickListener) {
@@ -128,6 +134,86 @@ public class ChatItemController {
                 return false;
             }
         });
+    }
+
+    public void handleBusinessCard(final Message msg, final ViewHolder holder, int position) {
+        TextContent textContent = (TextContent) msg.getContent();
+        mUserName = textContent.getStringExtra("userName");
+        mAppKey = textContent.getStringExtra("appKey");
+        JMessageClient.getUserInfo(mUserName, mAppKey, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int i, String s, UserInfo userInfo) {
+                if (i == 0) {
+                    isFriend = userInfo.isFriend();
+                    String name = userInfo.getNickname();
+                    //如果没有昵称,名片上面的位置显示用户名
+                    //如果有昵称,上面显示昵称,下面显示用户名
+                    if (TextUtils.isEmpty(name)) {
+                        holder.tv_nickUser.setText(mUserName);
+                    } else {
+                        holder.tv_nickUser.setText(name);
+                        holder.tv_userName.setText("用户名: " + mUserName);
+                    }
+                    if (userInfo.getAvatarFile() != null) {
+                        holder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
+                    }else {
+                        holder.business_head.setImageResource(R.drawable.jmui_head_icon);
+                    }
+                } else {
+                    HandleResponseCode.onHandle(mContext, i, false);
+                }
+            }
+        });
+
+        holder.ll_businessCard.setOnLongClickListener(mLongClickListener);
+        holder.ll_businessCard.setOnClickListener(new BtnOrTxtListener(position, holder));
+        holder.ll_businessCard.setTag(position);
+        if (msg.getDirect() == MessageDirect.send) {
+            switch (msg.getStatus()) {
+                case created:
+                    if (null != mUserInfo) {
+                        holder.sendingIv.setVisibility(View.GONE);
+                        holder.resend.setVisibility(View.VISIBLE);
+                    }
+                    break;
+                case send_success:
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.GONE);
+                    break;
+                case send_fail:
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.VISIBLE);
+                    break;
+                case send_going:
+                    sendingTextOrVoice(holder, msg);
+                    break;
+            }
+        } else {
+            if (mConv.getType() == ConversationType.group) {
+                if (msg.isAtMe()) {
+                    mConv.updateMessageExtra(msg, "isRead", true);
+                }
+                if (msg.isAtAll()) {
+                    mConv.updateMessageExtra(msg, "isReadAtAll", true);
+                }
+                holder.displayName.setVisibility(View.VISIBLE);
+                if (TextUtils.isEmpty(msg.getFromUser().getNickname())) {
+                    holder.displayName.setText(msg.getFromUser().getUserName());
+                } else {
+                    holder.displayName.setText(msg.getFromUser().getNickname());
+                }
+            }
+        }
+        if (holder.resend != null) {
+            holder.resend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAdapter.showResendDialog(holder, msg);
+                }
+            });
+        }
     }
 
     public void handleTextMsg(final Message msg, final ViewHolder holder, int position) {
@@ -539,6 +625,7 @@ public class ChatItemController {
         }
     }
 
+    //位置消息接收方根据百度api生成位置周围图片
     private Bitmap createLocationBitmap(Number longitude, Number latitude) {
         String mapUrl = "http://api.map.baidu.com/staticimage?width=160&height=90&center="
                 + longitude + "," + latitude + "&zoom=18";
@@ -1016,6 +1103,19 @@ public class ChatItemController {
                         mContext.startActivity(intent);
                     }
                     break;
+                case text:
+                    if (holder.ll_businessCard != null && v.getId() == holder.ll_businessCard.getId()) {
+                        Intent intent = new Intent();
+                        if (isFriend) {
+                            intent.setClass(mContext, FriendInfoActivity.class);
+                        } else {
+                            intent.setClass(mContext, GroupNotFriendActivity.class);
+                        }
+                        intent.putExtra(JGApplication.TARGET_APP_KEY, mAppKey);
+                        intent.putExtra(JGApplication.TARGET_ID, mUserName);
+                        mContext.startActivity(intent);
+                    }
+                    break;
                 case file:
                     FileContent content = (FileContent) msg.getContent();
                     if (!TextUtils.isEmpty(content.getLocalPath())) {
@@ -1179,7 +1279,7 @@ public class ChatItemController {
             imageWidth = 200;
             imageHeight = 200;
         } else {
-            if (imageWidth > 300) {
+            if (imageWidth > 350) {
                 imageWidth = 550;
                 imageHeight = 250;
             } else if (imageHeight > 450) {

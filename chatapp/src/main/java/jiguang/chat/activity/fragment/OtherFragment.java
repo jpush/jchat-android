@@ -94,7 +94,7 @@ public class OtherFragment extends BaseFragment {
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
                         String date = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED));
                         if (scannerFile(filePath)) {
-                            FileItem fileItem = new FileItem(filePath, fileName, size, date);
+                            FileItem fileItem = new FileItem(filePath, fileName, size, date,0);
                             mOthers.add(fileItem);
                         }
 

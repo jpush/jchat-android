@@ -19,7 +19,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="5dp"
+        android:layout_height="0.3dp"
         android:background="#4D000000"/>
 
     <Button

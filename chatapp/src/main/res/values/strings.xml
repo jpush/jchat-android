@@ -87,6 +87,7 @@
     <string name="origin_picture">原图</string>
     <string name="choose">选择</string>
     <string name="jmui_send">发送</string>
+    <string name="already_select">已选</string>
     <string name="send_message">发消息</string>
     <string name="sending_hint">正在发送</string>
     <string name="jmui_resend_message_hint">重发该消息？</string>
@@ -407,10 +408,7 @@
     <string name="btn_send">发送</string>
     <string name="set_to_block">屏蔽群消息</string>
     <string name="scan_barcode_title">条形码扫描</string>
-    <string name="scan_qrcode_title">二维码扫描</string>
-    <string name="scan_allcode_title">二维码或条形码扫描</string>
-    <string name="scan_barcode_hint">将条形码对入取景框，即可自动扫描</string>
-    <string name="scan_qrcode_hint">将二维码对入取景框，即可自动扫描</string>
-    <string name="scan_allcode_hint">将二维码或条形码对入取景框，即可自动扫描</string>
+    <string name="scan_qrcode_title">返回</string>
+    <string name="scan_qrcode_hint">将取景框对准二维码，即可自动扫描</string>
 
 </resources>

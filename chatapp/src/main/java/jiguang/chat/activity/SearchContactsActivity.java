@@ -1,5 +1,6 @@
 package jiguang.chat.activity;
 
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -29,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,11 +43,14 @@ import java.util.concurrent.TimeUnit;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
+import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ActivityController;
@@ -52,6 +58,7 @@ import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
 import jiguang.chat.model.SearchResult;
 import jiguang.chat.utils.DialogCreator;
+import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.utils.photochoose.SelectableRoundedImageView;
 import jiguang.chat.utils.pinyin.CharacterParser;
 import jiguang.chat.utils.query.TextSearcher;
@@ -85,6 +92,7 @@ public class SearchContactsActivity extends BaseActivity {
     private Map<String, String> user = new HashMap<>();
     private Map<Long, String> group = new HashMap<>();
     private List<UserInfo> allUser = new ArrayList<>();
+    private Dialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -269,7 +277,7 @@ public class SearchContactsActivity extends BaseActivity {
     }
 
     private void initListener() {
-        //点击搜索出的好友条目跳转到FriendInfoActivity;通过转发搜索过来的 flag == 1
+        //转发消息
         if (getIntent().getFlags() == 1) {
             mFriendListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -281,7 +289,41 @@ public class SearchContactsActivity extends BaseActivity {
                     }
                 }
             });
-        }else {
+            mGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Object selectObject = parent.getItemAtPosition(position);
+                    if (selectObject instanceof GroupInfo) {
+                        GroupInfo groupInfo = (GroupInfo) selectObject;
+                        DialogCreator.createForwardMsg(SearchContactsActivity.this, mWidth, false, null, groupInfo, group.get(groupInfo.getGroupID()), null);
+                    }
+                }
+            });
+            //发送名片
+        } else if (getIntent().getFlags() == 2) {
+            mFriendListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Object selectObject = parent.getItemAtPosition(position);
+                    if (selectObject instanceof UserInfo) {
+                        final UserInfo userInfo = (UserInfo) selectObject;
+                        Intent intent = getIntent();
+                        setSearchContactsBusiness(SearchContactsActivity.this, mWidth, intent, null, userInfo);
+                    }
+                }
+            });
+            mGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Object selectObject = parent.getItemAtPosition(position);
+                    if (selectObject instanceof GroupInfo) {
+                        final GroupInfo groupInfo = (GroupInfo) selectObject;
+                        Intent intent = getIntent();
+                        setSearchContactsBusiness(SearchContactsActivity.this, mWidth, intent, groupInfo, null);
+                    }
+                }
+            });
+        } else {
             mFriendListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -297,20 +339,6 @@ public class SearchContactsActivity extends BaseActivity {
                     }
                 }
             });
-        }
-        //点击搜索出的群组条目
-        if (getIntent().getFlags() == 1) {
-            mGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Object selectObject = parent.getItemAtPosition(position);
-                    if (selectObject instanceof GroupInfo) {
-                        GroupInfo groupInfo = (GroupInfo) selectObject;
-                        DialogCreator.createForwardMsg(SearchContactsActivity.this, mWidth, false, null, groupInfo, group.get(groupInfo.getGroupID()), null);
-                    }
-                }
-            });
-        }else {
             mGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -335,13 +363,21 @@ public class SearchContactsActivity extends BaseActivity {
                 }
             });
         }
+
         //搜索出的好友数量超过三条 点击加载更多
         mMoreFriendLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SearchContactsActivity.this, SearchMoreFriendsActivity.class);
                 intent.putExtra("filterString", mFilterString);
-                intent.putExtra("forwardMsg", true);
+                if (getIntent().getFlags() == 1) {
+                    intent.putExtra("forwardMsg", true);
+                } else if (getIntent().getFlags() == 2) {
+                    intent.putExtra("businessCard", true);
+                    intent.putExtra("userName", getIntent().getStringExtra("userName"));
+                    intent.putExtra("appKey", getIntent().getStringExtra("appKey"));
+                    intent.putExtra("avatar", getIntent().getStringExtra("avatar"));
+                }
                 startActivity(intent);
             }
         });
@@ -351,10 +387,83 @@ public class SearchContactsActivity extends BaseActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(SearchContactsActivity.this, SearchMoreGroupActivity.class);
                 intent.putExtra("filterString", mFilterString);
-                intent.putExtra("forwardMsg", true);
+                if (getIntent().getFlags() == 1) {
+                    intent.putExtra("forwardMsg", true);
+                } else if (getIntent().getFlags() == 2) {
+                    intent.putExtra("businessCard", true);
+                    intent.putExtra("userName", getIntent().getStringExtra("userName"));
+                    intent.putExtra("appKey", getIntent().getStringExtra("appKey"));
+                    intent.putExtra("avatar", getIntent().getStringExtra("avatar"));
+                }
                 startActivity(intent);
             }
         });
+    }
+
+    public void setSearchContactsBusiness(final SearchContactsActivity context, int width,
+                                          final Intent intent, final GroupInfo groupInfo, final UserInfo userInfo) {
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.btn_cancel:
+                        mDialog.dismiss();
+                        break;
+                    case R.id.btn_sure:
+                        mDialog.dismiss();
+                        //把名片的userName和appKey通过extra发送给对方
+                        TextContent content = new TextContent("");
+                        content.setStringExtra("userName", intent.getStringExtra("userName"));
+                        content.setStringExtra("appKey", intent.getStringExtra("appKey"));
+                        content.setStringExtra("businessCard", "businessCard");
+                        Conversation conversation;
+                        if (userInfo == null) {
+                            conversation = JMessageClient.getGroupConversation(groupInfo.getGroupID());
+                            if (conversation == null) {
+                                conversation = Conversation.createGroupConversation(groupInfo.getGroupID());
+                                EventBus.getDefault().post(new Event.Builder()
+                                        .setType(EventType.createConversation)
+                                        .setConversation(conversation)
+                                        .build());
+                            }
+                        } else {
+                            conversation = JMessageClient.getSingleConversation(userInfo.getUserName(), userInfo.getAppKey());
+                            if (conversation == null) {
+                                conversation = Conversation.createSingleConversation(userInfo.getUserName(), userInfo.getAppKey());
+                                EventBus.getDefault().post(new Event.Builder()
+                                        .setType(EventType.createConversation)
+                                        .setConversation(conversation)
+                                        .build());
+                            }
+                        }
+
+                        Message textMessage = conversation.createSendMessage(content);
+                        JMessageClient.sendMessage(textMessage);
+                        textMessage.setOnSendCompleteCallback(new BasicCallback() {
+                            @Override
+                            public void gotResult(int i, String s) {
+                                if (i == 0) {
+                                    Toast.makeText(context, "发送成功", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    HandleResponseCode.onHandle(context, i, false);
+                                }
+                            }
+                        });
+                        break;
+                }
+            }
+        };
+        String name;
+        if (userInfo == null) {
+            //这里应该用displayName
+            name = groupInfo.getGroupName();
+        } else {
+            name = userInfo.getUserName();
+        }
+        mDialog = DialogCreator.createBusinessCardDialog(context, listener, name,
+                intent.getStringExtra("userName"), intent.getStringExtra("avatar"));
+        mDialog.getWindow().setLayout((int) (0.8 * width), WindowManager.LayoutParams.WRAP_CONTENT);
+        mDialog.show();
     }
 
     private class FriendListAdapter extends BaseAdapter {

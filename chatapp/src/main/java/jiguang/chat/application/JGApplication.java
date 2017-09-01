@@ -44,7 +44,6 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static Map<Long, Boolean> isAtMe = new HashMap<>();
     public static Map<Long, Boolean> isAtall = new HashMap<>();
     public static List<Message> forwardMsg = new ArrayList<>();
-    public static List<Message> addForwardMsg = new ArrayList<>();
 
     public static long registerOrLogin = 1;
     public static final int REQUEST_CODE_TAKE_PHOTO = 4;
@@ -108,6 +107,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static List<UserInfo> mFriendInfoList = new ArrayList<>();
     public static List<UserInfo> mSearchGroup = new ArrayList<>();
     public static List<UserInfo> mSearchAtMember = new ArrayList<>();
+    public static List<Message> ids = new ArrayList<>();
 
     @Override
     public void onCreate() {

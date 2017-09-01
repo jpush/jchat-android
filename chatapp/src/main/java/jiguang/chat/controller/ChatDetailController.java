@@ -44,6 +44,7 @@ import jiguang.chat.activity.MainActivity;
 import jiguang.chat.activity.MembersInChatActivity;
 import jiguang.chat.activity.PersonalActivity;
 import jiguang.chat.activity.VerificationActivity;
+import jiguang.chat.activity.historyfile.activity.HistoryFileActivity;
 import jiguang.chat.adapter.GroupMemberGridAdapter;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
@@ -366,7 +367,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                                                 File file = new File(localPath);
                                                 if (file.exists()) {
                                                     boolean delete1 = file.delete();
-                                                    File copyFile = new File(JGApplication.FILE_DIR+fileContent.getFileName());
+                                                    File copyFile = new File(JGApplication.FILE_DIR + fileContent.getFileName());
                                                     boolean delete2 = copyFile.delete();
                                                 }
                                             }
@@ -386,6 +387,14 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 };
                 delete.setOnClickListener(listen);
                 cancel.setOnClickListener(listen);
+                break;
+            case R.id.chat_file:
+                intent = new Intent(mContext, HistoryFileActivity.class);
+                intent.putExtra("userName", mTargetId);
+                intent.putExtra("groupId", mGroupId);
+                intent.putExtra("isGroup", mIsGroup);
+                mContext.startActivity(intent);
+                mContext.overridePendingTransition(R.anim.trans_in, R.anim.trans_out);
                 break;
         }
     }
@@ -497,7 +506,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             //会话中点击右上角进入拉人进群界面,点击add按钮之前的user头像.
             if (mFriend) {
                 intent.setClass(mContext, FriendInfoActivity.class);
-            }else {
+            } else {
                 intent.setClass(mContext, GroupNotFriendActivity.class);
             }
             intent.putExtra(JGApplication.TARGET_ID, mTargetId);

@@ -99,6 +99,7 @@ public class ConversationListAdapter extends BaseAdapter {
 
     public void setConvTop(Conversation convTop) {
         for (Conversation conversation : mDatas) {
+            //在所有会话中找到需要置顶或者取消置顶的那条
             if (convTop.getId().equals(conversation.getId())) {
                 mDatas.remove(conversation);
                 mDatas.add(SharePreferenceManager.getTopSize(), convTop);
@@ -205,7 +206,14 @@ public class ConversationListAdapter extends BaseAdapter {
                         contentStr = ((PromptContent) lastMsg.getContent()).getPromptText();
                         break;
                     default:
-                        contentStr = ((TextContent) lastMsg.getContent()).getText();
+                        TextContent textContent = (TextContent) lastMsg.getContent();
+                        String businessExtra = textContent.getStringExtra("businessCard");
+                        if (businessExtra != null && businessExtra.equals("businessCard")) {
+                            contentStr = "[名片]";
+                        } else {
+                            contentStr = ((TextContent) lastMsg.getContent()).getText();
+                        }
+                        break;
                 }
 
                 MessageContent msgContent = lastMsg.getContent();
@@ -261,9 +269,9 @@ public class ConversationListAdapter extends BaseAdapter {
                             //如果content是撤回的那么就不显示最后一条消息的发起人名字了
                         } else if (msgContent.getContentType() == ContentType.prompt) {
                             content.setText(contentStr);
-                        }else if(info.getUserName().equals(JMessageClient.getMyInfo().getUserName())){
+                        } else if (info.getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
                             content.setText(contentStr);
-                        }else {
+                        } else {
                             content.setText(fromName + ": " + contentStr);
                         }
                     } else {

@@ -169,6 +169,19 @@ public class SharePreferenceManager {
     public static boolean getNoDisturb(){
         return null != sp && sp.getBoolean(NO_DISTURB, false);
     }
+
+    private static final String IS_SHOWCHECK = "isShowCheck";
+
+    public static void setShowCheck(boolean value) {
+        if(null != sp){
+            sp.edit().putBoolean(NO_DISTURB, value).apply();
+        }
+    }
+
+    public static boolean getShowCheck(){
+        return null != sp && sp.getBoolean(NO_DISTURB, false);
+    }
+
     private static final String ISOPEN = "isopen";
 
     public static void setIsOpen(boolean value) {

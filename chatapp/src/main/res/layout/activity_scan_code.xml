@@ -21,8 +21,7 @@
         <RelativeLayout
             android:id="@+id/title_bar"
             android:layout_width="fill_parent"
-            android:layout_height="45dip"
-            android:background="@color/menu_item_back_pres_color">
+            android:layout_height="45dip">
 
             <ImageView
                 android:id="@+id/authorize_return"
@@ -44,9 +43,19 @@
                 android:layout_marginLeft="45dp"
                 android:ellipsize="middle"
                 android:singleLine="true"
+                android:text="返回"
+                android:textColor="#fff"
+                android:textSize="14sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:ellipsize="middle"
+                android:singleLine="true"
                 android:text="扫一扫"
                 android:textColor="#fff"
-                android:textSize="18sp"/>
+                android:textSize="16sp"/>
 
             <TextView
                 android:id="@+id/qrcode_g_gallery"
@@ -57,7 +66,7 @@
                 android:gravity="center_vertical"
                 android:text="相册"
                 android:textColor="#fff"
-                android:textSize="18sp"/>
+                android:textSize="14sp"/>
         </RelativeLayout>
 
         <TextView
@@ -91,8 +100,8 @@
             android:layout_centerHorizontal="true"
             android:paddingBottom="20dp"
             android:paddingTop="20dp"
-            android:text="@string/scan_allcode_hint"
-            android:textColor="#b4b4b4"
+            android:text="@string/scan_qrcode_hint"
+            android:textColor="#6EF8F8"
             android:textSize="14sp"
             />
 

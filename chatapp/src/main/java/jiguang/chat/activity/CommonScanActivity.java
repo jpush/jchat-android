@@ -18,8 +18,7 @@ package jiguang.chat.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.SurfaceView;
@@ -30,7 +29,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.zxing.Result;
+
+import java.lang.reflect.Type;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -40,6 +43,10 @@ import cn.jpush.im.android.api.model.UserInfo;
 import jiguang.chat.R;
 import jiguang.chat.model.Constant;
 import jiguang.chat.model.InfoModel;
+import jiguang.chat.model.User;
+import jiguang.chat.model.UserModel;
+import jiguang.chat.utils.HandleResponseCode;
+import jiguang.chat.utils.dialog.LoadDialog;
 import jiguang.chat.utils.zxing.ScanListener;
 import jiguang.chat.utils.zxing.ScanManager;
 import jiguang.chat.utils.zxing.decode.DecodeThread;
@@ -50,7 +57,6 @@ import jiguang.chat.utils.zxing.decode.Utils;
  * 二维码扫描使用
  */
 public final class CommonScanActivity extends Activity implements ScanListener, View.OnClickListener {
-    static final String TAG = CommonScanActivity.class.getSimpleName();
     SurfaceView scanPreview = null;
     View scanContainer;
     View scanCropView;
@@ -58,14 +64,13 @@ public final class CommonScanActivity extends Activity implements ScanListener, 
     ScanManager scanManager;
     TextView iv_light;
     TextView qrcode_g_gallery;
-    TextView qrcode_ic_back;
     final int PHOTOREQUESTCODE = 1111;
 
     @Bind(R.id.scan_image)
     ImageView scan_image;
     @Bind(R.id.authorize_return)
     ImageView authorize_return;
-    private int scanMode;//扫描模型（条形，二维码，全部）
+    private int scanMode;//扫描模型（二维码）
 
     @Bind(R.id.common_title_TV_center)
     TextView title;
@@ -89,17 +94,9 @@ public final class CommonScanActivity extends Activity implements ScanListener, 
 
     void initView() {
         switch (scanMode) {
-            case DecodeThread.BARCODE_MODE:
-                title.setText(R.string.scan_barcode_title);
-                scan_hint.setText(R.string.scan_barcode_hint);
-                break;
             case DecodeThread.QRCODE_MODE:
                 title.setText(R.string.scan_qrcode_title);
                 scan_hint.setText(R.string.scan_qrcode_hint);
-                break;
-            case DecodeThread.ALL_MODE:
-                title.setText(R.string.scan_allcode_title);
-                scan_hint.setText(R.string.scan_allcode_hint);
                 break;
         }
         scanPreview = (SurfaceView) findViewById(R.id.capture_preview);
@@ -129,42 +126,54 @@ public final class CommonScanActivity extends Activity implements ScanListener, 
     }
 
     /**
-     *
+     * 根据扫描二维码的结果查询user
      */
     public void scanResult(Result rawResult, Bundle bundle) {
         //扫描成功后，扫描器不会再连续扫描，如需连续扫描，调用reScan()方法。
-        //scanManager.reScan();
-//		Toast.makeText(that, "result="+rawResult.getText(), Toast.LENGTH_LONG).show();
+        String jsonUser = rawResult.getText();
 
-        if (!scanManager.isScanning()) { //如果当前不是在扫描状态
-            //设置再次扫描按钮出现
-            scan_image.setVisibility(View.VISIBLE);
-            Bitmap barcode = null;
-            byte[] compressedBitmap = bundle.getByteArray(DecodeThread.BARCODE_BITMAP);
-            if (compressedBitmap != null) {
-                barcode = BitmapFactory.decodeByteArray(compressedBitmap, 0, compressedBitmap.length, null);
-                barcode = barcode.copy(Bitmap.Config.ARGB_8888, true);
+        //如果扫的二维码是网址,那么就访问这个网址
+        if (jsonUser.startsWith("http")) {
+            String substring = jsonUser.substring(0, jsonUser.indexOf("/",
+                    jsonUser.indexOf("/", jsonUser.indexOf("/", 0) + 1) + 1) + 1);
+            Uri uri = Uri.parse(substring);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
+            return;
+        } else if (jsonUser.startsWith("{\"type")) {
+            //解析根据二维码扫描出的json
+            Gson gson = new Gson();
+            Type userType = new TypeToken<UserModel<User>>() {
+            }.getType();
+
+            try {
+                UserModel<User> userResult = gson.fromJson(jsonUser, userType);
+
+                final LoadDialog dialog = new LoadDialog(CommonScanActivity.this, false, "正在加载...");
+                dialog.show();
+                JMessageClient.getUserInfo(userResult.user.username, userResult.user.appkey, new GetUserInfoCallback() {
+                    @Override
+                    public void gotResult(int i, String s, UserInfo userInfo) {
+                        dialog.dismiss();
+                        if (i == 0) {
+                            InfoModel.getInstance().friendInfo = userInfo;
+                            Intent intent = new Intent();
+                            intent.setClass(CommonScanActivity.this, SearchFriendInfoActivity.class);
+                            startActivity(intent);
+                        } else {
+                            HandleResponseCode.onHandle(CommonScanActivity.this, i, false);
+                        }
+                    }
+                });
+            }catch (Exception e) {
+                Toast.makeText(CommonScanActivity.this, "扫描的二维码不能解析", Toast.LENGTH_SHORT).show();
             }
-//            scan_image.setImageBitmap(barcode);
+            //如果不是jchat的二维码也不是网址就把扫描出的文本显示出来
+        } else {
+            Intent intent = new Intent(CommonScanActivity.this, ScanResultActivity.class);
+            intent.putExtra("result", jsonUser);
+            startActivity(intent);
         }
-
-        String userName = rawResult.getText();
-
-        JMessageClient.getUserInfo(userName, new GetUserInfoCallback() {
-            @Override
-            public void gotResult(int i, String s, UserInfo userInfo) {
-                if (i == 0) {
-                    InfoModel.getInstance().friendInfo = userInfo;
-                    Intent intent = new Intent();
-                    intent.setClass(CommonScanActivity.this, SearchFriendInfoActivity.class);
-                    startActivity(intent);
-                }
-            }
-        });
-
-//        scan_image.setVisibility(View.VISIBLE);
-//        tv_scan_result.setVisibility(View.VISIBLE);
-//        tv_scan_result.setText("结果："+rawResult.getText());
     }
 
 

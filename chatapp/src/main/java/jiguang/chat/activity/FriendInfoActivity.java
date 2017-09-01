@@ -183,7 +183,7 @@ public class FriendInfoActivity extends BaseActivity {
                 if (bitmap != null) {
                     Intent intent = new Intent();
                     intent.putExtra("browserAvatar", true);
-                    intent.putExtra("avatarPath", mUserInfo.getUserName());
+                    intent.putExtra("avatarPath", mUserInfo.getAvatarFile().getAbsolutePath());
                     intent.setClass(this, BrowserViewPagerActivity.class);
                     startActivity(intent);
                 }

@@ -42,6 +42,7 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
     private TextView mTv_noteName;
     private Dialog mDialog;
     private UserInfo mFriendInfo;
+    private RelativeLayout mRl_business;
 
 
     @Override
@@ -58,6 +59,7 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
         mBtn_addBlackList.setOnChangedListener(R.id.btn_addBlackList, this);
         mBtn_deleteFriend.setOnClickListener(this);
         mSetNoteName.setOnClickListener(this);
+        mRl_business.setOnClickListener(this);
     }
 
     @Override
@@ -119,6 +121,14 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
                 mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 mDialog.show();
                 break;
+            case R.id.rl_business:
+                Intent businessIntent = new Intent(FriendSettingActivity.this, ForwardMsgActivity.class);
+                businessIntent.setFlags(1);
+                businessIntent.putExtra("userName", mFriendInfo.getUserName());
+                businessIntent.putExtra("appKey", mFriendInfo.getAppKey());
+                businessIntent.putExtra("avatar", mFriendInfo.getAvatarFile().getAbsolutePath());
+                startActivity(businessIntent);
+                break;
             default:
                 break;
         }
@@ -141,6 +151,7 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
         mBtn_addBlackList = (SlipButton) findViewById(R.id.btn_addBlackList);
         mBtn_deleteFriend = (Button) findViewById(R.id.btn_deleteFriend);
         mTv_noteName = (TextView) findViewById(R.id.tv_noteName);
+        mRl_business = (RelativeLayout) findViewById(R.id.rl_business);
 
         if (!TextUtils.isEmpty(getIntent().getStringExtra("noteName"))) {
             mTv_noteName.setText(getIntent().getStringExtra("noteName"));

@@ -518,9 +518,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
     @Override
     protected void onResume() {
-        if (JGApplication.addForwardMsg != null && JGApplication.addForwardMsg.size() > 0) {
-            mChatAdapter.addMsgToList(JGApplication.addForwardMsg.get(0));
-        }
+
         mChatAdapter.notifyDataSetChanged();
         String targetId = getIntent().getStringExtra(TARGET_ID);
         if (!mIsSingle) {
@@ -533,6 +531,13 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         } else if (null != targetId) {
             String appKey = getIntent().getStringExtra(TARGET_APP_KEY);
             JMessageClient.enterSingleConversation(targetId, appKey);
+        }
+
+        //历史消息中删除后返回到聊天界面刷新界面
+        if (JGApplication.ids != null && JGApplication.ids.size() > 0) {
+            for (Message msg : JGApplication.ids) {
+                mChatAdapter.removeMessage(msg);
+            }
         }
         super.onResume();
 
@@ -658,8 +663,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             if (msg == null) {
                 return;
             }
-
-            if (msg.getContentType() == ContentType.text) {
+            //如果是文本消息
+            if ((msg.getContentType() == ContentType.text) && ((TextContent) msg.getContent()).getStringExtra("businessCard") == null) {
+                //接收方
                 if (msg.getDirect() == MessageDirect.receive) {
                     int[] location = new int[2];
                     view.getLocationOnScreen(location);
@@ -667,6 +673,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     float OldListX = (float) location[0];
                     new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
                             .addItem(new TipItem("复制"))
+                            .addItem(new TipItem("转发"))
                             .addItem(new TipItem("删除"))
                             .setOnItemClickListener(new TipView.OnItemClickListener() {
                                 @Override
@@ -690,6 +697,11 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                         } else {
                                             Toast.makeText(ChatActivity.this, "只支持复制文字", Toast.LENGTH_SHORT).show();
                                         }
+                                    } else if (position == 1) {
+                                        Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
+                                        JGApplication.forwardMsg.clear();
+                                        JGApplication.forwardMsg.add(msg);
+                                        startActivity(intent);
                                     } else {
                                         //删除
                                         mConv.deleteMessage(msg.getId());
@@ -703,6 +715,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                 }
                             })
                             .create();
+                    //发送方
                 } else {
                     int[] location = new int[2];
                     view.getLocationOnScreen(location);
@@ -710,7 +723,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     float OldListX = (float) location[0];
                     new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
                             .addItem(new TipItem("复制"))
-//                    .addItem(new TipItem("转发"))
+                            .addItem(new TipItem("转发"))
                             .addItem(new TipItem("撤回"))
                             .addItem(new TipItem("删除"))
                             .setOnItemClickListener(new TipView.OnItemClickListener() {
@@ -735,18 +748,18 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                         } else {
                                             Toast.makeText(ChatActivity.this, "只支持复制文字", Toast.LENGTH_SHORT).show();
                                         }
-                                    } /*else if (position == 1) {
-                                //转发
-                                if (msg.getContentType() == ContentType.text || msg.getContentType() == ContentType.image ||
-                                        (msg.getContentType() == ContentType.file && (msg.getContent()).getStringExtra("video") != null)) {
-                                    Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
-                                    JGApplication.forwardMsg.clear();
-                                    JGApplication.forwardMsg.add(msg);
-                                    startActivity(intent);
-                                } else {
-                                    Toast.makeText(ChatActivity.this, "只支持转发文本,图片,小视频", Toast.LENGTH_SHORT).show();
-                                }
-                            } */ else if (position == 1) {
+                                    } else if (position == 1) {
+                                        //转发
+                                        if (msg.getContentType() == ContentType.text || msg.getContentType() == ContentType.image ||
+                                                (msg.getContentType() == ContentType.file && (msg.getContent()).getStringExtra("video") != null)) {
+                                            Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
+                                            JGApplication.forwardMsg.clear();
+                                            JGApplication.forwardMsg.add(msg);
+                                            startActivity(intent);
+                                        } else {
+                                            Toast.makeText(ChatActivity.this, "只支持转发文本,图片,小视频", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else if (position == 2) {
                                         //撤回
                                         mConv.retractMessage(msg, new BasicCallback() {
                                             @Override
@@ -772,7 +785,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                             })
                             .create();
                 }
+                //除了文本消息类型之外的消息类型
             } else {
+                //接收方
                 if (msg.getDirect() == MessageDirect.receive) {
                     int[] location = new int[2];
                     view.getLocationOnScreen(location);
@@ -780,6 +795,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     float OldListX = (float) location[0];
                     new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
                             .addItem(new TipItem("删除"))
+                            .addItem(new TipItem("转发"))
                             .setOnItemClickListener(new TipView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(String str, final int position) {
@@ -787,6 +803,11 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                         //删除
                                         mConv.deleteMessage(msg.getId());
                                         mChatAdapter.removeMessage(msg);
+                                    } else {
+                                        Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
+                                        JGApplication.forwardMsg.clear();
+                                        JGApplication.forwardMsg.add(msg);
+                                        startActivity(intent);
                                     }
                                 }
 
@@ -796,6 +817,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                 }
                             })
                             .create();
+                    //发送方
                 } else {
                     int[] location = new int[2];
                     view.getLocationOnScreen(location);
@@ -803,6 +825,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     float OldListX = (float) location[0];
                     new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
                             .addItem(new TipItem("撤回"))
+                            .addItem(new TipItem("转发"))
                             .addItem(new TipItem("删除"))
                             .setOnItemClickListener(new TipView.OnItemClickListener() {
                                 @Override
@@ -819,6 +842,11 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                                 }
                                             }
                                         });
+                                    } else if (position == 1) {
+                                        Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
+                                        JGApplication.forwardMsg.clear();
+                                        JGApplication.forwardMsg.add(msg);
+                                        startActivity(intent);
                                     } else {
                                         //删除
                                         mConv.deleteMessage(msg.getId());

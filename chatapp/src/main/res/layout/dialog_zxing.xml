@@ -23,7 +23,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="8dp"
         android:text="昵称"
-        android:textColor="#000"/>
+        android:textColor="#999999"/>
 
     <ImageView
         android:id="@+id/iv_erWeiMa"
@@ -37,7 +37,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="30dp"
         android:layout_marginTop="15dp"
-        android:text="扫描二维码,加我好友"
-        android:textColor="#000"/>
+        android:text="扫一扫上面二维码,加我好友吧!"
+        android:textColor="#999999"/>
 
 </LinearLayout>

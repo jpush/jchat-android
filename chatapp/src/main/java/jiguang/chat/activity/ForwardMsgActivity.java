@@ -1,25 +1,27 @@
 package jiguang.chat.activity;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.ListView;
+import android.widget.Toast;
 
-import java.util.Collections;
 import java.util.List;
 
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.adapter.ForwardMsgAdapter;
-import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ActivityController;
-import jiguang.chat.database.FriendEntry;
-import jiguang.chat.database.UserEntry;
 import jiguang.chat.utils.DialogCreator;
-import jiguang.chat.utils.pinyin.PinyinComparator;
-import jiguang.chat.utils.sidebar.SideBar;
-import jiguang.chat.view.listview.StickyListHeadersListView;
+import jiguang.chat.utils.HandleResponseCode;
 
 
 /**
@@ -28,12 +30,11 @@ import jiguang.chat.view.listview.StickyListHeadersListView;
 
 public class ForwardMsgActivity extends BaseActivity {
 
-    private SideBar mSideBar;
-    private TextView mLetterHintTv;
     private LinearLayout mLl_groupAll;
     private LinearLayout mSearch_title;
-    private StickyListHeadersListView mListView;
+    private ListView mListView;
     private ForwardMsgAdapter mAdapter;
+    private Dialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,59 +47,108 @@ public class ForwardMsgActivity extends BaseActivity {
     }
 
     private void initView() {
-        initTitle(true, true, "转发", "", false, "");
+        if (getIntent().getFlags() == 1) {
+            initTitle(true, true, "发送名片", "", false, "");
+        } else {
+            initTitle(true, true, "转发", "", false, "");
+        }
 
-        mListView = (StickyListHeadersListView) findViewById(R.id.at_member_list_view);
+        mListView = (ListView) findViewById(R.id.forward_business_list);
         mLl_groupAll = (LinearLayout) findViewById(R.id.ll_groupAll);
         mSearch_title = (LinearLayout) findViewById(R.id.search_title);
-        mSideBar = (SideBar) findViewById(R.id.sidebar);
-        mLetterHintTv = (TextView) findViewById(R.id.letter_hint_tv);
-        mSideBar.setTextView(mLetterHintTv);
     }
 
     private void initData() {
-        final UserEntry userEntry = JGApplication.getUserEntry();
-        List<FriendEntry> friends = userEntry.getFriends();
-        Collections.sort(friends, new PinyinComparator());
-        mAdapter = new ForwardMsgAdapter(this, friends);
+        List<Conversation> conversationList = JMessageClient.getConversationList();
+        mAdapter = new ForwardMsgAdapter(this, conversationList);
         mListView.setAdapter(mAdapter);
 
-        mSideBar.setOnTouchingLetterChangedListener(new SideBar.OnTouchingLetterChangedListener() {
-            @Override
-            public void onTouchingLetterChanged(String s) {
-                int position = mAdapter.getSectionForLetter(s);
-                if (position != -1 && position < mAdapter.getCount()) {
-                    mListView.setSelection(position - 1);
-                }
-            }
-        });
-
+        //搜索栏
         mSearch_title.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ForwardMsgActivity.this, SearchContactsActivity.class);
-                intent.setFlags(1);
-                startActivity(intent);
+                setExtraIntent(intent);
             }
         });
 
+        //群组
         mLl_groupAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ForwardMsgActivity.this, GroupActivity.class);
-                intent.setFlags(1);
-                startActivity(intent);
+                setExtraIntent(intent);
             }
         });
 
+        //最近联系人
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final Object itemAtPosition = parent.getItemAtPosition(position);
-                if (itemAtPosition instanceof FriendEntry) {
-                    DialogCreator.createForwardMsg(ForwardMsgActivity.this, mWidth, true, itemAtPosition, null, null, null);
+                //发送名片
+                final Intent intent = getIntent();
+                final Conversation conversation = (Conversation) itemAtPosition;
+                if (intent.getFlags() == 1) {
+                    String toName = conversation.getTitle();
+                    setBusinessCard(toName, intent, conversation);
+                    //转发消息
+                } else {
+                    DialogCreator.createForwardMsg(ForwardMsgActivity.this, mWidth, true, conversation, null, null, null);
                 }
             }
         });
+    }
+
+    private void setExtraIntent(Intent intent) {
+        //发送名片,ForwardMsgActivity跳转过来
+        if (getIntent().getFlags() == 1) {
+            intent.setFlags(2);
+            intent.putExtra("userName", getIntent().getStringExtra("userName"));
+            intent.putExtra("appKey", getIntent().getStringExtra("appKey"));
+            intent.putExtra("avatar", getIntent().getStringExtra("avatar"));
+        } else {
+            //转发消息,启动群组界面,设置flag标识为1
+            intent.setFlags(1);
+        }
+        startActivity(intent);
+    }
+
+    private void setBusinessCard(String name, final Intent intent, final Conversation conversation) {
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.btn_cancel:
+                        mDialog.dismiss();
+                        break;
+                    case R.id.btn_sure:
+                        mDialog.dismiss();
+                        //把名片的userName和appKey通过extra发送给对方
+                        TextContent content = new TextContent("");
+                        content.setStringExtra("userName", intent.getStringExtra("userName"));
+                        content.setStringExtra("appKey", intent.getStringExtra("appKey"));
+                        content.setStringExtra("businessCard", "businessCard");
+
+                        Message textMessage = conversation.createSendMessage(content);
+                        JMessageClient.sendMessage(textMessage);
+                        textMessage.setOnSendCompleteCallback(new BasicCallback() {
+                            @Override
+                            public void gotResult(int i, String s) {
+                                if (i == 0) {
+                                    Toast.makeText(ForwardMsgActivity.this, "发送成功", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    HandleResponseCode.onHandle(ForwardMsgActivity.this, i, false);
+                                }
+                            }
+                        });
+                        break;
+                }
+            }
+        };
+        mDialog = DialogCreator.createBusinessCardDialog(ForwardMsgActivity.this, listener, name,
+                intent.getStringExtra("userName"), intent.getStringExtra("avatar"));
+        mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
+        mDialog.show();
     }
 }

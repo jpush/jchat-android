@@ -1,5 +1,6 @@
 package jiguang.chat.activity;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -12,11 +13,13 @@ import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +28,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
+import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.adapter.SearchGroupListAdapter;
 import jiguang.chat.application.JGApplication;
@@ -37,6 +43,7 @@ import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
 import jiguang.chat.model.SearchResult;
 import jiguang.chat.utils.DialogCreator;
+import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.utils.query.TextSearcher;
 
 /**
@@ -56,6 +63,9 @@ public class SearchMoreGroupActivity extends BaseActivity {
     private AsyncTask mAsyncTask;
     private ThreadPoolExecutor mExecutor;
     private boolean isForwardMsg;
+    private boolean isBusinessCard;
+    private Dialog mDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +75,8 @@ public class SearchMoreGroupActivity extends BaseActivity {
         Intent intent = getIntent();
         mFilterString = intent.getStringExtra("filterString");
         isForwardMsg = intent.getBooleanExtra("forwardMsg", false);
+        isBusinessCard = intent.getBooleanExtra("businessCard", false);
+
         initView();
         initData();
     }
@@ -181,7 +193,9 @@ public class SearchMoreGroupActivity extends BaseActivity {
                     }
                     if (isForwardMsg) {
                         DialogCreator.createForwardMsg(SearchMoreGroupActivity.this, mWidth, false, null, groupInfo, conversation.getTitle(), null);
-                    }else {
+                    }else if (isBusinessCard) {
+                        setSearchContactsBusiness(getIntent(), groupInfo, null);
+                    } else {
                         final Intent intent = new Intent(SearchMoreGroupActivity.this, ChatActivity.class);
                         intent.putExtra(JGApplication.GROUP_ID, groupID);
                         intent.putExtra(JGApplication.MEMBERS_COUNT, groupInfo.getGroupMembers().size());
@@ -193,6 +207,71 @@ public class SearchMoreGroupActivity extends BaseActivity {
         });
 
         mSearchEditText.setText(mFilterString);
+    }
+
+    public void setSearchContactsBusiness(final Intent intent, final GroupInfo groupInfo, final UserInfo userInfo) {
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.btn_cancel:
+                        mDialog.dismiss();
+                        break;
+                    case R.id.btn_sure:
+                        mDialog.dismiss();
+                        //把名片的userName和appKey通过extra发送给对方
+                        TextContent content = new TextContent("");
+                        content.setStringExtra("userName", intent.getStringExtra("userName"));
+                        content.setStringExtra("appKey", intent.getStringExtra("appKey"));
+                        content.setStringExtra("businessCard", "businessCard");
+                        Conversation conversation;
+                        if (userInfo == null) {
+                            conversation = JMessageClient.getGroupConversation(groupInfo.getGroupID());
+                            if (conversation == null) {
+                                conversation = Conversation.createGroupConversation(groupInfo.getGroupID());
+                                EventBus.getDefault().post(new Event.Builder()
+                                        .setType(EventType.createConversation)
+                                        .setConversation(conversation)
+                                        .build());
+                            }
+                        } else {
+                            conversation = JMessageClient.getSingleConversation(userInfo.getUserName(), userInfo.getAppKey());
+                            if (conversation == null) {
+                                conversation = Conversation.createSingleConversation(userInfo.getUserName(), userInfo.getAppKey());
+                                EventBus.getDefault().post(new Event.Builder()
+                                        .setType(EventType.createConversation)
+                                        .setConversation(conversation)
+                                        .build());
+                            }
+                        }
+
+                        Message textMessage = conversation.createSendMessage(content);
+                        JMessageClient.sendMessage(textMessage);
+                        textMessage.setOnSendCompleteCallback(new BasicCallback() {
+                            @Override
+                            public void gotResult(int i, String s) {
+                                if (i == 0) {
+                                    Toast.makeText(SearchMoreGroupActivity.this, "发送成功", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    HandleResponseCode.onHandle(SearchMoreGroupActivity.this, i, false);
+                                }
+                            }
+                        });
+                        break;
+                }
+            }
+        };
+        String name;
+        if (userInfo == null) {
+            //这里应该用displayName
+            name = groupInfo.getGroupName();
+        } else {
+            name = userInfo.getUserName();
+        }
+        mDialog = DialogCreator.createBusinessCardDialog(SearchMoreGroupActivity.this, listener, name,
+                intent.getStringExtra("userName"), intent.getStringExtra("avatar"));
+        mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
+        mDialog.show();
     }
 
 

@@ -78,5 +78,23 @@ public class FileUtils {
         }
         return sizeDisplay;
     }
+
+    public static String getFileSize(long size) {
+        NumberFormat ddf1 = NumberFormat.getNumberInstance();
+        //保留小数点后两位
+        ddf1.setMaximumFractionDigits(2);
+        String sizeDisplay;
+        if (size > 1048576.0) {
+            double result = size / 1048576.0;
+            sizeDisplay = ddf1.format(result);
+        } else if (size > 1024) {
+            double result = size / 1024;
+            sizeDisplay = ddf1.format(result);
+
+        } else {
+            sizeDisplay = ddf1.format(size);
+        }
+        return sizeDisplay;
+    }
 }
 

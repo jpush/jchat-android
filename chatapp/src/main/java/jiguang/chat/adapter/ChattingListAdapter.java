@@ -30,6 +30,7 @@ import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.FileContent;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
@@ -217,7 +218,6 @@ public class ChattingListAdapter extends BaseAdapter {
         if (mMsgQueue.size() > 0) {
             Message message = mMsgQueue.element();
             if (mConv.getType() == ConversationType.single) {
-                UserInfo userInfo = (UserInfo) message.getTargetInfo();
                 sendNextImgMsg(message);
             } else {
                 sendNextImgMsg(message);
@@ -318,7 +318,7 @@ public class ChattingListAdapter extends BaseAdapter {
 
     List<Message> del = new ArrayList<>();
     public void removeMessage(Message message) {
-        for (Message msg  : mMsgList) {
+        for (Message msg : mMsgList) {
             if (msg.getServerMessageId().equals(message.getServerMessageId())) {
                 del.add(msg);
             }
@@ -440,6 +440,12 @@ public class ChattingListAdapter extends BaseAdapter {
             holder.resend = (ImageButton) convertView.findViewById(R.id.jmui_fail_resend_ib);
             holder.ivDocument = (ImageView) convertView.findViewById(R.id.iv_document);
             switch (msg.getContentType()) {
+                case text:
+                    holder.ll_businessCard = (LinearLayout) convertView.findViewById(R.id.ll_businessCard);
+                    holder.business_head = (ImageView) convertView.findViewById(R.id.business_head);
+                    holder.tv_nickUser = (TextView) convertView.findViewById(R.id.tv_nickUser);
+                    holder.tv_userName = (TextView) convertView.findViewById(R.id.tv_userName);
+                    break;
                 case image:
                     holder.picture = (ImageView) convertView.findViewById(R.id.jmui_picture_iv);
                     holder.progressTv = (TextView) convertView.findViewById(R.id.jmui_progress_tv);
@@ -516,7 +522,7 @@ public class ChattingListAdapter extends BaseAdapter {
         }
 
 
-//显示头像
+        //显示头像
         if (holder.headIcon != null) {
             if (userInfo != null && !TextUtils.isEmpty(userInfo.getAvatar())) {
                 userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
@@ -566,9 +572,19 @@ public class ChattingListAdapter extends BaseAdapter {
 
         switch (msg.getContentType()) {
             case text:
-//                final String content = ((TextContent) msg.getContent()).getText();
-//                SimpleCommonUtils.spannableEmoticonFilter(holder.txtContent, content);
-                mController.handleTextMsg(msg, holder, position);
+                //final String content = ((TextContent) msg.getContent()).getText();
+                //SimpleCommonUtils.spannableEmoticonFilter(holder.txtContent, content);
+                TextContent textContent = (TextContent) msg.getContent();
+                String extraBusiness = textContent.getStringExtra("businessCard");
+                if (extraBusiness != null && extraBusiness.equals("businessCard")) {
+                    holder.txtContent.setVisibility(View.GONE);
+                    holder.ll_businessCard.setVisibility(View.VISIBLE);
+                    mController.handleBusinessCard(msg, holder, position);
+                } else {
+                    holder.ll_businessCard.setVisibility(View.GONE);
+                    holder.txtContent.setVisibility(View.VISIBLE);
+                    mController.handleTextMsg(msg, holder, position);
+                }
                 break;
             case image:
                 mController.handleImgMsg(msg, holder, position);
@@ -733,6 +749,7 @@ public class ChattingListAdapter extends BaseAdapter {
                     @Override
                     public void gotResult(final int status, String desc) {
                         holder.progressTv.setVisibility(View.GONE);
+                        //此方法是api21才添加的如果低版本会报错找不到此方法.升级api或者使用ContextCompat.getDrawable
                         holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_send_bg));
                         if (status != 0) {
                             HandleResponseCode.onHandle(mContext, status, false);
@@ -768,6 +785,10 @@ public class ChattingListAdapter extends BaseAdapter {
         public LinearLayout videoPlay;
         public TextView alreadySend;
         public View locationView;
+        public LinearLayout ll_businessCard;
+        public ImageView business_head;
+        public TextView tv_nickUser;
+        public TextView tv_userName;
     }
 
 

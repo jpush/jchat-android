@@ -43,10 +43,10 @@
 
                 <LinearLayout
                     android:id="@+id/tv_moreGroup"
-                    android:gravity="center_horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="19dp">
+                    android:layout_marginBottom="19dp"
+                    android:gravity="center_horizontal">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -105,18 +105,18 @@
                     android:text="群描述"/>
 
                 <TextView
-                    android:text="无描述"
-                    android:gravity="right|center_vertical"
-                    android:ellipsize="end"
-                    android:lines="2"
+                    android:id="@+id/chat_detail_group_desc"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="45dp"
                     android:layout_marginRight="10dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:gravity="right|center_vertical"
+                    android:lines="2"
+                    android:text="无描述"
                     android:textColor="@color/gray"
-                    android:textSize="16sp"
-                    android:id="@+id/chat_detail_group_desc"/>
+                    android:textSize="16sp"/>
 
                 <ImageView
                     style="@style/ChatDetailArrow"/>
@@ -126,6 +126,23 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
+                android:background="#E8EDF3"/>
+
+            <LinearLayout
+                android:id="@+id/chat_file"
+                style="@style/ChatDetailItem">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="聊天文件"/>
+
+                <TextView style="@style/ChatDetailItemContent"/>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
                 android:background="#E8EDF3"/>
 
             <RelativeLayout
@@ -293,8 +310,8 @@
                 android:layout_marginTop="20dp">
 
                 <Button
-                    style="?android:attr/borderlessButtonStyle"
                     android:id="@+id/chat_detail_del_group"
+                    style="?android:attr/borderlessButtonStyle"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_marginLeft="14dp"

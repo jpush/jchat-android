@@ -131,7 +131,6 @@ public class ConversationListController implements View.OnClickListener,
         return mListAdapter;
     }
 
-
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
         final Conversation conv = mDatas.get(position - 3);
@@ -141,15 +140,20 @@ public class ConversationListController implements View.OnClickListener,
                 public void onClick(View v) {
                     switch (v.getId()) {
                         //会话置顶
-                        /*case R.id.jmui_top_conv_ll:
-                            mListAdapter.setConvTop(conv);
-                            int topSize = SharePreferenceManager.getTopSize();
-                            ConversationEntry entry = new ConversationEntry(conv.getTargetId(), topSize);
-                            entry.save();
-                            ++topSize;
-                            SharePreferenceManager.setTopSize(topSize);
+                        case R.id.jmui_top_conv_ll:
+//                            if (conv.置顶) {
+//                                取消置顶
+//                            }else {
+//                                置顶会话
+                                mListAdapter.setConvTop(conv);
+//                            int topSize = SharePreferenceManager.getTopSize();
+//                            ConversationEntry entry = new ConversationEntry(conv.getTargetId(), topSize);
+//                            entry.save();
+//                            ++topSize;
+//                            SharePreferenceManager.setTopSize(topSize);
+//                            }
                             mDialog.dismiss();
-                            break;*/
+                            break;
                         //删除会话
                         case R.id.jmui_delete_conv_ll:
                             if (conv.getType() == ConversationType.group) {
@@ -172,7 +176,11 @@ public class ConversationListController implements View.OnClickListener,
 
                 }
             };
-            mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), listener);
+//            if (conv.是否置顶) {
+//                mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), listener, true);
+//            }else {
+                mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), listener, false);
+//            }
             mDialog.show();
             mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         }

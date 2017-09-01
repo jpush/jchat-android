@@ -28,6 +28,7 @@ public class ChatDetailView extends LinearLayout {
     private LinearLayout mGroupNumLL;
     private LinearLayout mGroupChatRecordLL;
     private LinearLayout mGroupChatDelLL;
+    private LinearLayout mChatFile;
     private ImageButton mReturnBtn;
     private TextView mTitle;
     private TextView mGroupDesc;
@@ -62,6 +63,7 @@ public class ChatDetailView extends LinearLayout {
         mGroupNumLL = (LinearLayout) findViewById(R.id.group_num_ll);
         mGroupChatRecordLL = (LinearLayout) findViewById(R.id.group_chat_record_ll);
         mGroupChatDelLL = (LinearLayout) findViewById(R.id.group_chat_del_ll);
+        mChatFile = (LinearLayout) findViewById(R.id.chat_file);
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
         mTitle = (TextView) findViewById(R.id.title);
         mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
@@ -97,6 +99,7 @@ public class ChatDetailView extends LinearLayout {
         mTv_moreGroup.setOnClickListener(onClickListener);
         mAddFriend.setOnClickListener(onClickListener);
         mClear_rl.setOnClickListener(onClickListener);
+        mChatFile.setOnClickListener(onClickListener);
     }
 
     public void setOnChangeListener(SlipButton.OnChangedListener listener) {

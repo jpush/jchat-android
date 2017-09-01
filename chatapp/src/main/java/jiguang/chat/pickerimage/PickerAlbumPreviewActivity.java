@@ -120,6 +120,7 @@ public class PickerAlbumPreviewActivity extends UIView implements OnClickListene
         selectPhotoList.addAll(PickerContract.getSelectPhotos(intent));
     }
 
+    //发送图片,预览界面的选中按钮
     private void initActionBar() {
         previewSelectBtn = (ImageButton) findViewById(R.id.picker_image_preview_photos_select);
         previewSelectBtn.setOnClickListener(this);

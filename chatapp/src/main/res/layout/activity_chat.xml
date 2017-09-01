@@ -73,6 +73,7 @@
                 android:layout_height="match_parent">
 
                 <jiguang.chat.view.listview.DropDownListView
+                    android:background="#E8EDF3"
                     android:id="@+id/lv_chat"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

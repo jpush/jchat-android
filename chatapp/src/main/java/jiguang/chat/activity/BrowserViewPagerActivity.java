@@ -834,4 +834,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(0, R.anim.trans_finish_in);
+    }
 }

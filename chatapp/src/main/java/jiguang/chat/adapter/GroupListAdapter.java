@@ -7,26 +7,32 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
+import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.activity.ChatActivity;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
 import jiguang.chat.utils.DialogCreator;
+import jiguang.chat.utils.HandleResponseCode;
 
 /**
  * Created by ${chenyn} on 2017/4/26.
@@ -39,15 +45,25 @@ public class GroupListAdapter extends BaseAdapter {
     private Map<Long, String> mGroupName = new HashMap<>();
     private List<GroupInfo> mGroupInfo;
     private boolean mIsForward;
+    private boolean mBusiness;
     private Dialog mLoadingDialog;
+    private Dialog mDialog;
     private int mWidth;
+    private String mUserName;
+    private String mAppKey;
+    private String mAvatarPath;
 
-    public GroupListAdapter(Context context, List<GroupInfo> groupInfo, boolean isFromForward, int width) {
+    public GroupListAdapter(Context context, List<GroupInfo> groupInfo, boolean isFromForward, int width,
+                            boolean isBusinessCard, String userName, String appKey, String path) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mGroupInfo = groupInfo;
         this.mIsForward = isFromForward;
         this.mWidth = width;
+        this.mBusiness = isBusinessCard;
+        this.mUserName = userName;
+        this.mAppKey = appKey;
+        this.mAvatarPath = path;
     }
 
     @Override
@@ -120,6 +136,58 @@ public class GroupListAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
                     DialogCreator.createForwardMsg(mContext, mWidth, false, null, groupInfo, mGroupName.get(groupInfo.getGroupID()), null);
+                }
+            });
+        } else if (mBusiness) {
+            holder.itemLl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    View.OnClickListener listener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            switch (v.getId()) {
+                                case R.id.btn_cancel:
+                                    mDialog.dismiss();
+                                    break;
+                                case R.id.btn_sure:
+                                    mDialog.dismiss();
+                                    mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
+                                            mContext.getString(R.string.btn_send));
+                                    mLoadingDialog.show();
+                                    //把名片的userName和appKey通过extra发送给对方
+                                    TextContent content = new TextContent("");
+                                    content.setStringExtra("userName", mUserName);
+                                    content.setStringExtra("appKey", mAppKey);
+                                    content.setStringExtra("businessCard", "businessCard");
+
+                                    Conversation conversation = JMessageClient.getGroupConversation(groupInfo.getGroupID());
+                                    if (conversation == null) {
+                                        conversation = Conversation.createGroupConversation(groupInfo.getGroupID());
+                                        EventBus.getDefault().post(new Event.Builder()
+                                                .setType(EventType.createConversation)
+                                                .setConversation(conversation)
+                                                .build());
+                                    }
+                                    Message textMessage = conversation.createSendMessage(content);
+                                    JMessageClient.sendMessage(textMessage);
+                                    textMessage.setOnSendCompleteCallback(new BasicCallback() {
+                                        @Override
+                                        public void gotResult(int i, String s) {
+                                            if (i == 0) {
+                                                Toast.makeText(mContext, "发送成功", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                HandleResponseCode.onHandle(mContext, i, false);
+                                            }
+                                        }
+                                    });
+                                    mLoadingDialog.dismiss();
+                                    break;
+                            }
+                        }
+                    };
+                    mDialog = DialogCreator.createBusinessCardDialog(mContext, listener, groupInfo.getGroupName(), mUserName, mAvatarPath);
+                    mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
+                    mDialog.show();
                 }
             });
         } else {

@@ -93,7 +93,7 @@ public class AudioFragment extends BaseFragment {
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.SIZE));
                         String date = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DATE_MODIFIED));
                         if (scannerFile(filePath)) {
-                            FileItem fileItem = new FileItem(filePath, fileName, size, date);
+                            FileItem fileItem = new FileItem(filePath, fileName, size, date, 0);
                             mAudios.add(fileItem);
                         }
 
