@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
@@ -27,7 +26,6 @@ import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.UserEntry;
-import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.ThreadUtil;
 import jiguang.chat.utils.photochoose.ChoosePhoto;
@@ -102,72 +100,59 @@ public class FinishRegisterActivity extends BaseActivity {
 
                     final String userId = SharePreferenceManager.getRegistrName();
                     final String password = SharePreferenceManager.getRegistrPass();
-                    JMessageClient.register(userId, password, new BasicCallback() {
+                    JMessageClient.login(userId, password, new BasicCallback() {
                         @Override
                         public void gotResult(int responseCode, String responseMessage) {
                             if (responseCode == 0) {
-                                SharePreferenceManager.setRegisterUsername(userId);
-                                JMessageClient.login(userId, password, new BasicCallback() {
+                                JGApplication.registerOrLogin = 1;
+                                String username = JMessageClient.getMyInfo().getUserName();
+                                String appKey = JMessageClient.getMyInfo().getAppKey();
+                                UserEntry user = UserEntry.getUser(username, appKey);
+                                if (null == user) {
+                                    user = new UserEntry(username, appKey);
+                                    user.save();
+                                }
+
+                                String nickName = mNickNameEt.getText().toString();
+
+                                UserInfo myUserInfo = JMessageClient.getMyInfo();
+                                if (myUserInfo != null) {
+                                    myUserInfo.setNickname(nickName);
+                                }
+                                //注册时候更新昵称
+                                JMessageClient.updateMyInfo(UserInfo.Field.nickname, myUserInfo, new BasicCallback() {
                                     @Override
-                                    public void gotResult(int responseCode, String responseMessage) {
-                                        if (responseCode == 0) {
-                                            JGApplication.registerOrLogin = 1;
-                                            String username = JMessageClient.getMyInfo().getUserName();
-                                            String appKey = JMessageClient.getMyInfo().getAppKey();
-                                            UserEntry user = UserEntry.getUser(username, appKey);
-                                            if (null == user) {
-                                                user = new UserEntry(username, appKey);
-                                                user.save();
-                                            }
-
-                                            String nickName = mNickNameEt.getText().toString();
-
-                                            UserInfo myUserInfo = JMessageClient.getMyInfo();
-                                            if (myUserInfo != null) {
-                                                myUserInfo.setNickname(nickName);
-                                            }
-                                            //注册时候更新昵称
-                                            JMessageClient.updateMyInfo(UserInfo.Field.nickname, myUserInfo, new BasicCallback() {
-                                                @Override
-                                                public void gotResult(final int status, String desc) {
-                                                    //更新跳转标志
-                                                    SharePreferenceManager.setCachedFixProfileFlag(false);
-                                                    mDialog.dismiss();
-                                                    if (status == 0) {
-                                                        goToActivity(FinishRegisterActivity.this, MainActivity.class);
-                                                    }
-                                                }
-                                            });
-                                            //注册时更新头像
-                                            final String avatarPath = SharePreferenceManager.getRegisterAvatarPath();
-                                            if (avatarPath != null) {
-                                                ThreadUtil.runInThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        JMessageClient.updateUserAvatar(new File(avatarPath), new BasicCallback() {
-                                                            @Override
-                                                            public void gotResult(int responseCode, String responseMessage) {
-                                                                if (responseCode == 0) {
-                                                                    SharePreferenceManager.setCachedAvatarPath(avatarPath);
-                                                                }
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                            } else {
-                                                SharePreferenceManager.setCachedAvatarPath(null);
-                                            }
+                                    public void gotResult(final int status, String desc) {
+                                        //更新跳转标志
+                                        SharePreferenceManager.setCachedFixProfileFlag(false);
+                                        mDialog.dismiss();
+                                        if (status == 0) {
+                                            goToActivity(FinishRegisterActivity.this, MainActivity.class);
                                         }
                                     }
                                 });
-                            } else {
-                                HandleResponseCode.onHandle(mContext, responseCode, false);
-                                mDialog.dismiss();
+                                //注册时更新头像
+                                final String avatarPath = SharePreferenceManager.getRegisterAvatarPath();
+                                if (avatarPath != null) {
+                                    ThreadUtil.runInThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            JMessageClient.updateUserAvatar(new File(avatarPath), new BasicCallback() {
+                                                @Override
+                                                public void gotResult(int responseCode, String responseMessage) {
+                                                    if (responseCode == 0) {
+                                                        SharePreferenceManager.setCachedAvatarPath(avatarPath);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    SharePreferenceManager.setCachedAvatarPath(null);
+                                }
                             }
                         }
                     });
-
-                    break;
             }
         }
     };
@@ -206,11 +191,11 @@ public class FinishRegisterActivity extends BaseActivity {
         @Override
         public void onTextChanged(CharSequence cs, int start, int before,
                                   int count) {
-            if (!TextUtils.isEmpty(mNickNameEt.getText().toString())) {
-                mFinishBtn.setEnabled(true);
-            } else {
-                mFinishBtn.setEnabled(false);
-            }
+//            if (!TextUtils.isEmpty(mNickNameEt.getText().toString())) {
+//                mFinishBtn.setEnabled(true);
+//            } else {
+//                mFinishBtn.setEnabled(false);
+//            }
         }
     }
 }

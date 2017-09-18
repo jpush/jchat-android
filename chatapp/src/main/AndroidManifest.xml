@@ -124,6 +124,7 @@
 
         <activity
             android:name=".activity.WelcomeActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/WelcomeStyle">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -131,14 +132,18 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activity.LoginActivity"/>
+        <activity android:name=".activity.LoginActivity"
+                  android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppBaseTheme"
             android:windowSoftInputMode="adjustPan|stateHidden"/>
         <activity android:name=".activity.BaseActivity"/>
         <activity
             android:name=".activity.FinishRegisterActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateVisible"
             android:theme="@style/BaseThemes"/>
         <activity
             android:name=".activity.ResetPasswordActivity"
