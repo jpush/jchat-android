@@ -38,6 +38,7 @@ import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.activity.ChatDetailActivity;
 import jiguang.chat.activity.FriendInfoActivity;
+import jiguang.chat.activity.GroupAvatarActivity;
 import jiguang.chat.activity.GroupGridViewActivity;
 import jiguang.chat.activity.GroupNotFriendActivity;
 import jiguang.chat.activity.MainActivity;
@@ -130,6 +131,10 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             String groupOwnerId = mGroupInfo.getGroupOwner();
             mGroupName = mGroupInfo.getGroupName();
             mGroupDesc = mGroupInfo.getGroupDescription();
+            if (mGroupInfo.getAvatarFile() != null && mGroupInfo.getAvatarFile().exists()) {
+                mChatDetailView.setGroupAvatar(mGroupInfo.getAvatarFile());
+            }
+
             if (TextUtils.isEmpty(mGroupName)) {
                 mChatDetailView.setGroupName(mContext.getString(R.string.unnamed));
             } else {
@@ -225,6 +230,14 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 break;
             case R.id.group_desc_ll:
                 mContext.updateGroupNameDesc(mGroupId, 2);
+                break;
+            case R.id.rl_groupAvatar:
+                intent.setClass(mContext, GroupAvatarActivity.class);
+                intent.putExtra("groupID",mGroupId);
+                if(mGroupInfo.getBigAvatarFile() != null) {
+                    intent.putExtra("groupAvatar", mGroupInfo.getBigAvatarFile().getAbsolutePath());
+                }
+                mContext.startActivityForResult(intent,4);
                 break;
             // 删除聊天记录
             case R.id.group_chat_del_ll:

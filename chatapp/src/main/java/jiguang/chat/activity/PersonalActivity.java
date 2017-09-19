@@ -218,13 +218,14 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
                 break;
             //二维码
             case R.id.rl_zxing:
-
                 Intent intent = new Intent(PersonalActivity.this, Person2CodeActivity.class);
                 intent.putExtra("appkey", mMyInfo.getAppKey());
                 intent.putExtra("username", mMyInfo.getUserName());
+                if (mMyInfo.getAvatarFile() != null){
                 intent.putExtra("avatar", mMyInfo.getAvatarFile().getAbsolutePath());
-                startActivity(intent);
-                break;
+            }
+            startActivity(intent);
+            break;
             default:
                 break;
         }

@@ -3,6 +3,7 @@ package jiguang.chat.adapter;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +20,13 @@ import java.util.List;
 import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
@@ -123,7 +126,17 @@ public class GroupListAdapter extends BaseAdapter {
 
         mGroupName.put(groupInfo.getGroupID(), groupName);
         holder.groupName.setText(groupName);
-        holder.avatar.setImageResource(R.drawable.group);
+
+        groupInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+            @Override
+            public void gotResult(int i, String s, Bitmap bitmap) {
+                if (i == 0) {
+                    holder.avatar.setImageBitmap(bitmap);
+                } else {
+                    holder.avatar.setImageResource(R.drawable.group);
+                }
+            }
+        });
 
         if (mIsForward) {
             holder.itemLl.setOnClickListener(new View.OnClickListener() {
@@ -163,7 +176,9 @@ public class GroupListAdapter extends BaseAdapter {
                                                 .build());
                                     }
                                     Message textMessage = conversation.createSendMessage(content);
-                                    JMessageClient.sendMessage(textMessage);
+                                    MessageSendingOptions options = new MessageSendingOptions();
+                                    options.setNeedReadReceipt(true);
+                                    JMessageClient.sendMessage(textMessage, options);
                                     textMessage.setOnSendCompleteCallback(new BasicCallback() {
                                         @Override
                                         public void gotResult(int i, String s) {

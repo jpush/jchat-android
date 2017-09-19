@@ -48,7 +48,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private View mUserLine;
     private View mPswLine;
     //内部测试环境使用,发布时会置为false;此处对开发者来说即使打开也是没有效果的.
-    private boolean isTestVisibility = false;
+    private boolean isTestVisibility = true;
     private RadioGroup mRadioGroup;
     private RadioButton mRelease;
     private RadioButton mTest;

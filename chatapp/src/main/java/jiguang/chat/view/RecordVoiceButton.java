@@ -35,6 +35,7 @@ import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import jiguang.chat.R;
 import jiguang.chat.adapter.ChattingListAdapter;
 import jiguang.chat.utils.FileHelper;
@@ -290,10 +291,12 @@ public class RecordVoiceButton extends Button {
                     try {
                         VoiceContent content = new VoiceContent(myRecAudioFile, duration);
                         Message msg = mConv.createSendMessage(content);
-                        mMsgListAdapter.addMsgToList(msg);
+                        mMsgListAdapter.addMsgFromReceiptToList(msg);
                         if (mConv.getType() == ConversationType.single) {
                             UserInfo userInfo = (UserInfo) msg.getTargetInfo();
-                            JMessageClient.sendMessage(msg);
+                            MessageSendingOptions options = new MessageSendingOptions();
+                            options.setNeedReadReceipt(true);
+                            JMessageClient.sendMessage(msg, options);
 //                            if (userInfo.isFriend()) {
 //                                JMessageClient.sendMessage(msg);
 //                            } else {
@@ -303,7 +306,9 @@ public class RecordVoiceButton extends Button {
 //                                mMsgListAdapter.addMsgToList(customMsg);
 //                            }
                         } else {
-                            JMessageClient.sendMessage(msg);
+                            MessageSendingOptions options = new MessageSendingOptions();
+                            options.setNeedReadReceipt(true);
+                            JMessageClient.sendMessage(msg, options);
                         }
                         mChatView.setToBottom();
                     } catch (FileNotFoundException e) {

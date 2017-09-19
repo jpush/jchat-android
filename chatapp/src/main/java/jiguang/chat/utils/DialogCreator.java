@@ -29,6 +29,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
@@ -103,9 +104,9 @@ public class DialogCreator {
                 .getViewID(context, "jmui_top_conv_ll"));
         TextView tv_top = (TextView) v.findViewById(IdHelper.getViewID(context, "tv_conv_top"));
         if (isTop) {
-            tv_top.setText("取消置顶");
-        } else {
             tv_top.setText("会话置顶");
+        } else {
+            tv_top.setText("取消置顶");
         }
 
         deleteLl.setOnClickListener(listener);
@@ -370,7 +371,7 @@ public class DialogCreator {
             if (conv.getType() == ConversationType.single) {
                 name.setText(((UserInfo) conv.getTargetInfo()).getDisplayName());
             } else {
-                name.setText(((GroupInfo) conv.getTargetInfo()).getGroupName());
+                name.setText(conv.getTitle());
             }
         }
         if (groupName != null) {
@@ -453,7 +454,9 @@ public class DialogCreator {
                         }
                     }
                 }
-                JMessageClient.forwardMessage(message, conversation, new BasicCallback() {
+                MessageSendingOptions options = new MessageSendingOptions();
+                options.setNeedReadReceipt(true);
+                JMessageClient.forwardMessage(message, conversation, options, new BasicCallback() {
                     @Override
                     public void gotResult(int i, String s) {
                         mLoadingDialog.dismiss();

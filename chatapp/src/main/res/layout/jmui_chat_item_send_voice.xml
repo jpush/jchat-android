@@ -52,6 +52,16 @@
                 android:textSize="16sp"/>
         </FrameLayout>
 
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/text_receipt"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="7dp"
+            android:textSize="12sp"
+            android:layout_toLeftOf="@id/jmui_voice_fl"
+            android:layout_width="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_height="wrap_content"/>
 
         <ImageButton
             android:id="@+id/jmui_fail_resend_ib"

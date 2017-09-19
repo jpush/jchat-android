@@ -35,6 +35,14 @@
             android:visibility="gone"/>
 
         <TextView
+            android:id="@+id/text_receipt"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="7dp"
+            android:textSize="12sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
             android:id="@+id/jmui_msg_content"
             style="@style/jmui_msg_text_style"
             android:layout_width="wrap_content"

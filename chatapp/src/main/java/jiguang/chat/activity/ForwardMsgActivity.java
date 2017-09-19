@@ -16,6 +16,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.adapter.ForwardMsgAdapter;
@@ -131,7 +132,9 @@ public class ForwardMsgActivity extends BaseActivity {
                         content.setStringExtra("businessCard", "businessCard");
 
                         Message textMessage = conversation.createSendMessage(content);
-                        JMessageClient.sendMessage(textMessage);
+                        MessageSendingOptions options = new MessageSendingOptions();
+                        options.setNeedReadReceipt(true);
+                        JMessageClient.sendMessage(textMessage, options);
                         textMessage.setOnSendCompleteCallback(new BasicCallback() {
                             @Override
                             public void gotResult(int i, String s) {

@@ -66,6 +66,16 @@
                 android:visibility="gone"/>
         </FrameLayout>
 
+        <TextView
+            android:text="未读消息"
+            android:layout_centerInParent="true"
+            android:id="@+id/text_receipt"
+            android:layout_marginRight="7dp"
+            android:textSize="12sp"
+            android:layout_toLeftOf="@id/jmui_msg_fl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
         <ImageView
             android:id="@+id/jmui_sending_iv"
             android:layout_width="21dp"

@@ -28,6 +28,7 @@ import java.util.Queue;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.callback.GetReceiptDetailsCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.TextContent;
@@ -39,11 +40,13 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.activity.FriendInfoActivity;
 import jiguang.chat.activity.GroupNotFriendActivity;
 import jiguang.chat.activity.PersonalActivity;
+import jiguang.chat.activity.receiptmessage.ReceiptMessageListActivity;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ChatItemController;
 import jiguang.chat.model.ImMsgBean;
@@ -98,6 +101,9 @@ public class ChattingListAdapter extends BaseAdapter {
     private ChatItemController mController;
     private Dialog mDialog;
     private boolean mHasLastPage = false;
+    private long mServerMsgId = 0;
+    private int mUnReceiptCnt;
+    private Boolean mEventBack = false;
 
 
     public ChattingListAdapter(Activity context, Conversation conv, ContentLongClickListener longClickListener) {
@@ -262,7 +268,9 @@ public class ChattingListAdapter extends BaseAdapter {
      * @param msg 图片消息
      */
     private void sendNextImgMsg(Message msg) {
-        JMessageClient.sendMessage(msg);
+        MessageSendingOptions options = new MessageSendingOptions();
+        options.setNeedReadReceipt(true);
+        JMessageClient.sendMessage(msg, options);
         msg.setOnSendCompleteCallback(new BasicCallback() {
             @Override
             public void gotResult(int i, String s) {
@@ -286,6 +294,19 @@ public class ChattingListAdapter extends BaseAdapter {
         mMsgList.add(msg);
         incrementStartPosition();
         notifyDataSetChanged();
+    }
+
+    public void addMsgFromReceiptToList(Message msg) {
+        mMsgList.add(msg);
+        msg.setOnSendCompleteCallback(new BasicCallback() {
+            @Override
+            public void gotResult(int i, String s) {
+                if (i == 0) {
+                    incrementStartPosition();
+                    notifyDataSetChanged();
+                }
+            }
+        });
     }
 
     List<Message> forDel = new ArrayList<>();
@@ -317,6 +338,7 @@ public class ChattingListAdapter extends BaseAdapter {
     }
 
     List<Message> del = new ArrayList<>();
+
     public void removeMessage(Message message) {
         for (Message msg : mMsgList) {
             if (msg.getServerMessageId().equals(message.getServerMessageId())) {
@@ -427,6 +449,14 @@ public class ChattingListAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         final Message msg = mMsgList.get(position);
+        //消息接收方发送已读回执
+        if (msg.getDirect() == MessageDirect.receive && !msg.haveRead()) {
+            msg.setHaveRead(new BasicCallback() {
+                @Override
+                public void gotResult(int i, String s) {
+                }
+            });
+        }
         final UserInfo userInfo = msg.getFromUser();
         final ViewHolder holder;
         if (convertView == null) {
@@ -439,6 +469,7 @@ public class ChattingListAdapter extends BaseAdapter {
             holder.sendingIv = (ImageView) convertView.findViewById(R.id.jmui_sending_iv);
             holder.resend = (ImageButton) convertView.findViewById(R.id.jmui_fail_resend_ib);
             holder.ivDocument = (ImageView) convertView.findViewById(R.id.iv_document);
+            holder.text_receipt = (TextView) convertView.findViewById(R.id.text_receipt);
             switch (msg.getContentType()) {
                 case text:
                     holder.ll_businessCard = (LinearLayout) convertView.findViewById(R.id.ll_businessCard);
@@ -629,7 +660,68 @@ public class ChattingListAdapter extends BaseAdapter {
                 break;
             default:
                 mController.handleCustomMsg(msg, holder);
+        }
 
+        if (msg.getDirect() == MessageDirect.send) {
+            holder.text_receipt.setTextColor(mContext.getResources().getColor(R.color.message_no_receipt));
+            if (mEventBack && msg.getServerMessageId() == mServerMsgId) {
+                if (mUnReceiptCnt == 0) {
+                    holder.text_receipt.setTextColor(mContext.getResources().getColor(R.color.message_already_receipt));
+                    if (msg.getTargetType() == ConversationType.group) {
+                        msg.setUnreceiptCnt(mUnReceiptCnt);
+                        holder.text_receipt.setText("全部已读");
+                    } else {
+                        msg.setUnreceiptCnt(mUnReceiptCnt);
+                        holder.text_receipt.setText("已读");
+                    }
+                } else {
+                    //更新内存中的回执数
+                    msg.setUnreceiptCnt(mUnReceiptCnt);
+                    holder.text_receipt.setText(mUnReceiptCnt + "人未读");
+                }
+            } else {
+                if (msg.getTargetType() == ConversationType.group) {
+                    if (msg.getUnreceiptCnt() != 0) {
+                        holder.text_receipt.setText(msg.getUnreceiptCnt() + "人未读");
+                    } else {
+                        holder.text_receipt.setText("全部已读");
+                        holder.text_receipt.setTextColor(mContext.getResources().getColor(R.color.message_already_receipt));
+                    }
+                } else {
+                    if (msg.getUnreceiptCnt() != 0) {
+                        holder.text_receipt.setText("未读");
+                    } else {
+                        holder.text_receipt.setTextColor(mContext.getResources().getColor(R.color.message_already_receipt));
+                        holder.text_receipt.setText("已读");
+                    }
+                }
+                //群聊未读消息数点击事件
+                if (msg.getTargetType() == ConversationType.group) {
+                    holder.text_receipt.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            final Intent intent = new Intent(mContext, ReceiptMessageListActivity.class);
+                            intent.putExtra("groupIdForReceipt", mGroupId);
+                            msg.getReceiptDetails(new GetReceiptDetailsCallback() {
+                                @Override
+                                public void gotResult(int i, String s, List<ReceiptDetails> list) {
+                                    if (i == 0) {
+                                        for (GetReceiptDetailsCallback.ReceiptDetails receipt : list) {
+                                            JGApplication.alreadyRead.clear();
+                                            JGApplication.unRead.clear();
+                                            List<UserInfo> alreadyRead = receipt.getReceiptList();
+                                            List<UserInfo> unRead = receipt.getUnreceiptList();
+                                            JGApplication.alreadyRead.addAll(alreadyRead);
+                                            JGApplication.unRead.addAll(unRead);
+                                            mContext.startActivity(intent);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
         }
         return convertView;
     }
@@ -681,8 +773,9 @@ public class ChattingListAdapter extends BaseAdapter {
                 }
             });
         }
-
-        JMessageClient.sendMessage(msg);
+        MessageSendingOptions options = new MessageSendingOptions();
+        options.setNeedReadReceipt(true);
+        JMessageClient.sendMessage(msg, options);
     }
 
     private void resendImage(final ViewHolder holder, Message msg) {
@@ -720,7 +813,9 @@ public class ChattingListAdapter extends BaseAdapter {
                     }
                 });
             }
-            JMessageClient.sendMessage(msg);
+            MessageSendingOptions options = new MessageSendingOptions();
+            options.setNeedReadReceipt(true);
+            JMessageClient.sendMessage(msg, options);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -758,10 +853,19 @@ public class ChattingListAdapter extends BaseAdapter {
                     }
                 });
             }
-            JMessageClient.sendMessage(msg);
+            MessageSendingOptions options = new MessageSendingOptions();
+            options.setNeedReadReceipt(true);
+            JMessageClient.sendMessage(msg, options);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setUpdateReceiptCount(long serverMsgId, int unReceiptCnt, boolean eventBack) {
+        mServerMsgId = serverMsgId;
+        mUnReceiptCnt = unReceiptCnt;
+        mEventBack = eventBack;
+        notifyDataSetChanged();
     }
 
 
@@ -789,6 +893,7 @@ public class ChattingListAdapter extends BaseAdapter {
         public ImageView business_head;
         public TextView tv_nickUser;
         public TextView tv_userName;
+        public TextView text_receipt;
     }
 
 

@@ -59,6 +59,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.activity.BrowserViewPagerActivity;
@@ -156,7 +157,7 @@ public class ChatItemController {
                     }
                     if (userInfo.getAvatarFile() != null) {
                         holder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
-                    }else {
+                    } else {
                         holder.business_head.setImageResource(R.drawable.jmui_head_icon);
                     }
                 } else {
@@ -174,14 +175,17 @@ public class ChatItemController {
                     if (null != mUserInfo) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
+                        holder.text_receipt.setVisibility(View.GONE);
                     }
                     break;
                 case send_success:
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
@@ -229,14 +233,17 @@ public class ChatItemController {
                     if (null != mUserInfo) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
+                        holder.text_receipt.setVisibility(View.GONE);
                     }
                     break;
                 case send_success:
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
@@ -328,6 +335,7 @@ public class ChatItemController {
                 case created:
                     holder.picture.setEnabled(false);
                     holder.resend.setEnabled(false);
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.sendingIv.setVisibility(View.VISIBLE);
                     holder.resend.setVisibility(View.GONE);
                     holder.progressTv.setText("0%");
@@ -335,6 +343,7 @@ public class ChatItemController {
                 case send_success:
                     holder.picture.setEnabled(true);
                     holder.sendingIv.clearAnimation();
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.picture.setAlpha(1.0f);
                     holder.progressTv.setVisibility(View.GONE);
@@ -345,6 +354,7 @@ public class ChatItemController {
                     holder.picture.setEnabled(true);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.picture.setAlpha(1.0f);
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
@@ -352,6 +362,7 @@ public class ChatItemController {
                 case send_going:
                     holder.picture.setEnabled(false);
                     holder.resend.setEnabled(false);
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     sendingImage(msg, holder);
                     break;
@@ -366,7 +377,9 @@ public class ChatItemController {
                     if (!mMsgQueue.isEmpty()) {
                         Message message = mMsgQueue.element();
                         if (message.getId() == msg.getId()) {
-                            JMessageClient.sendMessage(message);
+                            MessageSendingOptions options = new MessageSendingOptions();
+                            options.setNeedReadReceipt(true);
+                            JMessageClient.sendMessage(message, options);
                             mSendMsgId = message.getId();
                             sendingImage(message, holder);
                         }
@@ -416,7 +429,9 @@ public class ChatItemController {
                         mMsgQueue.poll();
                         if (!mMsgQueue.isEmpty()) {
                             Message nextMsg = mMsgQueue.element();
-                            JMessageClient.sendMessage(nextMsg);
+                            MessageSendingOptions options = new MessageSendingOptions();
+                            options.setNeedReadReceipt(true);
+                            JMessageClient.sendMessage(nextMsg, options);
                             mSendMsgId = nextMsg.getId();
                         }
                     }
@@ -458,19 +473,20 @@ public class ChatItemController {
             holder.voice.setImageResource(R.drawable.send_3);
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo/* && !mUserInfo.isFriend()*/) {
-                        holder.sendingIv.setVisibility(View.GONE);
-                        holder.resend.setVisibility(View.VISIBLE);
-                    }
+                    holder.sendingIv.setVisibility(View.VISIBLE);
+                    holder.resend.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.GONE);
                     break;
                 case send_success:
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     break;
                 case send_fail:
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
@@ -581,6 +597,7 @@ public class ChatItemController {
             }
             switch (msg.getStatus()) {
                 case created:
+                    holder.text_receipt.setVisibility(View.GONE);
                     if (null != mUserInfo/* && !mUserInfo.isFriend()*/) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
@@ -593,12 +610,14 @@ public class ChatItemController {
                     sendingTextOrVoice(holder, msg);
                     break;
                 case send_success:
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
                     holder.sendingIv.clearAnimation();
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
@@ -649,9 +668,10 @@ public class ChatItemController {
 
     //正在发送文字或语音
     private void sendingTextOrVoice(final ViewHolder holder, final Message msg) {
+        holder.text_receipt.setVisibility(View.GONE);
+        holder.resend.setVisibility(View.GONE);
         holder.sendingIv.setVisibility(View.VISIBLE);
         holder.sendingIv.startAnimation(mSendingAnim);
-        holder.resend.setVisibility(View.GONE);
         //消息正在发送，重新注册一个监听消息发送完成的Callback
         if (!msg.isSendCompleteCallbackExists()) {
             msg.setOnSendCompleteCallback(new BasicCallback() {
@@ -673,9 +693,6 @@ public class ChatItemController {
                     }
                 }
             });
-        } else {
-            holder.sendingIv.setVisibility(View.GONE);
-            holder.sendingIv.clearAnimation();
         }
     }
 
@@ -704,6 +721,7 @@ public class ChatItemController {
             switch (msg.getStatus()) {
                 case created:
                     holder.videoPlay.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.GONE);
                     if (null != mUserInfo) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
@@ -715,6 +733,7 @@ public class ChatItemController {
                 case send_success:
                     holder.sendingIv.clearAnimation();
                     holder.picture.setAlpha(1.0f);
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
@@ -724,11 +743,13 @@ public class ChatItemController {
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.picture.setAlpha(1.0f);
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
                     holder.videoPlay.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.videoPlay.setVisibility(View.GONE);
                     sendingImage(msg, holder);
                     break;
@@ -744,7 +765,9 @@ public class ChatItemController {
                     if (!mMsgQueue.isEmpty()) {
                         Message message = mMsgQueue.element();
                         if (message.getId() == msg.getId()) {
-                            JMessageClient.sendMessage(message);
+                            MessageSendingOptions options = new MessageSendingOptions();
+                            options.setNeedReadReceipt(true);
+                            JMessageClient.sendMessage(message, options);
                             mSendMsgId = message.getId();
                             sendingImage(message, holder);
                         }
@@ -822,6 +845,7 @@ public class ChatItemController {
                     holder.progressTv.setVisibility(View.VISIBLE);
                     holder.progressTv.setText("0%");
                     holder.resend.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.GONE);
                     if (null != mUserInfo) {
                         holder.progressTv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
@@ -832,6 +856,7 @@ public class ChatItemController {
                     }
                     break;
                 case send_going:
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.progressTv.setVisibility(View.VISIBLE);
                     holder.resend.setVisibility(View.GONE);
                     if (!msg.isContentUploadProgressCallbackExists()) {
@@ -862,12 +887,14 @@ public class ChatItemController {
                     }
                     break;
                 case send_success:
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_send_bg));
                     holder.alreadySend.setVisibility(View.VISIBLE);
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_send_bg));
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
@@ -962,6 +989,7 @@ public class ChatItemController {
             case group_member_added:
             case group_member_exit:
             case group_member_removed:
+            case group_info_updated:
                 holder.groupChange.setText(content);
                 holder.groupChange.setVisibility(View.VISIBLE);
                 holder.msgTime.setVisibility(View.GONE);

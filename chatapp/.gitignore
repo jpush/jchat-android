@@ -2,3 +2,5 @@ build/
 gen/
 .settings/
 *.keystore
+/libs/jcore-android-1.1.6-debug-b152.jar
+/libs/jmessage-android_debug_v2.3.0_b791.jar

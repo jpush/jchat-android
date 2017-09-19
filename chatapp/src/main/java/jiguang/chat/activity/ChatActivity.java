@@ -44,11 +44,13 @@ import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.event.MessageReceiptStatusChangeEvent;
 import cn.jpush.im.android.api.event.MessageRetractEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
@@ -330,8 +332,11 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 } else {
                     msg = mConv.createSendMessage(content);
                 }
-                mChatAdapter.addMsgToList(msg);
-                JMessageClient.sendMessage(msg);
+                //设置需要已读回执
+                MessageSendingOptions options = new MessageSendingOptions();
+                options.setNeedReadReceipt(true);
+                JMessageClient.sendMessage(msg, options);
+                mChatAdapter.addMsgFromReceiptToList(msg);
                 ekBar.getEtChat().setText("");
                 if (mAtList != null) {
                     mAtList.clear();
@@ -788,12 +793,12 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     float OldListY = (float) location[1];
                     float OldListX = (float) location[0];
                     new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
-                            .addItem(new TipItem("删除"))
                             .addItem(new TipItem("转发"))
+                            .addItem(new TipItem("删除"))
                             .setOnItemClickListener(new TipView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(String str, final int position) {
-                                    if (position == 0) {
+                                    if (position == 1) {
                                         //删除
                                         mConv.deleteMessage(msg.getId());
                                         mChatAdapter.removeMessage(msg);
@@ -818,13 +823,13 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     float OldListY = (float) location[1];
                     float OldListX = (float) location[0];
                     new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
-                            .addItem(new TipItem("撤回"))
                             .addItem(new TipItem("转发"))
+                            .addItem(new TipItem("撤回"))
                             .addItem(new TipItem("删除"))
                             .setOnItemClickListener(new TipView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(String str, final int position) {
-                                    if (position == 0) {
+                                    if (position == 1) {
                                         //撤回
                                         mConv.retractMessage(msg, new BasicCallback() {
                                             @Override
@@ -836,7 +841,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                                 }
                                             }
                                         });
-                                    } else if (position == 1) {
+                                    } else if (position == 0) {
                                         Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
                                         JGApplication.forwardMsg.clear();
                                         JGApplication.forwardMsg.add(msg);
@@ -858,6 +863,18 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             }
         }
     };
+
+    /**
+     * 消息已读事件
+     */
+    public void onEventMainThread(MessageReceiptStatusChangeEvent event) {
+        List<MessageReceiptStatusChangeEvent.MessageReceiptMeta> messageReceiptMetas = event.getMessageReceiptMetas();
+        for (MessageReceiptStatusChangeEvent.MessageReceiptMeta meta : messageReceiptMetas) {
+            long serverMsgId = meta.getServerMsgId();
+            int unReceiptCnt = meta.getUnReceiptCnt();
+            mChatAdapter.setUpdateReceiptCount(serverMsgId, unReceiptCnt, true);
+        }
+    }
 
     public void onEventMainThread(ImageEvent event) {
         Intent intent;
@@ -999,8 +1016,10 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                         longitude, mapview, street);
                 locationContent.setStringExtra("path", path);
                 Message message = mConv.createSendMessage(locationContent);
-                JMessageClient.sendMessage(message);
-                mChatAdapter.addMsgToList(message);
+                MessageSendingOptions options = new MessageSendingOptions();
+                options.setNeedReadReceipt(true);
+                JMessageClient.sendMessage(message, options);
+                mChatAdapter.addMsgFromReceiptToList(message);
 
                 int customMsgId = data.getIntExtra("customMsg", -1);
                 if (-1 != customMsgId) {

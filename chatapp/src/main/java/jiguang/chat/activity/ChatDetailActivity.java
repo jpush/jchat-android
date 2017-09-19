@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -181,6 +182,13 @@ public class ChatDetailActivity extends BaseActivity {
                     ArrayList<String> list = data.getStringArrayListExtra("SelectedUser");
                     if (null != list && list.size() != 0) {
                         mChatDetailController.addMembersToGroup(list);
+                    }
+                    break;
+                case 4://修改群头像
+                    mDialog.dismiss();
+                    String path = data.getStringExtra("groupAvatarPath");
+                    if (path != null) {
+                        mChatDetailView.setGroupAvatar(new File(path));
                     }
                     break;
             }

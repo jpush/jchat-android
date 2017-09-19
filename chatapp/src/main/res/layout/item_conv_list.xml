@@ -52,16 +52,15 @@
                     android:gravity="center_vertical">
 
                     <ImageView
-                        android:scaleType="centerCrop"
                         android:id="@+id/msg_item_head_icon"
                         android:layout_width="47.33dp"
                         android:layout_height="47.33dp"
-                        android:background="#000"/>
+                        android:background="#000"
+                        android:scaleType="centerCrop"/>
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/new_msg_number"
-                    android:textSize="10sp"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_marginLeft="50dp"
@@ -69,10 +68,11 @@
                     android:background="@drawable/unread_msg_red"
                     android:gravity="center"
                     android:textColor="@android:color/white"
+                    android:textSize="10sp"
                     android:visibility="gone"/>
+
                 <TextView
                     android:id="@+id/new_group_msg_number"
-                    android:textSize="10sp"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_marginLeft="50dp"
@@ -80,24 +80,26 @@
                     android:background="@drawable/unread_msg_red"
                     android:gravity="center"
                     android:textColor="@android:color/white"
+                    android:textSize="10sp"
                     android:visibility="gone"/>
 
                 <ImageView
-                    android:visibility="gone"
                     android:id="@+id/new_msg_disturb"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="56dp"
                     android:layout_marginTop="7dp"
-                    android:src="@drawable/nodisturb_message"/>
+                    android:src="@drawable/nodisturb_message"
+                    android:visibility="gone"/>
+
                 <ImageView
-                    android:visibility="gone"
                     android:id="@+id/new_group_msg_disturb"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="56dp"
                     android:layout_marginTop="7dp"
-                    android:src="@drawable/nodisturb_message"/>
+                    android:src="@drawable/nodisturb_message"
+                    android:visibility="gone"/>
 
             </FrameLayout>
 
@@ -122,7 +124,6 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:singleLine="true"
-                        android:text="会话昵称"
                         android:textColor="#2C2C2C"
                         android:textSize="16sp"/>
 
@@ -132,7 +133,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginRight="12.67dp"
                         android:gravity="top"
-                        android:text="会话界面时间"
                         android:textColor="#B3B3B3"
                         android:textSize="11.33sp"/>
 
@@ -146,7 +146,6 @@
                     android:layout_marginTop="1.33dp"
                     android:ems="10"
                     android:singleLine="true"
-                    android:text="会话界面最后一条消息"
                     android:textColor="#999999"
                     android:textSize="14sp"/>
 

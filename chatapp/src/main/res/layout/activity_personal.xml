@@ -98,7 +98,7 @@
 
         <TextView
             style="@style/info_left_txt_style"
-            android:text="我的二维码"/>
+            android:text="二维码"/>
 
         <ImageView
             android:id="@+id/iv_arrow"

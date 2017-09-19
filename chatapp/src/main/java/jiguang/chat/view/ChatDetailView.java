@@ -2,6 +2,7 @@ package jiguang.chat.view;
 
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
@@ -9,9 +10,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import java.io.File;
 
 import jiguang.chat.R;
 import jiguang.chat.adapter.GroupMemberGridAdapter;
@@ -43,9 +47,11 @@ public class ChatDetailView extends LinearLayout {
     private View mBlockLine;
     private Context mContext;
     private LinearLayout mTv_moreGroup;
+    private RelativeLayout mGroupAvatarLL;
     private Button mAddFriend;
     private LinearLayout mDetailAddFriend;
     private RelativeLayout mClear_rl;
+    private ImageView mIv_groupAvatar;
 
     public ChatDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -59,6 +65,8 @@ public class ChatDetailView extends LinearLayout {
         mSplitLine1 = findViewById(R.id.all_member_split_line1);
         mSplitLine2 = findViewById(R.id.all_member_split_line2);
         mGroupNameLL = (LinearLayout) findViewById(R.id.group_name_ll);
+        mGroupAvatarLL = (RelativeLayout) findViewById(R.id.rl_groupAvatar);
+        mIv_groupAvatar = (ImageView) findViewById(R.id.iv_groupAvatar);
         mMyNameLL = (LinearLayout) findViewById(R.id.group_my_name_ll);
         mGroupNumLL = (LinearLayout) findViewById(R.id.group_num_ll);
         mGroupChatRecordLL = (LinearLayout) findViewById(R.id.group_chat_record_ll);
@@ -90,6 +98,7 @@ public class ChatDetailView extends LinearLayout {
     public void setListeners(OnClickListener onClickListener) {
         mGroupDescLL.setOnClickListener(onClickListener);
         mGroupNameLL.setOnClickListener(onClickListener);
+        mGroupAvatarLL.setOnClickListener(onClickListener);
         mMyNameLL.setOnClickListener(onClickListener);
         mGroupNumLL.setOnClickListener(onClickListener);
         mGroupChatRecordLL.setOnClickListener(onClickListener);
@@ -136,6 +145,7 @@ public class ChatDetailView extends LinearLayout {
             mDelGroupBtn.setVisibility(GONE);
         }
         mGroupNameLL.setVisibility(View.GONE);
+        mGroupAvatarLL.setVisibility(View.GONE);
         mGroupNumLL.setVisibility(View.GONE);
         mMyNameLL.setVisibility(View.GONE);
         mDelGroupBtn.setText("删除好友");
@@ -184,5 +194,9 @@ public class ChatDetailView extends LinearLayout {
         } else {
             mTv_moreGroup.setVisibility(GONE);
         }
+    }
+
+    public void setGroupAvatar(File groupAvatar) {
+        mIv_groupAvatar.setImageBitmap(BitmapFactory.decodeFile(groupAvatar.getAbsolutePath()));
     }
 }

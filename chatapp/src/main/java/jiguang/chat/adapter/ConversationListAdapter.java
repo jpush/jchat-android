@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,6 +40,7 @@ import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.SortConvList;
+import jiguang.chat.utils.SortTopConvList;
 import jiguang.chat.utils.ThreadUtil;
 import jiguang.chat.utils.TimeFormat;
 import jiguang.chat.utils.ViewHolder;
@@ -53,13 +55,13 @@ public class ConversationListAdapter extends BaseAdapter {
 
     private List<Conversation> mDatas;
     private Activity mContext;
-    private Map<String, String> mDraftMap = new HashMap<String, String>();
+    private Map<String, String> mDraftMap = new HashMap<>();
     private UIHandler mUIHandler = new UIHandler(this);
     private static final int REFRESH_CONVERSATION_LIST = 0x3003;
     private SparseBooleanArray mArray = new SparseBooleanArray();
     private SparseBooleanArray mAtAll = new SparseBooleanArray();
-    private HashMap<Conversation, Integer> mAtConvMap = new HashMap<Conversation, Integer>();
-    private HashMap<Conversation, Integer> mAtAllConv = new HashMap<Conversation, Integer>();
+    private HashMap<Conversation, Integer> mAtConvMap = new HashMap<>();
+    private HashMap<Conversation, Integer> mAtAllConv = new HashMap<>();
     private UserInfo mUserInfo;
     private GroupInfo mGroupInfo;
     private ConversationListView mConversationListView;
@@ -76,38 +78,91 @@ public class ConversationListAdapter extends BaseAdapter {
      * @param conv 要置顶的会话
      */
     public void setToTop(Conversation conv) {
-        for (Conversation conversation : mDatas) {
-            if (conv.getId().equals(conversation.getId())) {
-                mDatas.remove(conversation);
-                mDatas.add(0, conv);
-                mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
-                mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
-                return;
-            }
-        }
         ThreadUtil.runInUiThread(new Runnable() {
             @Override
             public void run() {
                 mConversationListView.setNullConversation(true);
             }
         });
-        //如果是新的会话
-        mDatas.add(0, conv);
-        mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
-        mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
-    }
 
-    public void setConvTop(Conversation convTop) {
+        //如果是旧的会话
         for (Conversation conversation : mDatas) {
-            //在所有会话中找到需要置顶或者取消置顶的那条
-            if (convTop.getId().equals(conversation.getId())) {
-                mDatas.remove(conversation);
-                mDatas.add(SharePreferenceManager.getTopSize(), convTop);
-                mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
-                mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
-                return;
+            if (conv.getId().equals(conversation.getId())) {
+                //如果是置顶的,就直接把消息插入,会话在list中的顺序不变
+                if (!TextUtils.isEmpty(conv.getExtra())) {
+                    mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+                    mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
+                    //这里一定要return掉,要不还会走到for循环之后的方法,就会再次添加会话
+                    return;
+                    //如果不是置顶的,就在集合中把原来的那条消息移出,然后去掉置顶的消息数量,插入到集合中
+                } else {
+                    mDatas.remove(conversation);
+                    mDatas.add(SharePreferenceManager.getCancelTopSize(), conv);
+                    mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+                    mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
+                    return;//直接跳出整个方法,否则有可能引起ConcurrentModificationException
+                }
             }
         }
+        //如果是新的会话,直接去掉置顶的消息数之后就插入到list中
+        mDatas.add(SharePreferenceManager.getCancelTopSize(), conv);
+        mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+        mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
+
+    }
+
+    //置顶会话
+    public void setConvTop(Conversation conversation) {
+        int count = 0;
+        for (Conversation conv : mDatas) {
+            if (!TextUtils.isEmpty(conv.getExtra())) {
+                count++;
+            }
+        }
+        conversation.updateConversationExtra(count + "");
+        mDatas.remove(conversation);
+        mDatas.add(count, conversation);
+        mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+        mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
+
+    }
+
+    //取消会话置顶
+    List<Conversation> forDel = new ArrayList<>();
+
+    public void setCancelConvTop(Conversation conversation) {
+        forCurrent.clear();
+        topConv.clear();
+        int i = 0;
+        for (Conversation oldConv : mDatas) {
+            if (oldConv.getId().equals(conversation.getId())) {
+                forDel.add(oldConv);
+                break;
+            }
+        }
+        mDatas.removeAll(forDel);
+        conversation.updateConversationExtra("");
+        mDatas.add(conversation);
+        SortConvList sortConvList = new SortConvList();
+        Collections.sort(mDatas, sortConvList);
+
+        for (Conversation con : mDatas) {
+            if (!TextUtils.isEmpty(con.getExtra())) {
+                forCurrent.add(con);
+            }
+        }
+        topConv.addAll(forCurrent);
+        SharePreferenceManager.setCancelTopSize(topConv.size());
+        mDatas.removeAll(forCurrent);
+        if (topConv != null && topConv.size() > 0) {
+            SortTopConvList top = new SortTopConvList();
+            Collections.sort(topConv, top);
+            for (Conversation conv : topConv) {
+                mDatas.add(i, conv);
+                i++;
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -160,6 +215,11 @@ public class ConversationListAdapter extends BaseAdapter {
         final TextView delete = ViewHolder.get(convertView, R.id.tv_delete);
 
         String draft = mDraftMap.get(convItem.getId());
+        if (!TextUtils.isEmpty(convItem.getExtra())) {
+            swipeLayout.setBackgroundColor(mContext.getResources().getColor(R.color.conv_list_background));
+        } else {
+            swipeLayout.setBackgroundColor(mContext.getResources().getColor(R.color.white));
+        }
 
         //如果会话草稿为空,显示最后一条消息
         if (TextUtils.isEmpty(draft)) {
@@ -274,7 +334,15 @@ public class ConversationListAdapter extends BaseAdapter {
                         } else if (JGApplication.isAtMe.get(gid) != null && JGApplication.isAtMe.get(gid)) {
                             content.setText("[有人@我] " + contentStr);
                         } else {
-                            content.setText(contentStr);
+                            if (lastMsg.getUnreceiptCnt() == 0) {
+                                content.setText("[已读]" + contentStr);
+                            } else {
+                                contentStr = "[未读]" + contentStr;
+                                SpannableStringBuilder builder = new SpannableStringBuilder(contentStr);
+                                builder.setSpan(new ForegroundColorSpan(mContext.getResources().getColor(R.color.line_normal)),
+                                        0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                content.setText(builder);
+                            }
                         }
                     }
                 }
@@ -311,6 +379,16 @@ public class ConversationListAdapter extends BaseAdapter {
         } else {
             mGroupInfo = (GroupInfo) convItem.getTargetInfo();
             if (mGroupInfo != null) {
+                mGroupInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                    @Override
+                    public void gotResult(int i, String s, Bitmap bitmap) {
+                        if (i == 0) {
+                            headIcon.setImageBitmap(bitmap);
+                        } else {
+                            headIcon.setImageResource(R.drawable.group);
+                        }
+                    }
+                });
                 int blocked = mGroupInfo.isGroupBlocked();
                 if (blocked == 1) {
                     groupBlocked.setVisibility(View.VISIBLE);
@@ -318,7 +396,6 @@ public class ConversationListAdapter extends BaseAdapter {
                     groupBlocked.setVisibility(View.GONE);
                 }
             }
-            headIcon.setImageResource(R.drawable.group);
             convName.setText(convItem.getTitle());
         }
 
@@ -358,6 +435,8 @@ public class ConversationListAdapter extends BaseAdapter {
             newMsgNumber.setVisibility(View.GONE);
         }
 
+        //禁止使用侧滑功能.如果想要使用就设置为true
+        swipeLayout.setSwipeEnabled(false);
         //侧滑删除会话
         swipeLayout.addSwipeListener(new SwipeLayoutConv.SwipeListener() {
             @Override
@@ -411,26 +490,30 @@ public class ConversationListAdapter extends BaseAdapter {
         return convertView;
     }
 
-//    List<Conversation> mCon = new ArrayList<>();
+    List<Conversation> topConv = new ArrayList<>();
+    List<Conversation> forCurrent = new ArrayList<>();
 
     public void sortConvList() {
+        forCurrent.clear();
+        topConv.clear();
+        int i = 0;
         SortConvList sortConvList = new SortConvList();
         Collections.sort(mDatas, sortConvList);
-
-        /*for (int i = 0; i < SharePreferenceManager.getTopSize(); i++) {
-            ConversationEntry topConversation = ConversationEntry.getTopConversation(i);
-            for (int x = 0; x < mDatas.size(); x++) {
-                if (topConversation.targetname.equals(mDatas.get(x).getTargetId())) {
-                    mCon.add(mDatas.get(x));
-                    mDatas.remove(mDatas.get(x));
-
-                    mDatas.add(i, mCon.get(0));
-                    mCon.clear();
-                    break;
-
-                }
+        for (Conversation con : mDatas) {
+            if (!TextUtils.isEmpty(con.getExtra())) {
+                forCurrent.add(con);
             }
-        }*/
+        }
+        topConv.addAll(forCurrent);
+        mDatas.removeAll(forCurrent);
+        if (topConv != null && topConv.size() > 0) {
+            SortTopConvList top = new SortTopConvList();
+            Collections.sort(topConv, top);
+            for (Conversation conv : topConv) {
+                mDatas.add(i, conv);
+                i++;
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -444,26 +527,10 @@ public class ConversationListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-//    List<Conversation> mConv = new ArrayList<>();
-
     public void addAndSort(Conversation conv) {
         mDatas.add(conv);
         SortConvList sortConvList = new SortConvList();
         Collections.sort(mDatas, sortConvList);
-        /*for (int i = 0; i < SharePreferenceManager.getTopSize(); i++) {
-            ConversationEntry topConversation = ConversationEntry.getTopConversation(i);
-            for (int x = 0; x < mDatas.size(); x++) {
-                if (topConversation.targetname.equals(mDatas.get(x).getTargetId())) {
-                    mConv.add(mDatas.get(x));
-                    mDatas.remove(mDatas.get(x));
-
-                    mDatas.add(i, mConv.get(0));
-                    mConv.clear();
-                    break;
-
-                }
-            }
-        }*/
         notifyDataSetChanged();
     }
 

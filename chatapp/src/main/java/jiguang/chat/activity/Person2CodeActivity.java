@@ -70,7 +70,9 @@ public class Person2CodeActivity extends BaseActivity {
     private void initData() {
         Intent intent = getIntent();
 
-        ivAvatar.setImageBitmap(BitmapFactory.decodeFile(intent.getStringExtra("avatar")));
+        if (intent.getStringExtra("avatar") != null) {
+            ivAvatar.setImageBitmap(BitmapFactory.decodeFile(intent.getStringExtra("avatar")));
+        }
         //根据用户名和appkey生成二维码bitmap返回
         String appKey = intent.getStringExtra("appkey");
         String userName = intent.getStringExtra("username");

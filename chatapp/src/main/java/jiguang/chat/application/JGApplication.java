@@ -1,6 +1,7 @@
 package jiguang.chat.application;
 
 import android.content.Context;
+import android.support.multidex.MultiDex;
 
 import com.activeandroid.ActiveAndroid;
 import com.baidu.mapapi.SDKInitializer;
@@ -108,6 +109,8 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static List<UserInfo> mSearchGroup = new ArrayList<>();
     public static List<UserInfo> mSearchAtMember = new ArrayList<>();
     public static List<Message> ids = new ArrayList<>();
+    public static List<UserInfo> alreadyRead = new ArrayList<>();
+    public static List<UserInfo> unRead = new ArrayList<>();
 
     @Override
     public void onCreate() {
@@ -159,5 +162,10 @@ public class JGApplication extends com.activeandroid.app.Application {
     public void onTerminate() {
         super.onTerminate();
         ActiveAndroid.dispose();
+    }
+
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 }

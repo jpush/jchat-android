@@ -102,6 +102,16 @@
 
         </RelativeLayout>
 
+        <TextView
+            android:text="未读消息"
+            android:layout_centerVertical="true"
+            android:id="@+id/text_receipt"
+            android:layout_marginRight="7dp"
+            android:textSize="12sp"
+            android:layout_toLeftOf="@id/jmui_send_file_rl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
         <ImageButton
             android:id="@+id/jmui_fail_resend_ib"
             android:layout_width="21dp"

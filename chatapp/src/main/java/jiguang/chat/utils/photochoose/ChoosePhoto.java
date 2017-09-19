@@ -2,6 +2,7 @@ package jiguang.chat.utils.photochoose;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -11,8 +12,11 @@ import android.widget.ImageView;
 import java.io.File;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.activity.PersonalActivity;
+import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.ToastUtil;
 
@@ -68,7 +72,7 @@ public class ChoosePhoto {
                 iv_photo.setImageBitmap(bitmap);
                 if (count == 1) {
                     SharePreferenceManager.setRegisterAvatarPath(uri.getPath());
-                }else {
+                } else {
                     SharePreferenceManager.setCachedAvatarPath(uri.getPath());
                 }
                 if (isFromPersonal) {
@@ -79,12 +83,51 @@ public class ChoosePhoto {
                             jiguang.chat.utils.dialog.LoadDialog.dismiss(context);
                             if (responseCode == 0) {
                                 ToastUtil.shortToast(mContext, "更新成功");
-                            }else {
+                            } else {
                                 ToastUtil.shortToast(mContext, "更新失败" + responseMessage);
                             }
                         }
                     });
                 }
+            }
+
+            @Override
+            public void onPhotoCancel() {
+            }
+        });
+    }
+
+    public void setGroupAvatarChangeListener(final Activity context, final long groupId) {
+        photoUtils = new PhotoUtils(new PhotoUtils.OnPhotoResultListener() {
+            @Override
+            public void onPhotoResult(final Uri uri) {
+                jiguang.chat.utils.dialog.LoadDialog.show(context);
+                JMessageClient.getGroupInfo(groupId, new GetGroupInfoCallback() {
+                    @Override
+                    public void gotResult(int i, String s, GroupInfo groupInfo) {
+                        if (i == 0) {
+                            groupInfo.updateAvatar(new File(uri.getPath()), "", new BasicCallback() {
+                                @Override
+                                public void gotResult(int i, String s) {
+                                    jiguang.chat.utils.dialog.LoadDialog.dismiss(context);
+                                    if (i == 0) {
+                                        Intent intent = new Intent();
+                                        intent.putExtra("groupAvatarPath", uri.getPath());
+                                        context.setResult(Activity.RESULT_OK, intent);
+                                        ToastUtil.shortToast(context, "更新成功");
+                                        context.finish();
+                                    } else {
+                                        ToastUtil.shortToast(context, "更新失败");
+                                        context.finish();
+                                    }
+                                }
+                            });
+                        } else {
+                            HandleResponseCode.onHandle(context, i, false);
+                        }
+                    }
+                });
+
             }
 
             @Override

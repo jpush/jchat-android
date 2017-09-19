@@ -80,6 +80,7 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
         ContactManager.getFriendList(new GetUserInfoListCallback() {
             @Override
             public void gotResult(int responseCode, String responseMessage, List<UserInfo> userInfoList) {
+                mContactsView.dismissLoadingHeader();
                 if (responseCode == 0) {
                     if (userInfoList.size() != 0) {
                         mContactsView.dismissLine();
@@ -88,22 +89,26 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
                             for (UserInfo userInfo : userInfoList) {
                                 String displayName = userInfo.getDisplayName();
                                 String letter;
-                                ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
-                                        .get(displayName);
-                                StringBuilder sb = new StringBuilder();
-                                if (tokens != null && tokens.size() > 0) {
-                                    for (HanziToPinyin.Token token : tokens) {
-                                        if (token.type == HanziToPinyin.Token.PINYIN) {
-                                            sb.append(token.target);
-                                        } else {
-                                            sb.append(token.source);
+                                if (!TextUtils.isEmpty(displayName.trim())) {
+                                    ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
+                                            .get(displayName);
+                                    StringBuilder sb = new StringBuilder();
+                                    if (tokens != null && tokens.size() > 0) {
+                                        for (HanziToPinyin.Token token : tokens) {
+                                            if (token.type == HanziToPinyin.Token.PINYIN) {
+                                                sb.append(token.target);
+                                            } else {
+                                                sb.append(token.source);
+                                            }
                                         }
                                     }
-                                }
-                                String sortString = sb.toString().substring(0, 1).toUpperCase();
-                                if (sortString.matches("[A-Z]")) {
-                                    letter = sortString.toUpperCase();
-                                } else {
+                                    String sortString = sb.toString().substring(0, 1).toUpperCase();
+                                    if (sortString.matches("[A-Z]")) {
+                                        letter = sortString.toUpperCase();
+                                    } else {
+                                        letter = "#";
+                                    }
+                                }else {
                                     letter = "#";
                                 }
                                 //避免重复请求时导致数据重复
@@ -129,12 +134,9 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
                     } else {
                         mContactsView.showLine();
                     }
-                    mContactsView.dismissLoadingHeader();
                     Collections.sort(mList, new PinyinComparator());
                     mAdapter = new StickyListAdapter(mContext, mList, false);
                     mContactsView.setAdapter(mAdapter);
-                } else {
-                    mContactsView.dismissLoadingHeader();
                 }
             }
         });

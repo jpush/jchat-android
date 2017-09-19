@@ -27,6 +27,7 @@
     <color name="header_pressed">#ffc0392b</color>
     <color name="section_color">#f8f8f8</color>
     <color name="section_text_color">#858585</color>
+    <color name="conv_list_background">#f2f2f4</color>
     <color name="red">#FC2828</color>
     <color name="black1">#7A7E83</color>
     <color name="black2">#ffeeeeee</color>
@@ -100,6 +101,8 @@
 
     <color name="chat_detail_item_hit_color">#555555</color>
     <color name="scan_bg">#7f000000</color>
+    <color name="message_already_receipt">#999999</color>
+    <color name="message_no_receipt">#2DD0CF</color>
 
 
     <color name="blue_btn_cannot_pressed">#6CDEDD</color>

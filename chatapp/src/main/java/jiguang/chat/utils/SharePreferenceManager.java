@@ -130,6 +130,21 @@ public class SharePreferenceManager {
         return 0;
     }
 
+    private static final String CONVERSATION_TOP_CANCEL = "conversation_top_cancel";
+
+    public static void setCancelTopSize(int num) {
+        if (null != sp) {
+            sp.edit().putInt(CONVERSATION_TOP_CANCEL, num).apply();
+        }
+    }
+
+    public static int getCancelTopSize() {
+        if (null != sp) {
+            return sp.getInt(CONVERSATION_TOP_CANCEL, 0);
+        }
+        return 0;
+    }
+
 
     private static final String KEY_REGISTER_AVATAR_PATH = "jchat_register_avatar_path";
 

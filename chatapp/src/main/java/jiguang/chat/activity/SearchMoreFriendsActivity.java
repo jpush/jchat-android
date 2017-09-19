@@ -37,6 +37,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
@@ -250,7 +251,9 @@ public class SearchMoreFriendsActivity extends BaseActivity implements AdapterVi
                         }
 
                         Message textMessage = conversation.createSendMessage(content);
-                        JMessageClient.sendMessage(textMessage);
+                        MessageSendingOptions options = new MessageSendingOptions();
+                        options.setNeedReadReceipt(true);
+                        JMessageClient.sendMessage(textMessage, options);
                         textMessage.setOnSendCompleteCallback(new BasicCallback() {
                             @Override
                             public void gotResult(int i, String s) {
