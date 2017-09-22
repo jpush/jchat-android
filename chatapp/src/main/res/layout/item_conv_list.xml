@@ -32,7 +32,7 @@
                 android:textSize="14sp"/>
         </LinearLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/msg_item_ll"
             android:layout_width="match_parent"
             android:layout_height="64dp"
@@ -104,11 +104,10 @@
             </FrameLayout>
 
             <RelativeLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="13dp"
-                android:layout_marginTop="2dp"
-                android:layout_weight="1">
+                android:layout_marginLeft="74dp"
+                android:layout_marginTop="2dp">
 
                 <LinearLayout
                     android:id="@+id/title_layout"
@@ -160,7 +159,7 @@
                     android:src="@drawable/no_disturb"
                     android:visibility="gone"/>
             </RelativeLayout>
-        </LinearLayout>
+        </RelativeLayout>
 
 
     </jiguang.chat.view.SwipeLayoutConv>

@@ -103,6 +103,7 @@
                 android:textSize="14sp"/>
 
             <TextView
+                android:layout_marginRight="14.33dp"
                 android:id="@+id/item_state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

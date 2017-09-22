@@ -1,5 +1,6 @@
 package jiguang.chat.activity.fragment;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -37,8 +38,7 @@ public class BaseFragment extends Fragment {
     protected float mRatio;
     protected int mAvatarSize;
     private Context mContext;
-
-
+    public Activity mActivity;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,5 +111,11 @@ public class BaseFragment extends Fragment {
             dialog.dismiss();
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onAttach(Activity context) {
+        super.onAttach(context);
+        mActivity = context;
     }
 }

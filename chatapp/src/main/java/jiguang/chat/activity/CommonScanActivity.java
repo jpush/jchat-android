@@ -41,6 +41,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import jiguang.chat.R;
+import jiguang.chat.application.JGApplication;
 import jiguang.chat.model.Constant;
 import jiguang.chat.model.InfoModel;
 import jiguang.chat.model.User;
@@ -137,9 +138,12 @@ public final class CommonScanActivity extends Activity implements ScanListener, 
             String substring = jsonUser.substring(0, jsonUser.indexOf("/",
                     jsonUser.indexOf("/", jsonUser.indexOf("/", 0) + 1) + 1) + 1);
             Uri uri = Uri.parse(substring);
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            startActivity(intent);
-            return;
+            try {
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+            } catch (Exception e) {
+                Toast.makeText(CommonScanActivity.this, "扫描的二维码不能解析", Toast.LENGTH_SHORT).show();
+            }
         } else if (jsonUser.startsWith("{\"type")) {
             //解析根据二维码扫描出的json
             Gson gson = new Gson();
@@ -147,7 +151,7 @@ public final class CommonScanActivity extends Activity implements ScanListener, 
             }.getType();
 
             try {
-                UserModel<User> userResult = gson.fromJson(jsonUser, userType);
+                final UserModel<User> userResult = gson.fromJson(jsonUser, userType);
 
                 final LoadDialog dialog = new LoadDialog(CommonScanActivity.this, false, "正在加载...");
                 dialog.show();
@@ -156,16 +160,29 @@ public final class CommonScanActivity extends Activity implements ScanListener, 
                     public void gotResult(int i, String s, UserInfo userInfo) {
                         dialog.dismiss();
                         if (i == 0) {
-                            InfoModel.getInstance().friendInfo = userInfo;
+                            //扫出来的是自己
                             Intent intent = new Intent();
-                            intent.setClass(CommonScanActivity.this, SearchFriendInfoActivity.class);
+                            if (userInfo.getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                                intent.setClass(CommonScanActivity.this, PersonalActivity.class);
+                                //扫出来的是好友
+                            } else if (userInfo.isFriend()) {
+                                intent.setClass(CommonScanActivity.this, FriendInfoActivity.class);
+                                intent.putExtra(JGApplication.TARGET_ID, userInfo.getUserName());
+                                intent.putExtra(JGApplication.TARGET_APP_KEY, userInfo.getAppKey());
+                                intent.putExtra("fromContact", true);
+                                //扫出来的非好友
+                            } else {
+                                InfoModel.getInstance().friendInfo = userInfo;
+                                intent.setClass(CommonScanActivity.this, SearchFriendInfoActivity.class);
+                            }
                             startActivity(intent);
+                            finish();
                         } else {
                             HandleResponseCode.onHandle(CommonScanActivity.this, i, false);
                         }
                     }
                 });
-            }catch (Exception e) {
+            } catch (Exception e) {
                 Toast.makeText(CommonScanActivity.this, "扫描的二维码不能解析", Toast.LENGTH_SHORT).show();
             }
             //如果不是jchat的二维码也不是网址就把扫描出的文本显示出来

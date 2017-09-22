@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -40,8 +41,6 @@ import jiguang.chat.R;
 import jiguang.chat.activity.FriendInfoActivity;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
-import jiguang.chat.utils.BitmapLoader;
-import jiguang.chat.utils.NativeImageLoader;
 import jiguang.chat.utils.photochoose.SelectableRoundedImageView;
 
 /**
@@ -208,8 +207,23 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
             @Override
             public void gotResult(int responseCode, String responseMessage, UserInfo info) {
                 boolean flag = false;
-                if (responseCode == 0)
+                if (responseCode == 0) {
+                    if (info.getAvatarFile() != null && info.getAvatarFile().exists()) {
+                        holder.avatar.setImageBitmap(BitmapFactory.decodeFile(info.getAvatarFile().getAbsolutePath()));
+                    } else {
+                        info.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int i, String s, Bitmap bitmap) {
+                                if (i == 0) {
+                                    holder.avatar.setImageBitmap(bitmap);
+                                } else {
+                                    holder.avatar.setImageResource(R.drawable.jmui_head_icon);
+                                }
+                            }
+                        });
+                    }
                     uid[0] = info.getUserID();
+                }
                 if (!mIsSearch) {
                     String name = info.getDisplayName();
                     holder.displayName.setText(name);
@@ -335,42 +349,6 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
                     mContext.startActivity(intent);
                 }
             });
-        }
-
-        if (friend.avatar != null && !TextUtils.isEmpty(friend.avatar)) {
-            Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(friend.username);
-            if (null != bitmap) {
-                holder.avatar.setImageBitmap(bitmap);
-            } else {
-                bitmap = BitmapLoader.getBitmapFromFile(friend.avatar, mDensity);
-                if (null != bitmap) {
-                    holder.avatar.setImageBitmap(bitmap);
-                    NativeImageLoader.getInstance().updateBitmapFromCache(friend.username, bitmap);
-                } else {
-                    JMessageClient.getUserInfo(friend.username, friend.appKey, new GetUserInfoCallback() {
-                        @Override
-                        public void gotResult(int i, String s, final UserInfo userInfo) {
-                            if (i == 0) {
-                                userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                                    @Override
-                                    public void gotResult(int i, String s, Bitmap bitmap) {
-                                        if (i == 0) {
-                                            friend.avatar = userInfo.getAvatarFile().getAbsolutePath();
-                                            friend.save();
-                                            holder.avatar.setImageBitmap(bitmap);
-                                            NativeImageLoader.getInstance().updateBitmapFromCache(friend.username, bitmap);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });
-                    holder.avatar.setImageResource(R.drawable.jmui_head_icon);
-                }
-            }
-
-        } else {
-            holder.avatar.setImageResource(R.drawable.jmui_head_icon);
         }
 
         //点击gridView删除对应的条目

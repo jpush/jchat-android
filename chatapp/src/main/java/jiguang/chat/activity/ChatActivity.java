@@ -68,6 +68,7 @@ import jiguang.chat.pickerimage.utils.StorageType;
 import jiguang.chat.pickerimage.utils.StorageUtil;
 import jiguang.chat.pickerimage.utils.StringUtil;
 import jiguang.chat.utils.IdHelper;
+import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.SimpleCommonUtils;
 import jiguang.chat.utils.ToastUtil;
 import jiguang.chat.utils.event.ImageEvent;
@@ -517,8 +518,6 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
     @Override
     protected void onResume() {
-
-        mChatAdapter.notifyDataSetChanged();
         String targetId = getIntent().getStringExtra(TARGET_ID);
         if (!mIsSingle) {
             long groupId = getIntent().getLongExtra(GROUP_ID, 0);
@@ -537,6 +536,11 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             for (Message msg : JGApplication.ids) {
                 mChatAdapter.removeMessage(msg);
             }
+        }
+        mChatAdapter.notifyDataSetChanged();
+        if (SharePreferenceManager.getIsOpen()) {
+            initData();
+            SharePreferenceManager.setIsOpen(false);
         }
         super.onResume();
 
@@ -627,7 +631,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         });
     }
 
-    public void onEvent(MessageRetractEvent event) {
+    public void onEventMainThread(MessageRetractEvent event) {
         Message retractedMessage = event.getRetractedMessage();
         mChatAdapter.delMsgRetract(retractedMessage);
     }
@@ -872,7 +876,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         for (MessageReceiptStatusChangeEvent.MessageReceiptMeta meta : messageReceiptMetas) {
             long serverMsgId = meta.getServerMsgId();
             int unReceiptCnt = meta.getUnReceiptCnt();
-            mChatAdapter.setUpdateReceiptCount(serverMsgId, unReceiptCnt, true);
+            mChatAdapter.setUpdateReceiptCount(serverMsgId, unReceiptCnt);
         }
     }
 
@@ -927,6 +931,13 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     intent.putExtra(JGApplication.GROUP_ID, mGroupId);
                     startActivityForResult(intent, JGApplication.REQUEST_CODE_SEND_FILE);
                 }
+                break;
+            case JGApplication.BUSINESS_CARD:
+                intent = new Intent(mContext, FriendListActivity.class);
+                intent.putExtra("isSingle", mIsSingle);
+                intent.putExtra("userId", mTargetId);
+                intent.putExtra("groupId", mGroupId);
+                startActivity(intent);
                 break;
             case JGApplication.TACK_VIDEO:
             case JGApplication.TACK_VOICE:

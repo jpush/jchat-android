@@ -97,6 +97,7 @@ public class ChoosePhoto {
         });
     }
 
+    //更新群组头像
     public void setGroupAvatarChangeListener(final Activity context, final long groupId) {
         photoUtils = new PhotoUtils(new PhotoUtils.OnPhotoResultListener() {
             @Override

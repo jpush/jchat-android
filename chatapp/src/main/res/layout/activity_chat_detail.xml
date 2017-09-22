@@ -109,7 +109,9 @@
 
                 <TextView
                     android:id="@+id/chat_detail_group_name"
-                    style="@style/ChatDetailItemContent"/>
+                    style="@style/ChatDetailItemContent"
+                    android:ellipsize="end"
+                    android:maxLines="2"/>
 
                 <ImageView
                     android:id="@+id/arrow_iv"

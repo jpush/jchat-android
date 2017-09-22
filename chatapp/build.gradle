@@ -71,4 +71,5 @@ dependencies {
     compile files('libs/core-3.2.1.jar')
     compile files('libs/gson-2.2.1.jar')
     compile files('libs/jcore-android-1.1.6-debug-b152.jar')
+    compile 'com.contrarywind:Android-PickerView:3.2.4'
 }

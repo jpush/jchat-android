@@ -53,7 +53,6 @@
         </FrameLayout>
 
         <TextView
-            android:visibility="gone"
             android:id="@+id/text_receipt"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="7dp"

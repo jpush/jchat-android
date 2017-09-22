@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,7 +28,6 @@ import jiguang.chat.activity.fragment.BaseFragment;
 import jiguang.chat.activity.historyfile.adapter.AudioFileAdapter;
 import jiguang.chat.activity.historyfile.controller.HistoryFileController;
 import jiguang.chat.entity.FileItem;
-import jiguang.chat.utils.FileUtils;
 import jiguang.chat.view.listview.StickyListHeadersListView;
 
 /**
@@ -42,7 +40,6 @@ public class AudioFileFragment extends BaseFragment {
     private long mGroupId;
     private Activity mContext;
     private View mRootView;
-    private final MyHandler myHandler = new MyHandler(this);
     private final static int SCAN_OK = 1;
     private final static int SCAN_ERROR = 0;
     private AudioFileAdapter mAdapter;
@@ -52,17 +49,17 @@ public class AudioFileFragment extends BaseFragment {
     private static int section = 1;
     private Map<String, Integer> sectionMap = new HashMap<String, Integer>();
 
-    public void setController(HistoryFileController controller, String userName, long groupId, boolean isGroup) {
+    public void setController(HistoryFileController controller, String userName, long groupId, boolean isGroup, Activity activity) {
         mController = controller;
         mUserName = userName;
         mGroupId = groupId;
         mIsGroup = isGroup;
+        mContext = activity;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.mContext = getActivity();
         mRootView = LayoutInflater.from(mContext).inflate(R.layout.document_file,
                 (ViewGroup) mContext.findViewById(R.id.main_view), false);
         mDocumentList = (StickyListHeadersListView) mRootView.findViewById(R.id.document_list);
@@ -100,13 +97,12 @@ public class AudioFileFragment extends BaseFragment {
                                     Date date = new Date(createTime);
                                     SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月");
                                     String time = format.format(date);
-                                    String size = FileUtils.getFileSize(fileSize);
-                                    FileItem item = new FileItem(localPath, imageFile.getName(), size, time, msg.getId(), msg.getFromName());
+                                    FileItem item = new FileItem(localPath, imageFile.getName(), fileSize+"", time, msg.getId(), msg.getFromName());
                                     if (!sectionMap.containsKey(item.getDate())) {
                                         item.setSection(section);
                                         sectionMap.put(item.getDate(), section);
                                         section++;
-                                    }else {
+                                    } else {
                                         item.setSection(sectionMap.get(item.getDate()));
                                     }
                                     mDocuments.add(item);
@@ -115,39 +111,31 @@ public class AudioFileFragment extends BaseFragment {
                         }
 
                     }
-                    myHandler.sendEmptyMessage(SCAN_OK);
+                    mHandler.sendEmptyMessage(SCAN_OK);
                 }
             }
         }).start();
     }
 
-    private static class MyHandler extends Handler {
-        private final WeakReference<AudioFileFragment> mFragment;
-
-        public MyHandler(AudioFileFragment fragment) {
-            mFragment = new WeakReference<AudioFileFragment>(fragment);
-        }
-
+    private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
-        public void handleMessage(android.os.Message msg) {
-            super.handleMessage(msg);
-            AudioFileFragment fragment = mFragment.get();
-            if (fragment != null) {
-                switch (msg.what) {
-                    case SCAN_OK:
-                        //关闭进度条
-                        fragment.mAdapter = new AudioFileAdapter(fragment, fragment.mDocuments);
-                        fragment.mDocumentList.setAdapter(fragment.mAdapter);
-                        fragment.mAdapter.setUpdateListener(fragment.mController);
-                        break;
-                    case SCAN_ERROR:
-                        Toast.makeText(fragment.getActivity(), fragment.getString(R.string.sdcard_not_prepare_toast),
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                }
+        public boolean handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+                case SCAN_OK:
+                    if (mDocumentList != null) {
+                        mAdapter = new AudioFileAdapter(mContext, mDocuments);
+                        mDocumentList.setAdapter(mAdapter);
+                        mAdapter.setUpdateListener(mController);
+                    }
+                    break;
+                case SCAN_ERROR:
+                    Toast.makeText(mContext, getString(R.string.sdcard_not_prepare_toast),
+                            Toast.LENGTH_SHORT).show();
+                    break;
             }
+            return false;
         }
-    }
+    });
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -167,7 +155,8 @@ public class AudioFileFragment extends BaseFragment {
     public void notifyListAudio() {
         mDocuments.clear();
         initData();
-        mAdapter.notifyDataSetChanged();
+        if (mAdapter != null)
+            mAdapter.notifyDataSetChanged();
     }
 
 

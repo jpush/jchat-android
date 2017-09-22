@@ -164,7 +164,7 @@
         <activity
             android:screenOrientation="portrait"
             android:name=".activity.PersonalActivity"
-            android:theme="@style/AppBaseTheme"/>
+            android:theme="@style/BaseThemes"/>
         <activity
             android:screenOrientation="portrait"
             android:name=".activity.NickSignActivity"
@@ -357,6 +357,15 @@
             android:name=".activity.receiptmessage.ReceiptMessageListActivity"
             android:theme="@style/BaseThemes"
             android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:screenOrientation="portrait"
+            android:name=".activity.SearchFriendBusinessActivity"
+            android:theme="@style/BaseThemes"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:screenOrientation="portrait"
+            android:name=".activity.FriendListActivity"
+            android:theme="@style/BaseThemes"/>
         <activity
             android:screenOrientation="portrait"
             android:name=".activity.GroupAvatarActivity"

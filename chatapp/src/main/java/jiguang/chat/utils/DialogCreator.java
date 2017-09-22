@@ -23,6 +23,7 @@ import android.widget.Toast;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
+import cn.jpush.im.android.api.content.LocationContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
@@ -126,10 +127,13 @@ public class DialogCreator {
                 .getViewID(context, "jmui_delete_conv_ll"));
         final LinearLayout top = (LinearLayout) v.findViewById(IdHelper
                 .getViewID(context, "jmui_top_conv_ll"));
-        top.setVisibility(View.GONE);
+        TextView text = (TextView) v.findViewById(IdHelper.getViewID(context, "tv_conv_top"));
+        text.setText("转发");
+
         TextView textView = (TextView) v.findViewById(IdHelper.getViewID(context, "tv_dialogText"));
         textView.setText("保存到手机");
 
+        top.setOnClickListener(listener);
         deleteLl.setOnClickListener(listener);
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
@@ -385,6 +389,10 @@ public class DialogCreator {
                 TextContent text = (TextContent) message.getContent();
                 content.setText(text.getText());
                 break;
+            case voice:
+                content.setVisibility(View.VISIBLE);
+                content.setText("[语音消息]");
+                break;
             case image:
                 imageContent.setVisibility(View.VISIBLE);
                 ImageContent image = (ImageContent) message.getContent();
@@ -392,20 +400,27 @@ public class DialogCreator {
                 imageContent.setImageBitmap(BitmapFactory.decodeFile(imagePath));
                 break;
             case file:
-                videoLayout.setVisibility(View.VISIBLE);
                 FileContent fileVideo = (FileContent) message.getContent();
                 String videoExtra = fileVideo.getStringExtra("video");
                 if (!TextUtils.isEmpty(videoExtra)) {
                     if (fileVideo.isFileUploaded()) {
-                        String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + fileVideo.getFileName();
+                        String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + message.getServerMessageId();
                         String thumbPath = absolutePath.substring(0, absolutePath.lastIndexOf("."));
                         videoContent.setImageBitmap(BitmapFactory.decodeFile(thumbPath));
                     } else {
+                        videoLayout.setVisibility(View.VISIBLE);
                         videoContent.setImageResource(R.drawable.video_not_found);
                     }
+                } else {
+                    content.setVisibility(View.VISIBLE);
+                    content.setText("[文件]" + fileVideo.getFileName());
                 }
                 break;
-
+            case location:
+                LocationContent locationContent = (LocationContent) message.getContent();
+                content.setVisibility(View.VISIBLE);
+                content.setText("[位置]" + locationContent.getAddress());
+                break;
             default:
                 break;
         }
@@ -463,6 +478,7 @@ public class DialogCreator {
                         dialog.dismiss();
                         if (i == 0) {
                             Toast.makeText(context, "已发送", Toast.LENGTH_SHORT).show();
+                            SharePreferenceManager.setIsOpen(true);
                             ActivityController.finishAll();
                         } else {
                             HandleResponseCode.onHandle(context, i, false);

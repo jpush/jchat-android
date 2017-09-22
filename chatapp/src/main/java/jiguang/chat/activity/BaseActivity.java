@@ -144,6 +144,10 @@ public class BaseActivity extends SwipeBackActivity {
                 dialog.setCanceledOnTouchOutside(false);
                 dialog.show();
                 break;
+            case user_password_change:
+                Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
+                startActivity(intent);
+                break;
         }
     }
     @Override

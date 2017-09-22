@@ -60,6 +60,9 @@ public class ReceiptMessageListActivity extends FragmentActivity implements View
         mViewArray[0].setVisibility(View.VISIBLE);
         mTextViewArray[0].setTextColor(getResources().getColor(R.color.send_file_action_bar_selected));
 
+        mTextViewArray[0].setText("未读(" + getIntent().getIntExtra("noReadCount", 0) + ")");
+        mTextViewArray[1].setText("已读(" + getIntent().getIntExtra("alreadyReadCount", 0) + ")");
+
         mReturnBtn.setOnClickListener(this);
         mReceipt_viewPager.addOnPageChangeListener(this);
         //设置未读和已读响应点击事件

@@ -32,6 +32,7 @@ import cn.jpush.im.android.api.content.PromptContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
+import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
@@ -78,6 +79,8 @@ public class ConversationListAdapter extends BaseAdapter {
      * @param conv 要置顶的会话
      */
     public void setToTop(Conversation conv) {
+        int oldCount = 0;
+        int newCount = 0;
         ThreadUtil.runInUiThread(new Runnable() {
             @Override
             public void run() {
@@ -97,15 +100,40 @@ public class ConversationListAdapter extends BaseAdapter {
                     //如果不是置顶的,就在集合中把原来的那条消息移出,然后去掉置顶的消息数量,插入到集合中
                 } else {
                     mDatas.remove(conversation);
-                    mDatas.add(SharePreferenceManager.getCancelTopSize(), conv);
+                    //这里要排序,因为第一次登录有漫游消息.离线消息(其中群组变化也是用这个事件下发的);所以有可能会话的最后一条消息
+                    //时间比较早,但是事件下发比较晚,这就导致乱序.所以要重新排序.
+
+                    //排序规则,每一个进来的会话去和倒叙list中的会话比较时间,如果进来的会话的最后一条消息就是最早创建的
+                    //那么这个会话自然就是最后一个.所以直接跳出循环,否则就一个个向前比较.
+                    for (int i = mDatas.size(); i > SharePreferenceManager.getCancelTopSize(); i--) {
+                        if (conv.getLatestMessage().getCreateTime() > mDatas.get(i - 1).getLatestMessage().getCreateTime()) {
+                            oldCount = i - 1;
+                        } else {
+                            oldCount = i;
+                            break;
+                        }
+                    }
+                    mDatas.add(oldCount, conv);
                     mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
                     mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
                     return;//直接跳出整个方法,否则有可能引起ConcurrentModificationException
                 }
             }
         }
-        //如果是新的会话,直接去掉置顶的消息数之后就插入到list中
-        mDatas.add(SharePreferenceManager.getCancelTopSize(), conv);
+        if (mDatas.size() == 0) {
+            mDatas.add(conv);
+        } else {
+            //如果是新的会话,直接去掉置顶的消息数之后就插入到list中
+            for (int i = mDatas.size(); i > SharePreferenceManager.getCancelTopSize(); i--) {
+                if (conv.getLatestMessage().getCreateTime() > mDatas.get(i - 1).getLatestMessage().getCreateTime()) {
+                    newCount = i - 1;
+                } else {
+                    newCount = i;
+                    break;
+                }
+            }
+            mDatas.add(newCount, conv);
+        }
         mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
         mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
 
@@ -114,6 +142,7 @@ public class ConversationListAdapter extends BaseAdapter {
     //置顶会话
     public void setConvTop(Conversation conversation) {
         int count = 0;
+        //遍历原有的会话,得到有几个会话是置顶的
         for (Conversation conv : mDatas) {
             if (!TextUtils.isEmpty(conv.getExtra())) {
                 count++;
@@ -128,24 +157,22 @@ public class ConversationListAdapter extends BaseAdapter {
     }
 
     //取消会话置顶
-    List<Conversation> forDel = new ArrayList<>();
-
     public void setCancelConvTop(Conversation conversation) {
         forCurrent.clear();
         topConv.clear();
         int i = 0;
         for (Conversation oldConv : mDatas) {
+            //在原来的会话中找到取消置顶的这个,添加到待删除中
             if (oldConv.getId().equals(conversation.getId())) {
-                forDel.add(oldConv);
+                oldConv.updateConversationExtra("");
                 break;
             }
         }
-        mDatas.removeAll(forDel);
-        conversation.updateConversationExtra("");
-        mDatas.add(conversation);
+        //全部会话排序
         SortConvList sortConvList = new SortConvList();
         Collections.sort(mDatas, sortConvList);
 
+        //遍历会话找到原来设置置顶的
         for (Conversation con : mDatas) {
             if (!TextUtils.isEmpty(con.getExtra())) {
                 forCurrent.add(con);
@@ -226,7 +253,7 @@ public class ConversationListAdapter extends BaseAdapter {
             Message lastMsg = convItem.getLatestMessage();
             if (lastMsg != null) {
                 TimeFormat timeFormat = new TimeFormat(mContext, lastMsg.getCreateTime());
-                //会话界面时间
+//                //会话界面时间
                 datetime.setText(timeFormat.getTime());
                 String contentStr;
                 switch (lastMsg.getContentType()) {
@@ -335,13 +362,28 @@ public class ConversationListAdapter extends BaseAdapter {
                             content.setText("[有人@我] " + contentStr);
                         } else {
                             if (lastMsg.getUnreceiptCnt() == 0) {
-                                content.setText("[已读]" + contentStr);
+                                if (lastMsg.getTargetType().equals(ConversationType.single) &&
+                                        lastMsg.getDirect().equals(MessageDirect.send) &&
+                                        !lastMsg.getContentType().equals(ContentType.prompt) &&
+                                        !((UserInfo) lastMsg.getTargetInfo()).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                                    content.setText("[已读]" + contentStr);
+                                } else {
+                                    content.setText(contentStr);
+                                }
                             } else {
-                                contentStr = "[未读]" + contentStr;
-                                SpannableStringBuilder builder = new SpannableStringBuilder(contentStr);
-                                builder.setSpan(new ForegroundColorSpan(mContext.getResources().getColor(R.color.line_normal)),
-                                        0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                content.setText(builder);
+                                if (lastMsg.getTargetType().equals(ConversationType.single) &&
+                                        lastMsg.getDirect().equals(MessageDirect.send) &&
+                                        !lastMsg.getContentType().equals(ContentType.prompt) &&
+                                        !((UserInfo) lastMsg.getTargetInfo()).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                                    contentStr = "[未读]" + contentStr;
+                                    SpannableStringBuilder builder = new SpannableStringBuilder(contentStr);
+                                    builder.setSpan(new ForegroundColorSpan(mContext.getResources().getColor(R.color.line_normal)),
+                                            0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    content.setText(builder);
+                                } else {
+                                    content.setText(contentStr);
+                                }
+
                             }
                         }
                     }

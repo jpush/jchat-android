@@ -64,10 +64,10 @@ public class HistoryFileController implements View.OnClickListener, ViewPager.On
                 fragments);
         mSFView.setViewPagerAdapter(viewPagerAdapter);
         mImgFragment.setController(this, userName, groupId, isGroup);
-        mDocumentFragment.setController(this, userName, groupId, isGroup);
-        mVideoFragment.setController(this, userName, groupId, isGroup);
-        mAudioFragment.setController(this, userName, groupId, isGroup);
-        mOtherFragment.setController(this, userName, groupId, isGroup);
+        mDocumentFragment.setController(this, userName, groupId, isGroup, mContext);
+        mVideoFragment.setController(this, userName, groupId, isGroup, mContext);
+        mAudioFragment.setController(this, userName, groupId, isGroup, mContext);
+        mOtherFragment.setController(this, userName, groupId, isGroup, mContext);
     }
 
     @Override

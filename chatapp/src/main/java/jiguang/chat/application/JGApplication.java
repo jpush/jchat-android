@@ -38,6 +38,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final int FILE_MESSAGE = 4;
     public static final int TACK_VIDEO = 5;
     public static final int TACK_VOICE = 6;
+    public static final int BUSINESS_CARD = 7;
     public static final int REQUEST_CODE_SEND_FILE = 26;
 
 

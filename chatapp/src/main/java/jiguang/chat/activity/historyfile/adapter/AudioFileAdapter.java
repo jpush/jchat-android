@@ -1,5 +1,6 @@
 package jiguang.chat.activity.historyfile.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,7 +19,6 @@ import java.io.File;
 import java.util.List;
 
 import jiguang.chat.R;
-import jiguang.chat.activity.historyfile.fragment.AudioFileFragment;
 import jiguang.chat.adapter.StickyListHeadersAdapter;
 import jiguang.chat.entity.FileItem;
 import jiguang.chat.entity.SelectedHistoryFileListener;
@@ -37,10 +37,10 @@ public class AudioFileAdapter extends BaseAdapter implements StickyListHeadersAd
     private SelectedHistoryFileListener mListener;
     private Context mContext;
 
-    public AudioFileAdapter(AudioFileFragment fragment, List<FileItem> documents) {
+    public AudioFileAdapter(Activity fragment, List<FileItem> documents) {
         this.mList = documents;
-        this.mContext = fragment.getContext();
-        this.mInflater = LayoutInflater.from(fragment.getActivity());
+        this.mContext = fragment;
+        this.mInflater = LayoutInflater.from(fragment);
     }
 
     @Override
@@ -92,9 +92,9 @@ public class AudioFileAdapter extends BaseAdapter implements StickyListHeadersAd
         LinearLayout ll_document = ViewHolder.get(convertView, R.id.document_item_ll);
         MyImageView imageView = ViewHolder.get(convertView, R.id.document_iv);
 
-        if ( SharePreferenceManager.getShowCheck()) {
+        if (SharePreferenceManager.getShowCheck()) {
             checkBox.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             checkBox.setVisibility(View.GONE);
         }
 
@@ -110,7 +110,7 @@ public class AudioFileAdapter extends BaseAdapter implements StickyListHeadersAd
                     checkBox.setChecked(true);
                     mSelectMap.put(position, true);
                     mListener.onSelected(item.getMsgId(), item.getMsgId());
-                }else {
+                } else {
                     mSelectMap.delete(position);
                     mListener.onUnselected(item.getMsgId(), item.getMsgId());
                 }

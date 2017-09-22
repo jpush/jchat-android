@@ -201,12 +201,12 @@ public class SharePreferenceManager {
 
     public static void setIsOpen(boolean value) {
         if(null != sp){
-            sp.edit().putBoolean(NO_DISTURB, value).apply();
+            sp.edit().putBoolean(ISOPEN, value).apply();
         }
     }
 
     public static boolean getIsOpen(){
-        return null != sp && sp.getBoolean(NO_DISTURB, false);
+        return null != sp && sp.getBoolean(ISOPEN, false);
     }
 
     private static final String SOFT_KEYBOARD_HEIGHT = "SoftKeyboardHeight";

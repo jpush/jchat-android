@@ -234,7 +234,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             case R.id.rl_groupAvatar:
                 intent.setClass(mContext, GroupAvatarActivity.class);
                 intent.putExtra("groupID",mGroupId);
-                if(mGroupInfo.getBigAvatarFile() != null) {
+                if(mGroupInfo.getBigAvatarFile() != null && mGroupInfo.getBigAvatarFile().exists()) {
                     intent.putExtra("groupAvatar", mGroupInfo.getBigAvatarFile().getAbsolutePath());
                 }
                 mContext.startActivityForResult(intent,4);

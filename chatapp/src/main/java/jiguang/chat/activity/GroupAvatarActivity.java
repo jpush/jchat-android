@@ -1,6 +1,7 @@
 package jiguang.chat.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +10,10 @@ import android.widget.LinearLayout;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.model.GroupInfo;
 import jiguang.chat.R;
 import jiguang.chat.utils.photochoose.ChoosePhoto;
 import jiguang.chat.utils.photochoose.PhotoUtils;
@@ -27,6 +32,7 @@ public class GroupAvatarActivity extends BaseActivity implements View.OnClickLis
     ImageView ivGroupAvatar;
 
     ChoosePhoto mChoosePhoto;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +43,22 @@ public class GroupAvatarActivity extends BaseActivity implements View.OnClickLis
         ivSave.setOnClickListener(this);
         if (getIntent().getStringExtra("groupAvatar") != null) {
             ivGroupAvatar.setImageBitmap(BitmapFactory.decodeFile(getIntent().getStringExtra("groupAvatar")));
+        } else {
+            JMessageClient.getGroupInfo(getIntent().getLongExtra("groupID", 0), new GetGroupInfoCallback() {
+                @Override
+                public void gotResult(int i, String s, GroupInfo groupInfo) {
+                    if (i == 0) {
+                        groupInfo.getBigAvatarBitmap(new GetAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int i, String s, Bitmap bitmap) {
+                                if (i == 0) {
+                                    ivGroupAvatar.setImageBitmap(bitmap);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 

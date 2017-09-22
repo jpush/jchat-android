@@ -1,5 +1,6 @@
 package jiguang.chat.activity.historyfile.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,7 +19,6 @@ import java.io.File;
 import java.util.List;
 
 import jiguang.chat.R;
-import jiguang.chat.activity.historyfile.fragment.VideoFileFragment;
 import jiguang.chat.adapter.StickyListHeadersAdapter;
 import jiguang.chat.entity.FileItem;
 import jiguang.chat.entity.SelectedHistoryFileListener;
@@ -37,10 +37,10 @@ public class VideoFileAdapter extends BaseAdapter implements StickyListHeadersAd
     private SelectedHistoryFileListener mListener;
     private Context mContext;
 
-    public VideoFileAdapter(VideoFileFragment fragment, List<FileItem> documents) {
+    public VideoFileAdapter(Activity fragment, List<FileItem> documents) {
         this.mList = documents;
-        this.mContext = fragment.getContext();
-        this.mInflater = LayoutInflater.from(fragment.getActivity());
+        this.mContext = fragment;
+        this.mInflater = LayoutInflater.from(mContext);
     }
 
     @Override

@@ -24,7 +24,7 @@
 
             <LinearLayout
                 android:id="@+id/jmui_send_file_ll"
-                android:layout_width="wrap_content"
+                android:layout_width="210dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/receive_msg_normal"
                 android:orientation="vertical">
@@ -37,12 +37,12 @@
                         android:id="@+id/jmui_msg_content"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="13.33dp"
                         android:layout_marginLeft="13dp"
                         android:layout_marginRight="13dp"
+                        android:layout_marginTop="13.33dp"
+                        android:ellipsize="end"
                         android:ems="7"
                         android:maxLines="2"
-                        android:ellipsize="end"
                         android:paddingBottom="10dp"
                         android:textColor="@color/send_file_title_color"/>
 
@@ -50,8 +50,8 @@
                         android:id="@+id/iv_document"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:layout_marginTop="13.33dp"
                         android:layout_marginRight="11dp"
+                        android:layout_marginTop="13.33dp"
                         android:src="@drawable/jmui_document"/>
                 </LinearLayout>
 
@@ -63,16 +63,32 @@
                     android:layout_marginTop="17dp"
                     android:background="@color/send_file_divider_color"/>
 
-                <TextView
-                    android:id="@+id/jmui_send_file_size"
+                <RelativeLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="13dp"
-                    android:layout_marginBottom="3dp"
-                    android:layout_marginTop="3dp"
-                    android:textColor="@color/chat_item_file_size"
-                    android:textSize="12sp"/>
+                    android:layout_height="wrap_content">
 
+                    <TextView
+                        android:id="@+id/jmui_send_file_size"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginLeft="13dp"
+                        android:layout_marginTop="3dp"
+                        android:textColor="@color/chat_item_file_size"
+                        android:textSize="12sp"/>
+
+                    <TextView
+                        android:id="@+id/jmui_send_file_load"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginTop="3dp"
+                        android:textColor="@color/chat_item_file_size"
+                        android:textSize="12sp"/>
+
+                </RelativeLayout>
             </LinearLayout>
 
             <TextView

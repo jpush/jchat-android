@@ -77,6 +77,8 @@ public class AppsAdapter extends BaseAdapter {
                         EventBus.getDefault().post(new ImageEvent(JGApplication.TACK_VIDEO));
                     }else if (appBean.getFuncName().equals("语音")) {
                         EventBus.getDefault().post(new ImageEvent(JGApplication.TACK_VOICE));
+                    }else if (appBean.getFuncName().equals("名片")) {
+                        EventBus.getDefault().post(new ImageEvent(JGApplication.BUSINESS_CARD));
                     }
                 }
             });

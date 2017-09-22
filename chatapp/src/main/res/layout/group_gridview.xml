@@ -33,6 +33,10 @@
         android:layout_height="5dp"
         android:background="#E8EDF3"/>
 
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
     <jiguang.chat.view.GroupGridView
         android:id="@+id/group_gridView"
         android:layout_width="match_parent"
@@ -46,5 +50,5 @@
         android:numColumns="5"
         android:stretchMode="columnWidth"
         android:verticalSpacing="10dp"/>
-
+    </ScrollView>
 </LinearLayout>

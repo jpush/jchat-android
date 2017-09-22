@@ -18,6 +18,7 @@ import java.util.List;
 import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
@@ -48,7 +49,6 @@ public class FriendRecommendAdapter extends BaseAdapter {
     private List<FriendRecommendEntry> mList = new ArrayList<>();
     private LayoutInflater mInflater;
     private float mDensity;
-    private Dialog mDialog;
     private int mWidth;
 
     public FriendRecommendAdapter(Activity context, List<FriendRecommendEntry> list, float density,
@@ -108,7 +108,6 @@ public class FriendRecommendAdapter extends BaseAdapter {
             headIcon.setImageBitmap(bitmap);
         }
 
-
         name.setText(item.displayName);
         reason.setText(item.reason);
         if (item.state.equals(FriendInvitation.INVITED.getValue())) {
@@ -131,6 +130,16 @@ public class FriendRecommendAdapter extends BaseAdapter {
                                 state.setText("已添加");
                                 EventBus.getDefault().post(new Event.Builder().setType(EventType.addFriend)
                                         .setFriendId(item.getId()).build());
+
+                                //添加好友成功创建个会话
+                                Conversation conversation = JMessageClient.getSingleConversation(item.username, item.appKey);
+                                if (conversation == null) {
+                                    conversation = Conversation.createSingleConversation(item.username, item.appKey);
+                                    EventBus.getDefault().post(new Event.Builder()
+                                            .setType(EventType.createConversation)
+                                            .setConversation(conversation)
+                                            .build());
+                                }
                             }
                         }
                     });

@@ -23,15 +23,17 @@
             android:textSize="20dp"/>
 
         <TextView
-            android:layout_marginRight="30dp"
-            android:layout_marginLeft="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="20dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
             android:layout_marginTop="15dp"
+            android:maxLines="1"
             android:text="感谢您的反馈,我们将持续为您改进"
-            android:textColor="#000"/>
+            android:textColor="#000"
+            android:textSize="13sp"/>
 
         <View
             android:layout_width="match_parent"

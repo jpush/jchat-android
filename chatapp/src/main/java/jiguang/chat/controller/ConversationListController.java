@@ -39,7 +39,6 @@ public class ConversationListController implements View.OnClickListener,
     private int mWidth;
     private ConversationListAdapter mListAdapter;
     private List<Conversation> mDatas = new ArrayList<Conversation>();
-    private List<Conversation> mConv = new ArrayList<Conversation>();
     private Dialog mDialog;
 
     public ConversationListController(ConversationListView listView, ConversationListFragment context,

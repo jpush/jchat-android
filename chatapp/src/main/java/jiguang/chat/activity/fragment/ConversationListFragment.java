@@ -25,6 +25,7 @@ import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ConversationRefreshEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.event.MessageReceiptStatusChangeEvent;
 import cn.jpush.im.android.api.event.MessageRetractEvent;
 import cn.jpush.im.android.api.event.OfflineMessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
@@ -201,9 +202,19 @@ public class ConversationListFragment extends BaseFragment {
         mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
     }
 
+    /**
+     * 消息撤回
+     */
     public void onEvent(MessageRetractEvent event) {
         Conversation conversation = event.getConversation();
         mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conversation));
+    }
+
+    /**
+     * 消息已读事件
+     */
+    public void onEventMainThread(MessageReceiptStatusChangeEvent event) {
+        mConvListController.getAdapter().notifyDataSetChanged();
     }
 
     /**
@@ -214,6 +225,10 @@ public class ConversationListFragment extends BaseFragment {
     public void onEvent(ConversationRefreshEvent event) {
         Conversation conv = event.getConversation();
         mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
+        //多端在线未读数改变时刷新
+        if (event.getReason().equals(ConversationRefreshEvent.Reason.UNREAD_CNT_UPDATED)) {
+            mConvListController.getAdapter().notifyDataSetChanged();
+        }
     }
 
     private class BackgroundHandler extends Handler {

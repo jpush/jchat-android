@@ -14,6 +14,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -701,8 +702,8 @@ public class ChatItemController {
         FileContent fileContent = (FileContent) msg.getContent();
         String videoPath = fileContent.getLocalPath();
         if (videoPath != null) {
-            String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + fileContent.getFileName();
-            String thumbPath = absolutePath.substring(0, absolutePath.lastIndexOf("."));
+//            String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + msg.getServerMessageId();
+            String thumbPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + msg.getServerMessageId();
             String path = BitmapDecoder.extractThumbnail(videoPath, thumbPath);
             setPictureScale(null, msg, path, holder.picture);
             Picasso.with(mContext).load(new File(path)).into(holder.picture);
@@ -905,7 +906,7 @@ public class ChatItemController {
                 case receive_going:
                     holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
                     holder.progressTv.setVisibility(View.VISIBLE);
-                    holder.resend.setVisibility(View.GONE);
+                    holder.fileLoad.setText("");
                     if (!msg.isContentDownloadProgressCallbackExists()) {
                         msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
                             @Override
@@ -922,23 +923,25 @@ public class ChatItemController {
                         });
                     }
                     break;
-                case receive_fail:
+                case receive_fail://收到文件没下载也是这个状态
                     holder.progressTv.setVisibility(View.GONE);
+                    //开始是用的下面这行设置但是部分手机会崩溃
+                    //mContext.getDrawable(R.drawable.jmui_msg_receive_bg)
+                    //如果用上面的报错 NoSuchMethodError 就把setBackground后面参数换成下面的
                     //ContextCompat.getDrawable(mContext, R.drawable.jmui_msg_receive_bg)
-                    //如果下面报错 NoSuchMethodError 就把setBackground后面参数换成上面的
-                    holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_receive_bg));
-                    holder.resend.setVisibility(View.VISIBLE);
+                    holder.contentLl.setBackground(ContextCompat.getDrawable(mContext, R.drawable.jmui_msg_receive_bg));
+                    holder.fileLoad.setText("未下载");
                     break;
                 case receive_success:
                     holder.progressTv.setVisibility(View.GONE);
                     holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_receive_bg));
-                    holder.resend.setVisibility(View.GONE);
+                    holder.fileLoad.setText("已下载");
                     break;
             }
         }
 
-        if (holder.resend != null) {
-            holder.resend.setOnClickListener(new View.OnClickListener() {
+        if (holder.fileLoad != null) {
+            holder.fileLoad.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (msg.getDirect() == MessageDirect.send) {
@@ -947,7 +950,6 @@ public class ChatItemController {
                         holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
                         holder.progressTv.setText("0%");
                         holder.progressTv.setVisibility(View.VISIBLE);
-                        holder.resend.setVisibility(View.GONE);
                         if (!msg.isContentDownloadProgressCallbackExists()) {
                             msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
                                 @Override
@@ -963,7 +965,7 @@ public class ChatItemController {
                                 holder.progressTv.setVisibility(View.GONE);
                                 holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_receive_bg));
                                 if (status != 0) {
-                                    holder.resend.setVisibility(View.VISIBLE);
+                                    holder.fileLoad.setText("未下载");
                                     Toast.makeText(mContext, R.string.download_file_failed,
                                             Toast.LENGTH_SHORT).show();
                                 } else {
@@ -1155,7 +1157,7 @@ public class ChatItemController {
 //                            intent.putExtra("video_path", content.getLocalPath());
 //                            mContext.startActivity(intent);
 //                        }
-                        final String fileName = content.getFileName();
+                        String fileName = msg.getServerMessageId()+".mp4";
                         final String path = content.getLocalPath();
                         if (msg.getDirect() == MessageDirect.send) {
                             if (new File(path).exists()) {
@@ -1172,11 +1174,12 @@ public class ChatItemController {
                                 if (file.exists() && file.isFile()) {
                                     browseDocument(fileName, newPath);
                                 } else {
+                                    final String finalFileName = fileName;
                                     FileHelper.getInstance().copyFile(fileName, path, (Activity) mContext,
                                             new FileHelper.CopyFileCallback() {
                                                 @Override
                                                 public void copyCallback(Uri uri) {
-                                                    browseDocument(fileName, newPath);
+                                                    browseDocument(finalFileName, newPath);
                                                 }
                                             });
                                 }
