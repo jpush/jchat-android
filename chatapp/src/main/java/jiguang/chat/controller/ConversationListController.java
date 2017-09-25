@@ -51,10 +51,12 @@ public class ConversationListController implements View.OnClickListener,
 
     List<Conversation> topConv = new ArrayList<>();
     List<Conversation> forCurrent = new ArrayList<>();
+    List<Conversation> delFeedBack = new ArrayList<>();
 
     private void initConvListAdapter() {
         forCurrent.clear();
         topConv.clear();
+        delFeedBack.clear();
         int i = 0;
         mDatas = JMessageClient.getConversationList();
         if (mDatas != null && mDatas.size() > 0) {
@@ -62,12 +64,17 @@ public class ConversationListController implements View.OnClickListener,
             SortConvList sortConvList = new SortConvList();
             Collections.sort(mDatas, sortConvList);
             for (Conversation con : mDatas) {
+                if (con.getTargetId().equals("feedback_Android")) {
+                    delFeedBack.add(con);
+                }
                 if (!TextUtils.isEmpty(con.getExtra())) {
                     forCurrent.add(con);
                 }
             }
             topConv.addAll(forCurrent);
             mDatas.removeAll(forCurrent);
+            mDatas.removeAll(delFeedBack);
+
         } else {
             mConvListView.setNullConversation(false);
         }

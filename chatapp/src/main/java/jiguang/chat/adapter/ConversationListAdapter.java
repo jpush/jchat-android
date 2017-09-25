@@ -221,14 +221,6 @@ public class ConversationListAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
         final Conversation convItem = mDatas.get(position);
-        if (convItem.getType().equals(ConversationType.single)) {
-            UserInfo feedBack = (UserInfo) convItem.getTargetInfo();
-            if (feedBack.getUserName().equals("feedback_Android")) {
-                JMessageClient.deleteSingleConversation("feedback_Android", feedBack.getAppKey());
-                mDatas.remove(position);
-                notifyDataSetChanged();
-            }
-        }
         mConversationListView.setUnReadMsg(JMessageClient.getAllUnReadMsgCount());
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.item_conv_list, null);

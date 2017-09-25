@@ -199,7 +199,9 @@ public class ConversationListFragment extends BaseFragment {
      */
     public void onEvent(OfflineMessageEvent event) {
         Conversation conv = event.getConversation();
-        mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
+        if (!conv.getTargetId().equals("feedback_Android")) {
+            mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
+        }
     }
 
     /**
@@ -224,10 +226,12 @@ public class ConversationListFragment extends BaseFragment {
      */
     public void onEvent(ConversationRefreshEvent event) {
         Conversation conv = event.getConversation();
-        mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
-        //多端在线未读数改变时刷新
-        if (event.getReason().equals(ConversationRefreshEvent.Reason.UNREAD_CNT_UPDATED)) {
-            mConvListController.getAdapter().notifyDataSetChanged();
+        if (!conv.getTargetId().equals("feedback_Android")) {
+            mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
+            //多端在线未读数改变时刷新
+            if (event.getReason().equals(ConversationRefreshEvent.Reason.UNREAD_CNT_UPDATED)) {
+                mConvListController.getAdapter().notifyDataSetChanged();
+            }
         }
     }
 
