@@ -18,10 +18,13 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.List;
 
+import cn.jpush.im.android.api.content.FileContent;
 import jiguang.chat.R;
+import jiguang.chat.activity.DownLoadActivity;
 import jiguang.chat.adapter.StickyListHeadersAdapter;
 import jiguang.chat.entity.FileItem;
 import jiguang.chat.entity.SelectedHistoryFileListener;
+import jiguang.chat.utils.FileHelper;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.ViewHolder;
 import jiguang.chat.view.MyImageView;
@@ -116,14 +119,32 @@ public class AudioFileAdapter extends BaseAdapter implements StickyListHeadersAd
                 }
             }
         });
-
+        final FileContent content = (FileContent) item.getMessage().getContent();
         ll_document.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                browseDocument(item.getFileName(), item.getFilePath());
+                if (content.getLocalPath() == null) {
+                    org.greenrobot.eventbus.EventBus.getDefault().postSticky(item.getMessage());
+                    Intent intent = new Intent(mContext, DownLoadActivity.class);
+                    mContext.startActivity(intent);
+                } else {
+                    final String newPath = "sdcard/JChatDemo/recvFiles/" + content.getFileName();
+                    File file = new File(newPath);
+                    if (file.exists() && file.isFile()) {
+                        browseDocument(content.getFileName(), newPath);
+                    } else {
+                        final String finalFileName = content.getFileName();
+                        FileHelper.getInstance().copyFile(item.getFileName(), content.getLocalPath(), (Activity) mContext,
+                                new FileHelper.CopyFileCallback() {
+                                    @Override
+                                    public void copyCallback(Uri uri) {
+                                        browseDocument(finalFileName, newPath);
+                                    }
+                                });
+                    }
+                }
             }
         });
-
         return convertView;
     }
 

@@ -196,7 +196,7 @@ public class SearchFriendBusinessActivity extends BaseActivity implements Adapte
                     case R.id.btn_sure:
                         mDialog.dismiss();
                         //把名片的userName和appKey通过extra发送给对方
-                        TextContent content = new TextContent("推荐一张名片给你");
+                        TextContent content = new TextContent("推荐了一张名片");
                         content.setStringExtra("userName", info.getUserName());
                         content.setStringExtra("appKey", info.getAppKey());
                         content.setStringExtra("businessCard", "businessCard");

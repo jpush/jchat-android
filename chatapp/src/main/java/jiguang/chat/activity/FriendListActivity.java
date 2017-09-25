@@ -27,6 +27,7 @@ import jiguang.chat.database.FriendEntry;
 import jiguang.chat.database.UserEntry;
 import jiguang.chat.utils.DialogCreator;
 import jiguang.chat.utils.HandleResponseCode;
+import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.pinyin.PinyinComparator;
 import jiguang.chat.utils.sidebar.SideBar;
 import jiguang.chat.view.listview.StickyListHeadersListView;
@@ -117,7 +118,7 @@ public class FriendListActivity extends BaseActivity {
                     case R.id.btn_sure:
                         mDialog.dismiss();
                         //把名片的userName和appKey通过extra发送给对方
-                        TextContent content = new TextContent("推荐一张名片给你");
+                        TextContent content = new TextContent("推荐了一张名片");
                         content.setStringExtra("userName", entry.username);
                         content.setStringExtra("appKey", entry.appKey);
                         content.setStringExtra("businessCard", "businessCard");
@@ -130,6 +131,7 @@ public class FriendListActivity extends BaseActivity {
                             @Override
                             public void gotResult(int i, String s) {
                                 if (i == 0) {
+                                    SharePreferenceManager.setIsOpen(true);
                                     Toast.makeText(FriendListActivity.this, "发送成功", Toast.LENGTH_SHORT).show();
                                     finish();
                                 } else {

@@ -290,13 +290,7 @@ public class ConversationListAdapter extends BaseAdapter {
                         contentStr = ((PromptContent) lastMsg.getContent()).getPromptText();
                         break;
                     default:
-                        TextContent textContent = (TextContent) lastMsg.getContent();
-                        String businessExtra = textContent.getStringExtra("businessCard");
-                        if (businessExtra != null && businessExtra.equals("businessCard")) {
-                            contentStr = "[名片]";
-                        } else {
-                            contentStr = ((TextContent) lastMsg.getContent()).getText();
-                        }
+                        contentStr = ((TextContent) lastMsg.getContent()).getText();
                         break;
                 }
 
@@ -362,6 +356,7 @@ public class ConversationListAdapter extends BaseAdapter {
                                 if (lastMsg.getTargetType().equals(ConversationType.single) &&
                                         lastMsg.getDirect().equals(MessageDirect.send) &&
                                         !lastMsg.getContentType().equals(ContentType.prompt) &&
+                                        //排除自己给自己发送消息
                                         !((UserInfo) lastMsg.getTargetInfo()).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
                                     content.setText("[已读]" + contentStr);
                                 } else {
@@ -386,9 +381,15 @@ public class ConversationListAdapter extends BaseAdapter {
                     }
                 }
             } else {
-                TimeFormat timeFormat = new TimeFormat(mContext, convItem.getLastMsgDate());
-                datetime.setText(timeFormat.getTime());
-                content.setText("");
+                if (convItem.getLastMsgDate() == 0) {
+                    //会话列表时间展示的是最后一条会话,那么如果最后一条消息是空的话就不显示
+                    datetime.setText("");
+                    content.setText("");
+                } else {
+                    TimeFormat timeFormat = new TimeFormat(mContext, convItem.getLastMsgDate());
+                    datetime.setText(timeFormat.getTime());
+                    content.setText("");
+                }
             }
         } else {
             draft = mContext.getString(R.string.draft) + draft;

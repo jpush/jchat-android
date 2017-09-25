@@ -1157,7 +1157,11 @@ public class ChatItemController {
 //                            intent.putExtra("video_path", content.getLocalPath());
 //                            mContext.startActivity(intent);
 //                        }
-                        String fileName = msg.getServerMessageId()+".mp4";
+                        String fileName = content.getFileName();
+                        String extra = content.getStringExtra("video");
+                        if (extra != null) {
+                            fileName = msg.getServerMessageId() + "." + extra;
+                        }
                         final String path = content.getLocalPath();
                         if (msg.getDirect() == MessageDirect.send) {
                             if (new File(path).exists()) {

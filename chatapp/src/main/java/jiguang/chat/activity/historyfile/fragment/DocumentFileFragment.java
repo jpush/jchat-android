@@ -3,13 +3,11 @@ package jiguang.chat.activity.historyfile.fragment;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -77,7 +75,7 @@ public class DocumentFileFragment extends BaseFragment {
                     conversation = JMessageClient.getSingleConversation(mUserName);
                 }
                 List<Message> allMessage = conversation.getAllMessage();
-                for (cn.jpush.im.android.api.model.Message msg : allMessage) {
+                for (Message msg : allMessage) {
                     MessageContent content = msg.getContent();
 
                     if (content.getContentType() == ContentType.file) {
@@ -89,25 +87,20 @@ public class DocumentFileFragment extends BaseFragment {
                             FileContent fileContent = (FileContent) content;
                             String localPath = fileContent.getLocalPath();
 
-                            if (!TextUtils.isEmpty(localPath)) {
-                                File imageFile = new File(localPath);
-                                if (imageFile.exists()) {
-                                    long createTime = msg.getCreateTime();
-                                    long fileSize = imageFile.length();
-                                    Date date = new Date(createTime);
-                                    SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月");
-                                    String time = format.format(date);
-                                    FileItem item = new FileItem(localPath, fileContent.getFileName(), fileSize+"", time, msg.getId(), msg.getFromName());
-                                    if (!sectionMap.containsKey(item.getDate())) {
-                                        item.setSection(section);
-                                        sectionMap.put(item.getDate(), section);
-                                        section++;
-                                    } else {
-                                        item.setSection(sectionMap.get(item.getDate()));
-                                    }
-                                    mDocuments.add(item);
-                                }
+                            long createTime = msg.getCreateTime();
+                            long fileSize = fileContent.getFileSize();
+                            Date date = new Date(createTime);
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月");
+                            String time = format.format(date);
+                            FileItem item = new FileItem(localPath, fileContent.getFileName(), fileSize + "", time, msg.getId(), msg.getFromName(), msg);
+                            if (!sectionMap.containsKey(item.getDate())) {
+                                item.setSection(section);
+                                sectionMap.put(item.getDate(), section);
+                                section++;
+                            } else {
+                                item.setSection(sectionMap.get(item.getDate()));
                             }
+                            mDocuments.add(item);
                         }
 
                     }
@@ -122,7 +115,7 @@ public class DocumentFileFragment extends BaseFragment {
         public boolean handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case SCAN_OK:
-                    if (mDocumentList !=null) {
+                    if (mDocumentList != null) {
                         mAdapter = new DocumentFileAdapter(mContext, mDocuments);
                         mDocumentList.setAdapter(mAdapter);
                         mAdapter.setUpdateListener(mController);

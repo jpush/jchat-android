@@ -3,6 +3,8 @@ package jiguang.chat.entity;
 
 import java.text.NumberFormat;
 
+import cn.jpush.im.android.api.model.Message;
+
 public class FileItem {
 
     private String mFilePath;
@@ -12,6 +14,7 @@ public class FileItem {
     private int section;
     private int msgId;
     private String mUserName;
+    private Message mMessage;
 
     public FileItem(String path, String name, String size, String date, int msgId) {
         this.mFilePath = path;
@@ -20,13 +23,18 @@ public class FileItem {
         this.mDate = date;
         this.msgId = msgId;
     }
-    public FileItem(String path, String name, String size, String date, int msgId, String userName) {
+    public FileItem(String path, String name, String size, String date, int msgId, String userName, Message message) {
         this.mFilePath = path;
         this.mFileName = name;
         this.mSize = size;
         this.mDate = date;
         this.msgId = msgId;
         this.mUserName = userName;
+        this.mMessage = message;
+    }
+
+    public Message getMessage() {
+        return mMessage;
     }
 
     public String getFromeName() {

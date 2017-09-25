@@ -18,10 +18,13 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.List;
 
+import cn.jpush.im.android.api.content.FileContent;
 import jiguang.chat.R;
+import jiguang.chat.activity.DownLoadActivity;
 import jiguang.chat.adapter.StickyListHeadersAdapter;
 import jiguang.chat.entity.FileItem;
 import jiguang.chat.entity.SelectedHistoryFileListener;
+import jiguang.chat.utils.FileHelper;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.ViewHolder;
 import jiguang.chat.view.MyImageView;
@@ -36,6 +39,7 @@ public class OtherFileAdapter extends BaseAdapter implements StickyListHeadersAd
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
     private SelectedHistoryFileListener mListener;
     private Context mContext;
+
     public OtherFileAdapter(Activity fragment, List<FileItem> documents) {
         this.mList = documents;
         this.mContext = fragment;
@@ -91,9 +95,9 @@ public class OtherFileAdapter extends BaseAdapter implements StickyListHeadersAd
         MyImageView imageView = ViewHolder.get(convertView, R.id.document_iv);
         LinearLayout ll_document = ViewHolder.get(convertView, R.id.document_item_ll);
 
-        if ( SharePreferenceManager.getShowCheck()) {
+        if (SharePreferenceManager.getShowCheck()) {
             checkBox.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             checkBox.setVisibility(View.GONE);
         }
 
@@ -109,20 +113,40 @@ public class OtherFileAdapter extends BaseAdapter implements StickyListHeadersAd
                     checkBox.setChecked(true);
                     mSelectMap.put(position, true);
                     mListener.onSelected(item.getMsgId(), item.getMsgId());
-                }else {
+                } else {
                     mSelectMap.delete(position);
                     mListener.onUnselected(item.getMsgId(), item.getMsgId());
                 }
             }
         });
 
-        ll_document.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                browseDocument(item.getFileName(), item.getFilePath());
-            }
-        });
+        final FileContent content = (FileContent) item.getMessage().getContent();
 
+            ll_document.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (content.getLocalPath() == null) {
+                        org.greenrobot.eventbus.EventBus.getDefault().postSticky(item.getMessage());
+                        Intent intent = new Intent(mContext, DownLoadActivity.class);
+                        mContext.startActivity(intent);
+                    } else {
+                        final String newPath = "sdcard/JChatDemo/recvFiles/" + content.getFileName();
+                        File file = new File(newPath);
+                        if (file.exists() && file.isFile()) {
+                            browseDocument(content.getFileName(), newPath);
+                        } else {
+                            final String finalFileName = content.getFileName();
+                            FileHelper.getInstance().copyFile(item.getFileName(), content.getLocalPath(), (Activity) mContext,
+                                    new FileHelper.CopyFileCallback() {
+                                        @Override
+                                        public void copyCallback(Uri uri) {
+                                            browseDocument(finalFileName, newPath);
+                                        }
+                                    });
+                        }
+                    }
+                }
+            });
         return convertView;
     }
 
