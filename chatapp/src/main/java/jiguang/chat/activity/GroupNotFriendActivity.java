@@ -119,7 +119,7 @@ public class GroupNotFriendActivity extends BaseActivity implements View.OnClick
                         mTv_gender.setText("未知");
                     }
                     mTv_birthday.setText(getBirthday(info));
-                    mTv_address.setText(info.getAddress());
+                    mTv_address.setText(info.getRegion());
                 }
                 dialog.dismiss();
             }

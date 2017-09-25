@@ -135,7 +135,7 @@ public class FriendInfoView extends LinearLayout {
             } else {
                 mTv_gender.setText(mContext.getString(R.string.unknown));
             }
-            mTv_address.setText(userInfo.getAddress());
+            mTv_address.setText(userInfo.getRegion());
             mTv_signature.setText(userInfo.getSignature());
             mTv_birthday.setText(getBirthday(userInfo));
         }

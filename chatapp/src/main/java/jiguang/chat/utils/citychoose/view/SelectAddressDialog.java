@@ -486,7 +486,7 @@ public class SelectAddressDialog implements OnClickListener,
                     @Override
                     public void run() {
                         mInfo.setAddress(mCurrentProviceName + "-" + mCurrentCityName + "-" + mCurrentDistrictName);
-                        JMessageClient.updateMyInfo(UserInfo.Field.address, mInfo, new BasicCallback() {
+                        JMessageClient.updateMyInfo(UserInfo.Field.region, mInfo, new BasicCallback() {
                             @Override
                             public void gotResult(int responseCode, String responseMessage) {
                                 if (responseCode == 0) {

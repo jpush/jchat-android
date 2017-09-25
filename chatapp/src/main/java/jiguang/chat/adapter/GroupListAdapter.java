@@ -162,7 +162,7 @@ public class GroupListAdapter extends BaseAdapter {
                                             mContext.getString(R.string.btn_send));
                                     mLoadingDialog.show();
                                     //把名片的userName和appKey通过extra发送给对方
-                                    TextContent content = new TextContent("");
+                                    TextContent content = new TextContent("推荐一张名片给你");
                                     content.setStringExtra("userName", mUserName);
                                     content.setStringExtra("appKey", mAppKey);
                                     content.setStringExtra("businessCard", "businessCard");

@@ -221,7 +221,7 @@ public class SearchMoreGroupActivity extends BaseActivity {
                     case R.id.btn_sure:
                         mDialog.dismiss();
                         //把名片的userName和appKey通过extra发送给对方
-                        TextContent content = new TextContent("");
+                        TextContent content = new TextContent("推荐一张名片给你");
                         content.setStringExtra("userName", intent.getStringExtra("userName"));
                         content.setStringExtra("appKey", intent.getStringExtra("appKey"));
                         content.setStringExtra("businessCard", "businessCard");
