@@ -119,12 +119,12 @@ public class ChatDetailActivity extends BaseActivity {
             Bundle extras = data.getExtras();
             mDialog = new ProgressDialog(mContext);
             mDialog.setMessage("正在修改");
-            mDialog.show();
             switch (resultCode) {
                 case Activity.RESULT_CANCELED:
 
                     break;
                 case GROUP_NAME://修改群组名
+                    mDialog.show();
                     final String groupName = extras.getString(GROUP_NAME_KEY);
                     if (TextUtils.isEmpty(groupName)) {
                         mDialog.dismiss();
@@ -145,6 +145,7 @@ public class ChatDetailActivity extends BaseActivity {
                     });
                     break;
                 case GROUP_DESC://修改群组描述
+                    mDialog.show();
                     final String groupDesc = extras.getString(GROUP_DESC_KEY);
                     JMessageClient.updateGroupDescription(groupID, groupDesc, new BasicCallback() {
                         @Override
@@ -173,25 +174,23 @@ public class ChatDetailActivity extends BaseActivity {
                     }
                     break;
                 case JGApplication.REQUEST_CODE_ALL_MEMBER:
-                    mDialog.dismiss();
                     mChatDetailController.refreshMemberList();
                     break;
                 //单聊添加人进群
                 case ADD_FRIEND_REQUEST_CODE:
-                    mDialog.dismiss();
                     ArrayList<String> list = data.getStringArrayListExtra("SelectedUser");
                     if (null != list && list.size() != 0) {
                         mChatDetailController.addMembersToGroup(list);
                     }
                     break;
                 case 4://修改群头像
-                    mDialog.dismiss();
                     String path = data.getStringExtra("groupAvatarPath");
                     if (path != null) {
                         mChatDetailView.setGroupAvatar(new File(path));
                     }
                     break;
             }
+
         }
     }
 

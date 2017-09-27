@@ -84,7 +84,6 @@
                         android:layout_alignParentRight="true"
                         android:layout_marginTop="3dp"
                         android:paddingRight="11dp"
-                        android:text="已发送"
                         android:textColor="#4E8683"
                         android:textSize="12sp"
                         android:visibility="gone"/>

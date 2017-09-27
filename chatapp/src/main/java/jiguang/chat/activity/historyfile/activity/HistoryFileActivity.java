@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import jiguang.chat.R;
 import jiguang.chat.activity.historyfile.controller.HistoryFileController;
 import jiguang.chat.activity.historyfile.view.HistoryFileView;
+import jiguang.chat.utils.SharePreferenceManager;
 
 /**
  * Created by ${chenyn} on 2017/8/23.

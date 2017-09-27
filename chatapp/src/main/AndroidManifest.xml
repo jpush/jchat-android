@@ -368,6 +368,10 @@
             android:theme="@style/BaseThemes"/>
         <activity
             android:screenOrientation="portrait"
+            android:name=".activity.NotFriendSettingActivity"
+            android:theme="@style/BaseThemes"/>
+        <activity
+            android:screenOrientation="portrait"
             android:name=".activity.GroupAvatarActivity"
             android:theme="@style/AppTh"/>
     </application>

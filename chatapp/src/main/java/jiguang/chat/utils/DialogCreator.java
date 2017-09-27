@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -387,7 +386,11 @@ public class DialogCreator {
             case text:
                 content.setVisibility(View.VISIBLE);
                 TextContent text = (TextContent) message.getContent();
-                content.setText(text.getText());
+                if (text.getStringExtra("businessCard") != null) {
+                    content.setText("[名片]");
+                } else {
+                    content.setText(text.getText());
+                }
                 break;
             case voice:
                 content.setVisibility(View.VISIBLE);
@@ -402,17 +405,10 @@ public class DialogCreator {
             case file:
                 FileContent fileVideo = (FileContent) message.getContent();
                 String videoExtra = fileVideo.getStringExtra("video");
+                content.setVisibility(View.VISIBLE);
                 if (!TextUtils.isEmpty(videoExtra)) {
-                    if (fileVideo.isFileUploaded()) {
-                        String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + message.getServerMessageId();
-                        String thumbPath = absolutePath.substring(0, absolutePath.lastIndexOf("."));
-                        videoContent.setImageBitmap(BitmapFactory.decodeFile(thumbPath));
-                    } else {
-                        videoLayout.setVisibility(View.VISIBLE);
-                        videoContent.setImageResource(R.drawable.video_not_found);
-                    }
+                    content.setText("[小视频]");
                 } else {
-                    content.setVisibility(View.VISIBLE);
                     content.setText("[文件]" + fileVideo.getFileName());
                 }
                 break;

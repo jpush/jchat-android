@@ -37,8 +37,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import cn.jpush.im.android.api.JMessageClient;
@@ -102,8 +104,7 @@ public class ChatItemController {
     private Queue<Message> mMsgQueue = new LinkedList<Message>();
     private UserInfo mUserInfo;
     private Boolean isFriend;
-    private String mUserName;
-    private String mAppKey;
+    private Map<Integer, UserInfo> mUserInfoMap = new HashMap<>();
 
     public ChatItemController(ChattingListAdapter adapter, Activity context, Conversation conv, List<Message> msgList,
                               float density, ChattingListAdapter.ContentLongClickListener longClickListener) {
@@ -140,36 +141,60 @@ public class ChatItemController {
 
     public void handleBusinessCard(final Message msg, final ViewHolder holder, int position) {
         TextContent textContent = (TextContent) msg.getContent();
-        mUserName = textContent.getStringExtra("userName");
-        mAppKey = textContent.getStringExtra("appKey");
-        JMessageClient.getUserInfo(mUserName, mAppKey, new GetUserInfoCallback() {
-            @Override
-            public void gotResult(int i, String s, UserInfo userInfo) {
-                if (i == 0) {
-                    isFriend = userInfo.isFriend();
-                    String name = userInfo.getNickname();
-                    //如果没有昵称,名片上面的位置显示用户名
-                    //如果有昵称,上面显示昵称,下面显示用户名
-                    if (TextUtils.isEmpty(name)) {
-                        holder.tv_nickUser.setText(mUserName);
-                    } else {
-                        holder.tv_nickUser.setText(name);
-                        holder.tv_userName.setText("用户名: " + mUserName);
-                    }
-                    if (userInfo.getAvatarFile() != null) {
-                        holder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
-                    } else {
-                        holder.business_head.setImageResource(R.drawable.jmui_head_icon);
-                    }
-                } else {
-                    HandleResponseCode.onHandle(mContext, i, false);
-                }
+        final String mUserName = textContent.getStringExtra("userName");
+        final String mAppKey = textContent.getStringExtra("appKey");
+        holder.ll_businessCard.setTag(position);
+        int key = (mUserName + mAppKey).hashCode();
+
+        UserInfo userInfo = mUserInfoMap.get(key);
+        if (userInfo != null) {
+            isFriend = userInfo.isFriend();
+            String name = userInfo.getNickname();
+            //如果没有昵称,名片上面的位置显示用户名
+            //如果有昵称,上面显示昵称,下面显示用户名
+            if (TextUtils.isEmpty(name)) {
+                holder.tv_userName.setText("");
+                holder.tv_nickUser.setText(mUserName);
+            } else {
+                holder.tv_nickUser.setText(name);
+                holder.tv_userName.setText("用户名: " + mUserName);
             }
-        });
+            if (userInfo.getAvatarFile() != null) {
+                holder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
+            } else {
+                holder.business_head.setImageResource(R.drawable.jmui_head_icon);
+            }
+        } else {
+            JMessageClient.getUserInfo(mUserName, mAppKey, new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int i, String s, UserInfo userInfo) {
+                    if (i == 0) {
+                        mUserInfoMap.put((mUserName + mAppKey).hashCode(), userInfo);
+                        isFriend = userInfo.isFriend();
+                        String name = userInfo.getNickname();
+                        //如果没有昵称,名片上面的位置显示用户名
+                        //如果有昵称,上面显示昵称,下面显示用户名
+                        if (TextUtils.isEmpty(name)) {
+                            holder.tv_userName.setText("");
+                            holder.tv_nickUser.setText(mUserName);
+                        } else {
+                            holder.tv_nickUser.setText(name);
+                            holder.tv_userName.setText("用户名: " + mUserName);
+                        }
+                        if (userInfo.getAvatarFile() != null) {
+                            holder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
+                        } else {
+                            holder.business_head.setImageResource(R.drawable.jmui_head_icon);
+                        }
+                    } else {
+                        HandleResponseCode.onHandle(mContext, i, false);
+                    }
+                }
+            });
+        }
 
         holder.ll_businessCard.setOnLongClickListener(mLongClickListener);
-        holder.ll_businessCard.setOnClickListener(new BtnOrTxtListener(position, holder));
-        holder.ll_businessCard.setTag(position);
+        holder.ll_businessCard.setOnClickListener(new BusinessCard(mUserName, mAppKey, holder));
         if (msg.getDirect() == MessageDirect.send) {
             switch (msg.getStatus()) {
                 case created:
@@ -218,6 +243,35 @@ public class ChatItemController {
                     mAdapter.showResendDialog(holder, msg);
                 }
             });
+        }
+    }
+
+    private class BusinessCard implements View.OnClickListener {
+        private String userName;
+        private String appKey;
+        private ViewHolder mHolder;
+
+        public BusinessCard(String name, String appKey, ViewHolder holder) {
+            this.userName = name;
+            this.appKey = appKey;
+            this.mHolder = holder;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mHolder.ll_businessCard != null && v.getId() == mHolder.ll_businessCard.getId()) {
+                Intent intent = new Intent();
+                if (isFriend) {
+                    intent.setClass(mContext, FriendInfoActivity.class);
+                } else {
+                    intent.setClass(mContext, GroupNotFriendActivity.class);
+                }
+                intent.putExtra(JGApplication.TARGET_APP_KEY, appKey);
+                intent.putExtra(JGApplication.TARGET_ID, userName);
+                intent.putExtra("fromSearch", true);
+                mContext.startActivity(intent);
+            }
+
         }
     }
 
@@ -319,6 +373,24 @@ public class ChatItemController {
             switch (msg.getStatus()) {
                 case receive_fail:
                     holder.picture.setImageResource(R.drawable.jmui_fetch_failed);
+                    holder.resend.setVisibility(View.VISIBLE);
+                    holder.resend.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            imgContent.downloadOriginImage(msg, new DownloadCompletionCallback() {
+                                @Override
+                                public void onComplete(int i, String s, File file) {
+                                    if (i == 0) {
+                                        ToastUtil.shortToast(mContext, "下载成功");
+                                        holder.sendingIv.setVisibility(View.GONE);
+                                        mAdapter.notifyDataSetChanged();
+                                    } else {
+                                        ToastUtil.shortToast(mContext, "下载失败" + s);
+                                    }
+                                }
+                            });
+                        }
+                    });
                     break;
                 default:
             }
@@ -394,7 +466,7 @@ public class ChatItemController {
             holder.picture.setOnLongClickListener(mLongClickListener);
 
         }
-        if (holder.resend != null) {
+        if (msg.getDirect().equals(MessageDirect.send) && holder.resend != null) {
             holder.resend.setOnClickListener(new View.OnClickListener() {
 
                 @Override
@@ -895,6 +967,8 @@ public class ChatItemController {
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
+                    holder.alreadySend.setVisibility(View.VISIBLE);
+                    holder.alreadySend.setText("发送失败");
                     holder.text_receipt.setVisibility(View.GONE);
                     holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_send_bg));
                     holder.progressTv.setVisibility(View.GONE);
@@ -1133,70 +1207,33 @@ public class ChatItemController {
                         mContext.startActivity(intent);
                     }
                     break;
-                case text:
-                    if (holder.ll_businessCard != null && v.getId() == holder.ll_businessCard.getId()) {
-                        Intent intent = new Intent();
-                        if (isFriend) {
-                            intent.setClass(mContext, FriendInfoActivity.class);
-                        } else {
-                            intent.setClass(mContext, GroupNotFriendActivity.class);
-                        }
-                        intent.putExtra(JGApplication.TARGET_APP_KEY, mAppKey);
-                        intent.putExtra(JGApplication.TARGET_ID, mUserName);
-                        mContext.startActivity(intent);
-                    }
-                    break;
                 case file:
                     FileContent content = (FileContent) msg.getContent();
-                    if (!TextUtils.isEmpty(content.getLocalPath())) {
-                        //自己指定view播放小视频 / 用系统的view播放
-//                        String extra = content.getStringExtra("video");
-//                        if (!TextUtils.isEmpty(extra) && extra.equals("mp4") && new File(content.getLocalPath()).exists()) {
-//                            ToastUtil.shortToast(mContext, content.getLocalPath());
-//                            Intent intent = new Intent(mContext, WatchVideoActivity.class);
-//                            intent.putExtra("video_path", content.getLocalPath());
-//                            mContext.startActivity(intent);
-//                        }
-                        String fileName = content.getFileName();
-                        String extra = content.getStringExtra("video");
-                        if (extra != null) {
-                            fileName = msg.getServerMessageId() + "." + extra;
-                        }
-                        final String path = content.getLocalPath();
-                        if (msg.getDirect() == MessageDirect.send) {
-                            if (new File(path).exists()) {
-                                browseDocument(fileName, path);
-                            } else {
-                                ToastUtil.shortToast(mContext, "文件已被清理");
-                            }
+                    String fileName = content.getFileName();
+                    String extra = content.getStringExtra("video");
+                    if (extra != null) {
+                        fileName = msg.getServerMessageId() + "." + extra;
+                    }
+                    final String path = content.getLocalPath();
+                    if (path != null && new File(path).exists()) {
+                        final String newPath = JGApplication.FILE_DIR + fileName;
+                        File file = new File(newPath);
+                        if (file.exists() && file.isFile()) {
+                            browseDocument(fileName, newPath);
                         } else {
-                            final String newPath = JGApplication.FILE_DIR + fileName;
-                            File file = new File(newPath);
-                            if (!new File(path).exists()) {
-                                ToastUtil.shortToast(mContext, "文件已被清理");
-                            } else {
-                                if (file.exists() && file.isFile()) {
-                                    browseDocument(fileName, newPath);
-                                } else {
-                                    final String finalFileName = fileName;
-                                    FileHelper.getInstance().copyFile(fileName, path, (Activity) mContext,
-                                            new FileHelper.CopyFileCallback() {
-                                                @Override
-                                                public void copyCallback(Uri uri) {
-                                                    browseDocument(finalFileName, newPath);
-                                                }
-                                            });
-                                }
-                            }
+                            final String finalFileName = fileName;
+                            FileHelper.getInstance().copyFile(fileName, path, (Activity) mContext,
+                                    new FileHelper.CopyFileCallback() {
+                                        @Override
+                                        public void copyCallback(Uri uri) {
+                                            browseDocument(finalFileName, newPath);
+                                        }
+                                    });
                         }
                     } else {
-                        if (msg.getDirect() == MessageDirect.receive) {
-                            org.greenrobot.eventbus.EventBus.getDefault().postSticky(msg);
-                            Intent intent = new Intent(mContext, DownLoadActivity.class);
-                            mContext.startActivity(intent);
-                        } else {
-                            ToastUtil.shortToast(mContext, "文件已被清理");
-                        }
+                        org.greenrobot.eventbus.EventBus.getDefault().postSticky(msg);
+                        Intent intent = new Intent(mContext, DownLoadActivity.class);
+                        mContext.startActivity(intent);
                     }
                     break;
             }

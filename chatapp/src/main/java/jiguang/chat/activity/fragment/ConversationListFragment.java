@@ -230,6 +230,7 @@ public class ConversationListFragment extends BaseFragment {
             mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
             //多端在线未读数改变时刷新
             if (event.getReason().equals(ConversationRefreshEvent.Reason.UNREAD_CNT_UPDATED)) {
+                System.out.println("=================//多端在线未读数改变时刷新");
                 mConvListController.getAdapter().notifyDataSetChanged();
             }
         }

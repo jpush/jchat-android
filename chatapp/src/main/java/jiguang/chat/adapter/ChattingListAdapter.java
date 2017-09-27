@@ -604,7 +604,7 @@ public class ChattingListAdapter extends BaseAdapter {
                 //SimpleCommonUtils.spannableEmoticonFilter(holder.txtContent, content);
                 TextContent textContent = (TextContent) msg.getContent();
                 String extraBusiness = textContent.getStringExtra("businessCard");
-                if (extraBusiness != null && extraBusiness.equals("businessCard")) {
+                if (extraBusiness != null) {
                     holder.txtContent.setVisibility(View.GONE);
                     holder.ll_businessCard.setVisibility(View.VISIBLE);
                     mController.handleBusinessCard(msg, holder, position);
@@ -641,16 +641,16 @@ public class ChattingListAdapter extends BaseAdapter {
             default:
                 mController.handleCustomMsg(msg, holder);
         }
-        if (msg.getDirect() == MessageDirect.send && !msg.getContentType().equals(ContentType.prompt)) {
-            holder.text_receipt.setTextColor(mContext.getResources().getColor(R.color.message_no_receipt));
+        if (msg.getDirect() == MessageDirect.send && !msg.getContentType().equals(ContentType.prompt) && msg.getContentType() != ContentType.custom) {
             if (msg.getUnreceiptCnt() == 0) {
-                holder.text_receipt.setTextColor(mContext.getResources().getColor(R.color.message_already_receipt));
                 if (msg.getTargetType() == ConversationType.group) {
                     holder.text_receipt.setText("全部已读");
                 } else if (!((UserInfo) msg.getTargetInfo()).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
                     holder.text_receipt.setText("已读");
                 }
+                holder.text_receipt.setTextColor(mContext.getResources().getColor(R.color.message_already_receipt));
             } else {
+                holder.text_receipt.setTextColor(mContext.getResources().getColor(R.color.message_no_receipt));
                 if (msg.getTargetType() == ConversationType.group) {
                     holder.text_receipt.setText(msg.getUnreceiptCnt() + "人未读");
                     //群聊未读消息数点击事件

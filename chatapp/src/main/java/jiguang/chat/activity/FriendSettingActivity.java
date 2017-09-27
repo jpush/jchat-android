@@ -121,12 +121,15 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
                 mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 mDialog.show();
                 break;
+            //发送好友名片
             case R.id.rl_business:
                 Intent businessIntent = new Intent(FriendSettingActivity.this, ForwardMsgActivity.class);
                 businessIntent.setFlags(1);
                 businessIntent.putExtra("userName", mFriendInfo.getUserName());
                 businessIntent.putExtra("appKey", mFriendInfo.getAppKey());
-                businessIntent.putExtra("avatar", mFriendInfo.getAvatarFile().getAbsolutePath());
+                if (mFriendInfo.getAvatarFile() != null) {
+                    businessIntent.putExtra("avatar", mFriendInfo.getAvatarFile().getAbsolutePath());
+                }
                 startActivity(businessIntent);
                 break;
             default:

@@ -1,6 +1,7 @@
 package jiguang.chat.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.view.LayoutInflater;
@@ -13,6 +14,10 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.UserInfo;
 import jiguang.chat.R;
 import jiguang.chat.database.FriendEntry;
 
@@ -92,7 +97,27 @@ public class FriendListAdapter extends BaseAdapter implements StickyListHeadersA
             holder = (ViewHolder) convertView.getTag();
         }
         FriendEntry entry = mData.get(position);
-        holder.headAvatar.setImageBitmap(BitmapFactory.decodeFile(entry.avatar));
+        if (entry.avatar != null) {
+            holder.headAvatar.setImageBitmap(BitmapFactory.decodeFile(entry.avatar));
+        }else {
+            JMessageClient.getUserInfo(entry.username, new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int i, String s, UserInfo userInfo) {
+                    if (i==0) {
+                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int i, String s, Bitmap bitmap) {
+                                if (i==0) {
+                                    holder.headAvatar.setImageBitmap(bitmap);
+                                }
+                            }
+                        });
+                    }else {
+                        holder.headAvatar.setImageResource(R.drawable.jmui_head_icon);
+                    }
+                }
+            });
+        }
         holder.displayName.setText(entry.displayName);
 
         return convertView;

@@ -17,8 +17,10 @@ import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.event.ContactNotifyEvent;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ContactsController;
@@ -151,6 +153,16 @@ public class ContactsFragment extends BaseFragment {
             FriendRecommendEntry entry = FriendRecommendEntry.getEntry(user, username, appKey);
             entry.state = FriendInvitation.ACCEPTED.getValue();
             entry.save();
+
+            Conversation conversation = JMessageClient.getSingleConversation(username);
+            if (conversation == null) {
+                conversation = Conversation.createSingleConversation(username);
+                EventBus.getDefault().post(new Event.Builder()
+                        .setType(EventType.createConversation)
+                        .setConversation(conversation)
+                        .build());
+            }
+
             //拒绝好友请求
         } else if (event.getType() == ContactNotifyEvent.Type.invite_declined) {
             FriendRecommendEntry entry = FriendRecommendEntry.getEntry(user, username, appKey);

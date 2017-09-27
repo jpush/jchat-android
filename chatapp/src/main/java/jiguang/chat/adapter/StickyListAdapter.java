@@ -3,7 +3,6 @@ package jiguang.chat.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Handler;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -198,35 +196,43 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
             holder = (ViewHolder) convertView.getTag();
         }
 
-
+        //所有好友列表
         final FriendEntry friend = mData.get(position);
         final String user = friend.username;
+        if (friend.avatar != null) {
+            holder.avatar.setImageBitmap(BitmapFactory.decodeFile(friend.avatar));
+        } else {
+            holder.avatar.setImageResource(R.drawable.jmui_head_icon);
+        }
+        holder.displayName.setText(friend.displayName);
 
         final long[] uid = new long[1];
+
+
         JMessageClient.getUserInfo(user, new GetUserInfoCallback() {
             @Override
             public void gotResult(int responseCode, String responseMessage, UserInfo info) {
                 boolean flag = false;
                 if (responseCode == 0) {
-                    if (info.getAvatarFile() != null && info.getAvatarFile().exists()) {
-                        holder.avatar.setImageBitmap(BitmapFactory.decodeFile(info.getAvatarFile().getAbsolutePath()));
-                    } else {
-                        info.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                            @Override
-                            public void gotResult(int i, String s, Bitmap bitmap) {
-                                if (i == 0) {
-                                    holder.avatar.setImageBitmap(bitmap);
-                                } else {
-                                    holder.avatar.setImageResource(R.drawable.jmui_head_icon);
-                                }
-                            }
-                        });
-                    }
+//                    if (info.getAvatarFile() != null && info.getAvatarFile().exists()) {
+//                        holder.avatar.setImageBitmap(BitmapFactory.decodeFile(info.getAvatarFile().getAbsolutePath()));
+//                    } else {
+//                        info.getAvatarBitmap(new GetAvatarBitmapCallback() {
+//                            @Override
+//                            public void gotResult(int i, String s, Bitmap bitmap) {
+//                                if (i == 0) {
+//                                    holder.avatar.setImageBitmap(bitmap);
+//                                } else {
+//                                    holder.avatar.setImageResource(R.drawable.jmui_head_icon);
+//                                }
+//                            }
+//                        });
+//                    }
                     uid[0] = info.getUserID();
                 }
                 if (!mIsSearch) {
                     String name = info.getDisplayName();
-                    holder.displayName.setText(name);
+//                    holder.displayName.setText(name);
                 } else {
                     String noteName = info.getNotename();
                     String nickName = info.getNickname();

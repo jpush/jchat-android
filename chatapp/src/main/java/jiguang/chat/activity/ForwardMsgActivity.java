@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
@@ -36,6 +37,7 @@ public class ForwardMsgActivity extends BaseActivity {
     private ListView mListView;
     private ForwardMsgAdapter mAdapter;
     private Dialog mDialog;
+    private List<Conversation> forwardList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +63,12 @@ public class ForwardMsgActivity extends BaseActivity {
 
     private void initData() {
         List<Conversation> conversationList = JMessageClient.getConversationList();
-        mAdapter = new ForwardMsgAdapter(this, conversationList);
+        for (Conversation conv : conversationList) {
+            if (!conv.getTargetId().equals("feedback_Android")) {
+                forwardList.add(conv);
+            }
+        }
+        mAdapter = new ForwardMsgAdapter(this, forwardList);
         mListView.setAdapter(mAdapter);
 
         //搜索栏

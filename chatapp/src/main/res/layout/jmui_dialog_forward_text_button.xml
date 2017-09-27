@@ -24,11 +24,11 @@
             android:textSize="18sp"/>
 
         <TextView
-            android:maxLines="1"
-            android:ellipsize="end"
             android:id="@+id/tv_forward_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textColor="#2C2C2C"
             android:textSize="18sp"/>
 
@@ -38,6 +38,7 @@
         android:id="@+id/tv_forward_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="18sp"
         android:layout_marginLeft="26dp"
         android:layout_marginRight="23dp"
@@ -59,12 +60,12 @@
 
     <FrameLayout
         android:id="@+id/fl_forward_video"
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="15dp"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="8dp"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/iv_forward_video"
@@ -72,10 +73,10 @@
             android:layout_height="160dp"/>
 
         <ImageView
-            android:layout_gravity="center"
-            android:src="@drawable/play_video"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/play_video"/>
 
     </FrameLayout>
 

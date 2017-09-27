@@ -68,6 +68,7 @@
                     android:layout_marginBottom="12.33dp"
                     android:layout_marginLeft="11dp"
                     android:layout_marginTop="13.33dp"
+                    android:scaleType="fitXY"
                     android:background="@drawable/jmui_head_icon"/>
 
                 <LinearLayout
@@ -81,7 +82,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="11.33dp"
-                        android:text="昵称或用户名"
                         android:textColor="#2C2C2C"
                         android:textSize="15sp"/>
 
@@ -91,7 +91,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="11.33dp"
                         android:layout_marginTop="4dp"
-                        android:text="用户名:用户名"
                         android:textColor="#999999"
                         android:textSize="12sp"/>
                 </LinearLayout>
