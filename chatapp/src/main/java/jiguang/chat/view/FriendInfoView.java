@@ -96,6 +96,8 @@ public class FriendInfoView extends LinearLayout {
                     public void gotResult(int status, String desc, Bitmap bitmap) {
                         if (status == 0) {
                             mIv_friendPhoto.setImageBitmap(bitmap);
+                        }else {
+                            mIv_friendPhoto.setImageResource(R.drawable.rc_default_portrait);
                         }
                     }
                 });

@@ -22,6 +22,7 @@ import jiguang.chat.database.FriendEntry;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
 import jiguang.chat.utils.DialogCreator;
+import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.utils.NativeImageLoader;
 import jiguang.chat.view.FriendInfoView;
 
@@ -107,6 +108,9 @@ public class FriendInfoActivity extends BaseActivity {
                         new Update(FriendEntry.class).set("DisplayName=?", info.getNickname()).where("Username=?", mTargetId).execute();
                         new Update(FriendEntry.class).set("NickName=?", info.getNickname()).where("Username=?", mTargetId).execute();
                     }
+                    if (info.getAvatarFile() != null) {
+                        new Update(FriendEntry.class).set("Avatar=?", info.getAvatarFile().getAbsolutePath()).where("Username=?", mTargetId).execute();
+                    }
                     mUserInfo = info;
                     mFriendInfoController.setFriendInfo(info);
                     mTitle = info.getNotename();
@@ -114,6 +118,8 @@ public class FriendInfoActivity extends BaseActivity {
                         mTitle = info.getNickname();
                     }
                     mFriendInfoView.initInfo(info);
+                }else {
+                    HandleResponseCode.onHandle(FriendInfoActivity.this, responseCode, false);
                 }
             }
         });

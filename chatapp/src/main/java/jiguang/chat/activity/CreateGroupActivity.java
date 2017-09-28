@@ -255,7 +255,7 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void gotResult(int responseCode, String responseMessage, UserInfo info) {
                 if (responseCode == 0) {
-                    mFriendEntry = new FriendEntry(info.getUserName(), info.getNotename(), info.getNickname(), info.getAppKey(), info.getAvatar(),
+                    mFriendEntry = new FriendEntry(info.getUserID(), info.getUserName(), info.getNotename(), info.getNickname(), info.getAppKey(), info.getAvatar(),
                             info.getUserName(), filterStr.substring(0, 1).toUpperCase(), user);
                     mFriendEntry.save();
                     forDelete.add(mFriendEntry);

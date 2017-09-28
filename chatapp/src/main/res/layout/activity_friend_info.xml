@@ -41,12 +41,12 @@
     </RelativeLayout>
 
     <ImageView
-        android:scaleType="centerCrop"
         android:id="@+id/iv_friendPhoto"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_gravity="center"
-        android:layout_marginTop="26.67dp"/>
+        android:layout_marginTop="26.67dp"
+        android:scaleType="centerCrop"/>
 
     <TextView
         android:id="@+id/tv_nickName"
@@ -60,10 +60,10 @@
 
 
     <TextView
-        android:layout_gravity="center"
         android:id="@+id/tv_signature"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginBottom="22dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
@@ -109,6 +109,7 @@
             android:textColor="#999999"
             android:textSize="14sp"/>
     </RelativeLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="0.53dp"
@@ -118,10 +119,10 @@
         android:background="#E8EDF3"/>
 
     <RelativeLayout
-        android:visibility="gone"
         android:id="@+id/rl_nickName"
         style="@style/SettingItemStyle"
-        android:background="#fff">
+        android:background="#fff"
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -256,8 +257,8 @@
         android:background="#E8EDF3">
 
         <Button
-            style="?android:attr/borderlessButtonStyle"
             android:id="@+id/btn_goToChat"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_marginLeft="14dp"

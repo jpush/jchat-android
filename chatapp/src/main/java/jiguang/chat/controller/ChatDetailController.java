@@ -97,6 +97,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private String mNickName;
     private String mAvatarPath;
     private boolean mFriend;
+    private Long mUid;
 
     public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context, int size,
                                 int width) {
@@ -181,11 +182,13 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             mChatDetailView.isLoadMoreShow(false);
 
             JMessageClient.getUserInfo(mTargetId, new GetUserInfoCallback() {
+
                 @Override
                 public void gotResult(int i, String s, UserInfo userInfo) {
                     if (i == 0) {
                         mFriend = userInfo.isFriend();
                         mNickName = userInfo.getNickname();
+                        mUid = userInfo.getUserID();
                         if (TextUtils.isEmpty(mNickName)) {
                             mNickName = mTargetId;
                         }
@@ -309,6 +312,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     intent.putExtra("detail_add_nick_name", mNickName);
                     intent.putExtra("detail_add_avatar_path", mAvatarPath);
                     intent.putExtra("detail_add_friend", mTargetId);
+                    intent.putExtra("detail_add_uid", mUid);
                     //自己的昵称.
                     intent.putExtra("detail_add_friend_my_nickname", mMyNickName);
                     intent.setFlags(1);

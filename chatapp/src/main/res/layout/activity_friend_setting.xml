@@ -86,6 +86,7 @@
 
 
     <Button
+        android:visibility="gone"
         android:id="@+id/btn_deleteFriend"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"

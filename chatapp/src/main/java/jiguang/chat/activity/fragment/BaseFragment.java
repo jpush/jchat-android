@@ -98,7 +98,12 @@ public class BaseFragment extends Fragment {
                 dialog = DialogCreator.createLogoutStatusDialog(mContext, "您的账号在其他设备上登陆", listener);
                 dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 dialog.setCanceledOnTouchOutside(false);
+                dialog.setCancelable(false);
                 dialog.show();
+                break;
+            case user_password_change:
+                Intent intent = new Intent(mContext, LoginActivity.class);
+                startActivity(intent);
                 break;
         }
     }

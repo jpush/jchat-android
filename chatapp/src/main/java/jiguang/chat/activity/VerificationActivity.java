@@ -64,11 +64,13 @@ public class VerificationActivity extends BaseActivity {
         final String userName;
         String displayName;
         String targetAvatar;
+        Long targetUid;
         if (getIntent().getFlags() == 1) {
             //添加好友申请时对方信息
             userName = getIntent().getStringExtra("detail_add_friend");
             displayName = getIntent().getStringExtra("detail_add_nick_name");
             targetAvatar = getIntent().getStringExtra("detail_add_avatar_path");
+            targetUid = getIntent().getLongExtra("detail_add_uid", 0);
             if (TextUtils.isEmpty(displayName)) {
                 displayName = userName;
             }
@@ -76,6 +78,7 @@ public class VerificationActivity extends BaseActivity {
         } else {
             targetAvatar = InfoModel.getInstance().getAvatarPath();
             displayName = InfoModel.getInstance().getNickName();
+            targetUid = InfoModel.getInstance().getUid();
             if (TextUtils.isEmpty(displayName)) {
                 displayName = InfoModel.getInstance().getUserName();
             }
@@ -84,6 +87,7 @@ public class VerificationActivity extends BaseActivity {
         final String reason = mEt_reason.getText().toString();
         final String finalTargetAvatar = targetAvatar;
         final String finalDisplayName = displayName;
+        final Long finalUid = targetUid;
         final Dialog dialog = DialogCreator.createLoadingDialog(this, this.getString(R.string.jmui_loading));
         dialog.show();
         ContactManager.sendInvitationRequest(userName, null, reason, new BasicCallback() {
@@ -95,7 +99,7 @@ public class VerificationActivity extends BaseActivity {
                     FriendRecommendEntry entry = FriendRecommendEntry.getEntry(userEntry,
                             userName, mTargetAppKey);
                     if (null == entry) {
-                        entry = new FriendRecommendEntry(userName, "", finalDisplayName, mTargetAppKey,
+                        entry = new FriendRecommendEntry(finalUid, userName, "", finalDisplayName, mTargetAppKey,
                                 finalTargetAvatar, finalDisplayName, reason, FriendInvitation.INVITING.getValue(), userEntry, 100);
                     } else {
                         entry.state = FriendInvitation.INVITING.getValue();

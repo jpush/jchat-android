@@ -112,6 +112,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static List<Message> ids = new ArrayList<>();
     public static List<UserInfo> alreadyRead = new ArrayList<>();
     public static List<UserInfo> unRead = new ArrayList<>();
+    public static List<String> forAddFriend = new ArrayList<>();
 
     @Override
     public void onCreate() {

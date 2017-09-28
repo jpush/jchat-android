@@ -155,16 +155,24 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
         mBtn_deleteFriend = (Button) findViewById(R.id.btn_deleteFriend);
         mTv_noteName = (TextView) findViewById(R.id.tv_noteName);
         mRl_business = (RelativeLayout) findViewById(R.id.rl_business);
-
+        final Dialog dialog = DialogCreator.createLoadingDialog(FriendSettingActivity.this,
+                FriendSettingActivity.this.getString(R.string.jmui_loading));
+        dialog.show();
         if (!TextUtils.isEmpty(getIntent().getStringExtra("noteName"))) {
             mTv_noteName.setText(getIntent().getStringExtra("noteName"));
         }
         JMessageClient.getUserInfo(getIntent().getStringExtra("userName"), new GetUserInfoCallback() {
             @Override
             public void gotResult(int responseCode, String responseMessage, UserInfo info) {
+                dialog.dismiss();
                 if (responseCode == 0) {
                     mFriendInfo = info;
                     mBtn_addBlackList.setChecked(info.getBlacklist() == 1);
+                    if (info.isFriend()) {
+                        mBtn_deleteFriend.setVisibility(View.VISIBLE);
+                    }else {
+                        mBtn_deleteFriend.setVisibility(View.GONE);
+                    }
                 }
             }
         });

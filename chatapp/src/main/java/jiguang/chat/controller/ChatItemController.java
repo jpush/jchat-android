@@ -103,7 +103,6 @@ public class ChatItemController {
     private int mSendMsgId;
     private Queue<Message> mMsgQueue = new LinkedList<Message>();
     private UserInfo mUserInfo;
-    private Boolean isFriend;
     private Map<Integer, UserInfo> mUserInfoMap = new HashMap<>();
 
     public ChatItemController(ChattingListAdapter adapter, Activity context, Conversation conv, List<Message> msgList,
@@ -140,24 +139,22 @@ public class ChatItemController {
     }
 
     public void handleBusinessCard(final Message msg, final ViewHolder holder, int position) {
-        TextContent textContent = (TextContent) msg.getContent();
-        final String mUserName = textContent.getStringExtra("userName");
-        final String mAppKey = textContent.getStringExtra("appKey");
+        final TextContent[] textContent = {(TextContent) msg.getContent()};
+        final String[] mUserName = {textContent[0].getStringExtra("userName")};
+        final String mAppKey = textContent[0].getStringExtra("appKey");
         holder.ll_businessCard.setTag(position);
-        int key = (mUserName + mAppKey).hashCode();
-
+        int key = (mUserName[0] + mAppKey).hashCode();
         UserInfo userInfo = mUserInfoMap.get(key);
         if (userInfo != null) {
-            isFriend = userInfo.isFriend();
             String name = userInfo.getNickname();
             //如果没有昵称,名片上面的位置显示用户名
             //如果有昵称,上面显示昵称,下面显示用户名
             if (TextUtils.isEmpty(name)) {
                 holder.tv_userName.setText("");
-                holder.tv_nickUser.setText(mUserName);
+                holder.tv_nickUser.setText(mUserName[0]);
             } else {
                 holder.tv_nickUser.setText(name);
-                holder.tv_userName.setText("用户名: " + mUserName);
+                holder.tv_userName.setText("用户名: " + mUserName[0]);
             }
             if (userInfo.getAvatarFile() != null) {
                 holder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
@@ -165,21 +162,20 @@ public class ChatItemController {
                 holder.business_head.setImageResource(R.drawable.jmui_head_icon);
             }
         } else {
-            JMessageClient.getUserInfo(mUserName, mAppKey, new GetUserInfoCallback() {
+            JMessageClient.getUserInfo(mUserName[0], mAppKey, new GetUserInfoCallback() {
                 @Override
                 public void gotResult(int i, String s, UserInfo userInfo) {
                     if (i == 0) {
-                        mUserInfoMap.put((mUserName + mAppKey).hashCode(), userInfo);
-                        isFriend = userInfo.isFriend();
+                        mUserInfoMap.put((mUserName[0] + mAppKey).hashCode(), userInfo);
                         String name = userInfo.getNickname();
                         //如果没有昵称,名片上面的位置显示用户名
                         //如果有昵称,上面显示昵称,下面显示用户名
                         if (TextUtils.isEmpty(name)) {
                             holder.tv_userName.setText("");
-                            holder.tv_nickUser.setText(mUserName);
+                            holder.tv_nickUser.setText(mUserName[0]);
                         } else {
                             holder.tv_nickUser.setText(name);
-                            holder.tv_userName.setText("用户名: " + mUserName);
+                            holder.tv_userName.setText("用户名: " + mUserName[0]);
                         }
                         if (userInfo.getAvatarFile() != null) {
                             holder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
@@ -194,7 +190,7 @@ public class ChatItemController {
         }
 
         holder.ll_businessCard.setOnLongClickListener(mLongClickListener);
-        holder.ll_businessCard.setOnClickListener(new BusinessCard(mUserName, mAppKey, holder));
+        holder.ll_businessCard.setOnClickListener(new BusinessCard(mUserName[0], mAppKey, holder));
         if (msg.getDirect() == MessageDirect.send) {
             switch (msg.getStatus()) {
                 case created:
@@ -260,16 +256,25 @@ public class ChatItemController {
         @Override
         public void onClick(View v) {
             if (mHolder.ll_businessCard != null && v.getId() == mHolder.ll_businessCard.getId()) {
-                Intent intent = new Intent();
-                if (isFriend) {
-                    intent.setClass(mContext, FriendInfoActivity.class);
-                } else {
-                    intent.setClass(mContext, GroupNotFriendActivity.class);
-                }
-                intent.putExtra(JGApplication.TARGET_APP_KEY, appKey);
-                intent.putExtra(JGApplication.TARGET_ID, userName);
-                intent.putExtra("fromSearch", true);
-                mContext.startActivity(intent);
+                JMessageClient.getUserInfo(userName, new GetUserInfoCallback() {
+                    @Override
+                    public void gotResult(int i, String s, UserInfo userInfo) {
+                        Intent intent = new Intent();
+                        if (i == 0) {
+                            if (userInfo.isFriend()) {
+                                intent.setClass(mContext, FriendInfoActivity.class);
+                            } else {
+                                intent.setClass(mContext, GroupNotFriendActivity.class);
+                            }
+                            intent.putExtra(JGApplication.TARGET_APP_KEY, appKey);
+                            intent.putExtra(JGApplication.TARGET_ID, userName);
+                            intent.putExtra("fromSearch", true);
+                            mContext.startActivity(intent);
+                        }else {
+                            ToastUtil.shortToast(mContext, "获取信息失败,稍后重试");
+                        }
+                    }
+                });
             }
 
         }

@@ -108,18 +108,18 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
                                     } else {
                                         letter = "#";
                                     }
-                                }else {
+                                } else {
                                     letter = "#";
                                 }
-                                //避免重复请求时导致数据重复
+                                //避免重复请求时导致数据重复A
                                 FriendEntry friend = FriendEntry.getFriend(user,
                                         userInfo.getUserName(), userInfo.getAppKey());
                                 if (null == friend) {
                                     if (TextUtils.isEmpty(userInfo.getAvatar())) {
-                                        friend = new FriendEntry(userInfo.getUserName(), userInfo.getNotename(), userInfo.getNickname(), userInfo.getAppKey(),
+                                        friend = new FriendEntry(userInfo.getUserID(), userInfo.getUserName(), userInfo.getNotename(), userInfo.getNickname(), userInfo.getAppKey(),
                                                 null, displayName, letter, user);
                                     } else {
-                                        friend = new FriendEntry(userInfo.getUserName(), userInfo.getNotename(), userInfo.getNickname(), userInfo.getAppKey(),
+                                        friend = new FriendEntry(userInfo.getUserID(), userInfo.getUserName(), userInfo.getNotename(), userInfo.getNickname(), userInfo.getAppKey(),
                                                 userInfo.getAvatarFile().getAbsolutePath(), displayName, letter, user);
                                     }
                                     friend.save();
