@@ -3,6 +3,7 @@ package jiguang.chat.activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.view.KeyEvent;
 
 import cn.jiguang.api.JCoreInterface;
 import jiguang.chat.R;
@@ -46,5 +47,10 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return keyCode == KeyEvent.KEYCODE_BACK;
     }
 }

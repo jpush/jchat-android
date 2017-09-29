@@ -36,11 +36,11 @@
 
         <TextView
             android:id="@+id/text_receipt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="7dp"
-            android:textSize="12sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textSize="12sp"/>
 
         <TextView
             android:id="@+id/jmui_msg_content"
@@ -84,18 +84,22 @@
 
                     <TextView
                         android:id="@+id/tv_nickUser"
-                        android:layout_width="wrap_content"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="11.33dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:textColor="#2C2C2C"
                         android:textSize="15sp"/>
 
                     <TextView
                         android:id="@+id/tv_userName"
-                        android:layout_width="wrap_content"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="11.33dp"
                         android:layout_marginTop="4dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:textColor="#999999"
                         android:textSize="12sp"/>
                 </LinearLayout>

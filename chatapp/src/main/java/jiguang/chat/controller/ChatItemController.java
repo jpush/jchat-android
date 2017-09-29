@@ -751,10 +751,12 @@ public class ChatItemController {
         holder.sendingIv.setVisibility(View.VISIBLE);
         holder.sendingIv.startAnimation(mSendingAnim);
         //消息正在发送，重新注册一个监听消息发送完成的Callback
+        System.out.println("=================" + msg.isSendCompleteCallbackExists());
         if (!msg.isSendCompleteCallbackExists()) {
             msg.setOnSendCompleteCallback(new BasicCallback() {
                 @Override
                 public void gotResult(final int status, final String desc) {
+                    System.out.println("=================" + status + desc);
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.sendingIv.clearAnimation();
                     if (status == 803008) {

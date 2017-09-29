@@ -447,6 +447,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 public void gotResult(int responseCode, String responseMessage) {
                     mLoadingDialog.dismiss();
                     if (responseCode == 0) {
+                        //删除好友时候要从list中移除.准备接收下一次添加好友申请
+                        JGApplication.forAddFriend.remove(mUserInfo.getUserName());
                         //将好友删除时候还原黑名单设置
                         List<String> name = new ArrayList<>();
                         name.add(mUserInfo.getUserName());

@@ -596,7 +596,12 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
                         break;
                     case group_member_exit:
-                        refreshGroupNum();
+                        EventNotificationContent content = (EventNotificationContent) message.getContent();
+                        if (content.getUserNames().contains(JMessageClient.getMyInfo().getUserName())) {
+                            finish();
+                        }else {
+                            refreshGroupNum();
+                        }
                         break;
                 }
             }

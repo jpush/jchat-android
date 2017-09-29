@@ -110,6 +110,19 @@ public class FriendRecommendAdapter extends BaseAdapter {
 
         name.setText(item.displayName);
         reason.setText(item.reason);
+
+        JMessageClient.getUserInfo(item.username, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int i, String s, UserInfo userInfo) {
+                if (i == 0) {
+                    if (userInfo.isFriend()) {
+                        item.state = FriendInvitation.ACCEPTED.getValue();
+                        item.save();
+                    }
+                }
+            }
+        });
+
         if (item.state.equals(FriendInvitation.INVITED.getValue())) {
             addBtn.setVisibility(View.VISIBLE);
             state.setVisibility(View.GONE);

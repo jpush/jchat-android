@@ -170,8 +170,10 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
                     mBtn_addBlackList.setChecked(info.getBlacklist() == 1);
                     if (info.isFriend()) {
                         mBtn_deleteFriend.setVisibility(View.VISIBLE);
+                        mSetNoteName.setVisibility(View.VISIBLE);
                     }else {
                         mBtn_deleteFriend.setVisibility(View.GONE);
+                        mSetNoteName.setVisibility(View.GONE);
                     }
                 }
             }

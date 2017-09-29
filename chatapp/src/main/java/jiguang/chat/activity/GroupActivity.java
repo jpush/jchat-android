@@ -16,6 +16,8 @@ import jiguang.chat.R;
 import jiguang.chat.adapter.GroupListAdapter;
 import jiguang.chat.controller.ActivityController;
 import jiguang.chat.utils.DialogCreator;
+import jiguang.chat.utils.HandleResponseCode;
+import jiguang.chat.utils.ToastUtil;
 
 /**
  * Created by ${chenyn} on 2017/4/26.
@@ -58,22 +60,29 @@ public class GroupActivity extends BaseActivity {
             public void gotResult(int responseCode, String responseMessage, final List<Long> groupIDList) {
                 if (responseCode == 0) {
                     final int[] groupSize = {groupIDList.size()};
-                    for (Long id : groupIDList) {
-                        JMessageClient.getGroupInfo(id, new GetGroupInfoCallback() {
-                            @Override
-                            public void gotResult(int i, String s, GroupInfo groupInfo) {
-                                if (i == 0) {
-                                    groupSize[0] = groupSize[0] - 1;
-                                    infoList.add(groupInfo);
-                                    if (groupSize[0] == 0) {
-                                        setAdapter(infoList, dialog);
+                    if (groupIDList.size() > 0) {
+                        for (Long id : groupIDList) {
+                            JMessageClient.getGroupInfo(id, new GetGroupInfoCallback() {
+                                @Override
+                                public void gotResult(int i, String s, GroupInfo groupInfo) {
+                                    if (i == 0) {
+                                        groupSize[0] = groupSize[0] - 1;
+                                        infoList.add(groupInfo);
+                                        if (groupSize[0] == 0) {
+                                            setAdapter(infoList, dialog);
+                                        }
+
                                     }
-
                                 }
-                            }
-                        });
+                            });
+                        }
+                    } else {
+                        dialog.dismiss();
+                        ToastUtil.shortToast(GroupActivity.this, "您还没有群组");
                     }
-
+                } else {
+                    dialog.dismiss();
+                    HandleResponseCode.onHandle(mContext, responseCode, false);
                 }
             }
         });

@@ -370,6 +370,7 @@
     <string name="jmui_sdk_87x_871310">网络已断开，请检查网络连接</string>
     <string name="jmui_sdk_87x_871311">用户未设定头像，下载头像失败</string>
     <string name="jmui_sdk_87x_871312">ImageContent创建失败</string>
+    <string name="jmui_sdk_87x_871319">消息发送失败</string>
     <string name="jmui_sdk_87x_871403">第三方上传失败，请稍后重试</string>
     <string name="jmui_sdk_87x_871404">下载失败，请稍后重试</string>
     <string name="jmui_sdk_87x_871501">appkey与appid不匹配或者token无效</string>

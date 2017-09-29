@@ -8,6 +8,7 @@
     <include layout="@layout/menu_title_bar_with_button"/>
 
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/setNoteName"
         style="@style/SettingItemStyle">
 

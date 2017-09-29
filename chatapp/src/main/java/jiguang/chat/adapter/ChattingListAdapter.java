@@ -166,7 +166,7 @@ public class ChattingListAdapter extends BaseAdapter {
 
     public void dropDownToRefresh() {
         if (mConv != null) {
-            List<Message> msgList = mConv.getMessagesFromNewest(mStart, PAGE_MESSAGE_COUNT);
+            List<Message> msgList = mConv.getMessagesFromNewest(mMsgList.size(), PAGE_MESSAGE_COUNT);
             if (msgList != null) {
                 for (Message msg : msgList) {
                     mMsgList.add(0, msg);
@@ -294,6 +294,9 @@ public class ChattingListAdapter extends BaseAdapter {
             public void gotResult(int i, String s) {
                 if (i == 0) {
                     incrementStartPosition();
+                    notifyDataSetChanged();
+                }else {
+                    HandleResponseCode.onHandle(mContext, i, false);
                     notifyDataSetChanged();
                 }
             }

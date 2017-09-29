@@ -188,6 +188,9 @@ public class HandleResponseCode {
             case 871312:
                 content.setText(IdHelper.getString(context, "jmui_sdk_87x_871312"));
                 break;
+            case 871319:
+                content.setText(IdHelper.getString(context, "jmui_sdk_87x_871319"));
+                break;
             case 871403:
                 content.setText(IdHelper.getString(context, "jmui_sdk_87x_871403"));
                 break;
