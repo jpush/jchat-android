@@ -32,9 +32,8 @@
             android:background="@drawable/receive_msg_normal"
             android:orientation="vertical"
             android:paddingBottom="3dp"
-            android:paddingRight="3dp"
-            android:paddingLeft="9dp">
-
+            android:paddingLeft="9dp"
+            android:paddingRight="3dp">
 
 
             <ImageView
@@ -47,24 +46,25 @@
                 android:src="@drawable/jmui_location_default"/>
 
             <View
-                android:visibility="gone"
                 android:id="@+id/location_view"
                 android:layout_width="163dp"
                 android:layout_height="30dp"
                 android:layout_gravity="bottom"
                 android:alpha="0.6"
-                android:background="#000000"/>
+                android:background="#000000"
+                android:visibility="gone"/>
 
             <TextView
-                android:layout_marginBottom="6dp"
                 android:id="@+id/jmui_loc_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center"
+                android:ellipsize="end"
                 android:ems="10"
                 android:gravity="center"
+                android:maxLines="2"
                 android:textColor="@color/white"
-                android:textSize="14sp"/>
+                android:textSize="12sp"/>
         </FrameLayout>
 
 
