@@ -123,6 +123,11 @@
             android:name="JPUSH_APPKEY"
             android:value="4f7aef34fb361292c566a1cd"/>
 
+        <provider
+            android:name="cn.jpush.android.service.DataProvider"
+            android:authorities="${applicationId}.DataProvider"
+            android:exported="true" />
+
         <activity
             android:name=".activity.WelcomeActivity"
             android:screenOrientation="portrait"

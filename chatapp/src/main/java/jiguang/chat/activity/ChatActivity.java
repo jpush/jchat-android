@@ -46,6 +46,7 @@ import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.event.MessageReceiptStatusChangeEvent;
 import cn.jpush.im.android.api.event.MessageRetractEvent;
+import cn.jpush.im.android.api.event.OfflineMessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
@@ -538,6 +539,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             }
         }
         mChatAdapter.notifyDataSetChanged();
+        //发送名片返回聊天界面刷新信息
         if (SharePreferenceManager.getIsOpen()) {
             initData();
             SharePreferenceManager.setIsOpen(false);
@@ -598,8 +600,8 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     case group_member_exit:
                         EventNotificationContent content = (EventNotificationContent) message.getContent();
                         if (content.getUserNames().contains(JMessageClient.getMyInfo().getUserName())) {
-                            finish();
-                        }else {
+                            mChatAdapter.notifyDataSetChanged();
+                        } else {
                             refreshGroupNum();
                         }
                         break;
@@ -639,6 +641,34 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     public void onEventMainThread(MessageRetractEvent event) {
         Message retractedMessage = event.getRetractedMessage();
         mChatAdapter.delMsgRetract(retractedMessage);
+    }
+
+    /**
+     * 当在聊天界面断网再次连接时收离线事件刷新
+     */
+    public void onEvent(OfflineMessageEvent event) {
+        Conversation conv = event.getConversation();
+        if (conv.getType().equals(ConversationType.single)) {
+            UserInfo userInfo = (UserInfo) conv.getTargetInfo();
+            String targetId = userInfo.getUserName();
+            String appKey = userInfo.getAppKey();
+            if (mIsSingle && targetId.equals(mTargetId) && appKey.equals(mTargetAppKey)) {
+                List<Message> singleOfflineMsgList = event.getOfflineMessageList();
+                if (singleOfflineMsgList != null && singleOfflineMsgList.size() > 0) {
+                    mChatView.setToBottom();
+                    mChatAdapter.addMsgListToList(singleOfflineMsgList);
+                }
+            }
+        } else {
+            long groupId = ((GroupInfo) conv.getTargetInfo()).getGroupID();
+            if (groupId == mGroupId) {
+                List<Message> offlineMessageList = event.getOfflineMessageList();
+                if (offlineMessageList != null && offlineMessageList.size() > 0) {
+                    mChatView.setToBottom();
+                    mChatAdapter.addMsgListToList(offlineMessageList);
+                }
+            }
+        }
     }
 
     private void refreshGroupNum() {

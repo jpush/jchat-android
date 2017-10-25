@@ -27,6 +27,7 @@ import jiguang.chat.activity.FriendInfoActivity;
 import jiguang.chat.activity.GroupNotFriendActivity;
 import jiguang.chat.activity.SearchFriendDetailActivity;
 import jiguang.chat.application.JGApplication;
+import jiguang.chat.database.FriendEntry;
 import jiguang.chat.database.FriendRecommendEntry;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
@@ -110,7 +111,6 @@ public class FriendRecommendAdapter extends BaseAdapter {
 
         name.setText(item.displayName);
         reason.setText(item.reason);
-
         JMessageClient.getUserInfo(item.username, new GetUserInfoCallback() {
             @Override
             public void gotResult(int i, String s, UserInfo userInfo) {
@@ -118,6 +118,12 @@ public class FriendRecommendAdapter extends BaseAdapter {
                     if (userInfo.isFriend()) {
                         item.state = FriendInvitation.ACCEPTED.getValue();
                         item.save();
+                        FriendEntry entry = FriendEntry.getFriend(JGApplication.getUserEntry(), item.username, item.appKey);
+                        if (entry == null) {
+                            EventBus.getDefault().post(new Event.Builder().setType(EventType.addFriend)
+                                    .setFriendId(item.getId()).build());
+                        }
+
                     }
                 }
             }

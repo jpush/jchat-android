@@ -287,6 +287,11 @@ public class ChattingListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void addMsgListToList(List<Message> singleOfflineMsgList) {
+        mMsgList.addAll(singleOfflineMsgList);
+        notifyDataSetChanged();
+    }
+
     public void addMsgFromReceiptToList(Message msg) {
         mMsgList.add(msg);
         msg.setOnSendCompleteCallback(new BasicCallback() {
@@ -295,7 +300,7 @@ public class ChattingListAdapter extends BaseAdapter {
                 if (i == 0) {
                     incrementStartPosition();
                     notifyDataSetChanged();
-                }else {
+                } else {
                     HandleResponseCode.onHandle(mContext, i, false);
                     notifyDataSetChanged();
                 }

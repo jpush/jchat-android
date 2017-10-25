@@ -172,6 +172,7 @@ public class ContactsFragment extends BaseFragment {
             entry.save();
             //收到好友邀请
         } else if (event.getType() == ContactNotifyEvent.Type.invite_received) {
+            //如果同一个人申请多次,则只会出现一次;当点击进验证消息界面后,同一个人再次申请则可以收到
             if (JGApplication.forAddFriend.size() > 0) {
                 for (String forAdd : JGApplication.forAddFriend) {
                     if (forAdd.equals(username)) {
@@ -206,6 +207,7 @@ public class ContactsFragment extends BaseFragment {
                             entry.reason = reason;
                         }
                         entry.save();
+                        //收到好友请求数字 +1
                         int showNum = SharePreferenceManager.getCachedNewFriendNum() + 1;
                         mContactsView.showNewFriends(showNum);
                         SharePreferenceManager.setCachedNewFriendNum(showNum);

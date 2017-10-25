@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import jiguang.chat.R;
 import jiguang.chat.adapter.StickyListAdapter;
+import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ContactsController;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.sidebar.SideBar;
@@ -114,6 +115,7 @@ public class ContactsView extends LinearLayout {
 
     public void dismissNewFriends() {
         SharePreferenceManager.setCachedNewFriendNum(0);
+        JGApplication.forAddFriend.clear();
         mNewFriendNum.setVisibility(INVISIBLE);
     }
 

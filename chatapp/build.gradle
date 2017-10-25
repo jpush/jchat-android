@@ -59,17 +59,10 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.6.1'
     compile 'com.github.w446108264:AndroidEmoji:1.0.0'
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
-    compile files('libs/universal-image-loader-1.9.5.jar')
-    compile files('libs/BaiduLBS_Android.jar')
     compile 'com.facebook.fresco:fresco:0.8.1'
-    compile files('libs/pinyin4j-2.5.0.jar')
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile project(':reclib-qq')
     compile project(':reclib-testemoticons')
-    compile files('libs/picasso-2.5.2.jar')
-    compile files('libs/core-3.2.1.jar')
-    compile files('libs/gson-2.2.1.jar')
-    compile files('libs/jcore-android-1.1.6-debug-b152.jar')
     compile 'com.contrarywind:Android-PickerView:3.2.4'
 }

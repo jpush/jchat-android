@@ -43,6 +43,7 @@ import jiguang.chat.controller.ActivityController;
 import jiguang.chat.model.SearchResult;
 import jiguang.chat.utils.DialogCreator;
 import jiguang.chat.utils.HandleResponseCode;
+import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.photochoose.SelectableRoundedImageView;
 import jiguang.chat.utils.pinyin.CharacterParser;
 import jiguang.chat.utils.query.TextSearcher;
@@ -209,6 +210,7 @@ public class SearchFriendBusinessActivity extends BaseActivity implements Adapte
                             @Override
                             public void gotResult(int i, String s) {
                                 if (i == 0) {
+                                    SharePreferenceManager.setIsOpen(true);
                                     Toast.makeText(SearchFriendBusinessActivity.this, "发送成功", Toast.LENGTH_SHORT).show();
                                     finish();
                                 } else {

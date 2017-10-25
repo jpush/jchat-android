@@ -22,6 +22,7 @@ import jiguang.chat.activity.GroupActivity;
 import jiguang.chat.activity.SearchContactsActivity;
 import jiguang.chat.activity.SearchForAddFriendActivity;
 import jiguang.chat.adapter.StickyListAdapter;
+import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
 import jiguang.chat.database.UserEntry;
 import jiguang.chat.utils.pinyin.HanziToPinyin;
@@ -38,6 +39,7 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
     private Activity mContext;
     private List<FriendEntry> mList = new ArrayList<>();
     private StickyListAdapter mAdapter;
+    private List<FriendEntry> forDelete = new ArrayList<>();
 
 
     public ContactsController(ContactsView mContactsView, FragmentActivity context) {
@@ -125,7 +127,7 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
                                     friend.save();
                                     mList.add(friend);
                                 }
-
+                                forDelete.add(friend);
                             }
                             ActiveAndroid.setTransactionSuccessful();
                         } finally {
@@ -133,6 +135,13 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
                         }
                     } else {
                         mContactsView.showLine();
+                    }
+                    //其他端删除好友后,登陆时把数据库中的也删掉
+                    List<FriendEntry> friends = JGApplication.getUserEntry().getFriends();
+                    friends.removeAll(forDelete);
+                    for (FriendEntry del : friends) {
+                        del.delete();
+                        mList.remove(del);
                     }
                     Collections.sort(mList, new PinyinComparator());
                     mAdapter = new StickyListAdapter(mContext, mList, false);
