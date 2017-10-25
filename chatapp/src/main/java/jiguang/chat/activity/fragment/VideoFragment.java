@@ -99,7 +99,7 @@ public class VideoFragment extends BaseFragment {
                             String size = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.SIZE));
                             String date = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATE_MODIFIED));
                             if (scannerFile(filePath)) {
-                                FileItem fileItem = new FileItem(filePath, fileName, size, date);
+                                FileItem fileItem = new FileItem(filePath, fileName, size, date,0);
                                 mVideos.add(fileItem);
                             }
                         }

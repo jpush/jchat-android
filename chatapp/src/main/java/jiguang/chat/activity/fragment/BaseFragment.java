@@ -1,5 +1,6 @@
 package jiguang.chat.activity.fragment;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -37,8 +38,7 @@ public class BaseFragment extends Fragment {
     protected float mRatio;
     protected int mAvatarSize;
     private Context mContext;
-
-
+    public Activity mActivity;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,7 +98,12 @@ public class BaseFragment extends Fragment {
                 dialog = DialogCreator.createLogoutStatusDialog(mContext, "您的账号在其他设备上登陆", listener);
                 dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 dialog.setCanceledOnTouchOutside(false);
+                dialog.setCancelable(false);
                 dialog.show();
+                break;
+            case user_password_change:
+                Intent intent = new Intent(mContext, LoginActivity.class);
+                startActivity(intent);
                 break;
         }
     }
@@ -111,5 +116,11 @@ public class BaseFragment extends Fragment {
             dialog.dismiss();
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onAttach(Activity context) {
+        super.onAttach(context);
+        mActivity = context;
     }
 }

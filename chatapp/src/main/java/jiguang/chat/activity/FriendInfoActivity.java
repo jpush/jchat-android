@@ -22,6 +22,7 @@ import jiguang.chat.database.FriendEntry;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
 import jiguang.chat.utils.DialogCreator;
+import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.utils.NativeImageLoader;
 import jiguang.chat.view.FriendInfoView;
 
@@ -103,9 +104,12 @@ public class FriendInfoActivity extends BaseActivity {
                 if (responseCode == 0) {
                     //拉取好友信息时候要更新数据库中的nickName.因为如果对方修改了nickName我们是无法感知的.如果不在拉取信息
                     //时候更新数据库的话会影响到搜索好友的nickName, 注意要在没有备注名并且有昵称时候去更新.因为备注名优先级更高
-                    if (TextUtils.isEmpty(info.getNotename()) && !TextUtils.isEmpty(info.getNickname())) {
-                        new Update(FriendEntry.class).set("DisplayName=?", info.getNickname()).where("Username=?", mTargetId).execute();
-                        new Update(FriendEntry.class).set("NickName=?", info.getNickname()).where("Username=?", mTargetId).execute();
+                    new Update(FriendEntry.class).set("DisplayName=?", info.getDisplayName()).where("Username=?", mTargetId).execute();
+                    new Update(FriendEntry.class).set("NickName=?", info.getNickname()).where("Username=?", mTargetId).execute();
+                    new Update(FriendEntry.class).set("NoteName=?", info.getNotename()).where("Username=?", mTargetId).execute();
+
+                    if (info.getAvatarFile() != null) {
+                        new Update(FriendEntry.class).set("Avatar=?", info.getAvatarFile().getAbsolutePath()).where("Username=?", mTargetId).execute();
                     }
                     mUserInfo = info;
                     mFriendInfoController.setFriendInfo(info);
@@ -114,6 +118,8 @@ public class FriendInfoActivity extends BaseActivity {
                         mTitle = info.getNickname();
                     }
                     mFriendInfoView.initInfo(info);
+                } else {
+                    HandleResponseCode.onHandle(FriendInfoActivity.this, responseCode, false);
                 }
             }
         });
@@ -183,7 +189,7 @@ public class FriendInfoActivity extends BaseActivity {
                 if (bitmap != null) {
                     Intent intent = new Intent();
                     intent.putExtra("browserAvatar", true);
-                    intent.putExtra("avatarPath", mUserInfo.getUserName());
+                    intent.putExtra("avatarPath", mUserInfo.getAvatarFile().getAbsolutePath());
                     intent.setClass(this, BrowserViewPagerActivity.class);
                     startActivity(intent);
                 }

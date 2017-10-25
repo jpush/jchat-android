@@ -22,6 +22,10 @@ public class InfoModel {
         return mInfoModel;
     }
 
+    public Long getUid () {
+        return friendInfo.getUserID();
+    }
+
     public void setBitmap(Bitmap avatar) {
         bitmap = avatar;
     }
@@ -87,7 +91,7 @@ public class InfoModel {
     }
 
     public String getCity() {
-        return friendInfo.getAddress();
+        return friendInfo.getRegion();
     }
 
 }

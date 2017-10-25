@@ -42,6 +42,7 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
     private TextView mTv_noteName;
     private Dialog mDialog;
     private UserInfo mFriendInfo;
+    private RelativeLayout mRl_business;
 
 
     @Override
@@ -58,6 +59,7 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
         mBtn_addBlackList.setOnChangedListener(R.id.btn_addBlackList, this);
         mBtn_deleteFriend.setOnClickListener(this);
         mSetNoteName.setOnClickListener(this);
+        mRl_business.setOnClickListener(this);
     }
 
     @Override
@@ -119,6 +121,17 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
                 mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
                 mDialog.show();
                 break;
+            //发送好友名片
+            case R.id.rl_business:
+                Intent businessIntent = new Intent(FriendSettingActivity.this, ForwardMsgActivity.class);
+                businessIntent.setFlags(1);
+                businessIntent.putExtra("userName", mFriendInfo.getUserName());
+                businessIntent.putExtra("appKey", mFriendInfo.getAppKey());
+                if (mFriendInfo.getAvatarFile() != null) {
+                    businessIntent.putExtra("avatar", mFriendInfo.getAvatarFile().getAbsolutePath());
+                }
+                startActivity(businessIntent);
+                break;
             default:
                 break;
         }
@@ -141,16 +154,27 @@ public class FriendSettingActivity extends BaseActivity implements SlipButton.On
         mBtn_addBlackList = (SlipButton) findViewById(R.id.btn_addBlackList);
         mBtn_deleteFriend = (Button) findViewById(R.id.btn_deleteFriend);
         mTv_noteName = (TextView) findViewById(R.id.tv_noteName);
-
+        mRl_business = (RelativeLayout) findViewById(R.id.rl_business);
+        final Dialog dialog = DialogCreator.createLoadingDialog(FriendSettingActivity.this,
+                FriendSettingActivity.this.getString(R.string.jmui_loading));
+        dialog.show();
         if (!TextUtils.isEmpty(getIntent().getStringExtra("noteName"))) {
             mTv_noteName.setText(getIntent().getStringExtra("noteName"));
         }
         JMessageClient.getUserInfo(getIntent().getStringExtra("userName"), new GetUserInfoCallback() {
             @Override
             public void gotResult(int responseCode, String responseMessage, UserInfo info) {
+                dialog.dismiss();
                 if (responseCode == 0) {
                     mFriendInfo = info;
                     mBtn_addBlackList.setChecked(info.getBlacklist() == 1);
+                    if (info.isFriend()) {
+                        mBtn_deleteFriend.setVisibility(View.VISIBLE);
+                        mSetNoteName.setVisibility(View.VISIBLE);
+                    }else {
+                        mBtn_deleteFriend.setVisibility(View.GONE);
+                        mSetNoteName.setVisibility(View.GONE);
+                    }
                 }
             }
         });

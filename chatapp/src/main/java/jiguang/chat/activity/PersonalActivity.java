@@ -5,15 +5,16 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bigkoo.pickerview.TimePickerView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -65,6 +66,7 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
     private ChoosePhoto mChoosePhoto;
     private UserInfo mMyInfo;
     private TextView mTv_userName;
+    private RelativeLayout mRl_zxing;
 
 
     @Override
@@ -72,13 +74,13 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal);
 
-        Window window = this.getWindow();
-        //取消设置透明状态栏,使 ContentView 内容不再覆盖状态栏
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        //需要设置这个 flag 才能调用 setStatusBarColor 来设置状态栏颜色
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        //设置状态栏颜色
-        window.setStatusBarColor(getResources().getColor(R.color.line_normal));
+//        Window window = this.getWindow();
+//        //取消设置透明状态栏,使 ContentView 内容不再覆盖状态栏
+//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        //需要设置这个 flag 才能调用 setStatusBarColor 来设置状态栏颜色
+//        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//        //设置状态栏颜色
+//        window.setStatusBarColor(getResources().getColor(R.color.line_normal));
 
         initView();
         initListener();
@@ -135,6 +137,7 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
         mSign.setOnClickListener(this);
         mRl_nickName.setOnClickListener(this);
         mIv_photo.setOnClickListener(this);
+        mRl_zxing.setOnClickListener(this);
     }
 
     private void initView() {
@@ -151,6 +154,7 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
         mTv_nickName = (TextView) findViewById(R.id.tv_nickName);
         mIv_photo = (ImageView) findViewById(R.id.iv_photo);
         mTv_userName = (TextView) findViewById(R.id.tv_userName);
+        mRl_zxing = (RelativeLayout) findViewById(R.id.rl_zxing);
 
         mChoosePhoto = new ChoosePhoto();
         mChoosePhoto.setPortraitChangeListener(PersonalActivity.this, mIv_photo, 2);
@@ -164,7 +168,6 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
 
     @Override
     public void setTime(String time) {
-        mTv_birthday.setText(time);
     }
 
     @Override
@@ -204,14 +207,54 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
                 break;
             case R.id.rl_birthday:
                 //弹出时间选择器选择生日
-                dialog = new SelectAddressDialog(PersonalActivity.this);
-                dialog.showDateDialog(PersonalActivity.this, mMyInfo);
+                TimePickerView timePickerView = new TimePickerView.Builder(PersonalActivity.this, new TimePickerView.OnTimeSelectListener() {
+                    @Override
+                    public void onTimeSelect(final Date date, View v) {
+                        mMyInfo.setBirthday(date.getTime());
+                        JMessageClient.updateMyInfo(UserInfo.Field.birthday, mMyInfo, new BasicCallback() {
+                            @Override
+                            public void gotResult(int responseCode, String responseMessage) {
+                                if (responseCode == 0) {
+                                    mTv_birthday.setText(getDataTime(date));
+                                    Toast.makeText(PersonalActivity.this, "更新成功", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(PersonalActivity.this, "更新失败", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+                })
+                        .setType(TimePickerView.Type.YEAR_MONTH_DAY)
+                        .setCancelText("取消")
+                        .setSubmitText("确定")
+                        .setContentSize(20)//滚轮文字大小
+                        .setTitleSize(20)//标题文字大小
+                        .setOutSideCancelable(true)
+                        .isCyclic(true)
+                        .setTextColorCenter(Color.BLACK)//设置选中项的颜色
+                        .setSubmitColor(Color.GRAY)//确定按钮文字颜色
+                        .setCancelColor(Color.GRAY)//取消按钮文字颜色
+                        .isCenterLabel(false)
+                        .build();
+                timePickerView.show();
+//                dialog = new SelectAddressDialog(PersonalActivity.this);
+//                dialog.showDateDialog(PersonalActivity.this, mMyInfo);
                 break;
             case R.id.rl_cityChoose:
                 //点击选择省市
                 dialog = new SelectAddressDialog(PersonalActivity.this,
                         PersonalActivity.this, SelectAddressDialog.STYLE_THREE, null, mMyInfo);
                 dialog.showDialog();
+                break;
+            case R.id.rl_zxing:
+                //二维码
+                Intent intent = new Intent(PersonalActivity.this, Person2CodeActivity.class);
+                intent.putExtra("appkey", mMyInfo.getAppKey());
+                intent.putExtra("username", mMyInfo.getUserName());
+                if (mMyInfo.getAvatarFile() != null) {
+                    intent.putExtra("avatar", mMyInfo.getAvatarFile().getAbsolutePath());
+                }
+                startActivity(intent);
                 break;
             default:
                 break;
@@ -274,6 +317,11 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
                 mChoosePhoto.photoUtils.onActivityResult(PersonalActivity.this, requestCode, resultCode, data);
                 break;
         }
+    }
+
+    public String getDataTime(Date date) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return format.format(date);
     }
 
 }

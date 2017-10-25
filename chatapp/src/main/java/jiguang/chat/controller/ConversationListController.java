@@ -2,6 +2,7 @@ package jiguang.chat.controller;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -23,6 +24,7 @@ import jiguang.chat.adapter.ConversationListAdapter;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.utils.DialogCreator;
 import jiguang.chat.utils.SortConvList;
+import jiguang.chat.utils.SortTopConvList;
 import jiguang.chat.view.ConversationListView;
 
 /**
@@ -37,7 +39,6 @@ public class ConversationListController implements View.OnClickListener,
     private int mWidth;
     private ConversationListAdapter mListAdapter;
     private List<Conversation> mDatas = new ArrayList<Conversation>();
-    private List<Conversation> mConv = new ArrayList<Conversation>();
     private Dialog mDialog;
 
     public ConversationListController(ConversationListView listView, ConversationListFragment context,
@@ -48,29 +49,42 @@ public class ConversationListController implements View.OnClickListener,
         initConvListAdapter();
     }
 
-    //得到会话列表
+    List<Conversation> topConv = new ArrayList<>();
+    List<Conversation> forCurrent = new ArrayList<>();
+    List<Conversation> delFeedBack = new ArrayList<>();
+
     private void initConvListAdapter() {
+        forCurrent.clear();
+        topConv.clear();
+        delFeedBack.clear();
+        int i = 0;
         mDatas = JMessageClient.getConversationList();
         if (mDatas != null && mDatas.size() > 0) {
             mConvListView.setNullConversation(true);
             SortConvList sortConvList = new SortConvList();
             Collections.sort(mDatas, sortConvList);
-         /*   for (int i = 0; i < SharePreferenceManager.getTopSize(); i++) {
-                ConversationEntry topConversation = ConversationEntry.getTopConversation(i);
-                for (int x = 0; x < mDatas.size(); x++) {
-                    if (topConversation.targetname.equals(mDatas.get(x).getTargetId())) {
-                        mConv.add(mDatas.get(x));
-                        mDatas.remove(mDatas.get(x));
-
-                        mDatas.add(i, mConv.get(0));
-                        mConv.clear();
-                        break;
-
-                    }
+            for (Conversation con : mDatas) {
+                if (con.getTargetId().equals("feedback_Android")) {
+                    delFeedBack.add(con);
                 }
-            }*/
+                if (!TextUtils.isEmpty(con.getExtra())) {
+                    forCurrent.add(con);
+                }
+            }
+            topConv.addAll(forCurrent);
+            mDatas.removeAll(forCurrent);
+            mDatas.removeAll(delFeedBack);
+
         } else {
             mConvListView.setNullConversation(false);
+        }
+        if (topConv != null && topConv.size() > 0) {
+            SortTopConvList top = new SortTopConvList();
+            Collections.sort(topConv, top);
+            for (Conversation conv : topConv) {
+                mDatas.add(i, conv);
+                i++;
+            }
         }
         mListAdapter = new ConversationListAdapter(mContext.getActivity(), mDatas, mConvListView);
         mConvListView.setConvListAdapter(mListAdapter);
@@ -131,7 +145,6 @@ public class ConversationListController implements View.OnClickListener,
         return mListAdapter;
     }
 
-
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
         final Conversation conv = mDatas.get(position - 3);
@@ -141,15 +154,16 @@ public class ConversationListController implements View.OnClickListener,
                 public void onClick(View v) {
                     switch (v.getId()) {
                         //会话置顶
-                        /*case R.id.jmui_top_conv_ll:
-                            mListAdapter.setConvTop(conv);
-                            int topSize = SharePreferenceManager.getTopSize();
-                            ConversationEntry entry = new ConversationEntry(conv.getTargetId(), topSize);
-                            entry.save();
-                            ++topSize;
-                            SharePreferenceManager.setTopSize(topSize);
+                        case R.id.jmui_top_conv_ll:
+                            //已经置顶,去取消
+                            if (!TextUtils.isEmpty(conv.getExtra())) {
+                                mListAdapter.setCancelConvTop(conv);
+                                //没有置顶,去置顶
+                            } else {
+                                mListAdapter.setConvTop(conv);
+                            }
                             mDialog.dismiss();
-                            break;*/
+                            break;
                         //删除会话
                         case R.id.jmui_delete_conv_ll:
                             if (conv.getType() == ConversationType.group) {
@@ -172,7 +186,7 @@ public class ConversationListController implements View.OnClickListener,
 
                 }
             };
-            mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), listener);
+            mDialog = DialogCreator.createDelConversationDialog(mContext.getActivity(), listener, TextUtils.isEmpty(conv.getExtra()));
             mDialog.show();
             mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         }

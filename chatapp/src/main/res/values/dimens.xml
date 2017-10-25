@@ -27,6 +27,7 @@
     <dimen name="chat_head_icon_size">40dp</dimen>
     <dimen name="save_btn_height">30dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="zxing">20dp</dimen>
     <dimen name="me_head_icon_size">75dp</dimen>
     <dimen name="drop_down_list_header_padding_top">12dp</dimen>
     <dimen name="drop_down_list_header_padding_bottom">5dp</dimen>

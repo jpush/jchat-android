@@ -35,8 +35,8 @@
 
             <ImageView
                 android:id="@+id/jmui_picture_iv"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="100dp"
+                android:layout_height="159dp"
                 android:layout_gravity="center"
                 android:layout_marginBottom="2dp"
                 android:layout_marginLeft="2dp"

@@ -81,6 +81,27 @@
                 android:textColor="#fff"
                 android:textSize="16sp"/>
         </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_saoYiSao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/launch_friend"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/sys"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="12dp"
+                android:text="扫一扫    "
+                android:textColor="#fff"
+                android:textSize="16sp"/>
+        </LinearLayout>
     </LinearLayout>
 
 

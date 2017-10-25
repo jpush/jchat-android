@@ -21,7 +21,7 @@ import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.model.Message;
 import jiguang.chat.R;
-import jiguang.chat.utils.ToastUtil;
+import jiguang.chat.utils.SharePreferenceManager;
 
 /**
  * Created by ${chenyn} on 2017/5/19.
@@ -71,7 +71,6 @@ public class DownLoadActivity extends Activity {
                     public void onProgressUpdate(double percent) {
                         mProcessNum = (int) (percent * 100);
                         mProcess.setText(mProcessNum + "%");
-
                         mHandler.post(progressBar);
                     }
                 });
@@ -80,10 +79,9 @@ public class DownLoadActivity extends Activity {
                     @Override
                     public void onComplete(int responseCode, String responseMessage, File file) {
                         if (responseCode == 0) {
-                            ToastUtil.shortToast(DownLoadActivity.this, "下载成功");
+                            SharePreferenceManager.setIsOpen(true);
                             finish();
                         }else {
-                            ToastUtil.shortToast(DownLoadActivity.this, "下载失败,稍后重试");
                             finish();
                         }
                     }

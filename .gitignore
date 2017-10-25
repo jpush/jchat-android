@@ -32,3 +32,5 @@ proguard/
 
 # Log Files
 *.log
+/chatapp/libs/jcore-android-1.1.6-debug-b152.jar
+/chatapp/libs/jmessage-android_debug_v2.3.0_b791.jar

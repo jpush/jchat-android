@@ -39,8 +39,8 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="47.33dp"
+            android:layout_height="47.33dp"
             android:layout_marginBottom="8dp"
             android:layout_marginLeft="14dp"
             android:layout_marginTop="8dp"
@@ -56,12 +56,22 @@
             android:textSize="16sp"/>
     </LinearLayout>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:background="#E8EDF3"
+        android:gravity="center_vertical"
+        android:paddingLeft="14dp"
+        android:text="最近聊天"
+        android:textColor="#808080"
+        android:textSize="14sp"/>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <jiguang.chat.view.listview.StickyListHeadersListView
-            android:id="@+id/at_member_list_view"
+        <ListView
+            android:id="@+id/forward_business_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@drawable/main_list_divider_line"
@@ -78,12 +88,5 @@
             android:textSize="30dp"
             android:visibility="invisible"/>
 
-        <jiguang.chat.utils.sidebar.SideBar
-            android:layout_marginBottom="25dp"
-            android:id="@+id/sidebar"
-            android:layout_width="30dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            />
     </FrameLayout>
 </LinearLayout>

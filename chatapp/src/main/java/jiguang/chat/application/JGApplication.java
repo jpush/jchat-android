@@ -1,6 +1,7 @@
 package jiguang.chat.application;
 
 import android.content.Context;
+import android.support.multidex.MultiDex;
 
 import com.activeandroid.ActiveAndroid;
 import com.baidu.mapapi.SDKInitializer;
@@ -37,6 +38,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final int FILE_MESSAGE = 4;
     public static final int TACK_VIDEO = 5;
     public static final int TACK_VOICE = 6;
+    public static final int BUSINESS_CARD = 7;
     public static final int REQUEST_CODE_SEND_FILE = 26;
 
 
@@ -44,7 +46,6 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static Map<Long, Boolean> isAtMe = new HashMap<>();
     public static Map<Long, Boolean> isAtall = new HashMap<>();
     public static List<Message> forwardMsg = new ArrayList<>();
-    public static List<Message> addForwardMsg = new ArrayList<>();
 
     public static long registerOrLogin = 1;
     public static final int REQUEST_CODE_TAKE_PHOTO = 4;
@@ -108,6 +109,10 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static List<UserInfo> mFriendInfoList = new ArrayList<>();
     public static List<UserInfo> mSearchGroup = new ArrayList<>();
     public static List<UserInfo> mSearchAtMember = new ArrayList<>();
+    public static List<Message> ids = new ArrayList<>();
+    public static List<UserInfo> alreadyRead = new ArrayList<>();
+    public static List<UserInfo> unRead = new ArrayList<>();
+    public static List<String> forAddFriend = new ArrayList<>();
 
     @Override
     public void onCreate() {
@@ -159,5 +164,10 @@ public class JGApplication extends com.activeandroid.app.Application {
     public void onTerminate() {
         super.onTerminate();
         ActiveAndroid.dispose();
+    }
+
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 }

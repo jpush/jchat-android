@@ -131,7 +131,7 @@ public class SearchFriendDetailActivity extends BaseActivity {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                         mTv_birthday.setText(dateFormat.format(date));
                     }
-                    mTv_address.setText(info.getAddress());
+                    mTv_address.setText(info.getRegion());
                 }
             }
         });

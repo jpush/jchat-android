@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -52,6 +53,8 @@ public class GroupNotFriendActivity extends BaseActivity implements View.OnClick
     private String mAvatarPath;
     private TextView mTv_additionalMsg;
     private LinearLayout mLl_additional;
+    private ImageButton mReturnBtn;
+    private ImageView mIvMore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,7 +122,7 @@ public class GroupNotFriendActivity extends BaseActivity implements View.OnClick
                         mTv_gender.setText("未知");
                     }
                     mTv_birthday.setText(getBirthday(info));
-                    mTv_address.setText(info.getAddress());
+                    mTv_address.setText(info.getRegion());
                 }
                 dialog.dismiss();
             }
@@ -133,7 +136,8 @@ public class GroupNotFriendActivity extends BaseActivity implements View.OnClick
     }
 
     private void initView() {
-        initTitle(true, true, "详细资料", "", false, "");
+        mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
+        mIvMore = (ImageView) findViewById(R.id.iv_more);
         mIv_friendPhoto = (ImageView) findViewById(R.id.iv_friendPhoto);
         mTv_noteName = (TextView) findViewById(R.id.tv_nickName);
         mTv_sign = (TextView) findViewById(R.id.tv_sign);
@@ -151,6 +155,8 @@ public class GroupNotFriendActivity extends BaseActivity implements View.OnClick
 
         mBtn_add_friend.setOnClickListener(this);
         mBtn_send_message.setOnClickListener(this);
+        mReturnBtn.setOnClickListener(this);
+        mIvMore.setOnClickListener(this);
     }
 
     public String getBirthday(UserInfo info) {
@@ -202,6 +208,14 @@ public class GroupNotFriendActivity extends BaseActivity implements View.OnClick
                             .setConversation(conv)
                             .build());
                 }
+                startActivity(intent);
+                break;
+            case R.id.return_btn:
+                finish();
+                break;
+            case R.id.iv_more:
+                intent.setClass(GroupNotFriendActivity.this, NotFriendSettingActivity.class);
+                intent.putExtra("notFriendUserName", mUserName);
                 startActivity(intent);
                 break;
             default:

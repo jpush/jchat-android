@@ -32,7 +32,7 @@ public class ConversationListView {
     private ImageView mLoadingIv;
     private LinearLayout mLoadingTv;
     private Context mContext;
-    private LinearLayout mNull_conversation;
+    private TextView mNull_conversation;
     private LinearLayout mSearch;
     private TextView mAllUnReadMsg;
     private ConversationListFragment mFragment;
@@ -53,11 +53,11 @@ public class ConversationListView {
         mLoadingIv = (ImageView) mLoadingHeader.findViewById(R.id.jmui_loading_img);
         mLoadingTv = (LinearLayout) mLoadingHeader.findViewById(R.id.loading_view);
         mSearch = (LinearLayout) mSearchHead.findViewById(R.id.search_title);
-        mNull_conversation = (LinearLayout) mConvListFragment.findViewById(R.id.null_conversation);
+        mNull_conversation = (TextView) mConvListFragment.findViewById(R.id.null_conversation);
         mAllUnReadMsg = (TextView) mFragment.getActivity().findViewById(R.id.all_unread_number);
         mConvListView.addHeaderView(mLoadingHeader);
-        mConvListView.addHeaderView(mHeader);
         mConvListView.addHeaderView(mSearchHead);
+        mConvListView.addHeaderView(mHeader);
     }
 
     public void setConvListAdapter(ListAdapter adapter) {

@@ -13,7 +13,7 @@ JChat 同时具备好友模式和无好友模式：
 * 无好友模式：无需将对方加为好友，通过搜索对方的用户名可直接发起聊天。
 * 好友模式：可申请将对方加为好友，对方会收到好友验证，验证通过则互为好友关系。
 
-目前已覆盖 Android 和 [iOS](https://github.com/jpush/jchat-swift) 平台，之后将提供 web 版本，开发者可参照 JChat 快速打造自己的 APP，提高开发效率。    
+目前已覆盖 Android 、 [iOS](https://github.com/jpush/jchat-swift) 、[Web](https://github.com/jpush/jchat-web)、[Windows](https://github.com/jpush/jchat-windows)平台，开发者可参照 JChat 快速打造自己的 APP，提高开发效率。    
 
 * 更换 AppKey
     - 在 AndroidManifest.xml 文件中把 JChat 的 AppKey 替换成自己项目的 AppKey

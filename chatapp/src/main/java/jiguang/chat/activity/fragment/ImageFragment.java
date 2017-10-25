@@ -90,7 +90,7 @@ public class ImageFragment extends BaseFragment {
                                 .getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.SIZE));
                         if (scannerFile(path)) {
-                            FileItem item = new FileItem(path, fileName, size, null);
+                            FileItem item = new FileItem(path, fileName, size, null, 0);
                             mImages.add(item);
                         }
                     }

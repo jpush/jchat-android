@@ -274,7 +274,20 @@ public class BrowserViewPagerActivity extends BaseActivity {
                 View.OnClickListener listener = new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        savePicture(path, mDialog);
+                        switch (v.getId()) {
+                            case R.id.jmui_delete_conv_ll://保存图片
+                                savePicture(path, mDialog);
+                                break;
+                            case R.id.jmui_top_conv_ll://转发
+                                Intent intent = new Intent(BrowserViewPagerActivity.this, ForwardMsgActivity.class);
+                                JGApplication.forwardMsg.clear();
+                                JGApplication.forwardMsg.add(mMsg);
+                                startActivity(intent);
+                                break;
+                            default:
+                                break;
+                        }
+                        mDialog.dismiss();
                     }
                 };
                 mDialog = DialogCreator.createSavePictureDialog(mContext, listener);
@@ -402,10 +415,8 @@ public class BrowserViewPagerActivity extends BaseActivity {
 
         @Override
         public void onPageSelected(final int i) {
-            Log.d(TAG, "onPageSelected current position: " + i);
             if (mFromChatActivity) {
                 mMsg = mConv.getMessage(mMsgIdList.get(i));
-                Log.d(TAG, "onPageSelected Image Message ID: " + mMsg.getId());
                 ImageContent ic = (ImageContent) mMsg.getContent();
                 //每次选择或滑动图片，如果不存在本地图片则下载，显示大图
                 if (ic.getLocalPath() == null && i != mPosition) {
@@ -834,4 +845,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(0, R.anim.trans_finish_in);
+    }
 }

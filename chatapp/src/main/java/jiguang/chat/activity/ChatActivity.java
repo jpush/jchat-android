@@ -44,11 +44,14 @@ import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.event.MessageReceiptStatusChangeEvent;
 import cn.jpush.im.android.api.event.MessageRetractEvent;
+import cn.jpush.im.android.api.event.OfflineMessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
@@ -66,6 +69,7 @@ import jiguang.chat.pickerimage.utils.StorageType;
 import jiguang.chat.pickerimage.utils.StorageUtil;
 import jiguang.chat.pickerimage.utils.StringUtil;
 import jiguang.chat.utils.IdHelper;
+import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.SimpleCommonUtils;
 import jiguang.chat.utils.ToastUtil;
 import jiguang.chat.utils.event.ImageEvent;
@@ -267,13 +271,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
                 if (mAtList != null && mAtList.size() > 0) {
                     for (UserInfo info : mAtList) {
-                        String name = info.getNotename();
-                        if (TextUtils.isEmpty(name)) {
-                            name = info.getNickname();
-                            if (TextUtils.isEmpty(name)) {
-                                name = info.getUserName();
-                            }
-                        }
+                        String name = info.getDisplayName();
 
                         if (!arg0.toString().contains("@" + name + " ")) {
                             forDel.add(info);
@@ -336,8 +334,11 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 } else {
                     msg = mConv.createSendMessage(content);
                 }
-                mChatAdapter.addMsgToList(msg);
-                JMessageClient.sendMessage(msg);
+                //设置需要已读回执
+                MessageSendingOptions options = new MessageSendingOptions();
+                options.setNeedReadReceipt(true);
+                JMessageClient.sendMessage(msg, options);
+                mChatAdapter.addMsgFromReceiptToList(msg);
                 ekBar.getEtChat().setText("");
                 if (mAtList != null) {
                     mAtList.clear();
@@ -518,10 +519,6 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
     @Override
     protected void onResume() {
-        if (JGApplication.addForwardMsg != null && JGApplication.addForwardMsg.size() > 0) {
-            mChatAdapter.addMsgToList(JGApplication.addForwardMsg.get(0));
-        }
-        mChatAdapter.notifyDataSetChanged();
         String targetId = getIntent().getStringExtra(TARGET_ID);
         if (!mIsSingle) {
             long groupId = getIntent().getLongExtra(GROUP_ID, 0);
@@ -533,6 +530,19 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         } else if (null != targetId) {
             String appKey = getIntent().getStringExtra(TARGET_APP_KEY);
             JMessageClient.enterSingleConversation(targetId, appKey);
+        }
+
+        //历史消息中删除后返回到聊天界面刷新界面
+        if (JGApplication.ids != null && JGApplication.ids.size() > 0) {
+            for (Message msg : JGApplication.ids) {
+                mChatAdapter.removeMessage(msg);
+            }
+        }
+        mChatAdapter.notifyDataSetChanged();
+        //发送名片返回聊天界面刷新信息
+        if (SharePreferenceManager.getIsOpen()) {
+            initData();
+            SharePreferenceManager.setIsOpen(false);
         }
         super.onResume();
 
@@ -588,7 +598,12 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
                         break;
                     case group_member_exit:
-                        refreshGroupNum();
+                        EventNotificationContent content = (EventNotificationContent) message.getContent();
+                        if (content.getUserNames().contains(JMessageClient.getMyInfo().getUserName())) {
+                            mChatAdapter.notifyDataSetChanged();
+                        } else {
+                            refreshGroupNum();
+                        }
                         break;
                 }
             }
@@ -623,9 +638,37 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         });
     }
 
-    public void onEvent(MessageRetractEvent event) {
+    public void onEventMainThread(MessageRetractEvent event) {
         Message retractedMessage = event.getRetractedMessage();
         mChatAdapter.delMsgRetract(retractedMessage);
+    }
+
+    /**
+     * 当在聊天界面断网再次连接时收离线事件刷新
+     */
+    public void onEvent(OfflineMessageEvent event) {
+        Conversation conv = event.getConversation();
+        if (conv.getType().equals(ConversationType.single)) {
+            UserInfo userInfo = (UserInfo) conv.getTargetInfo();
+            String targetId = userInfo.getUserName();
+            String appKey = userInfo.getAppKey();
+            if (mIsSingle && targetId.equals(mTargetId) && appKey.equals(mTargetAppKey)) {
+                List<Message> singleOfflineMsgList = event.getOfflineMessageList();
+                if (singleOfflineMsgList != null && singleOfflineMsgList.size() > 0) {
+                    mChatView.setToBottom();
+                    mChatAdapter.addMsgListToList(singleOfflineMsgList);
+                }
+            }
+        } else {
+            long groupId = ((GroupInfo) conv.getTargetInfo()).getGroupID();
+            if (groupId == mGroupId) {
+                List<Message> offlineMessageList = event.getOfflineMessageList();
+                if (offlineMessageList != null && offlineMessageList.size() > 0) {
+                    mChatView.setToBottom();
+                    mChatAdapter.addMsgListToList(offlineMessageList);
+                }
+            }
+        }
     }
 
     private void refreshGroupNum() {
@@ -658,8 +701,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             if (msg == null) {
                 return;
             }
-
-            if (msg.getContentType() == ContentType.text) {
+            //如果是文本消息
+            if ((msg.getContentType() == ContentType.text) && ((TextContent) msg.getContent()).getStringExtra("businessCard") == null) {
+                //接收方
                 if (msg.getDirect() == MessageDirect.receive) {
                     int[] location = new int[2];
                     view.getLocationOnScreen(location);
@@ -667,6 +711,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     float OldListX = (float) location[0];
                     new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
                             .addItem(new TipItem("复制"))
+                            .addItem(new TipItem("转发"))
                             .addItem(new TipItem("删除"))
                             .setOnItemClickListener(new TipView.OnItemClickListener() {
                                 @Override
@@ -690,6 +735,11 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                         } else {
                                             Toast.makeText(ChatActivity.this, "只支持复制文字", Toast.LENGTH_SHORT).show();
                                         }
+                                    } else if (position == 1) {
+                                        Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
+                                        JGApplication.forwardMsg.clear();
+                                        JGApplication.forwardMsg.add(msg);
+                                        startActivity(intent);
                                     } else {
                                         //删除
                                         mConv.deleteMessage(msg.getId());
@@ -703,6 +753,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                 }
                             })
                             .create();
+                    //发送方
                 } else {
                     int[] location = new int[2];
                     view.getLocationOnScreen(location);
@@ -710,7 +761,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     float OldListX = (float) location[0];
                     new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
                             .addItem(new TipItem("复制"))
-//                    .addItem(new TipItem("转发"))
+                            .addItem(new TipItem("转发"))
                             .addItem(new TipItem("撤回"))
                             .addItem(new TipItem("删除"))
                             .setOnItemClickListener(new TipView.OnItemClickListener() {
@@ -735,24 +786,24 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                         } else {
                                             Toast.makeText(ChatActivity.this, "只支持复制文字", Toast.LENGTH_SHORT).show();
                                         }
-                                    } /*else if (position == 1) {
-                                //转发
-                                if (msg.getContentType() == ContentType.text || msg.getContentType() == ContentType.image ||
-                                        (msg.getContentType() == ContentType.file && (msg.getContent()).getStringExtra("video") != null)) {
-                                    Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
-                                    JGApplication.forwardMsg.clear();
-                                    JGApplication.forwardMsg.add(msg);
-                                    startActivity(intent);
-                                } else {
-                                    Toast.makeText(ChatActivity.this, "只支持转发文本,图片,小视频", Toast.LENGTH_SHORT).show();
-                                }
-                            } */ else if (position == 1) {
+                                    } else if (position == 1) {
+                                        //转发
+                                        if (msg.getContentType() == ContentType.text || msg.getContentType() == ContentType.image ||
+                                                (msg.getContentType() == ContentType.file && (msg.getContent()).getStringExtra("video") != null)) {
+                                            Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
+                                            JGApplication.forwardMsg.clear();
+                                            JGApplication.forwardMsg.add(msg);
+                                            startActivity(intent);
+                                        } else {
+                                            Toast.makeText(ChatActivity.this, "只支持转发文本,图片,小视频", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else if (position == 2) {
                                         //撤回
                                         mConv.retractMessage(msg, new BasicCallback() {
                                             @Override
                                             public void gotResult(int i, String s) {
                                                 if (i == 855001) {
-                                                    Toast.makeText(ChatActivity.this, "消息发送超过3分钟，不能撤回", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(ChatActivity.this, "发送时间过长，不能撤回", Toast.LENGTH_SHORT).show();
                                                 } else if (i == 0) {
                                                     mChatAdapter.delMsgRetract(msg);
                                                 }
@@ -772,21 +823,29 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                             })
                             .create();
                 }
+                //除了文本消息类型之外的消息类型
             } else {
+                //接收方
                 if (msg.getDirect() == MessageDirect.receive) {
                     int[] location = new int[2];
                     view.getLocationOnScreen(location);
                     float OldListY = (float) location[1];
                     float OldListX = (float) location[0];
                     new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
+                            .addItem(new TipItem("转发"))
                             .addItem(new TipItem("删除"))
                             .setOnItemClickListener(new TipView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(String str, final int position) {
-                                    if (position == 0) {
+                                    if (position == 1) {
                                         //删除
                                         mConv.deleteMessage(msg.getId());
                                         mChatAdapter.removeMessage(msg);
+                                    } else {
+                                        Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
+                                        JGApplication.forwardMsg.clear();
+                                        JGApplication.forwardMsg.add(msg);
+                                        startActivity(intent);
                                     }
                                 }
 
@@ -796,29 +855,36 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                                 }
                             })
                             .create();
+                    //发送方
                 } else {
                     int[] location = new int[2];
                     view.getLocationOnScreen(location);
                     float OldListY = (float) location[1];
                     float OldListX = (float) location[0];
                     new TipView.Builder(ChatActivity.this, mChatView, (int) OldListX + view.getWidth() / 2, (int) OldListY + view.getHeight())
+                            .addItem(new TipItem("转发"))
                             .addItem(new TipItem("撤回"))
                             .addItem(new TipItem("删除"))
                             .setOnItemClickListener(new TipView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(String str, final int position) {
-                                    if (position == 0) {
+                                    if (position == 1) {
                                         //撤回
                                         mConv.retractMessage(msg, new BasicCallback() {
                                             @Override
                                             public void gotResult(int i, String s) {
                                                 if (i == 855001) {
-                                                    Toast.makeText(ChatActivity.this, "消息发送超过3分钟，不能撤回", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(ChatActivity.this, "发送时间过长，不能撤回", Toast.LENGTH_SHORT).show();
                                                 } else if (i == 0) {
                                                     mChatAdapter.delMsgRetract(msg);
                                                 }
                                             }
                                         });
+                                    } else if (position == 0) {
+                                        Intent intent = new Intent(ChatActivity.this, ForwardMsgActivity.class);
+                                        JGApplication.forwardMsg.clear();
+                                        JGApplication.forwardMsg.add(msg);
+                                        startActivity(intent);
                                     } else {
                                         //删除
                                         mConv.deleteMessage(msg.getId());
@@ -836,6 +902,18 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             }
         }
     };
+
+    /**
+     * 消息已读事件
+     */
+    public void onEventMainThread(MessageReceiptStatusChangeEvent event) {
+        List<MessageReceiptStatusChangeEvent.MessageReceiptMeta> messageReceiptMetas = event.getMessageReceiptMetas();
+        for (MessageReceiptStatusChangeEvent.MessageReceiptMeta meta : messageReceiptMetas) {
+            long serverMsgId = meta.getServerMsgId();
+            int unReceiptCnt = meta.getUnReceiptCnt();
+            mChatAdapter.setUpdateReceiptCount(serverMsgId, unReceiptCnt);
+        }
+    }
 
     public void onEventMainThread(ImageEvent event) {
         Intent intent;
@@ -888,6 +966,13 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     intent.putExtra(JGApplication.GROUP_ID, mGroupId);
                     startActivityForResult(intent, JGApplication.REQUEST_CODE_SEND_FILE);
                 }
+                break;
+            case JGApplication.BUSINESS_CARD:
+                intent = new Intent(mContext, FriendListActivity.class);
+                intent.putExtra("isSingle", mIsSingle);
+                intent.putExtra("userId", mTargetId);
+                intent.putExtra("groupId", mGroupId);
+                startActivity(intent);
                 break;
             case JGApplication.TACK_VIDEO:
             case JGApplication.TACK_VOICE:
@@ -977,8 +1062,10 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                         longitude, mapview, street);
                 locationContent.setStringExtra("path", path);
                 Message message = mConv.createSendMessage(locationContent);
-                JMessageClient.sendMessage(message);
-                mChatAdapter.addMsgToList(message);
+                MessageSendingOptions options = new MessageSendingOptions();
+                options.setNeedReadReceipt(true);
+                JMessageClient.sendMessage(message, options);
+                mChatAdapter.addMsgFromReceiptToList(message);
 
                 int customMsgId = data.getIntExtra("customMsg", -1);
                 if (-1 != customMsgId) {

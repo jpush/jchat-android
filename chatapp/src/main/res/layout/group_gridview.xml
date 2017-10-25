@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:background="#fff"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:background="#fff"
+              android:orientation="vertical">
 
     <include layout="@layout/menu_title_bar_with_button"/>
 
@@ -28,23 +28,33 @@
             android:textColor="#868989"
             android:textSize="14sp"/>
     </LinearLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
         android:background="#E8EDF3"/>
 
-    <jiguang.chat.view.GroupGridView
-        android:id="@+id/group_gridView"
-        android:layout_width="match_parent"
-        android:layout_height="47.33dp"
-        android:layout_marginBottom="12.67dp"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="12dp"
-        android:layout_marginTop="19.67dp"
-        android:background="#fff"
-        android:horizontalSpacing="10dp"
-        android:numColumns="5"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="10dp"/>
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <jiguang.chat.view.GroupGridView
+                android:id="@+id/group_gridView"
+                android:layout_width="match_parent"
+                android:layout_height="47.33dp"
+                android:layout_marginBottom="12.67dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="19.67dp"
+                android:background="#fff"
+                android:horizontalSpacing="10dp"
+                android:numColumns="5"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="10dp"/>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

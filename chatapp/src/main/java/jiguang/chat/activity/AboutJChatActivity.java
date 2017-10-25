@@ -51,7 +51,7 @@ public class AboutJChatActivity extends BaseActivity {
         PackageManager manager = getPackageManager();
         try {
             PackageInfo packageInfo = manager.getPackageInfo(getPackageName(), 0);
-            mJChat_version.setText("JChat v" + packageInfo.versionName);
+            mJChat_version.setText(packageInfo.versionName);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

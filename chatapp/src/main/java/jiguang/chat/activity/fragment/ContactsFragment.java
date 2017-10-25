@@ -17,8 +17,10 @@ import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.event.ContactNotifyEvent;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ContactsController;
@@ -136,7 +138,7 @@ public class ContactsFragment extends BaseFragment {
                         }
                         FriendEntry friendEntry = FriendEntry.getFriend(user, username, appKey);
                         if (friendEntry == null) {
-                            final FriendEntry newFriend = new FriendEntry(username, info.getNotename(), info.getNickname(), appKey, info.getAvatar(), name, getLetter(name), user);
+                            final FriendEntry newFriend = new FriendEntry(info.getUserID(), username, info.getNotename(), info.getNickname(), appKey, info.getAvatar(), name, getLetter(name), user);
                             newFriend.save();
                             mContext.runOnUiThread(new Runnable() {
                                 @Override
@@ -151,14 +153,37 @@ public class ContactsFragment extends BaseFragment {
             FriendRecommendEntry entry = FriendRecommendEntry.getEntry(user, username, appKey);
             entry.state = FriendInvitation.ACCEPTED.getValue();
             entry.save();
+
+            Conversation conversation = JMessageClient.getSingleConversation(username);
+            if (conversation == null) {
+                conversation = Conversation.createSingleConversation(username);
+                EventBus.getDefault().post(new Event.Builder()
+                        .setType(EventType.createConversation)
+                        .setConversation(conversation)
+                        .build());
+            }
+
             //拒绝好友请求
         } else if (event.getType() == ContactNotifyEvent.Type.invite_declined) {
+            JGApplication.forAddFriend.remove(username);
             FriendRecommendEntry entry = FriendRecommendEntry.getEntry(user, username, appKey);
             entry.state = FriendInvitation.BE_REFUSED.getValue();
             entry.reason = reason;
             entry.save();
             //收到好友邀请
         } else if (event.getType() == ContactNotifyEvent.Type.invite_received) {
+            //如果同一个人申请多次,则只会出现一次;当点击进验证消息界面后,同一个人再次申请则可以收到
+            if (JGApplication.forAddFriend.size() > 0) {
+                for (String forAdd : JGApplication.forAddFriend) {
+                    if (forAdd.equals(username)) {
+                        return;
+                    } else {
+                        JGApplication.forAddFriend.add(username);
+                    }
+                }
+            } else {
+                JGApplication.forAddFriend.add(username);
+            }
             JMessageClient.getUserInfo(username, appKey, new GetUserInfoCallback() {
                 @Override
                 public void gotResult(int status, String desc, UserInfo userInfo) {
@@ -171,10 +196,10 @@ public class ContactsFragment extends BaseFragment {
                         if (null == entry) {
                             if (null != userInfo.getAvatar()) {
                                 String path = userInfo.getAvatarFile().getPath();
-                                entry = new FriendRecommendEntry(username, userInfo.getNotename(), userInfo.getNickname(), appKey, path,
+                                entry = new FriendRecommendEntry(userInfo.getUserID(), username, userInfo.getNotename(), userInfo.getNickname(), appKey, path,
                                         name, reason, FriendInvitation.INVITED.getValue(), user, 0);
                             } else {
-                                entry = new FriendRecommendEntry(username, userInfo.getNotename(), userInfo.getNickname(), appKey, null,
+                                entry = new FriendRecommendEntry(userInfo.getUserID(), username, userInfo.getNotename(), userInfo.getNickname(), appKey, null,
                                         username, reason, FriendInvitation.INVITED.getValue(), user, 0);
                             }
                         } else {
@@ -182,6 +207,7 @@ public class ContactsFragment extends BaseFragment {
                             entry.reason = reason;
                         }
                         entry.save();
+                        //收到好友请求数字 +1
                         int showNum = SharePreferenceManager.getCachedNewFriendNum() + 1;
                         mContactsView.showNewFriends(showNum);
                         SharePreferenceManager.setCachedNewFriendNum(showNum);
@@ -189,6 +215,7 @@ public class ContactsFragment extends BaseFragment {
                 }
             });
         } else if (event.getType() == ContactNotifyEvent.Type.contact_deleted) {
+            JGApplication.forAddFriend.remove(username);
             FriendEntry friendEntry = FriendEntry.getFriend(user, username, appKey);
             friendEntry.delete();
             mContactsController.refreshContact();
@@ -202,7 +229,7 @@ public class ContactsFragment extends BaseFragment {
                 FriendEntry friendEntry = FriendEntry.getFriend(recommendEntry.user,
                         recommendEntry.username, recommendEntry.appKey);
                 if (null == friendEntry) {
-                    friendEntry = new FriendEntry(recommendEntry.username, recommendEntry.noteName, recommendEntry.nickName, recommendEntry.appKey,
+                    friendEntry = new FriendEntry(recommendEntry.uid, recommendEntry.username, recommendEntry.noteName, recommendEntry.nickName, recommendEntry.appKey,
                             recommendEntry.avatar, recommendEntry.displayName,
                             getLetter(recommendEntry.displayName), recommendEntry.user);
                     friendEntry.save();

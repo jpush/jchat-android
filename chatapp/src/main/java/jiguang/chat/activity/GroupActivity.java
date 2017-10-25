@@ -16,6 +16,8 @@ import jiguang.chat.R;
 import jiguang.chat.adapter.GroupListAdapter;
 import jiguang.chat.controller.ActivityController;
 import jiguang.chat.utils.DialogCreator;
+import jiguang.chat.utils.HandleResponseCode;
+import jiguang.chat.utils.ToastUtil;
 
 /**
  * Created by ${chenyn} on 2017/4/26.
@@ -27,6 +29,10 @@ public class GroupActivity extends BaseActivity {
     private GroupListAdapter mGroupListAdapter;
     private Context mContext;
     private boolean isFromForward = false;
+    private boolean isBusinessCard = false;
+    private String mUserName;
+    private String mAppKey;
+    private String mAvatarPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +41,12 @@ public class GroupActivity extends BaseActivity {
         setContentView(R.layout.activity_group);
         initTitle(true, true, "群组", "", false, "");
         ActivityController.addActivity(this);
-
         mGroupList = (ListView) findViewById(R.id.group_list);
+
+        //待发送名片的参数
+        mUserName = getIntent().getStringExtra("userName");
+        mAppKey = getIntent().getStringExtra("appKey");
+        mAvatarPath = getIntent().getStringExtra("avatar");
 
         initData();
     }
@@ -50,22 +60,29 @@ public class GroupActivity extends BaseActivity {
             public void gotResult(int responseCode, String responseMessage, final List<Long> groupIDList) {
                 if (responseCode == 0) {
                     final int[] groupSize = {groupIDList.size()};
-                    for (Long id : groupIDList) {
-                        JMessageClient.getGroupInfo(id, new GetGroupInfoCallback() {
-                            @Override
-                            public void gotResult(int i, String s, GroupInfo groupInfo) {
-                                if (i == 0) {
-                                    groupSize[0] = groupSize[0] - 1;
-                                    infoList.add(groupInfo);
-                                    if (groupSize[0] == 0) {
-                                        setAdapter(infoList, dialog);
+                    if (groupIDList.size() > 0) {
+                        for (Long id : groupIDList) {
+                            JMessageClient.getGroupInfo(id, new GetGroupInfoCallback() {
+                                @Override
+                                public void gotResult(int i, String s, GroupInfo groupInfo) {
+                                    if (i == 0) {
+                                        groupSize[0] = groupSize[0] - 1;
+                                        infoList.add(groupInfo);
+                                        if (groupSize[0] == 0) {
+                                            setAdapter(infoList, dialog);
+                                        }
+
                                     }
-
                                 }
-                            }
-                        });
+                            });
+                        }
+                    } else {
+                        dialog.dismiss();
+                        ToastUtil.shortToast(GroupActivity.this, "您还没有群组");
                     }
-
+                } else {
+                    dialog.dismiss();
+                    HandleResponseCode.onHandle(mContext, responseCode, false);
                 }
             }
         });
@@ -77,7 +94,11 @@ public class GroupActivity extends BaseActivity {
         if (getIntent().getFlags() == 1) {
             isFromForward = true;
         }
-        mGroupListAdapter = new GroupListAdapter(mContext,infoList, isFromForward, mWidth);
+        //来自名片的请求设置flag==2
+        if (getIntent().getFlags() == 2) {
+            isBusinessCard = true;
+        }
+        mGroupListAdapter = new GroupListAdapter(mContext, infoList, isFromForward, mWidth, isBusinessCard, mUserName, mAppKey, mAvatarPath);
         mGroupList.setAdapter(mGroupListAdapter);
     }
 }

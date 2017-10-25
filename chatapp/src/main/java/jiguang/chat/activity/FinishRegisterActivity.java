@@ -100,6 +100,10 @@ public class FinishRegisterActivity extends BaseActivity {
 
                     final String userId = SharePreferenceManager.getRegistrName();
                     final String password = SharePreferenceManager.getRegistrPass();
+<<<<<<< HEAD
+=======
+                    SharePreferenceManager.setRegisterUsername(userId);
+>>>>>>> develop
                     JMessageClient.login(userId, password, new BasicCallback() {
                         @Override
                         public void gotResult(int responseCode, String responseMessage) {
@@ -153,6 +157,10 @@ public class FinishRegisterActivity extends BaseActivity {
                             }
                         }
                     });
+<<<<<<< HEAD
+=======
+                    break;
+>>>>>>> develop
             }
         }
     };

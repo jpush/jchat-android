@@ -8,7 +8,7 @@ import android.view.MotionEvent;
 
 public class ScrollControlViewPager extends ViewPager {
 	private final String TAG = ScrollControlViewPager.class.getSimpleName();
-	private boolean scroll = false;//false 禁止viewpager左右滑动
+	private boolean scroll = true;//false 禁止viewpager左右滑动
 
 	public ScrollControlViewPager(Context context) {
 		super(context);

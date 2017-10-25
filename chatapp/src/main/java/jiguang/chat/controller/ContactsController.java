@@ -22,6 +22,7 @@ import jiguang.chat.activity.GroupActivity;
 import jiguang.chat.activity.SearchContactsActivity;
 import jiguang.chat.activity.SearchForAddFriendActivity;
 import jiguang.chat.adapter.StickyListAdapter;
+import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
 import jiguang.chat.database.UserEntry;
 import jiguang.chat.utils.pinyin.HanziToPinyin;
@@ -38,6 +39,7 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
     private Activity mContext;
     private List<FriendEntry> mList = new ArrayList<>();
     private StickyListAdapter mAdapter;
+    private List<FriendEntry> forDelete = new ArrayList<>();
 
 
     public ContactsController(ContactsView mContactsView, FragmentActivity context) {
@@ -80,53 +82,52 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
         ContactManager.getFriendList(new GetUserInfoListCallback() {
             @Override
             public void gotResult(int responseCode, String responseMessage, List<UserInfo> userInfoList) {
+                mContactsView.dismissLoadingHeader();
                 if (responseCode == 0) {
                     if (userInfoList.size() != 0) {
                         mContactsView.dismissLine();
                         ActiveAndroid.beginTransaction();
                         try {
                             for (UserInfo userInfo : userInfoList) {
-                                String displayName = userInfo.getNotename();
-                                if (TextUtils.isEmpty(displayName)) {
-                                    displayName = userInfo.getNickname();
-                                    if (TextUtils.isEmpty(displayName)) {
-                                        displayName = userInfo.getUserName();
-                                    }
-                                }
+                                String displayName = userInfo.getDisplayName();
                                 String letter;
-                                ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
-                                        .get(displayName);
-                                StringBuilder sb = new StringBuilder();
-                                if (tokens != null && tokens.size() > 0) {
-                                    for (HanziToPinyin.Token token : tokens) {
-                                        if (token.type == HanziToPinyin.Token.PINYIN) {
-                                            sb.append(token.target);
-                                        } else {
-                                            sb.append(token.source);
+                                if (!TextUtils.isEmpty(displayName.trim())) {
+                                    ArrayList<HanziToPinyin.Token> tokens = HanziToPinyin.getInstance()
+                                            .get(displayName);
+                                    StringBuilder sb = new StringBuilder();
+                                    if (tokens != null && tokens.size() > 0) {
+                                        for (HanziToPinyin.Token token : tokens) {
+                                            if (token.type == HanziToPinyin.Token.PINYIN) {
+                                                sb.append(token.target);
+                                            } else {
+                                                sb.append(token.source);
+                                            }
                                         }
                                     }
-                                }
-                                String sortString = sb.toString().substring(0, 1).toUpperCase();
-                                if (sortString.matches("[A-Z]")) {
-                                    letter = sortString.toUpperCase();
+                                    String sortString = sb.toString().substring(0, 1).toUpperCase();
+                                    if (sortString.matches("[A-Z]")) {
+                                        letter = sortString.toUpperCase();
+                                    } else {
+                                        letter = "#";
+                                    }
                                 } else {
                                     letter = "#";
                                 }
-                                //避免重复请求时导致数据重复
+                                //避免重复请求时导致数据重复A
                                 FriendEntry friend = FriendEntry.getFriend(user,
                                         userInfo.getUserName(), userInfo.getAppKey());
                                 if (null == friend) {
                                     if (TextUtils.isEmpty(userInfo.getAvatar())) {
-                                        friend = new FriendEntry(userInfo.getUserName(), userInfo.getNotename(), userInfo.getNickname(), userInfo.getAppKey(),
+                                        friend = new FriendEntry(userInfo.getUserID(), userInfo.getUserName(), userInfo.getNotename(), userInfo.getNickname(), userInfo.getAppKey(),
                                                 null, displayName, letter, user);
                                     } else {
-                                        friend = new FriendEntry(userInfo.getUserName(), userInfo.getNotename(), userInfo.getNickname(), userInfo.getAppKey(),
+                                        friend = new FriendEntry(userInfo.getUserID(), userInfo.getUserName(), userInfo.getNotename(), userInfo.getNickname(), userInfo.getAppKey(),
                                                 userInfo.getAvatarFile().getAbsolutePath(), displayName, letter, user);
                                     }
                                     friend.save();
                                     mList.add(friend);
                                 }
-
+                                forDelete.add(friend);
                             }
                             ActiveAndroid.setTransactionSuccessful();
                         } finally {
@@ -135,12 +136,16 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
                     } else {
                         mContactsView.showLine();
                     }
-                    mContactsView.dismissLoadingHeader();
+                    //其他端删除好友后,登陆时把数据库中的也删掉
+                    List<FriendEntry> friends = JGApplication.getUserEntry().getFriends();
+                    friends.removeAll(forDelete);
+                    for (FriendEntry del : friends) {
+                        del.delete();
+                        mList.remove(del);
+                    }
                     Collections.sort(mList, new PinyinComparator());
                     mAdapter = new StickyListAdapter(mContext, mList, false);
                     mContactsView.setAdapter(mAdapter);
-                } else {
-                    mContactsView.dismissLoadingHeader();
                 }
             }
         });

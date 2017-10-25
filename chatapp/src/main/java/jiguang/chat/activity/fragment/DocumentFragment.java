@@ -114,7 +114,7 @@ public class DocumentFragment extends BaseFragment {
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
                         String date = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED));
                         if (scannerFile(filePath)) {
-                            FileItem fileItem = new FileItem(filePath, null, size, date);
+                            FileItem fileItem = new FileItem(filePath, null, size, date,0);
                             mDocuments.add(fileItem);
                         }
 

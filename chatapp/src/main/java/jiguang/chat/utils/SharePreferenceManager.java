@@ -130,6 +130,21 @@ public class SharePreferenceManager {
         return 0;
     }
 
+    private static final String CONVERSATION_TOP_CANCEL = "conversation_top_cancel";
+
+    public static void setCancelTopSize(int num) {
+        if (null != sp) {
+            sp.edit().putInt(CONVERSATION_TOP_CANCEL, num).apply();
+        }
+    }
+
+    public static int getCancelTopSize() {
+        if (null != sp) {
+            return sp.getInt(CONVERSATION_TOP_CANCEL, 0);
+        }
+        return 0;
+    }
+
 
     private static final String KEY_REGISTER_AVATAR_PATH = "jchat_register_avatar_path";
 
@@ -169,16 +184,29 @@ public class SharePreferenceManager {
     public static boolean getNoDisturb(){
         return null != sp && sp.getBoolean(NO_DISTURB, false);
     }
-    private static final String ISOPEN = "isopen";
 
-    public static void setIsOpen(boolean value) {
+    private static final String IS_SHOWCHECK = "isShowCheck";
+
+    public static void setShowCheck(boolean value) {
         if(null != sp){
             sp.edit().putBoolean(NO_DISTURB, value).apply();
         }
     }
 
-    public static boolean getIsOpen(){
+    public static boolean getShowCheck(){
         return null != sp && sp.getBoolean(NO_DISTURB, false);
+    }
+
+    private static final String ISOPEN = "isopen";
+
+    public static void setIsOpen(boolean value) {
+        if(null != sp){
+            sp.edit().putBoolean(ISOPEN, value).apply();
+        }
+    }
+
+    public static boolean getIsOpen(){
+        return null != sp && sp.getBoolean(ISOPEN, false);
     }
 
     private static final String SOFT_KEYBOARD_HEIGHT = "SoftKeyboardHeight";

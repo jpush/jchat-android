@@ -5,7 +5,38 @@
               android:background="#fff"
               android:orientation="vertical">
 
-    <include layout="@layout/menu_title_bar_with_button"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="48.5dp"
+        android:background="@color/jmui_jpush_blue">
+
+        <ImageButton
+            android:id="@+id/return_btn"
+            android:layout_width="@dimen/title_bar_height"
+            android:layout_height="match_parent"
+            android:background="@drawable/jmui_back_btn_bg"
+            android:src="@drawable/back"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_toRightOf="@id/return_btn"
+            android:text="详细资料"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"/>
+
+
+        <ImageView
+            android:id="@+id/iv_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="15.67dp"
+            android:background="@drawable/more_doc"/>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

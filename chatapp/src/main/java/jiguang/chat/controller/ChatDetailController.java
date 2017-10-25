@@ -38,12 +38,14 @@ import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.activity.ChatDetailActivity;
 import jiguang.chat.activity.FriendInfoActivity;
+import jiguang.chat.activity.GroupAvatarActivity;
 import jiguang.chat.activity.GroupGridViewActivity;
 import jiguang.chat.activity.GroupNotFriendActivity;
 import jiguang.chat.activity.MainActivity;
 import jiguang.chat.activity.MembersInChatActivity;
 import jiguang.chat.activity.PersonalActivity;
 import jiguang.chat.activity.VerificationActivity;
+import jiguang.chat.activity.historyfile.activity.HistoryFileActivity;
 import jiguang.chat.adapter.GroupMemberGridAdapter;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
@@ -95,6 +97,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private String mNickName;
     private String mAvatarPath;
     private boolean mFriend;
+    private Long mUid;
 
     public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context, int size,
                                 int width) {
@@ -129,6 +132,10 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             String groupOwnerId = mGroupInfo.getGroupOwner();
             mGroupName = mGroupInfo.getGroupName();
             mGroupDesc = mGroupInfo.getGroupDescription();
+            if (mGroupInfo.getAvatarFile() != null && mGroupInfo.getAvatarFile().exists()) {
+                mChatDetailView.setGroupAvatar(mGroupInfo.getAvatarFile());
+            }
+
             if (TextUtils.isEmpty(mGroupName)) {
                 mChatDetailView.setGroupName(mContext.getString(R.string.unnamed));
             } else {
@@ -175,11 +182,13 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             mChatDetailView.isLoadMoreShow(false);
 
             JMessageClient.getUserInfo(mTargetId, new GetUserInfoCallback() {
+
                 @Override
                 public void gotResult(int i, String s, UserInfo userInfo) {
                     if (i == 0) {
                         mFriend = userInfo.isFriend();
                         mNickName = userInfo.getNickname();
+                        mUid = userInfo.getUserID();
                         if (TextUtils.isEmpty(mNickName)) {
                             mNickName = mTargetId;
                         }
@@ -224,6 +233,14 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 break;
             case R.id.group_desc_ll:
                 mContext.updateGroupNameDesc(mGroupId, 2);
+                break;
+            case R.id.rl_groupAvatar:
+                intent.setClass(mContext, GroupAvatarActivity.class);
+                intent.putExtra("groupID",mGroupId);
+                if(mGroupInfo.getBigAvatarFile() != null && mGroupInfo.getBigAvatarFile().exists()) {
+                    intent.putExtra("groupAvatar", mGroupInfo.getBigAvatarFile().getAbsolutePath());
+                }
+                mContext.startActivityForResult(intent,4);
                 break;
             // 删除聊天记录
             case R.id.group_chat_del_ll:
@@ -295,6 +312,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     intent.putExtra("detail_add_nick_name", mNickName);
                     intent.putExtra("detail_add_avatar_path", mAvatarPath);
                     intent.putExtra("detail_add_friend", mTargetId);
+                    intent.putExtra("detail_add_uid", mUid);
                     //自己的昵称.
                     intent.putExtra("detail_add_friend_my_nickname", mMyNickName);
                     intent.setFlags(1);
@@ -366,7 +384,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                                                 File file = new File(localPath);
                                                 if (file.exists()) {
                                                     boolean delete1 = file.delete();
-                                                    File copyFile = new File(JGApplication.FILE_DIR+fileContent.getFileName());
+                                                    File copyFile = new File(JGApplication.FILE_DIR + fileContent.getFileName());
                                                     boolean delete2 = copyFile.delete();
                                                 }
                                             }
@@ -386,6 +404,14 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 };
                 delete.setOnClickListener(listen);
                 cancel.setOnClickListener(listen);
+                break;
+            case R.id.chat_file:
+                intent = new Intent(mContext, HistoryFileActivity.class);
+                intent.putExtra("userName", mTargetId);
+                intent.putExtra("groupId", mGroupId);
+                intent.putExtra("isGroup", mIsGroup);
+                mContext.startActivity(intent);
+                mContext.overridePendingTransition(R.anim.trans_in, R.anim.trans_out);
                 break;
         }
     }
@@ -421,6 +447,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 public void gotResult(int responseCode, String responseMessage) {
                     mLoadingDialog.dismiss();
                     if (responseCode == 0) {
+                        //删除好友时候要从list中移除.准备接收下一次添加好友申请
+                        JGApplication.forAddFriend.remove(mUserInfo.getUserName());
                         //将好友删除时候还原黑名单设置
                         List<String> name = new ArrayList<>();
                         name.add(mUserInfo.getUserName());
@@ -497,7 +525,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             //会话中点击右上角进入拉人进群界面,点击add按钮之前的user头像.
             if (mFriend) {
                 intent.setClass(mContext, FriendInfoActivity.class);
-            }else {
+            } else {
                 intent.setClass(mContext, GroupNotFriendActivity.class);
             }
             intent.putExtra(JGApplication.TARGET_ID, mTargetId);

@@ -18,6 +18,7 @@ import java.util.List;
 import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
@@ -26,6 +27,7 @@ import jiguang.chat.activity.FriendInfoActivity;
 import jiguang.chat.activity.GroupNotFriendActivity;
 import jiguang.chat.activity.SearchFriendDetailActivity;
 import jiguang.chat.application.JGApplication;
+import jiguang.chat.database.FriendEntry;
 import jiguang.chat.database.FriendRecommendEntry;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
@@ -48,7 +50,6 @@ public class FriendRecommendAdapter extends BaseAdapter {
     private List<FriendRecommendEntry> mList = new ArrayList<>();
     private LayoutInflater mInflater;
     private float mDensity;
-    private Dialog mDialog;
     private int mWidth;
 
     public FriendRecommendAdapter(Activity context, List<FriendRecommendEntry> list, float density,
@@ -108,9 +109,26 @@ public class FriendRecommendAdapter extends BaseAdapter {
             headIcon.setImageBitmap(bitmap);
         }
 
-
         name.setText(item.displayName);
         reason.setText(item.reason);
+        JMessageClient.getUserInfo(item.username, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int i, String s, UserInfo userInfo) {
+                if (i == 0) {
+                    if (userInfo.isFriend()) {
+                        item.state = FriendInvitation.ACCEPTED.getValue();
+                        item.save();
+                        FriendEntry entry = FriendEntry.getFriend(JGApplication.getUserEntry(), item.username, item.appKey);
+                        if (entry == null) {
+                            EventBus.getDefault().post(new Event.Builder().setType(EventType.addFriend)
+                                    .setFriendId(item.getId()).build());
+                        }
+
+                    }
+                }
+            }
+        });
+
         if (item.state.equals(FriendInvitation.INVITED.getValue())) {
             addBtn.setVisibility(View.VISIBLE);
             state.setVisibility(View.GONE);
@@ -131,6 +149,16 @@ public class FriendRecommendAdapter extends BaseAdapter {
                                 state.setText("已添加");
                                 EventBus.getDefault().post(new Event.Builder().setType(EventType.addFriend)
                                         .setFriendId(item.getId()).build());
+
+                                //添加好友成功创建个会话
+                                Conversation conversation = JMessageClient.getSingleConversation(item.username, item.appKey);
+                                if (conversation == null) {
+                                    conversation = Conversation.createSingleConversation(item.username, item.appKey);
+                                    EventBus.getDefault().post(new Event.Builder()
+                                            .setType(EventType.createConversation)
+                                            .setConversation(conversation)
+                                            .build());
+                                }
                             }
                         }
                     });

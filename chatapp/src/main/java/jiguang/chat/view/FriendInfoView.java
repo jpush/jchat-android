@@ -96,6 +96,8 @@ public class FriendInfoView extends LinearLayout {
                     public void gotResult(int status, String desc, Bitmap bitmap) {
                         if (status == 0) {
                             mIv_friendPhoto.setImageBitmap(bitmap);
+                        }else {
+                            mIv_friendPhoto.setImageResource(R.drawable.rc_default_portrait);
                         }
                     }
                 });
@@ -135,7 +137,7 @@ public class FriendInfoView extends LinearLayout {
             } else {
                 mTv_gender.setText(mContext.getString(R.string.unknown));
             }
-            mTv_address.setText(userInfo.getAddress());
+            mTv_address.setText(userInfo.getRegion());
             mTv_signature.setText(userInfo.getSignature());
             mTv_birthday.setText(getBirthday(userInfo));
         }

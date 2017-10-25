@@ -23,6 +23,7 @@
             android:layout_toRightOf="@id/jmui_avatar_iv"/>
 
         <FrameLayout
+            android:id="@+id/fl_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/jmui_display_name_tv"
@@ -46,6 +47,20 @@
 
 
         </FrameLayout>
+
+        <ImageButton
+
+            android:id="@+id/jmui_fail_resend_ib"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/fl_image"
+            android:background="@null"
+            android:clickable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/send_message_failed"
+            android:visibility="gone"/>
 
     </RelativeLayout>
 

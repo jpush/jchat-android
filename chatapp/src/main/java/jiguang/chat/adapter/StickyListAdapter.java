@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +42,6 @@ import jiguang.chat.R;
 import jiguang.chat.activity.FriendInfoActivity;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
-import jiguang.chat.utils.BitmapLoader;
-import jiguang.chat.utils.NativeImageLoader;
 import jiguang.chat.utils.photochoose.SelectableRoundedImageView;
 
 /**
@@ -199,69 +199,139 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
             holder = (ViewHolder) convertView.getTag();
         }
 
-
+        //所有好友列表
         final FriendEntry friend = mData.get(position);
         final String user = friend.username;
+        if (friend.avatar != null) {
+            if (new File(friend.avatar).exists()) {
+                holder.avatar.setImageBitmap(BitmapFactory.decodeFile(friend.avatar));
+            } else {
+                JMessageClient.getUserInfo(friend.username, new GetUserInfoCallback() {
+                    @Override
+                    public void gotResult(int i, String s, UserInfo userInfo) {
+                        if (i == 0) {
+                            userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                                @Override
+                                public void gotResult(int i, String s, Bitmap bitmap) {
+                                    if (i == 0) {
+                                        holder.avatar.setImageBitmap(bitmap);
+                                    } else {
+                                        holder.avatar.setImageResource(R.drawable.jmui_head_icon);
+                                    }
+                                }
+                            });
+                        } else {
+                            holder.avatar.setImageResource(R.drawable.jmui_head_icon);
+                        }
+                    }
+                });
+            }
+        } else {
+            holder.avatar.setImageResource(R.drawable.jmui_head_icon);
+        }
 
         final long[] uid = new long[1];
-        JMessageClient.getUserInfo(user, new GetUserInfoCallback() {
-            @Override
-            public void gotResult(int responseCode, String responseMessage, UserInfo info) {
-                boolean flag = false;
-                if (responseCode == 0)
-                    uid[0] = info.getUserID();
-                if (!mIsSearch) {
-                    String name = info.getNotename();
-                    if (TextUtils.isEmpty(name)) {
-                        name = info.getNickname();
-                        if (TextUtils.isEmpty(name)) {
-                            name = user;
-                        }
-                    }
-                    holder.displayName.setText(name);
-                } else {
-                    String noteName = info.getNotename();
-                    String nickName = info.getNickname();
-                    if (!TextUtils.isEmpty(mFilterStr)) {
-                        if (noteName.contains(mFilterStr)) {
-                            holder.displayName.setText(noteName);
-                        } else if (nickName.contains(mFilterStr)) {
-                            holder.displayName.setText(nickName);
-                        } else if (user.contains(mFilterStr)) {
-                            holder.displayName.setText(user);
-                        }
-                    } else {
-                        String name = info.getNotename();
-                        if (TextUtils.isEmpty(name)) {
-                            name = info.getNickname();
-                            if (TextUtils.isEmpty(name)) {
-                                name = user;
-                            }
-                        }
-                        holder.displayName.setText(name);
-                    }
+        uid[0] = friend.uid;
+        if (!mIsSearch) {
+            holder.displayName.setText(friend.displayName);
+        } else {
+            String noteName = friend.noteName;
+            String nickName = friend.nickName;
+            if (!TextUtils.isEmpty(mFilterStr)) {
+                if (noteName.contains(mFilterStr)) {
+                    holder.displayName.setText(noteName);
+                } else if (nickName.contains(mFilterStr)) {
+                    holder.displayName.setText(nickName);
+                } else if (user.contains(mFilterStr)) {
+                    holder.displayName.setText(user);
                 }
-                if (mTargetInfo != null) {
-                    List<UserInfo> groupMembers = mTargetInfo.getGroupMembers();
-                    for (UserInfo userinfo : groupMembers) {
-                        if (userinfo.getUserName().equals(info.getUserName())) {
-                            flag = true;
-                            break;
-                        }
-                    }
-                    if (flag) {
-                        holder.checkBox.setBackgroundResource(R.drawable.already_check);
-                        holder.itemLl.setEnabled(false);
-                        holder.checkBox.setEnabled(false);
-                    } else {
-                        holder.checkBox.setBackgroundResource(R.drawable.pictures_select_icon);
-                        holder.itemLl.setEnabled(true);
-                        holder.checkBox.setEnabled(true);
-                    }
-
+            } else {
+                String name = friend.displayName;
+                holder.displayName.setText(name);
+            }
+        }
+        boolean flag = false;
+        if (mTargetInfo != null) {
+            List<UserInfo> groupMembers = mTargetInfo.getGroupMembers();
+            for (UserInfo userinfo : groupMembers) {
+                if (userinfo.getUserName().equals(friend.username)) {
+                    flag = true;
+                    break;
                 }
             }
-        });
+            if (flag) {
+                holder.checkBox.setBackgroundResource(R.drawable.already_check);
+                holder.itemLl.setEnabled(false);
+                holder.checkBox.setEnabled(false);
+            } else {
+                holder.checkBox.setBackgroundResource(R.drawable.pictures_select_icon);
+                holder.itemLl.setEnabled(true);
+                holder.checkBox.setEnabled(true);
+            }
+
+        }
+
+//        JMessageClient.getUserInfo(user, new GetUserInfoCallback() {
+//            @Override
+//            public void gotResult(int responseCode, String responseMessage, UserInfo info) {
+//                boolean flag = false;
+//                if (responseCode == 0) {
+//                    if (info.getAvatarFile() != null && info.getAvatarFile().exists()) {
+//                        holder.avatar.setImageBitmap(BitmapFactory.decodeFile(info.getAvatarFile().getAbsolutePath()));
+//                    } else {
+//                        info.getAvatarBitmap(new GetAvatarBitmapCallback() {
+//                            @Override
+//                            public void gotResult(int i, String s, Bitmap bitmap) {
+//                                if (i == 0) {
+//                                    holder.avatar.setImageBitmap(bitmap);
+//                                } else {
+//                                    holder.avatar.setImageResource(R.drawable.jmui_head_icon);
+//                                }
+//                            }
+//                        });
+//                    }
+//                    uid[0] = info.getUserID();
+//                }
+//                if (!mIsSearch) {
+//                    String name = info.getDisplayName();
+//                    holder.displayName.setText(name);
+//                } else {
+//                    String noteName = info.getNotename();
+//                    String nickName = info.getNickname();
+//                    if (!TextUtils.isEmpty(mFilterStr)) {
+//                        if (noteName.contains(mFilterStr)) {
+//                            holder.displayName.setText(noteName);
+//                        } else if (nickName.contains(mFilterStr)) {
+//                            holder.displayName.setText(nickName);
+//                        } else if (user.contains(mFilterStr)) {
+//                            holder.displayName.setText(user);
+//                        }
+//                    } else {
+//                        String name = info.getDisplayName();
+//                        holder.displayName.setText(name);
+//                    }
+//                }
+//                if (mTargetInfo != null) {
+//                    List<UserInfo> groupMembers = mTargetInfo.getGroupMembers();
+//                    for (UserInfo userinfo : groupMembers) {
+//                        if (userinfo.getUserName().equals(info.getUserName())) {
+//                            flag = true;
+//                            break;
+//                        }
+//                    }
+//                    if (flag) {
+//                        holder.checkBox.setBackgroundResource(R.drawable.already_check);
+//                        holder.itemLl.setEnabled(false);
+//                        holder.checkBox.setEnabled(false);
+//                    } else {
+//                        holder.checkBox.setBackgroundResource(R.drawable.pictures_select_icon);
+//                        holder.itemLl.setEnabled(true);
+//                        holder.checkBox.setEnabled(true);
+//                    }
+//
+//                }
+//            }
+//        });
 
 
         if (mIsSelectMode) {
@@ -347,42 +417,6 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
                     mContext.startActivity(intent);
                 }
             });
-        }
-
-        if (friend.avatar != null && !TextUtils.isEmpty(friend.avatar)) {
-            Bitmap bitmap = NativeImageLoader.getInstance().getBitmapFromMemCache(friend.username);
-            if (null != bitmap) {
-                holder.avatar.setImageBitmap(bitmap);
-            } else {
-                bitmap = BitmapLoader.getBitmapFromFile(friend.avatar, mDensity);
-                if (null != bitmap) {
-                    holder.avatar.setImageBitmap(bitmap);
-                    NativeImageLoader.getInstance().updateBitmapFromCache(friend.username, bitmap);
-                } else {
-                    JMessageClient.getUserInfo(friend.username, friend.appKey, new GetUserInfoCallback() {
-                        @Override
-                        public void gotResult(int i, String s, final UserInfo userInfo) {
-                            if (i == 0) {
-                                userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                                    @Override
-                                    public void gotResult(int i, String s, Bitmap bitmap) {
-                                        if (i == 0) {
-                                            friend.avatar = userInfo.getAvatarFile().getAbsolutePath();
-                                            friend.save();
-                                            holder.avatar.setImageBitmap(bitmap);
-                                            NativeImageLoader.getInstance().updateBitmapFromCache(friend.username, bitmap);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });
-                    holder.avatar.setImageResource(R.drawable.jmui_head_icon);
-                }
-            }
-
-        } else {
-            holder.avatar.setImageResource(R.drawable.jmui_head_icon);
         }
 
         //点击gridView删除对应的条目

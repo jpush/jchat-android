@@ -48,12 +48,24 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center"
                 android:layout_marginBottom="6dp"
+                android:ellipsize="end"
                 android:ems="10"
                 android:gravity="center"
+                android:maxLines="2"
                 android:textColor="@color/white"
-                android:textSize="14sp"/>
+                android:textSize="12sp"/>
 
         </FrameLayout>
+
+        <TextView
+            android:id="@+id/text_receipt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="7dp"
+            android:layout_toLeftOf="@id/jmui_layout_location"
+            android:text="未读消息"
+            android:textSize="12sp"/>
 
         <ImageButton
             android:id="@+id/jmui_fail_resend_ib"

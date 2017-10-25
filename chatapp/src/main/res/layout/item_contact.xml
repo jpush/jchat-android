@@ -11,13 +11,13 @@
 
         <!-- 联系人信息 -->
         <ImageView
-            android:scaleType="centerCrop"
             android:id="@+id/head_icon_iv"
             android:layout_width="47.33dp"
             android:layout_height="47.33dp"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="14dp"
+            android:scaleType="centerCrop"
             android:src="@drawable/jmui_head_icon"/>
 
         <TextView

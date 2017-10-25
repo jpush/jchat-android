@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,6 +32,7 @@ import cn.jpush.im.android.api.content.PromptContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
+import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
@@ -39,6 +41,7 @@ import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.SortConvList;
+import jiguang.chat.utils.SortTopConvList;
 import jiguang.chat.utils.ThreadUtil;
 import jiguang.chat.utils.TimeFormat;
 import jiguang.chat.utils.ViewHolder;
@@ -53,13 +56,13 @@ public class ConversationListAdapter extends BaseAdapter {
 
     private List<Conversation> mDatas;
     private Activity mContext;
-    private Map<String, String> mDraftMap = new HashMap<String, String>();
+    private Map<String, String> mDraftMap = new HashMap<>();
     private UIHandler mUIHandler = new UIHandler(this);
     private static final int REFRESH_CONVERSATION_LIST = 0x3003;
     private SparseBooleanArray mArray = new SparseBooleanArray();
     private SparseBooleanArray mAtAll = new SparseBooleanArray();
-    private HashMap<Conversation, Integer> mAtConvMap = new HashMap<Conversation, Integer>();
-    private HashMap<Conversation, Integer> mAtAllConv = new HashMap<Conversation, Integer>();
+    private HashMap<Conversation, Integer> mAtConvMap = new HashMap<>();
+    private HashMap<Conversation, Integer> mAtAllConv = new HashMap<>();
     private UserInfo mUserInfo;
     private GroupInfo mGroupInfo;
     private ConversationListView mConversationListView;
@@ -76,37 +79,122 @@ public class ConversationListAdapter extends BaseAdapter {
      * @param conv 要置顶的会话
      */
     public void setToTop(Conversation conv) {
-        for (Conversation conversation : mDatas) {
-            if (conv.getId().equals(conversation.getId())) {
-                mDatas.remove(conversation);
-                mDatas.add(0, conv);
-                mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
-                mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
-                return;
-            }
-        }
+        int oldCount = 0;
+        int newCount = 0;
         ThreadUtil.runInUiThread(new Runnable() {
             @Override
             public void run() {
                 mConversationListView.setNullConversation(true);
             }
         });
-        //如果是新的会话
-        mDatas.add(0, conv);
-        mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+
+        //如果是旧的会话
+        for (Conversation conversation : mDatas) {
+            if (conv.getId().equals(conversation.getId())) {
+                //如果是置顶的,就直接把消息插入,会话在list中的顺序不变
+                if (!TextUtils.isEmpty(conv.getExtra())) {
+                    mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
+                    //这里一定要return掉,要不还会走到for循环之后的方法,就会再次添加会话
+                    return;
+                    //如果不是置顶的,就在集合中把原来的那条消息移出,然后去掉置顶的消息数量,插入到集合中
+                } else {
+                    //因为后面要改变排序位置,这里要删除
+                    mDatas.remove(conversation);
+                    //这里要排序,因为第一次登录有漫游消息.离线消息(其中群组变化也是用这个事件下发的);所以有可能会话的最后一条消息
+                    //时间比较早,但是事件下发比较晚,这就导致乱序.所以要重新排序.
+
+                    //排序规则,每一个进来的会话去和倒叙list中的会话比较时间,如果进来的会话的最后一条消息就是最早创建的
+                    //那么这个会话自然就是最后一个.所以直接跳出循环,否则就一个个向前比较.
+                    for (int i = mDatas.size(); i > SharePreferenceManager.getCancelTopSize(); i--) {
+                        if (conv.getLatestMessage() != null && mDatas.get(i - 1).getLatestMessage() != null) {
+                            if (conv.getLatestMessage().getCreateTime() > mDatas.get(i - 1).getLatestMessage().getCreateTime()) {
+                                oldCount = i - 1;
+                            } else {
+                                oldCount = i;
+                                break;
+                            }
+                        } else {
+                            oldCount = i;
+                        }
+                    }
+                    mDatas.add(oldCount, conv);
+                    mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
+                    return;
+                }
+            }
+        }
+        if (mDatas.size() == 0) {
+            mDatas.add(conv);
+        } else {
+            //如果是新的会话,直接去掉置顶的消息数之后就插入到list中
+            for (int i = mDatas.size(); i > SharePreferenceManager.getCancelTopSize(); i--) {
+                if (conv.getLatestMessage() != null && mDatas.get(i - 1).getLatestMessage() != null) {
+                    if (conv.getLatestMessage().getCreateTime() > mDatas.get(i - 1).getLatestMessage().getCreateTime()) {
+                        newCount = i - 1;
+                    } else {
+                        newCount = i;
+                        break;
+                    }
+                } else {
+                    newCount = i;
+                }
+            }
+            mDatas.add(newCount, conv);
+        }
         mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
     }
 
-    public void setConvTop(Conversation convTop) {
-        for (Conversation conversation : mDatas) {
-            if (convTop.getId().equals(conversation.getId())) {
-                mDatas.remove(conversation);
-                mDatas.add(SharePreferenceManager.getTopSize(), convTop);
-                mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
-                mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
-                return;
+    //置顶会话
+    public void setConvTop(Conversation conversation) {
+        int count = 0;
+        //遍历原有的会话,得到有几个会话是置顶的
+        for (Conversation conv : mDatas) {
+            if (!TextUtils.isEmpty(conv.getExtra())) {
+                count++;
             }
         }
+        conversation.updateConversationExtra(count + "");
+        mDatas.remove(conversation);
+        mDatas.add(count, conversation);
+        mUIHandler.removeMessages(REFRESH_CONVERSATION_LIST);
+        mUIHandler.sendEmptyMessageDelayed(REFRESH_CONVERSATION_LIST, 200);
+
+    }
+
+    //取消会话置顶
+    public void setCancelConvTop(Conversation conversation) {
+        forCurrent.clear();
+        topConv.clear();
+        int i = 0;
+        for (Conversation oldConv : mDatas) {
+            //在原来的会话中找到取消置顶的这个,添加到待删除中
+            if (oldConv.getId().equals(conversation.getId())) {
+                oldConv.updateConversationExtra("");
+                break;
+            }
+        }
+        //全部会话排序
+        SortConvList sortConvList = new SortConvList();
+        Collections.sort(mDatas, sortConvList);
+
+        //遍历会话找到原来设置置顶的
+        for (Conversation con : mDatas) {
+            if (!TextUtils.isEmpty(con.getExtra())) {
+                forCurrent.add(con);
+            }
+        }
+        topConv.addAll(forCurrent);
+        SharePreferenceManager.setCancelTopSize(topConv.size());
+        mDatas.removeAll(forCurrent);
+        if (topConv != null && topConv.size() > 0) {
+            SortTopConvList top = new SortTopConvList();
+            Collections.sort(topConv, top);
+            for (Conversation conv : topConv) {
+                mDatas.add(i, conv);
+                i++;
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -133,14 +221,6 @@ public class ConversationListAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
         final Conversation convItem = mDatas.get(position);
-        if (convItem.getType().equals(ConversationType.single)) {
-            UserInfo feedBack = (UserInfo) convItem.getTargetInfo();
-            if (feedBack.getUserName().equals("feedback_Android")) {
-                JMessageClient.deleteSingleConversation("feedback_Android", feedBack.getAppKey());
-                mDatas.remove(position);
-                notifyDataSetChanged();
-            }
-        }
         mConversationListView.setUnReadMsg(JMessageClient.getAllUnReadMsgCount());
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.item_conv_list, null);
@@ -159,13 +239,18 @@ public class ConversationListAdapter extends BaseAdapter {
         final TextView delete = ViewHolder.get(convertView, R.id.tv_delete);
 
         String draft = mDraftMap.get(convItem.getId());
+        if (!TextUtils.isEmpty(convItem.getExtra())) {
+            swipeLayout.setBackgroundColor(mContext.getResources().getColor(R.color.conv_list_background));
+        } else {
+            swipeLayout.setBackgroundColor(mContext.getResources().getColor(R.color.white));
+        }
 
         //如果会话草稿为空,显示最后一条消息
         if (TextUtils.isEmpty(draft)) {
             Message lastMsg = convItem.getLatestMessage();
             if (lastMsg != null) {
                 TimeFormat timeFormat = new TimeFormat(mContext, lastMsg.getCreateTime());
-                //会话界面时间
+//                //会话界面时间
                 datetime.setText(timeFormat.getTime());
                 String contentStr;
                 switch (lastMsg.getContentType()) {
@@ -206,6 +291,7 @@ public class ConversationListAdapter extends BaseAdapter {
                         break;
                     default:
                         contentStr = ((TextContent) lastMsg.getContent()).getText();
+                        break;
                 }
 
                 MessageContent msgContent = lastMsg.getContent();
@@ -247,13 +333,7 @@ public class ConversationListAdapter extends BaseAdapter {
                 } else {
                     if (lastMsg.getTargetType() == ConversationType.group && !contentStr.equals("[群成员变动]")) {
                         UserInfo info = lastMsg.getFromUser();
-                        String fromName = info.getNotename();
-                        if (TextUtils.isEmpty(fromName)) {
-                            fromName = info.getNickname();
-                            if (TextUtils.isEmpty(fromName)) {
-                                fromName = info.getUserName();
-                            }
-                        }
+                        String fromName = info.getDisplayName();
                         if (JGApplication.isAtall.get(gid) != null && JGApplication.isAtall.get(gid)) {
                             content.setText("[@所有人] " + fromName + ": " + contentStr);
                         } else if (JGApplication.isAtMe.get(gid) != null && JGApplication.isAtMe.get(gid)) {
@@ -261,9 +341,9 @@ public class ConversationListAdapter extends BaseAdapter {
                             //如果content是撤回的那么就不显示最后一条消息的发起人名字了
                         } else if (msgContent.getContentType() == ContentType.prompt) {
                             content.setText(contentStr);
-                        }else if(info.getUserName().equals(JMessageClient.getMyInfo().getUserName())){
+                        } else if (info.getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
                             content.setText(contentStr);
-                        }else {
+                        } else {
                             content.setText(fromName + ": " + contentStr);
                         }
                     } else {
@@ -272,14 +352,44 @@ public class ConversationListAdapter extends BaseAdapter {
                         } else if (JGApplication.isAtMe.get(gid) != null && JGApplication.isAtMe.get(gid)) {
                             content.setText("[有人@我] " + contentStr);
                         } else {
-                            content.setText(contentStr);
+                            if (lastMsg.getUnreceiptCnt() == 0) {
+                                if (lastMsg.getTargetType().equals(ConversationType.single) &&
+                                        lastMsg.getDirect().equals(MessageDirect.send) &&
+                                        !lastMsg.getContentType().equals(ContentType.prompt) &&
+                                        //排除自己给自己发送消息
+                                        !((UserInfo) lastMsg.getTargetInfo()).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                                    content.setText("[已读]" + contentStr);
+                                } else {
+                                    content.setText(contentStr);
+                                }
+                            } else {
+                                if (lastMsg.getTargetType().equals(ConversationType.single) &&
+                                        lastMsg.getDirect().equals(MessageDirect.send) &&
+                                        !lastMsg.getContentType().equals(ContentType.prompt) &&
+                                        !((UserInfo) lastMsg.getTargetInfo()).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
+                                    contentStr = "[未读]" + contentStr;
+                                    SpannableStringBuilder builder = new SpannableStringBuilder(contentStr);
+                                    builder.setSpan(new ForegroundColorSpan(mContext.getResources().getColor(R.color.line_normal)),
+                                            0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    content.setText(builder);
+                                } else {
+                                    content.setText(contentStr);
+                                }
+
+                            }
                         }
                     }
                 }
             } else {
-                TimeFormat timeFormat = new TimeFormat(mContext, convItem.getLastMsgDate());
-                datetime.setText(timeFormat.getTime());
-                content.setText("");
+                if (convItem.getLastMsgDate() == 0) {
+                    //会话列表时间展示的是最后一条会话,那么如果最后一条消息是空的话就不显示
+                    datetime.setText("");
+                    content.setText("");
+                } else {
+                    TimeFormat timeFormat = new TimeFormat(mContext, convItem.getLastMsgDate());
+                    datetime.setText(timeFormat.getTime());
+                    content.setText("");
+                }
             }
         } else {
             draft = mContext.getString(R.string.draft) + draft;
@@ -309,6 +419,16 @@ public class ConversationListAdapter extends BaseAdapter {
         } else {
             mGroupInfo = (GroupInfo) convItem.getTargetInfo();
             if (mGroupInfo != null) {
+                mGroupInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                    @Override
+                    public void gotResult(int i, String s, Bitmap bitmap) {
+                        if (i == 0) {
+                            headIcon.setImageBitmap(bitmap);
+                        } else {
+                            headIcon.setImageResource(R.drawable.group);
+                        }
+                    }
+                });
                 int blocked = mGroupInfo.isGroupBlocked();
                 if (blocked == 1) {
                     groupBlocked.setVisibility(View.VISIBLE);
@@ -316,7 +436,6 @@ public class ConversationListAdapter extends BaseAdapter {
                     groupBlocked.setVisibility(View.GONE);
                 }
             }
-            headIcon.setImageResource(R.drawable.group);
             convName.setText(convItem.getTitle());
         }
 
@@ -356,6 +475,8 @@ public class ConversationListAdapter extends BaseAdapter {
             newMsgNumber.setVisibility(View.GONE);
         }
 
+        //禁止使用侧滑功能.如果想要使用就设置为true
+        swipeLayout.setSwipeEnabled(false);
         //侧滑删除会话
         swipeLayout.addSwipeListener(new SwipeLayoutConv.SwipeListener() {
             @Override
@@ -409,26 +530,30 @@ public class ConversationListAdapter extends BaseAdapter {
         return convertView;
     }
 
-//    List<Conversation> mCon = new ArrayList<>();
+    List<Conversation> topConv = new ArrayList<>();
+    List<Conversation> forCurrent = new ArrayList<>();
 
     public void sortConvList() {
+        forCurrent.clear();
+        topConv.clear();
+        int i = 0;
         SortConvList sortConvList = new SortConvList();
         Collections.sort(mDatas, sortConvList);
-
-        /*for (int i = 0; i < SharePreferenceManager.getTopSize(); i++) {
-            ConversationEntry topConversation = ConversationEntry.getTopConversation(i);
-            for (int x = 0; x < mDatas.size(); x++) {
-                if (topConversation.targetname.equals(mDatas.get(x).getTargetId())) {
-                    mCon.add(mDatas.get(x));
-                    mDatas.remove(mDatas.get(x));
-
-                    mDatas.add(i, mCon.get(0));
-                    mCon.clear();
-                    break;
-
-                }
+        for (Conversation con : mDatas) {
+            if (!TextUtils.isEmpty(con.getExtra())) {
+                forCurrent.add(con);
             }
-        }*/
+        }
+        topConv.addAll(forCurrent);
+        mDatas.removeAll(forCurrent);
+        if (topConv != null && topConv.size() > 0) {
+            SortTopConvList top = new SortTopConvList();
+            Collections.sort(topConv, top);
+            for (Conversation conv : topConv) {
+                mDatas.add(i, conv);
+                i++;
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -442,26 +567,10 @@ public class ConversationListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-//    List<Conversation> mConv = new ArrayList<>();
-
     public void addAndSort(Conversation conv) {
         mDatas.add(conv);
         SortConvList sortConvList = new SortConvList();
         Collections.sort(mDatas, sortConvList);
-        /*for (int i = 0; i < SharePreferenceManager.getTopSize(); i++) {
-            ConversationEntry topConversation = ConversationEntry.getTopConversation(i);
-            for (int x = 0; x < mDatas.size(); x++) {
-                if (topConversation.targetname.equals(mDatas.get(x).getTargetId())) {
-                    mConv.add(mDatas.get(x));
-                    mDatas.remove(mDatas.get(x));
-
-                    mDatas.add(i, mConv.get(0));
-                    mConv.clear();
-                    break;
-
-                }
-            }
-        }*/
         notifyDataSetChanged();
     }
 
@@ -528,12 +637,12 @@ public class ConversationListAdapter extends BaseAdapter {
         mAtAllConv.put(conv, msgId);
     }
 
-    static class UIHandler extends Handler {
+    private static class UIHandler extends Handler {
 
         private final WeakReference<ConversationListAdapter> mAdapter;
 
         public UIHandler(ConversationListAdapter adapter) {
-            mAdapter = new WeakReference<ConversationListAdapter>(adapter);
+            mAdapter = new WeakReference<>(adapter);
         }
 
         @Override
