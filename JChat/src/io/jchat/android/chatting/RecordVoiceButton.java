@@ -7,14 +7,18 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,22 +28,26 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
+import io.jchat.android.R;
+import io.jchat.android.adapter.ChattingListAdapter;
 import io.jchat.android.chatting.utils.FileHelper;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.utils.IdHelper;
 
 public class RecordVoiceButton extends Button {
 
+
     private File myRecAudioFile;
 
-    private MsgListAdapter mMsgListAdapter;
+    private ChattingListAdapter mMsgListAdapter;
     private static final int MIN_INTERVAL_TIME = 1000;// 1s
     private final static int CANCEL_RECORD = 5;
     private final static int START_RECORD = 7;
@@ -51,7 +59,7 @@ public class RecordVoiceButton extends Button {
     private long startTime, time1, time2;
 
     private Dialog recordIndicator;
-
+    private Dialog mTimeShort;
     private ImageView mVolumeIv;
     private TextView mRecordHintTv;
 
@@ -70,6 +78,9 @@ public class RecordVoiceButton extends Button {
     private boolean mTimeUp = false;
     private final MyHandler myHandler = new MyHandler(this);
     private static int[] res;
+    private Chronometer mVoiceTime;
+    private TextView mTimeDown;
+    private LinearLayout mMicShow;
 
     public RecordVoiceButton(Context context) {
         super(context);
@@ -90,24 +101,29 @@ public class RecordVoiceButton extends Button {
 
     private void init() {
         mVolumeHandler = new ShowVolumeHandler(this);
-        res = new int[]{IdHelper.getDrawable(mContext, "jmui_mic_1"), IdHelper.getDrawable(mContext, "jmui_mic_2"),
-                IdHelper.getDrawable(mContext, "jmui_mic_3"),IdHelper.getDrawable(mContext, "jmui_mic_4"),
-                IdHelper.getDrawable(mContext, "jmui_mic_5"), IdHelper.getDrawable(mContext, "jmui_cancel_record")};
+        //如果需要跳动的麦克图 将五张相同的图片替换即可
+        res = new int[] {IdHelper.getDrawable(mContext, "jmui_mic"), IdHelper.getDrawable(mContext, "jmui_mic"),
+                IdHelper.getDrawable(mContext, "jmui_mic"), IdHelper.getDrawable(mContext, "jmui_mic"),
+                IdHelper.getDrawable(mContext, "jmui_mic"), IdHelper.getDrawable(mContext, "jmui_cancel_record")};
     }
 
-    public void initConv(Conversation conv, MsgListAdapter adapter, ChatView chatView) {
+    public void initConv(Conversation conv, ChattingListAdapter adapter, ChatView chatView) {
         this.mConv = conv;
         this.mMsgListAdapter = adapter;
         mChatView = chatView;
+
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         this.setPressed(true);
         int action = event.getAction();
+        mTimeShort = new Dialog(getContext(), IdHelper.getStyle(mContext, "jmui_record_voice_dialog"));
+        mTimeShort.setContentView(R.layout.send_voice_time_short);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                this.setText(mContext.getString(IdHelper.getString(mContext, "jmui_send_voice_hint")));
+                //文字 松开结束
+                this.setText(mContext.getString(R.string.jmui_send_voice_hint));
                 mIsPressed = true;
                 time1 = System.currentTimeMillis();
                 mTouchY1 = event.getY();
@@ -123,44 +139,49 @@ public class RecordVoiceButton extends Button {
                             msg.what = START_RECORD;
                             msg.sendToTarget();
                         }
-                    }, 500);
+                    }, 300);
                 } else {
-                    Toast.makeText(this.getContext(), mContext.getString(IdHelper.getString(mContext,
-                            "jmui_sdcard_not_exist_toast")), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this.getContext(), mContext.getString(R.string.jmui_sdcard_not_exist_toast), Toast.LENGTH_SHORT).show();
                     this.setPressed(false);
-                    this.setText(mContext.getString(IdHelper.getString(mContext, "jmui_record_voice_hint")));
+                    //文字 按住说话
+                    this.setText(mContext.getString(R.string.jmui_record_voice_hint));
                     mIsPressed = false;
                     return false;
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                this.setText(mContext.getString(IdHelper.getString(mContext, "jmui_record_voice_hint")));
+                //文字 按住说话
+                this.setText(mContext.getString(R.string.jmui_record_voice_hint));
                 mIsPressed = false;
                 this.setPressed(false);
                 mTouchY2 = event.getY();
                 time2 = System.currentTimeMillis();
-                if (time2 - time1 < 500) {
-                    cancelTimer();
+                if (time2 - time1 < 300) {
+                    showCancelDialog();
                     return true;
                 } else if (time2 - time1 < 1000) {
+                    showCancelDialog();
                     cancelRecord();
                 } else if (mTouchY1 - mTouchY2 > MIN_CANCEL_DISTANCE) {
                     cancelRecord();
-                } else if (time2 - time1 < 60000)
+                } else if (time2 - time1 < 60000) {
                     finishRecord();
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 mTouchY = event.getY();
                 //手指上滑到超出限定后，显示松开取消发送提示
                 if (mTouchY1 - mTouchY > MIN_CANCEL_DISTANCE) {
-                    this.setText(mContext.getString(IdHelper.getString(mContext, "jmui_cancel_record_voice_hint")));
+                    //文字  松开手指取消发送
+                    this.setText(mContext.getString(R.string.jmui_cancel_record_voice_hint));
                     mVolumeHandler.sendEmptyMessage(CANCEL_RECORD);
                     if (mThread != null) {
                         mThread.exit();
                     }
                     mThread = null;
                 } else {
-                    this.setText(mContext.getString(IdHelper.getString(mContext, "jmui_send_voice_hint")));
+                    //文字 送开结束
+                    this.setText(mContext.getString(R.string.jmui_send_voice_hint));
                     if (mThread == null) {
                         mThread = new ObtainDecibelThread();
                         mThread.start();
@@ -168,7 +189,8 @@ public class RecordVoiceButton extends Button {
                 }
                 break;
             case MotionEvent.ACTION_CANCEL:// 当手指移动到view外面，会cancel
-                this.setText(mContext.getString(IdHelper.getString(mContext, "jmui_record_voice_hint")));
+                //文字 按住说话
+                this.setText(mContext.getString(R.string.jmui_record_voice_hint));
                 cancelRecord();
                 break;
         }
@@ -176,6 +198,15 @@ public class RecordVoiceButton extends Button {
         return true;
     }
 
+    private void showCancelDialog() {
+        mTimeShort.show();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mTimeShort.dismiss();
+            }
+        }, 1000);
+    }
 
     private void cancelTimer() {
         if (timer != null) {
@@ -209,15 +240,19 @@ public class RecordVoiceButton extends Button {
         if (myRecAudioFile == null) {
             cancelTimer();
             stopRecording();
-            Toast.makeText(mContext, mContext.getString(IdHelper.getString(mContext, "jmui_create_file_failed")),
+            Toast.makeText(mContext, mContext.getString(R.string.jmui_create_file_failed),
                     Toast.LENGTH_SHORT).show();
         }
-        Log.i("FileCreate", "Create file success file path: " + myRecAudioFile.getAbsolutePath());
         recordIndicator = new Dialog(getContext(), IdHelper.getStyle(mContext, "jmui_record_voice_dialog"));
-        recordIndicator.setContentView(IdHelper.getLayout(mContext, "jmui_dialog_record_voice"));
-        mVolumeIv = (ImageView) recordIndicator.findViewById(IdHelper.getViewID(mContext, "jmui_volume_hint_iv"));
-        mRecordHintTv = (TextView) recordIndicator.findViewById(IdHelper.getViewID(mContext, "jmui_record_voice_tv"));
-        mRecordHintTv.setText(mContext.getString(IdHelper.getString(mContext, "jmui_move_to_cancel_hint")));
+        recordIndicator.setContentView(R.layout.jmui_dialog_record_voice);
+        mVolumeIv = (ImageView) recordIndicator.findViewById(R.id.jmui_volume_hint_iv);
+        mRecordHintTv = (TextView) recordIndicator.findViewById(R.id.jmui_record_voice_tv);
+        mVoiceTime = (Chronometer) recordIndicator.findViewById(R.id.voice_time);
+
+        mTimeDown = (TextView) recordIndicator.findViewById(R.id.time_down);
+        mMicShow = (LinearLayout) recordIndicator.findViewById(R.id.mic_show);
+
+        mRecordHintTv.setText(mContext.getString(R.string.jmui_move_to_cancel_hint));
         startRecording();
         recordIndicator.show();
     }
@@ -226,16 +261,17 @@ public class RecordVoiceButton extends Button {
     private void finishRecord() {
         cancelTimer();
         stopRecording();
+
         if (recordIndicator != null) {
             recordIndicator.dismiss();
         }
 
         long intervalTime = System.currentTimeMillis() - startTime;
         if (intervalTime < MIN_INTERVAL_TIME) {
-            Toast.makeText(getContext(), mContext.getString(IdHelper.getString(mContext,
-                    "jmui_time_too_short_toast")), Toast.LENGTH_SHORT).show();
+            mMicShow.setVisibility(GONE);
             myRecAudioFile.delete();
         } else {
+            mMicShow.setVisibility(VISIBLE);
             if (myRecAudioFile != null && myRecAudioFile.exists()) {
                 MediaPlayer mp = new MediaPlayer();
                 try {
@@ -256,27 +292,31 @@ public class RecordVoiceButton extends Button {
                     try {
                         VoiceContent content = new VoiceContent(myRecAudioFile, duration);
                         Message msg = mConv.createSendMessage(content);
-                        mMsgListAdapter.addMsgToList(msg);
+                        mMsgListAdapter.addMsgFromReceiptToList(msg);
                         if (mConv.getType() == ConversationType.single) {
                             UserInfo userInfo = (UserInfo) msg.getTargetInfo();
-                            if (userInfo.isFriend()) {
-                                JMessageClient.sendMessage(msg);
-                            } else {
-                                CustomContent customContent = new CustomContent();
-                                customContent.setBooleanValue("notFriend", true);
-                                Message customMsg = mConv.createSendMessage(customContent);
-                                mMsgListAdapter.addMsgToList(customMsg);
-                            }
+                            MessageSendingOptions options = new MessageSendingOptions();
+                            options.setNeedReadReceipt(true);
+                            JMessageClient.sendMessage(msg, options);
+//                            if (userInfo.isFriend()) {
+//                                JMessageClient.sendMessage(msg);
+//                            } else {
+//                                CustomContent customContent = new CustomContent();
+//                                customContent.setBooleanValue("notFriend", true);
+//                                Message customMsg = mConv.createSendMessage(customContent);
+//                                mMsgListAdapter.addMsgToList(customMsg);
+//                            }
                         } else {
-                            JMessageClient.sendMessage(msg);
+                            MessageSendingOptions options = new MessageSendingOptions();
+                            options.setNeedReadReceipt(true);
+                            JMessageClient.sendMessage(msg, options);
                         }
                         mChatView.setToBottom();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    Toast.makeText(mContext, mContext.getString(IdHelper.getString(mContext,
-                            "jmui_record_voice_permission_request")), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.jmui_record_voice_permission_request), Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -317,20 +357,24 @@ public class RecordVoiceButton extends Button {
             });
             recorder.start();
             startTime = System.currentTimeMillis();
+
+            mVoiceTime.setBase(SystemClock.elapsedRealtime());
+            mVoiceTime.start();
+
             mCountTimer = new Timer();
             mCountTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     mTimeUp = true;
                     android.os.Message msg = mVolumeHandler.obtainMessage();
-                    msg.what = 55;
+                    msg.what = 50;
                     Bundle bundle = new Bundle();
-                    bundle.putInt("restTime", 5);
+                    bundle.putInt("restTime", 10);
                     msg.setData(bundle);
                     msg.sendToTarget();
                     mCountTimer.cancel();
                 }
-            }, 56000);
+            }, 51000);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -380,9 +424,9 @@ public class RecordVoiceButton extends Button {
         if (recorder != null) {
             try {
                 recorder.stop();
-            }catch (Exception e){
+            } catch (Exception e) {
                 Log.d("RecordVoice", "Catch exception: stop recorder failed!");
-            }finally {
+            } finally {
                 recorder.release();
                 recorder = null;
             }
@@ -437,7 +481,7 @@ public class RecordVoiceButton extends Button {
         if (recordIndicator != null) {
             recordIndicator.dismiss();
         }
-        this.setText(mContext.getString(IdHelper.getString(mContext, "jmui_record_voice_hint")));
+        this.setText(mContext.getString(R.string.jmui_record_voice_hint));
     }
 
     /**
@@ -448,7 +492,7 @@ public class RecordVoiceButton extends Button {
         private final WeakReference<RecordVoiceButton> lButton;
 
         public ShowVolumeHandler(RecordVoiceButton button) {
-            lButton = new WeakReference<RecordVoiceButton>(button);
+            lButton = new WeakReference<>(button);
         }
 
         @Override
@@ -466,8 +510,14 @@ public class RecordVoiceButton extends Button {
                     msg1.setData(bundle);
                     //创建一个延迟一秒执行的HandlerMessage，用于倒计时
                     controller.mVolumeHandler.sendMessageDelayed(msg1, 1000);
-                    controller.mRecordHintTv.setText(String.format(controller.mContext.getString(IdHelper
-                            .getString(controller.mContext, "jmui_rest_record_time_hint")), restTime));
+
+                    //还可以说...秒
+//                    controller.mRecordHintTv.setText(String.format(controller.mContext.getString(IdHelper
+//                            .getString(controller.mContext, "jmui_rest_record_time_hint")), restTime));
+                    controller.mMicShow.setVisibility(GONE);
+                    controller.mTimeDown.setVisibility(VISIBLE);
+                    controller.mTimeDown.setText(restTime+"");
+
                     // 倒计时结束，发送语音, 重置状态
                 } else if (restTime == 0) {
                     controller.finishRecord();
@@ -478,18 +528,17 @@ public class RecordVoiceButton extends Button {
                     // 没有进入倒计时状态
                     if (!controller.mTimeUp) {
                         if (msg.what < CANCEL_RECORD) {
-                            controller.mRecordHintTv.setText(controller.mContext.getString(IdHelper
-                                    .getString(controller.mContext, "jmui_move_to_cancel_hint")));
-                        }
-                        else {
-                            controller.mRecordHintTv.setText(controller.mContext.getString(IdHelper
-                                    .getString(controller.mContext, "jmui_cancel_record_voice_hint")));
+                            controller.mRecordHintTv.setText(R.string.jmui_move_to_cancel_hint);
+                            controller.mRecordHintTv.setBackgroundColor(controller.mContext.getResources().getColor(R.color.transparent));
+                        } else {
+                            controller.mRecordHintTv.setText(R.string.jmui_cancel_record_voice_hint);
+                            controller.mRecordHintTv.setBackgroundColor(controller.mContext.getResources().getColor(R.color.text_back_ground));
                         }
                         // 进入倒计时
                     } else {
                         if (msg.what == CANCEL_RECORD) {
-                            controller.mRecordHintTv.setText(controller.mContext.getString(IdHelper
-                                    .getString(controller.mContext, "jmui_cancel_record_voice_hint")));
+                            controller.mRecordHintTv.setText(R.string.jmui_cancel_record_voice_hint);
+                            controller.mRecordHintTv.setBackgroundColor(controller.mContext.getResources().getColor(R.color.text_back_ground));
                             if (!mIsPressed) {
                                 controller.cancelRecord();
                             }
@@ -505,7 +554,7 @@ public class RecordVoiceButton extends Button {
         private final WeakReference<RecordVoiceButton> lButton;
 
         public MyHandler(RecordVoiceButton button) {
-            lButton = new WeakReference<RecordVoiceButton>(button);
+            lButton = new WeakReference<>(button);
         }
 
         @Override

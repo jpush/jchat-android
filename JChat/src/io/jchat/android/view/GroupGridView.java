@@ -8,7 +8,6 @@ public class GroupGridView extends GridView {
 
     public GroupGridView(Context context) {
         super(context);
-        // TODO Auto-generated constructor stub
     }
 
     public GroupGridView(Context context, AttributeSet attrs) {

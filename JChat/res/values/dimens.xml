@@ -5,13 +5,21 @@
     <dimen name="title_bar_txt_size">20sp</dimen>
     <dimen name="default_btn_radius">5dp</dimen>
     <dimen name="view_left_right_padding">28dp</dimen>
-    <dimen name="title_bar_height">40dp</dimen>
+    <dimen name="title_bar_height">48dp</dimen>
 
     <!-- Login页面 -->
     <dimen name="login_email_txt_size">18sp</dimen>
     <dimen name="login_regist_head_icon_size">80dp</dimen>
     <dimen name="add_friend_txt_size">18sp</dimen>
     <dimen name="msg_del_offset">70dp</dimen>
+    <dimen name="bar_tool_btn_width">56dp</dimen>
+    <dimen name="verticalspit_view_width">0.6dp</dimen>
+    <dimen name="item_emoticon_size_default">32dp</dimen>
+    <dimen name="pickerview_topbar_height">44dp</dimen>
+    <dimen name="pickerview_topbar_padding">20dp</dimen>
+    <dimen name="pickerview_topbar_btn_textsize">17sp</dimen>
+    <dimen name="pickerview_textsize">20sp</dimen>
+    <dimen name="location">300dp</dimen>
 
     <!-- 文字的大小 -->
     <dimen name="text_minimum_size">10sp</dimen>
@@ -35,5 +43,7 @@
     <dimen name="drop_down_list_header_padding_bottom">5dp</dimen>
     <dimen name="drop_down_list_header_release_min_distance">0dp</dimen>
     <dimen name="drop_down_list_header_progress_bar_height">36dp</dimen>
+    <dimen name="horizontalspit_view_height">0.6dp</dimen>
+
 
 </resources>

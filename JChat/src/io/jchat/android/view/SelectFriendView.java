@@ -3,11 +3,11 @@ package io.jchat.android.view;
 import android.content.Context;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import io.jchat.android.R;
 import io.jchat.android.adapter.StickyListAdapter;
 
@@ -16,11 +16,10 @@ public class SelectFriendView extends LinearLayout {
     private Context mContext;
     private ImageButton mCancelBtn;
     private EditText mSearchEt;
-    private ImageButton mSearchBtn;
     private StickyListHeadersListView mListView;
     private SideBar mSideBar;
     private TextView mLetterHintTv;
-    private Button mFinishBtn;
+    private LinearLayout mFinishBtn;
 
 
     public SelectFriendView(Context context, AttributeSet attrs) {
@@ -30,14 +29,13 @@ public class SelectFriendView extends LinearLayout {
 
     public void initModule(float ratio, float density) {
         mCancelBtn = (ImageButton) findViewById(R.id.jmui_cancel_btn);
-        mFinishBtn = (Button) findViewById(R.id.finish_btn);
+        mFinishBtn = (LinearLayout) findViewById(R.id.finish_btn);
         mSearchEt = (EditText) findViewById(R.id.search_et);
-        mSearchBtn = (ImageButton) findViewById(R.id.search_btn);
         mListView = (StickyListHeadersListView) findViewById(R.id.sticky_list_view);
         mSideBar = (SideBar) findViewById(R.id.sidebar);
         mLetterHintTv = (TextView) findViewById(R.id.letter_hint_tv);
         mSideBar.setTextView(mLetterHintTv);
-        mSideBar.setRatioAndDensity(ratio, density);
+        mSideBar.bringToFront();
 
         mListView.setDrawingListUnderStickyHeader(true);
         mListView.setAreHeadersSticky(true);
@@ -46,7 +44,6 @@ public class SelectFriendView extends LinearLayout {
 
     public void setListeners(OnClickListener listener) {
         mCancelBtn.setOnClickListener(listener);
-        mSearchBtn.setOnClickListener(listener);
         mFinishBtn.setOnClickListener(listener);
     }
 
@@ -66,4 +63,11 @@ public class SelectFriendView extends LinearLayout {
         mSearchEt.addTextChangedListener(watcher);
     }
 
+    public void setGoneSideBar(boolean isGone) {
+        if (isGone) {
+            mSideBar.setVisibility(GONE);
+        }else {
+            mSideBar.setVisibility(VISIBLE);
+        }
+    }
 }

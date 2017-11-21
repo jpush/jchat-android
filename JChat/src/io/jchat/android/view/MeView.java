@@ -1,140 +1,123 @@
 package io.jchat.android.view;
 
 
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import java.lang.ref.WeakReference;
+
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.IntegerCallback;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
-import io.jchat.android.chatting.CircleImageView;
-import io.jchat.android.chatting.utils.BitmapLoader;
+import io.jchat.android.chatting.utils.DialogCreator;
+import io.jchat.android.tools.ToastUtil;
 
-public class MeView extends LinearLayout {
-
-    private TextView mTitleBarTitle;
-    private ImageView mAvatarIv;
-    private CircleImageView mTakePhotoBtn;
-    private LinearLayout mContentLl;
-    private RelativeLayout mUserInfoRl;
-    private TextView mUserNameTv;
-    private TextView mNickNameTv;
-    private RelativeLayout mSettingRl;
-    private RelativeLayout mLogoutRl;
+public class MeView extends LinearLayout implements SlipButton.OnChangedListener{
     private Context mContext;
+    private TextView mSignatureTv;
+    private TextView mNickNameTv;
+    private SelectableRoundedImageView mTakePhotoBtn;
+    private RelativeLayout mSet_pwd;
+    public SlipButton mSet_noDisturb;
+    private RelativeLayout mAbout;
+    private RelativeLayout mExit;
     private int mWidth;
     private int mHeight;
-    private final MyHandler myHandler = new MyHandler(this);
+    private RelativeLayout mRl_personal;
 
     public MeView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.mContext = context;
+
     }
+
 
     public void initModule(float density, int width) {
-        UserInfo userInfo = JMessageClient.getMyInfo();
-        mTitleBarTitle = (TextView) findViewById(R.id.title_bar_title);
-        mTitleBarTitle.setText(mContext.getString(R.string.actionbar_me));
-        mContentLl = (LinearLayout) findViewById(R.id.content_list_ll);
-        mAvatarIv = (ImageView) findViewById(R.id.my_avatar_iv);
-        mTakePhotoBtn = (CircleImageView) findViewById(R.id.take_photo_iv);
-        mNickNameTv = (TextView) findViewById(R.id.nick_name_tv);
-        mUserInfoRl = (RelativeLayout) findViewById(R.id.user_info_rl);
-        mUserNameTv = (TextView) findViewById(R.id.user_name_tv);
-        mSettingRl = (RelativeLayout) findViewById(R.id.setting_rl);
-        mLogoutRl = (RelativeLayout) findViewById(R.id.logout_rl);
+        mTakePhotoBtn = (SelectableRoundedImageView) findViewById(R.id.take_photo_iv);
+        mNickNameTv = (TextView) findViewById(R.id.nickName);
+        mSignatureTv = (TextView) findViewById(R.id.signature);
+        mSet_pwd = (RelativeLayout) findViewById(R.id.setPassword);
+        mSet_noDisturb = (SlipButton) findViewById(R.id.btn_noDisturb);
+        mAbout = (RelativeLayout) findViewById(R.id.about);
+        mExit = (RelativeLayout) findViewById(R.id.exit);
+        mRl_personal = (RelativeLayout) findViewById(R.id.rl_personal);
+        mSet_noDisturb.setOnChangedListener(R.id.btn_noDisturb, this);
+
         mWidth = width;
         mHeight = (int) (190 * density);
-        if (userInfo != null) {
-            mUserNameTv.setText(userInfo.getUserName());
-            if (!TextUtils.isEmpty(userInfo.getNickname())) {
-                mNickNameTv.setText(userInfo.getNickname());
-            } else {
-                mNickNameTv.setText(userInfo.getUserName());
-            }
-        }
-    }
-
-    public void setListeners(OnClickListener onClickListener) {
-        mTakePhotoBtn.setOnClickListener(onClickListener);
-        mUserInfoRl.setOnClickListener(onClickListener);
-        mSettingRl.setOnClickListener(onClickListener);
-        mLogoutRl.setOnClickListener(onClickListener);
-        mAvatarIv.setOnClickListener(onClickListener);
-    }
-
-    public void setOnTouchListener(OnTouchListener listener) {
-        mUserInfoRl.setOnTouchListener(listener);
-        mSettingRl.setOnTouchListener(listener);
-        mLogoutRl.setOnTouchListener(listener);
-    }
 
 
-    public void showPhoto(final Bitmap bitmap) {
-        Thread thread = new Thread(new Runnable() {
+        final Dialog dialog = DialogCreator.createLoadingDialog(mContext, mContext.getString(R.string.jmui_loading));
+        dialog.show();
+        //初始化是否全局免打扰
+        JMessageClient.getNoDisturbGlobal(new IntegerCallback() {
             @Override
-            public void run() {
-                if (bitmap != null) {
-                    Bitmap bmp = BitmapLoader.doBlur(bitmap, false);
-                    android.os.Message msg = myHandler.obtainMessage();
-                    msg.obj = bmp;
-                    msg.sendToTarget();
+            public void gotResult(int responseCode, String responseMessage, Integer value) {
+                dialog.dismiss();
+                if (responseCode == 0) {
+                    mSet_noDisturb.setChecked(value == 1);
+                } else {
+                    ToastUtil.shortToast(mContext, responseMessage);
                 }
             }
         });
-        thread.start();
-        mTakePhotoBtn.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        mTakePhotoBtn.setImageBitmap(bitmap);
+
+
     }
 
-    public void showPhoto(final String path) {
-        Log.i("MeView", "updated path:  " + path);
-        final Bitmap bitmap = BitmapLoader.getBitmapFromFile(path, mWidth, mHeight);
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (bitmap != null) {
-                    Bitmap bmp = BitmapLoader.doBlur(bitmap, false);
-                    android.os.Message msg = myHandler.obtainMessage();
-                    msg.obj = bmp;
-                    msg.sendToTarget();
-                }
-            }
-        });
-        thread.start();
-        mTakePhotoBtn.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        mTakePhotoBtn.setImageBitmap(bitmap);
+    public void setListener(OnClickListener onClickListener) {
+        mSet_pwd.setOnClickListener(onClickListener);
+        mAbout.setOnClickListener(onClickListener);
+        mExit.setOnClickListener(onClickListener);
+        mRl_personal.setOnClickListener(onClickListener);
+
+
     }
 
-    public void showNickName(String nickname) {
-        mNickNameTv.setText(nickname);
-    }
-
-    private static class MyHandler extends Handler {
-        private final WeakReference<MeView> mMeView;
-
-        public MyHandler(MeView meView) {
-            mMeView = new WeakReference<MeView>(meView);
+    public void showPhoto(Bitmap avatarBitmap) {
+        if (avatarBitmap != null) {
+            mTakePhotoBtn.setImageBitmap(avatarBitmap);
+        }else {
+            mTakePhotoBtn.setImageResource(R.drawable.rc_default_portrait);
         }
 
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            MeView meView = mMeView.get();
-            if (null != meView) {
-                Bitmap bitmap = (Bitmap) msg.obj;
-                meView.mAvatarIv.setImageBitmap(bitmap);
-                meView.mAvatarIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            }
+    }
+
+    public void showNickName(UserInfo myInfo) {
+        if (!TextUtils.isEmpty(myInfo.getNickname().trim())) {
+            mNickNameTv.setText(myInfo.getNickname());
+        } else {
+            mNickNameTv.setText(myInfo.getUserName());
+        }
+        mSignatureTv.setText(myInfo.getSignature());
+    }
+
+    @Override
+    public void onChanged(int id, final boolean checkState) {
+        switch (id) {
+            case R.id.btn_noDisturb:
+                final Dialog loadingDialog = DialogCreator.createLoadingDialog(mContext,
+                        mContext.getString(R.string.jmui_loading));
+                loadingDialog.show();
+                JMessageClient.setNoDisturbGlobal(checkState ? 1 : 0, new BasicCallback() {
+                    @Override
+                    public void gotResult(int status, String desc) {
+                        loadingDialog.dismiss();
+                        if (status == 0) {
+                        } else {
+                            mSet_noDisturb.setChecked(!checkState);
+                            ToastUtil.shortToast(mContext, "设置失败");
+                        }
+                    }
+                });
+                break;
         }
     }
+
 }

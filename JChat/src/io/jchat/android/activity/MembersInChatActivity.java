@@ -20,6 +20,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -39,10 +41,13 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.adapter.AllMembersAdapter;
+import io.jchat.android.adapter.CreateGroupAdapter;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.tools.HanyuPinyin;
+import io.jchat.android.tools.ToastUtil;
+import io.jchat.android.view.SideBar;
 
 /**
  * Created by Ken on 2015/11/25.
@@ -53,8 +58,7 @@ public class MembersInChatActivity extends BaseActivity {
     private Dialog mDialog;
     private Context mContext;
     private ImageButton mReturnBtn;
-    private TextView mTitle;
-    private Button mRightBtn;
+    private TextView mRightBtn;
     private EditText mSearchEt;
     private List<UserInfo> mMemberInfoList = new ArrayList<UserInfo>();
     private List<ItemModel> mShowUserList = new ArrayList<ItemModel>();
@@ -73,6 +77,11 @@ public class MembersInChatActivity extends BaseActivity {
     private boolean mIsDeleteMode;
     private boolean mIsCreator;
     private String mSearchText;
+    private SideBar mSideBar;
+    private TextView mLetterHintTv;
+    private HorizontalScrollView mHorizontalView;
+    private CreateGroupAdapter mGroupAdapter;
+    private GridView imageSelectedGridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +90,16 @@ public class MembersInChatActivity extends BaseActivity {
         setContentView(R.layout.activity_all_members);
         mListView = (ListView) findViewById(R.id.members_list_view);
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
-        mTitle = (TextView) findViewById(R.id.number_tv);
-        mRightBtn = (Button) findViewById(R.id.right_btn);
+        mRightBtn = (TextView) findViewById(R.id.right_btn);
         mSearchEt = (EditText) findViewById(R.id.search_et);
+        mHorizontalView = (HorizontalScrollView) findViewById(R.id.contact_select_area);
+        mLetterHintTv = (TextView) findViewById(R.id.letter_hint_tv);
+        imageSelectedGridView = (GridView) findViewById(R.id.contact_select_area_grid);
+//        mSideBar = (SideBar) findViewById(R.id.sidebar);
+//        mSideBar.setTextView(mLetterHintTv);
+        mGroupAdapter = new CreateGroupAdapter(MembersInChatActivity.this);
+        imageSelectedGridView.setAdapter(mGroupAdapter);
+
 
         mBackgroundThread = new HandlerThread("Work on MembersInChatActivity");
         mBackgroundThread.start();
@@ -99,8 +115,6 @@ public class MembersInChatActivity extends BaseActivity {
 
         mBackgroundHandler.sendEmptyMessage(PROCESS_USER_INFO_TO_BEANS);
 
-        String title = this.getString(R.string.combine_title);
-        mTitle.setText(String.format(title, mMemberInfoList.size() + ""));
         if (mIsDeleteMode) {
             mRightBtn.setText(this.getString(R.string.jmui_delete));
         } else {
@@ -126,6 +140,8 @@ public class MembersInChatActivity extends BaseActivity {
                         List<String> deleteList = mAdapter.getSelectedList();
                         if (deleteList.size() > 0) {
                             showDeleteMemberDialog(deleteList);
+                        }else {
+                            ToastUtil.shortToast(MembersInChatActivity.this, "请至少选择一个成员");
                         }
                     } else {
                         addMemberToGroup();
@@ -178,7 +194,7 @@ public class MembersInChatActivity extends BaseActivity {
                                     setResult(JChatDemoApplication.RESULT_CODE_ALL_MEMBER, intent);
                                     finish();
                                 } else {
-                                    HandleResponseCode.onHandle(mContext, status, false);
+                                    Toast.makeText(MembersInChatActivity.this, "删除失败" + desc, Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -261,8 +277,6 @@ public class MembersInChatActivity extends BaseActivity {
                 if (status == 0) {
                     addAMember(userInfo);
                     dialog.cancel();
-                } else {
-                    HandleResponseCode.onHandle(mContext, status, true);
                 }
             }
         });
@@ -287,7 +301,7 @@ public class MembersInChatActivity extends BaseActivity {
                     refreshMemberList();
                     Toast.makeText(mContext, mContext.getString(R.string.added), Toast.LENGTH_SHORT).show();
                 } else {
-                    HandleResponseCode.onHandle(mContext, status, true);
+                    Toast.makeText(MembersInChatActivity.this, "添加失败" + desc, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -301,7 +315,6 @@ public class MembersInChatActivity extends BaseActivity {
         GroupInfo groupInfo = (GroupInfo) conv.getTargetInfo();
         mMemberInfoList = groupInfo.getGroupMembers();
 //        addAll(true);
-        mTitle.setText(String.format(mContext.getString(R.string.combine_title), mMemberInfoList.size() + ""));
         mBackgroundHandler.sendEmptyMessage(ADD_ALL_MEMBER);
     }
 
@@ -387,14 +400,12 @@ public class MembersInChatActivity extends BaseActivity {
                 switch (msg.what) {
                     case INIT_ADAPTER:
                         activity.mAdapter = new AllMembersAdapter(activity, activity.mShowUserList,
-                                activity.mIsDeleteMode, activity.mIsCreator, activity.mGroupId, activity.mWidth);
+                                activity.mIsDeleteMode, activity.mIsCreator, activity.mGroupId, activity.mWidth
+                                ,activity.mHorizontalView, activity.imageSelectedGridView, activity.mGroupAdapter);
                         activity.mListView.setAdapter(activity.mAdapter);
                         activity.mListView.requestFocus();
                         //单击ListView item，跳转到个人详情界面
                         activity.mListView.setOnItemClickListener(activity.mAdapter);
-
-                        //如果是群主，长按ListView item可以删除群成员
-                        activity.mListView.setOnItemLongClickListener(activity.mAdapter);
                         break;
                     case SEARCH_MEMBER_SUCCESS:
                         if (activity.mAdapter != null) {
@@ -474,7 +485,7 @@ public class MembersInChatActivity extends BaseActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         mUIHandler.removeCallbacksAndMessages(null);
         mBackgroundHandler.removeCallbacksAndMessages(null);

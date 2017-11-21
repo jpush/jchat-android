@@ -1,230 +1,352 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.jchat.android"
-    android:versionCode="60"
-    android:versionName="1.3.9">
+<manifest package="io.jchat.android"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          android:versionCode="60"
+          android:versionName="2.2.0">
 
     <uses-sdk
-        android:minSdkVersion="9"
-        android:targetSdkVersion="19" />
+        android:minSdkVersion="21"
+        android:targetSdkVersion="23" />
 
     <permission
         android:name="${applicationId}.permission.JPUSH_MESSAGE"
-        android:protectionLevel="signature" />
+        android:protectionLevel="signature"/>
 
-    <!--Required 一些系统要求的权限，如访问网络等-->
-    <uses-permission android:name="${applicationId}.permission.JPUSH_MESSAGE" />
-    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
-
-    <!-- JMessage Demo required for record jmui_audio-->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-
-    <!-- Optional for location -->
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <!-- Required -->
+    <uses-permission android:name="${applicationId}.permission.JPUSH_MESSAGE"/>
+    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- Optional. Required for location feature -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
 
     <application
-        android:name="io.jchat.android.application.JChatDemoApplication"
+        android:name=".application.JChatDemoApplication"
         android:allowBackup="true"
-        android:configChanges="fontScale"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:screenOrientation="portrait"
+        android:supportsRtl="true"
         android:theme="@style/noTitle">
 
-        <meta-data android:name="AA_DB_NAME" android:value="jchat.db"/>
+        <meta-data
+            android:name="AA_DB_NAME"
+            android:value="jchat.db"/>
         <meta-data
             android:name="AA_MODELS"
-            android:value="io.jchat.android.database.UserEntry, io.jchat.android.database.FriendEntry,
-             io.jchat.android.database.FriendRecommendEntry" />
+            android:value="jiguang.chat.database.UserEntry, jiguang.chat.database.FriendEntry,
+             jiguang.chat.database.FriendRecommendEntry, jiguang.chat.database.ConversationEntry"/>
         <meta-data
             android:name="AA_DB_VERSION"
             android:value="4"/>
 
-        <!-- Required Push SDK核心功能-->
+        <!-- Required SDK 核心功能 -->
+        <!-- 可配置android:process参数将PushService放在其他进程中 -->
         <service
             android:name="cn.jpush.android.service.PushService"
             android:enabled="true"
             android:exported="false"
             android:process=":remote">
             <intent-filter>
-                <action android:name="cn.jpush.android.intent.REGISTER" />
-                <action android:name="cn.jpush.android.intent.REPORT" />
-                <action android:name="cn.jpush.android.intent.PushService" />
-                <action android:name="cn.jpush.android.intent.PUSH_TIME" />
+                <action android:name="cn.jpush.android.intent.REGISTER"/>
+                <action android:name="cn.jpush.android.intent.REPORT"/>
+                <action android:name="cn.jpush.android.intent.PushService"/>
+                <action android:name="cn.jpush.android.intent.PUSH_TIME"/>
             </intent-filter>
         </service>
 
-        <!-- Required Push SDK核心功能-->
+        <!-- Required SDK核心功能 -->
         <receiver
             android:name="cn.jpush.android.service.PushReceiver"
-            android:enabled="true">
+            android:enabled="true"
+            android:exported="false">
             <intent-filter android:priority="1000">
-                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED_PROXY" />
-                <category android:name="${applicationId}" />
+                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED_PROXY"/>
+
+                <category android:name="${applicationId}"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.USER_PRESENT" />
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>
             <!-- Optional -->
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_ADDED" />
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_ADDED"/>
+                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
 
-                <data android:scheme="package" />
+                <data android:scheme="package"/>
             </intent-filter>
         </receiver>
 
-        <!-- Required Push SDK核心功能 -->
-        <activity
-            android:name="cn.jpush.android.ui.PushActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="cn.jpush.android.ui.PushActivity" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="${applicationId}" />
-            </intent-filter>
-        </activity>
-        <!-- Required Push SDK核心功能 -->
-        <service
-            android:name="cn.jpush.android.service.DownloadService"
-            android:enabled="true"
-            android:exported="false" />
-        <!-- Required Push SDK核心功能 -->
-        <receiver android:name="cn.jpush.android.service.AlarmReceiver" />
-
-        <!-- IM Required IM SDK核心功能-->
+        <!-- Required SDK核心功能 -->
         <receiver
             android:name="cn.jpush.im.android.helpers.IMReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter android:priority="1000">
-                <action android:name="cn.jpush.im.android.action.IM_RESPONSE" />
-                <action android:name="cn.jpush.im.android.action.NOTIFICATION_CLICK_PROXY" />
+                <action android:name="cn.jpush.im.android.action.IM_RESPONSE"/>
+                <action android:name="cn.jpush.im.android.action.NOTIFICATION_CLICK_PROXY"/>
 
-                <category android:name="${applicationId}" />
+                <category android:name="${applicationId}"/>
             </intent-filter>
         </receiver>
 
-        <!-- option 可选项。用于同一设备中不同应用的JPush服务相互拉起的功能。 -->
-        <!-- 若不启用该功能可删除该组件，将不拉起其他应用也不能被其他应用拉起 -->
+
         <service
-            android:name="cn.jpush.android.service.DaemonService"
+            android:name="com.baidu.location.f"
             android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="cn.jpush.android.intent.DaemonService" />
-                <category android:name="${applicationId}" />
-            </intent-filter>
-
-        </service>
-
-        <service android:name="com.baidu.location.f" android:enabled="true"
             android:process=":remote">
         </service>
-        <meta-data android:name="com.baidu.lbsapi.API_KEY"
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
             android:value="UAkQeBK84ioVGzYgA1rSWYfuD4xYtpmV"/>
 
-        <!-- Required. Enable it you can get statistics data with channel -->
+        <!-- Required SDK核心功能 -->
+        <receiver
+            android:name="cn.jpush.android.service.AlarmReceiver"
+            android:exported="false"/>
+
         <meta-data
             android:name="JPUSH_CHANNEL"
-            android:value="developer-default" />
-        <!-- Required. AppKey copied from Portal -->
+            android:value="developer-default"/>
         <meta-data
             android:name="JPUSH_APPKEY"
-            android:value="4f7aef34fb361292c566a1cd" />
+            android:value="4f7aef34fb361292c566a1cd"/>
+
+        <provider
+            android:name="cn.jpush.android.service.DataProvider"
+            android:authorities="${applicationId}.DataProvider"
+            android:exported="true"/>
 
         <activity
-            android:name="io.jchat.android.activity.BaseActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="io.jchat.android.activity.LoginActivity"
-            android:launchMode="singleTask"
-            android:theme="@style/noTitle"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
-        <activity
-            android:name="io.jchat.android.activity.MainActivity"
-            android:launchMode="singleTask"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan|stateAlwaysHidden">
+            android:name=".activity.WelcomeActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
-            android:name="io.jchat.android.activity.RegisterActivity"
-            android:windowSoftInputMode="adjustResize" />
-        <activity android:name="io.jchat.android.activity.MeInfoActivity" />
+            android:name=".activity.LoginActivity"
+            android:screenOrientation="portrait"
+            />
         <activity
-            android:name="io.jchat.android.chatting.ChatActivity"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="io.jchat.android.activity.ReloginActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
-        <activity android:name="io.jchat.android.activity.ChatDetailActivity" />
-        <activity
-            android:name="io.jchat.android.activity.GroupSettingActivity"
-            android:theme="@style/group_setting_dialog" />
-        <activity android:name="io.jchat.android.activity.FriendInfoActivity" />
-        <activity android:name="io.jchat.android.activity.CreateGroupActivity" />
-        <activity android:name="io.jchat.android.activity.PickPictureTotalActivity" />
-        <activity android:name="io.jchat.android.activity.PickPictureActivity" />
-        <activity android:name="io.jchat.android.activity.BrowserViewPagerActivity" />
-        <activity android:name="io.jchat.android.activity.SettingActivity" />
-        <activity android:name="io.jchat.android.activity.NotificationSettingActivity" />
-        <activity android:name="io.jchat.android.activity.DisturbSettingActivity" />
-        <activity
-            android:name="io.jchat.android.activity.ResetPasswordActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
-        <activity
-            android:name="io.jchat.android.activity.FixProfileActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
-        <activity
-            android:name="io.jchat.android.activity.ResetNickNameActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
-        <activity
-            android:name="io.jchat.android.activity.SelectAreaActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
-        <activity
-            android:name="io.jchat.android.activity.EditSignatureActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
-        <activity android:name="io.jchat.android.activity.EditNoteNameActivity" />
-        <activity android:name="io.jchat.android.activity.AboutActivity" />
-        <activity
-            android:name="io.jchat.android.activity.SelectFriendActivity"
-            android:windowSoftInputMode="adjustPan" />
-        <activity android:name="io.jchat.android.activity.MembersInChatActivity" />
-        <activity android:name="io.jchat.android.activity.CropImageActivity" />
-        <activity android:name="io.jchat.android.activity.FriendRecommendActivity" />
-        <activity android:name="io.jchat.android.activity.SearchFriendActivity" />
-        <activity android:name="io.jchat.android.activity.SearchFriendDetailActivity" />
-        <activity android:name="io.jchat.android.activity.SendInvitationActivity" />
-        <activity android:name="io.jchat.android.activity.SendLocationActivity"/>
-        <activity android:name="io.jchat.android.activity.SendFileActivity"/>
-        <activity android:name="io.jchat.android.activity.PlayVideoActivity"/>
-        <activity android:name="io.jchat.android.activity.AtMemberActivity"/>
-    </application>
+            android:name=".activity.MainActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden"/>
+        <activity android:name=".activity.BaseActivity"/>
 
+        <activity
+            android:name=".activity.CreateGroupActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <activity
+            android:name=".activity.ResetPasswordActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.FriendRecommendActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.SearchFriendDetailActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.ChatActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.BrowserViewPagerActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.SendFileActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.FriendInfoActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.ChatDetailActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.MembersInChatActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden"/>
+
+        <activity
+            android:name=".activity.PlayVideoActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.SelectFriendActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.AboutJChatActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.PersonalActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.NickSignActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.SearchForAddFriendActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.SearchFriendInfoActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.VerificationActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.SearchContactsActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".tools.imagepicker.ImageBaseActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".tools.imagepicker.ImageCropActivity"
+            android:configChanges="orientation|screenSize"
+            android:hardwareAccelerated="false"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".tools.imagepicker.ImagePreviewActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".tools.imagepicker.ImagePreviewDelActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.BrowserFileImageActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.HistoryFileActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.MapPickerActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.GroupActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.SearchMoreFriendsActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden"/>
+        <activity
+            android:name=".activity.SearchMoreGroupActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan|stateHidden"/>
+        <activity
+            android:name=".activity.FriendSettingActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.SetNoteNameActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.ChooseAtMemberActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.GroupGridViewActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.GroupNotFriendActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.DownLoadActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.camera.CameraActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.SearchAtMemberActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".activity.SearchGroupActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".activity.ForwardMsgActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".activity.Person2CodeActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".activity.ScanResultActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".activity.CommonScanActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".activity.ReceiptMessageListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".activity.SearchFriendBusinessActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".activity.FriendListActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.FinishRegisterActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateVisible"/>
+        <activity
+            android:name=".activity.PickerAlbumActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.PickerAlbumPreviewActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.PickImageActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activity.NotFriendSettingActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.GroupAvatarActivity"
+            android:screenOrientation="portrait"/>
+    </application>
 </manifest>

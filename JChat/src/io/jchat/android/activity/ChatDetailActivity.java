@@ -1,30 +1,21 @@
 package io.jchat.android.activity;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.text.TextUtils;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
@@ -35,9 +26,8 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.application.JChatDemoApplication;
-import io.jchat.android.chatting.ChatActivity;
 import io.jchat.android.controller.ChatDetailController;
-import io.jchat.android.chatting.utils.HandleResponseCode;
+import io.jchat.android.tools.ToastUtil;
 import io.jchat.android.view.ChatDetailView;
 
 /*
@@ -54,12 +44,25 @@ public class ChatDetailActivity extends BaseActivity {
     private final static int GROUP_NAME_REQUEST_CODE = 1;
     private final static int MY_NAME_REQUEST_CODE = 2;
     private static final int ADD_FRIEND_REQUEST_CODE = 3;
+
+    public static final int GROUP_DESC = 70;
+    public static final int FLAGS_GROUP_DESC = 71;
+    public static final String GROUP_DESC_KEY = "group_desc_key";
+
+    public static final int GROUP_NAME = 72;
+    public static final int FLAGS_GROUP_NAME = 73;
+    public static final String GROUP_NAME_KEY = "group_name_key";
+
+    private long groupID;
+
+
     private Context mContext;
     private ProgressDialog mDialog;
+    private String mGroupName;
+    private String mGroupDesc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_detail);
         mContext = this;
@@ -71,119 +74,9 @@ public class ChatDetailActivity extends BaseActivity {
         mChatDetailView.setItemListener(mChatDetailController);
     }
 
-    //设置群聊名称
-    public void showGroupNameSettingDialog(int which, final long groupID, String groupName) {
-        final Dialog dialog = new Dialog(this, R.style.jmui_default_dialog_style);
-        View view = LayoutInflater.from(this).inflate(R.layout.jmui_dialog_reset_password, null);
-        dialog.setContentView(view);
-        if (which == 1) {
-            TextView title = (TextView) view.findViewById(R.id.jmui_title_tv);
-            title.setText(mContext.getString(R.string.group_name_hit));
-            final EditText pwdEt = (EditText) view.findViewById(R.id.jmui_password_et);
-            pwdEt.addTextChangedListener(new TextWatcher() {
-                private CharSequence temp = "";
-                private int editStart;
-                private int editEnd;
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    temp = s;
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    editStart = pwdEt.getSelectionStart();
-                    editEnd = pwdEt.getSelectionEnd();
-                    byte[] data = temp.toString().getBytes();
-                    if (data.length > 64) {
-                        s.delete(editStart - 1, editEnd);
-                        int tempSelection = editStart;
-                        pwdEt.setText(s);
-                        pwdEt.setSelection(tempSelection);
-                    }
-                }
-            });
-            pwdEt.setInputType(InputType.TYPE_CLASS_TEXT);
-            pwdEt.setHint(groupName);
-            pwdEt.setHintTextColor(getResources().getColor(R.color.gray));
-            final Button cancel = (Button) view.findViewById(R.id.jmui_cancel_btn);
-            final Button commit = (Button) view.findViewById(R.id.jmui_commit_btn);
-            dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-            dialog.show();
-            View.OnClickListener listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    switch (view.getId()) {
-                        case R.id.jmui_cancel_btn:
-                            dialog.cancel();
-                            break;
-                        case R.id.jmui_commit_btn:
-                            final String newName = pwdEt.getText().toString().trim();
-                            if (newName.equals("")) {
-                                Toast.makeText(mContext, mContext.getString(R.string.group_name_not_null_toast), Toast.LENGTH_SHORT).show();
-                            } else {
-                                dismissSoftInput();
-                                dialog.dismiss();
-                                mDialog = new ProgressDialog(mContext);
-                                mDialog.setMessage(mContext.getString(R.string.modifying_hint));
-                                mDialog.show();
-                                JMessageClient.updateGroupName(groupID, newName, new BasicCallback() {
-                                    @Override
-                                    public void gotResult(final int status, final String desc) {
-                                        mDialog.dismiss();
-                                        if (status == 0) {
-                                            mChatDetailView.updateGroupName(newName);
-                                            mChatDetailController.refreshGroupName(newName);
-                                            Toast.makeText(mContext, mContext.getString(R.string.modify_success_toast), Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            Log.i(TAG, "desc :" + desc);
-                                            HandleResponseCode.onHandle(mContext, status, false);
-                                        }
-                                    }
-                                });
-                            }
-                            break;
-                    }
-                }
-            };
-            cancel.setOnClickListener(listener);
-            commit.setOnClickListener(listener);
-        }
-        if (which == 2) {
-            TextView title = (TextView) view.findViewById(R.id.jmui_title_tv);
-            title.setText(mContext.getString(R.string.group_my_name_hit));
-            title.setTextColor(Color.parseColor("#000000"));
-            final EditText pwdEt = (EditText) view.findViewById(R.id.jmui_password_et);
-            pwdEt.setHint(mContext.getString(R.string.change_nickname_hint));
-            final Button cancel = (Button) view.findViewById(R.id.jmui_cancel_btn);
-            final Button commit = (Button) view.findViewById(R.id.jmui_commit_btn);
-            dialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
-            dialog.show();
-            View.OnClickListener listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    switch (view.getId()) {
-                        case R.id.jmui_cancel_btn:
-                            dialog.cancel();
-                            break;
-                        case R.id.jmui_commit_btn:
-                            dialog.cancel();
-                            break;
-                    }
-                }
-            };
-            cancel.setOnClickListener(listener);
-            commit.setOnClickListener(listener);
-        }
-    }
 
     @Override
     public void onBackPressed() {
-        Log.i(TAG, "onBackPressed");
         Intent intent = new Intent();
         intent.putExtra(JChatDemoApplication.CONV_TITLE, mChatDetailController.getName());
         intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, mChatDetailController.getCurrentCount());
@@ -205,46 +98,113 @@ public class ChatDetailActivity extends BaseActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // TODO Auto-generated method stub
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_CANCELED) {
-            return;
+    public void updateGroupNameDesc(long groupId, int nameOrDesc) {
+        this.groupID = groupId;
+        Intent intent = new Intent(ChatDetailActivity.this, NickSignActivity.class);
+        if (nameOrDesc == 1) {
+            intent.setFlags(FLAGS_GROUP_NAME);
+            intent.putExtra("group_name", mGroupName);
+        } else {
+            intent.setFlags(FLAGS_GROUP_DESC);
+            intent.putExtra("group_desc", mGroupDesc);
         }
-        if (requestCode == GROUP_NAME_REQUEST_CODE) {
-            Log.i(TAG, "resultName = " + data.getStringExtra("resultName"));
-            mChatDetailView.setGroupName(data.getStringExtra("resultName"));
-        } else if (requestCode == MY_NAME_REQUEST_CODE) {
-            Log.i(TAG, "myName = " + data.getStringExtra("resultName"));
-            mChatDetailView.setMyName(data.getStringExtra("resultName"));
-        } else if (resultCode == JChatDemoApplication.RESULT_CODE_FRIEND_INFO) {
-            if (data.getBooleanExtra("returnChatActivity", false)) {
-                data.putExtra("deleteMsg", mChatDetailController.getDeleteFlag());
-                data.putExtra(JChatDemoApplication.NAME, mChatDetailController.getName());
-                setResult(JChatDemoApplication.RESULT_CODE_CHAT_DETAIL, data);
-                finish();
+        startActivityForResult(intent, GROUP_NAME);
+    }
+
+    @Override
+    protected void onActivityResult(final int requestCode, int resultCode, Intent data) {
+        if (data != null) {
+            Bundle extras = data.getExtras();
+            mDialog = new ProgressDialog(mContext);
+            mDialog.setMessage("正在修改");
+            switch (resultCode) {
+                case Activity.RESULT_CANCELED:
+
+                    break;
+                case GROUP_NAME://修改群组名
+                    mDialog.show();
+                    final String groupName = extras.getString(GROUP_NAME_KEY);
+                    if (TextUtils.isEmpty(groupName)) {
+                        mDialog.dismiss();
+                        ToastUtil.shortToast(mContext, "输入不能是空");
+                        break;
+                    }
+                    JMessageClient.updateGroupName(groupID, groupName, new BasicCallback() {
+                        @Override
+                        public void gotResult(int responseCode, String responseMessage) {
+                            mDialog.dismiss();
+                            if (responseCode == 0) {
+                                mChatDetailView.updateGroupName(groupName);
+                                mChatDetailController.refreshGroupName(groupName);
+                            } else {
+                                ToastUtil.shortToast(mContext, "输入不合法");
+                            }
+                        }
+                    });
+                    break;
+                case GROUP_DESC://修改群组描述
+                    mDialog.show();
+                    final String groupDesc = extras.getString(GROUP_DESC_KEY);
+                    JMessageClient.updateGroupDescription(groupID, groupDesc, new BasicCallback() {
+                        @Override
+                        public void gotResult(int responseCode, String responseMessage) {
+                            mDialog.dismiss();
+                            if (responseCode == 0) {
+                                mChatDetailView.setGroupDesc(groupDesc);
+                            } else {
+                                ToastUtil.shortToast(mContext, "输入不合法");
+                            }
+                        }
+                    });
+                    break;
             }
-        } else if (requestCode == JChatDemoApplication.REQUEST_CODE_ALL_MEMBER) {
-            mChatDetailController.refreshMemberList();
-        } else if (requestCode == ADD_FRIEND_REQUEST_CODE) {
-            ArrayList<String> list = data.getStringArrayListExtra("SelectedUser");
-            if (null != list && list.size() != 0) {
-                mChatDetailController.addMembersToGroup(list);
+
+            switch (requestCode) {
+                case GROUP_NAME_REQUEST_CODE:
+                    mChatDetailView.setGroupName(data.getStringExtra("resultName"));
+                    break;
+                case MY_NAME_REQUEST_CODE:
+                    if (data.getBooleanExtra("returnChatActivity", false)) {
+                        data.putExtra("deleteMsg", mChatDetailController.getDeleteFlag());
+                        data.putExtra(JChatDemoApplication.NAME, mChatDetailController.getName());
+                        setResult(JChatDemoApplication.RESULT_CODE_CHAT_DETAIL, data);
+                        finish();
+                    }
+                    break;
+                case JChatDemoApplication.REQUEST_CODE_ALL_MEMBER:
+                    mChatDetailController.refreshMemberList();
+                    break;
+                //单聊添加人进群
+                case ADD_FRIEND_REQUEST_CODE:
+                    ArrayList<String> list = data.getStringArrayListExtra("SelectedUser");
+                    if (null != list && list.size() != 0) {
+                        mChatDetailController.addMembersToGroup(list);
+                    }
+                    break;
+                case 4://修改群头像
+                    String path = data.getStringExtra("groupAvatarPath");
+                    if (path != null) {
+                        mChatDetailView.setGroupAvatar(new File(path));
+                    }
+                    break;
             }
+
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        mChatDetailController.initData();
+        mChatDetailController.isShowMore();
         if (mChatDetailController.getAdapter() != null) {
             mChatDetailController.getAdapter().notifyDataSetChanged();
+            mChatDetailController.getNoDisturb();
         }
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
     }
 
@@ -252,9 +212,10 @@ public class ChatDetailActivity extends BaseActivity {
     /**
      * 从ContactsActivity中选择朋友加入到群组中
      */
-    public void showContacts() {
+    public void showContacts(Long group) {
         Intent intent = new Intent();
         intent.putExtra(TAG, 1);
+        intent.putExtra("add_friend_group_id", group);
         intent.setClass(this, SelectFriendActivity.class);
         startActivityForResult(intent, ADD_FRIEND_REQUEST_CODE);
     }
@@ -268,14 +229,14 @@ public class ChatDetailActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    public void startChatActivity(long groupID, String groupName) {
+    public void startChatActivity(long groupID, String groupName, int member) {
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         //设置跳转标志
         intent.putExtra("fromGroup", true);
-        intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, 3);
+        intent.putExtra(JChatDemoApplication.MEMBERS_COUNT, member + 1);
         intent.putExtra(JChatDemoApplication.GROUP_ID, groupID);
-        intent.putExtra(JChatDemoApplication.GROUP_NAME, groupName);
+        intent.putExtra(JChatDemoApplication.CONV_TITLE, groupName);
         intent.setClass(this, ChatActivity.class);
         startActivity(intent);
         finish();
@@ -301,8 +262,6 @@ public class ChatDetailActivity extends BaseActivity {
                             public void gotResult(int status, String desc, UserInfo userInfo) {
                                 if (status == 0) {
                                     mChatDetailController.getAdapter().notifyDataSetChanged();
-                                } else {
-                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
@@ -317,10 +276,18 @@ public class ChatDetailActivity extends BaseActivity {
             android.os.Message handleMsg = mUIHandler.obtainMessage();
             handleMsg.what = JChatDemoApplication.ON_GROUP_EVENT;
             Bundle bundle = new Bundle();
-            bundle.putLong(JChatDemoApplication.GROUP_ID, ((GroupInfo)msg.getTargetInfo()).getGroupID());
+            bundle.putLong(JChatDemoApplication.GROUP_ID, ((GroupInfo) msg.getTargetInfo()).getGroupID());
             handleMsg.setData(bundle);
             handleMsg.sendToTarget();
         }
+    }
+
+    public void setGroupName(String groupName) {
+        mGroupName = groupName;
+    }
+
+    public void setGroupDesc(String groupDesc) {
+        mGroupDesc = groupDesc;
     }
 
     private static class UIHandler extends Handler {
@@ -345,5 +312,6 @@ public class ChatDetailActivity extends BaseActivity {
             }
         }
     }
+
 
 }

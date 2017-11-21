@@ -10,8 +10,17 @@ import com.activeandroid.query.Select;
 @Table(name = "friend_recommends", id = "_id")
 public class FriendRecommendEntry extends Model {
 
+    @Column(name = "Uid")
+    public Long uid;
+
     @Column(name = "Username")
     public String username;
+
+    @Column(name = "NoteName")
+    public String noteName;
+
+    @Column(name = "NickName")
+    public String nickName;
 
     @Column(name = "AppKey")
     public String appKey;
@@ -31,20 +40,29 @@ public class FriendRecommendEntry extends Model {
     @Column(name = "User")
     public UserEntry user;
 
+    @Column(name = "BtnState")
+    public int btnState;
+
+
     public FriendRecommendEntry() {
         super();
     }
 
-    public FriendRecommendEntry(String username, String appKey, String avatar,
-                                String displayName, String reason, String state, UserEntry user) {
+
+    public FriendRecommendEntry(Long uid, String username, String noteName, String nickName, String appKey, String avatar,
+                                String displayName, String reason, String state, UserEntry user, int btnState) {
         super();
+        this.uid = uid;
         this.username = username;
+        this.nickName = nickName;
+        this.noteName = noteName;
         this.appKey = appKey;
         this.avatar = avatar;
         this.displayName = displayName;
         this.reason = reason;
         this.state = state;
         this.user = user;
+        this.btnState = btnState;
     }
 
 

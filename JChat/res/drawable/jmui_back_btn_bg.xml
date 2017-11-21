@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <shape>
-            <solid android:color="@color/menu_item_back_pres_color"/>
+            <solid android:color="@color/jmui_jpush_blue"/>
         </shape>
     </item>
 </selector>

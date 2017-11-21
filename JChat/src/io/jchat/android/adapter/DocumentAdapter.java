@@ -1,19 +1,14 @@
 package io.jchat.android.adapter;
 
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ObjectAnimator;
 
 import java.util.List;
 
@@ -133,9 +128,9 @@ public class DocumentAdapter extends BaseAdapter {
 
     private void addAnimation(View view) {
         float[] vaules = new float[]{0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f, 1.25f, 1.2f, 1.15f, 1.1f, 1.0f};
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(ObjectAnimator.ofFloat(view, "scaleX", vaules),
-                ObjectAnimator.ofFloat(view, "scaleY", vaules));
+        android.animation.AnimatorSet set = new android.animation.AnimatorSet();
+        set.playTogether(android.animation.ObjectAnimator.ofFloat(view, "scaleX", vaules),
+                android.animation.ObjectAnimator.ofFloat(view, "scaleY", vaules));
         set.setDuration(150);
         set.start();
     }

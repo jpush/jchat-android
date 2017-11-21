@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import io.jchat.android.R;
 
 public class PlayVideoActivity extends BaseActivity {
-
     private VideoView mPlayVideoVV;
     private MediaController mController;
     private int mCurrentPos;

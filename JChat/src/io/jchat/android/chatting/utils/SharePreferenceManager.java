@@ -25,6 +25,124 @@ public class SharePreferenceManager {
         return null;
     }
 
+
+    private static final String REGISTER_NAME = "register_name";
+
+    public static void setRegisterName(String username) {
+        if (null != sp) {
+            sp.edit().putString(REGISTER_NAME, username).apply();
+        }
+    }
+
+    public static String getRegistrName() {
+        if (null != sp) {
+            return sp.getString(REGISTER_NAME, null);
+        }
+        return null;
+    }
+
+    private static final String REGISTER_PASS = "register_pass";
+
+    public static void setRegistePass(String pass) {
+        if (null != sp) {
+            sp.edit().putString(REGISTER_PASS, pass).apply();
+        }
+    }
+
+    public static String getRegistrPass() {
+        if (null != sp) {
+            return sp.getString(REGISTER_PASS, null);
+        }
+        return null;
+    }
+
+    private static final String ADD_FRIEND_ITEM = "item";
+
+    public static void setItem(Long pass) {
+        if (null != sp) {
+            sp.edit().putLong(ADD_FRIEND_ITEM, pass).apply();
+        }
+    }
+
+    public static Long getItem() {
+        if (null != sp) {
+            return sp.getLong(ADD_FRIEND_ITEM, 0);
+        }
+        return null;
+    }
+
+
+    private static final String KEY_REGISTER_AVATAR_PATH = "jchat_register_avatar_path";
+
+    public static void setRegisterAvatarPath(String path) {
+        if (null != sp) {
+            sp.edit().putString(KEY_REGISTER_AVATAR_PATH, path).apply();
+        }
+    }
+
+    public static String getRegisterAvatarPath() {
+        if (null != sp) {
+            return sp.getString(KEY_REGISTER_AVATAR_PATH, null);
+        }
+        return null;
+    }
+
+    private static final String IS_SHOWCHECK = "isShowCheck";
+
+    public static void setShowCheck(boolean value) {
+        if(null != sp){
+            sp.edit().putBoolean(IS_SHOWCHECK, value).apply();
+        }
+    }
+
+    public static boolean getShowCheck(){
+        return null != sp && sp.getBoolean(IS_SHOWCHECK, false);
+    }
+
+
+    private static final String KEY_CACHED_PSW = "jchat_cached_psw";
+
+    public static void setCachedPsw(String psw) {
+        if (null != sp) {
+            sp.edit().putString(KEY_CACHED_PSW, psw).apply();
+        }
+    }
+
+    public static String getCachedPsw() {
+        if (null != sp) {
+            return sp.getString(KEY_CACHED_PSW, null);
+        }
+        return null;
+    }
+
+    private static final String CONVERSATION_TOP_CANCEL = "conversation_top_cancel";
+
+    public static void setCancelTopSize(int num) {
+        if (null != sp) {
+            sp.edit().putInt(CONVERSATION_TOP_CANCEL, num).apply();
+        }
+    }
+
+    public static int getCancelTopSize() {
+        if (null != sp) {
+            return sp.getInt(CONVERSATION_TOP_CANCEL, 0);
+        }
+        return 0;
+    }
+
+
+    private static final String ISOPEN = "isopen";
+
+    public static void setIsOpen(boolean value) {
+        if(null != sp){
+            sp.edit().putBoolean(ISOPEN, value).apply();
+        }
+    }
+
+    public static boolean getIsOpen(){
+        return null != sp && sp.getBoolean(ISOPEN, false);
+    }
+
     private static final String KEY_CACHED_AVATAR_PATH = "jchat_cached_avatar_path";
 
     public static void setCachedAvatarPath(String path) {

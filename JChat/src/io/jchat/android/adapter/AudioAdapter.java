@@ -11,9 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ObjectAnimator;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +18,11 @@ import io.jchat.android.R;
 import io.jchat.android.activity.AudioFragment;
 import io.jchat.android.entity.FileItem;
 import io.jchat.android.entity.FileType;
-import io.jchat.android.tools.ViewHolder;
 import io.jchat.android.listener.UpdateSelectedStateListener;
+import io.jchat.android.tools.ViewHolder;
 
 
 public class AudioAdapter extends BaseAdapter {
-
     private List<FileItem> mList;
     private AudioFragment mFragment;
     private LayoutInflater mInflater;
@@ -131,9 +127,9 @@ public class AudioAdapter extends BaseAdapter {
 
     private void addAnimation(View view) {
         float[] vaules = new float[]{0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f, 1.25f, 1.2f, 1.15f, 1.1f, 1.0f};
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(ObjectAnimator.ofFloat(view, "scaleX", vaules),
-                ObjectAnimator.ofFloat(view, "scaleY", vaules));
+        android.animation.AnimatorSet set = new android.animation.AnimatorSet();
+        set.playTogether(android.animation.ObjectAnimator.ofFloat(view, "scaleX", vaules),
+                android.animation.ObjectAnimator.ofFloat(view, "scaleY", vaules));
         set.setDuration(150);
         set.start();
     }

@@ -21,8 +21,6 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.chatting.utils.BitmapLoader;
-import io.jchat.android.chatting.utils.HandleResponseCode;
-import io.jchat.android.chatting.CircleImageView;
 
 public class GroupMemberGridAdapter extends BaseAdapter {
 
@@ -34,8 +32,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private boolean mIsCreator = false;
     //群成员个数
     private int mCurrentNum;
-    //记录空白项的数组
-    private int[] mRestArray = new int[]{2, 1, 0, 3};
     //用群成员项数余4得到，作为下标查找mRestArray，得到空白项
     private int mRestNum;
     private static final int MAX_GRID_ITEM = 40;
@@ -44,6 +40,9 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private Context mContext;
     private int mAvatarSize;
     private String mTargetAppKey;
+    private boolean mListType = true;//是否显示全部群成员
+    //记录空白项的数组
+    private int[] mRestArray = new int[] {3, 2, 1, 0, 4};
 
     //群聊
     public GroupMemberGridAdapter(Context context, List<UserInfo> memberList, boolean isCreator,
@@ -55,7 +54,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         mCurrentNum = mMemberList.size();
         this.mIsCreator = isCreator;
         this.mAvatarSize = size;
-        initBlankItem();
+        initBlankItem(mCurrentNum);
     }
 
     //单聊
@@ -66,13 +65,13 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         this.mTargetAppKey = appKey;
     }
 
-    public void initBlankItem() {
+    public void initBlankItem(int size) {
         if (mMemberList.size() > MAX_GRID_ITEM) {
             mCurrentNum = MAX_GRID_ITEM - 1;
         } else {
             mCurrentNum = mMemberList.size();
         }
-        mRestNum = mRestArray[mCurrentNum % 4];
+        mRestNum = mRestArray[mCurrentNum % 5];
     }
 
     public void refreshMemberList() {
@@ -81,24 +80,24 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         } else {
             mCurrentNum = mMemberList.size();
         }
-        mRestNum = mRestArray[mCurrentNum % 4];
+        mRestNum = mRestArray[mCurrentNum % 5];
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
         //如果是普通成员，并且群组成员余4等于3，特殊处理，隐藏下面一栏空白
-        if (mCurrentNum % 4 == 3 && !mIsCreator) {
-            return mCurrentNum + 1;
+        if (mCurrentNum % 5 == 4 && !mIsCreator) {
+            return mCurrentNum > 14 ? 15 : mCurrentNum + 1;
         } else {
-            return mCurrentNum + mRestNum + 2;
+            return mCurrentNum > 13 ? 15 : mCurrentNum + mRestNum + 2;
         }
     }
 
     @Override
     public Object getItem(int position) {
         // TODO Auto-generated method stub
-        return null;
+        return mMemberList.get(position);
     }
 
     @Override
@@ -112,7 +111,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         final ItemViewTag viewTag;
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.item_group, null);
-            viewTag = new ItemViewTag((CircleImageView) convertView.findViewById(R.id.grid_avatar),
+            viewTag = new ItemViewTag((ImageView) convertView.findViewById(R.id.grid_avatar),
                     (TextView) convertView.findViewById(R.id.grid_name),
                     (ImageView) convertView.findViewById(R.id.grid_delete_icon));
             convertView.setTag(viewTag);
@@ -140,7 +139,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                                     viewTag.icon.setImageBitmap(bitmap);
                                 } else {
                                     viewTag.icon.setImageResource(R.drawable.jmui_head_icon);
-                                    HandleResponseCode.onHandle(mContext, status, false);
                                 }
                             }
                         });
@@ -149,12 +147,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                     viewTag.icon.setImageResource(R.drawable.jmui_head_icon);
                 }
 
-                String displayName = userInfo.getNotename();
-                if (TextUtils.isEmpty(displayName)) {
-                    displayName = userInfo.getNickname();
-                } else if (TextUtils.isEmpty(displayName)) {
-                    displayName = userInfo.getUserName();
-                }
+                String displayName = userInfo.getDisplayName();
                 viewTag.name.setText(displayName);
             }
             viewTag.deleteIcon.setVisibility(View.INVISIBLE);
@@ -192,8 +185,6 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                             if (status == 0) {
                                 Log.d(TAG, "Get small avatar success");
                                 viewTag.icon.setImageBitmap(bitmap);
-                            } else {
-                                HandleResponseCode.onHandle(mContext, status, false);
                             }
                         }
                     });
@@ -201,8 +192,9 @@ public class GroupMemberGridAdapter extends BaseAdapter {
                 String displayName = userInfo.getNotename();
                 if (TextUtils.isEmpty(displayName)) {
                     displayName = userInfo.getNickname();
-                } else if (TextUtils.isEmpty(displayName)) {
-                    displayName = userInfo.getUserName();
+                    if (TextUtils.isEmpty(displayName)) {
+                        displayName = userInfo.getUserName();
+                    }
                 }
                 viewTag.name.setText(displayName);
                 viewTag.icon.setVisibility(View.VISIBLE);
@@ -225,11 +217,11 @@ public class GroupMemberGridAdapter extends BaseAdapter {
 
     private static class ItemViewTag {
 
-        private CircleImageView icon;
+        private ImageView icon;
         private ImageView deleteIcon;
         private TextView name;
 
-        public ItemViewTag(CircleImageView icon, TextView name, ImageView deleteIcon) {
+        public ItemViewTag(ImageView icon, TextView name, ImageView deleteIcon) {
             this.icon = icon;
             this.deleteIcon = deleteIcon;
             this.name = name;

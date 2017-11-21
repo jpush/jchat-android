@@ -1,90 +1,81 @@
 package io.jchat.android.activity;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
-import io.jchat.android.R;
+
 import cn.jpush.im.android.api.JMessageClient;
-import io.jchat.android.chatting.utils.HandleResponseCode;
 import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.R;
+import io.jchat.android.model.CommonUtils;
+import io.jchat.android.tools.ToastUtil;
 
 public class ResetPasswordActivity extends BaseActivity {
 
-    private ImageButton mReturnBtn;
-    private TextView mTitle;
-    private ImageButton mMenuBtn;
-    private EditText mNewPwdEt;
-    private EditText mConfirmPwdEt;
-    private Button mCommit;
-    private Context mContext;
+    private EditText mOld_password;
+    private EditText mNew_password;
+    private EditText mRe_newPassword;
+    private Button mBtn_sure;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
 
-        mContext = this;
-        mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
-        mTitle = (TextView) findViewById(R.id.title);
-        mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
-        mNewPwdEt = (EditText) findViewById(R.id.new_password_et);
-        mConfirmPwdEt = (EditText) findViewById(R.id.confirm_password_et);
-        mCommit = (Button) findViewById(R.id.jmui_commit_btn);
+        initView();
+        initData();
 
-        mTitle.setText(this.getString(R.string.change_password));
-        mMenuBtn.setVisibility(View.GONE);
-        mReturnBtn.setOnClickListener(listener);
-        mCommit.setOnClickListener(listener);
     }
 
-    private View.OnClickListener listener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()){
-                case R.id.return_btn:
-                    finish();
-                    break;
-                case R.id.jmui_commit_btn:
-                    String newPwd = mNewPwdEt.getText().toString().trim();
-                    String confirmPwd = mConfirmPwdEt.getText().toString().trim();
-                    if (TextUtils.isEmpty(newPwd) || TextUtils.isEmpty(confirmPwd)) {
-                        Toast.makeText(mContext, mContext.getString(R.string.password_not_null_toast), Toast.LENGTH_SHORT).show();
-                    }else {
-                        if (newPwd.equals(confirmPwd)) {
-                            if (JMessageClient.isCurrentUserPasswordValid(newPwd)) {
-                                Toast.makeText(mContext, mContext.getString(R.string.password_same_to_previous),
-                                        Toast.LENGTH_SHORT).show();
-                                return;
+    private void initView() {
+        initTitle(true, true, "修改密码", "", false, "保存");
+        mOld_password = (EditText) findViewById(R.id.old_password);
+        mNew_password = (EditText) findViewById(R.id.new_password);
+        mRe_newPassword = (EditText) findViewById(R.id.re_newPassword);
+        mBtn_sure = (Button) findViewById(R.id.btn_sure);
+    }
+
+    private void initData() {
+        mBtn_sure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String oldPsw = mOld_password.getText().toString().trim();
+                String newPsw = mNew_password.getText().toString().trim();
+                String reNewPsw = mRe_newPassword.getText().toString().trim();
+
+                boolean passwordValid = JMessageClient.isCurrentUserPasswordValid(oldPsw);
+                if (passwordValid) {
+                    if (newPsw.equals(reNewPsw)) {
+                        final ProgressDialog dialog = new ProgressDialog(ResetPasswordActivity.this);
+                        dialog.setMessage(getString(R.string.modifying_hint));
+                        dialog.show();
+                        JMessageClient.updateUserPassword(oldPsw, newPsw, new BasicCallback() {
+                            @Override
+                            public void gotResult(int responseCode, String responseMessage) {
+                                dialog.dismiss();
+                                if (responseCode == 0) {
+                                    ToastUtil.shortToast(ResetPasswordActivity.this, "修改成功");
+                                }else {
+                                    ToastUtil.shortToast(ResetPasswordActivity.this, "修改失败, 新密码要在4-128字节之间");
+                                }
                             }
-                            final ProgressDialog dialog = new ProgressDialog(mContext);
-                            dialog.setMessage(mContext.getString(R.string.modifying_hint));
-                            dialog.show();
-                            JMessageClient.updateUserPassword(getIntent().getStringExtra("oldPassword"),
-                                    newPwd, new BasicCallback() {
-                                        @Override
-                                        public void gotResult(final int status, final String desc) {
-                                            dialog.dismiss();
-                                            if (status == 0) {
-                                                finish();
-                                            } else {
-                                                HandleResponseCode.onHandle(mContext, status, false);
-                                            }
-                                        }
-                                    });
-                        }
-                        else Toast.makeText(mContext, mContext.getString(R.string.password_not_match_toast),
-                                Toast.LENGTH_SHORT).show();
+                        });
+                    } else {
+                        ToastUtil.shortToast(ResetPasswordActivity.this, "两次输入不相同");
                     }
-                    break;
+                } else {
+                    ToastUtil.shortToast(ResetPasswordActivity.this, "原密码不正确");
+                }
             }
-        }
-    };
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        CommonUtils.hideKeyboard(this);
+    }
 
 }

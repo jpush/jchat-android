@@ -1,78 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@drawable/drop_down_menu_bg"
-    >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="145dp"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_height="match_parent"
+        android:layout_marginRight="6.33dp"
+        android:layout_marginTop="2.67dp"
+        android:gravity="center_vertical"
         android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/create_group_ll"
-        android:clickable="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="30dp"
-        android:background="@drawable/menu_bg">
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#d8e3f5"
-        android:textSize="@dimen/text_medium_size"
-        android:text="@string/create_group"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/add_friend_direct_ll"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:layout_marginTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="30dp"
-        android:background="@drawable/menu_bg">
-
-
-        <TextView
+        <LinearLayout
+            android:id="@+id/send_message_ll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#d8e3f5"
-            android:textSize="@dimen/text_medium_size"
-            android:text="@string/add_friend_without_confirm"/>
+            android:background="@drawable/launch_single"
+            android:gravity="center">
 
-    </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/add_friend_with_confirm_ll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:layout_marginTop="10dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="30dp"
-            android:background="@drawable/menu_bg">
-
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:src="@drawable/create_singel"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#d8e3f5"
-                android:textSize="@dimen/text_medium_size"
-                android:text="@string/add_friend"/>
-
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="2dp"
+                android:text="发起单聊"
+                android:textColor="#fff"
+                android:textSize="16sp"/>
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/create_group_ll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/launch_group"
+            android:gravity="center">
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/create_group"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="12dp"
+                android:text="发起群聊"
+                android:textColor="#fff"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/add_friend_with_confirm_ll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/launch_friend"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/add_friend"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="12dp"
+                android:text="添加好友"
+                android:textColor="#fff"
+                android:textSize="16sp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_saoYiSao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/launch_friend"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/sys"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="12dp"
+                android:text="扫一扫    "
+                android:textColor="#fff"
+                android:textSize="16sp"/>
+        </LinearLayout>
     </LinearLayout>
 
-</FrameLayout>
+
+</LinearLayout>

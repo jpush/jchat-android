@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">极光IM</string>
+    <string name="app_name">JChat</string>
     <string name="username_hit">用户名</string>
     <string name="password_hit">用户密码</string>
     <!-- ReLogin/login/register界面中使用到的字符串 -->
@@ -20,6 +20,35 @@
     <string name="password_not_null_toast">密码不能为空</string>
     <string name="password_length_illegal">密码长度要在4\-128个字节之间</string>
     <string name="password_same_to_previous">不能和原密码相同，请输入新密码</string>
+    <string name="all_images">全部图片</string>
+    <string name="preview_image_count">%1$s/%2$s</string>
+    <string name="select_limit">最多选择%1$s张图片</string>
+    <string name="select_send">完成(%1$s/%2$s)</string>
+    <string name="origin_size">原图(%1$s)</string>
+    <string name="btn_text_speak">按住录音</string>
+    <string name="btn_send">发送</string>
+    <color name="btn_send_textcolor">@color/white</color>
+    <string name="unknow_size">未知大小</string>
+    <string name="picker_image_error">获取图片出错</string>
+    <string name="scan_qrcode_hint">将取景框对准二维码，即可自动扫描</string>
+    <string name="scan_qrcode_title">返回</string>
+    <string name="save_to_device">保存到手机</string>
+    <string name="picture_save_fail">图片保存失败</string>
+    <string name="picture_save_to">图片已保存到手机</string>
+    <string name="picker_internalerror">发生错误</string>
+    <string name="gallery_invalid">未找到图库</string>
+    <string name="sdcard_not_enough_head_error">SD卡被拔出或存储空间不足</string>
+    <string name="sdcard_not_enough_error">存储空间不足</string>
+    <string name="picker_image_folder_info">共%d张</string>
+    <string name="picker_image_preview">预览</string>
+    <string name="picker_image_album_loading">相册加载中…</string>
+    <string name="picker_image_album_empty">相册中没有图片！</string>
+    <string name="picker_image_folder">相机胶卷</string>
+    <string name="picker_image_exceed_max_image_select">最多选择%d张图片！</string>
+    <string name="picker_image_send_select">发送（%d）</string>
+    <string name="picker_image_preview_original">发送原图</string>
+    <string name="picker_image_preview_original_select">发送原图（%s）</string>
+
 
     <!-- fixProfile界面中使用到的字符串 -->
     <string name="nickname_hit">昵称</string>
@@ -107,6 +136,8 @@
     <string name="type_voice">[语音]</string>
     <string name="type_location">[位置]</string>
     <string name="type_file">[文件]</string>
+    <string name="type_smallvideo">[小视频]</string>
+
     <string name="type_video">[视频]</string>
     <string name="send_location">发送地理位置</string>
     <string name="permission_should_allow">请允许使用位置权限，否则无法发送位置消息</string>
@@ -262,6 +293,19 @@
     <string name="friend_info">好友信息</string>
     <string name="group">群聊</string>
     <string name="unnamed">未命名</string>
+    <string name="undesc">无描述</string>
+    <string name="pickerview_cancel">取消</string>
+    <string name="pickerview_submit">确定</string>
+    <string name="pickerview_year">年</string>
+    <string name="pickerview_month">月</string>
+    <string name="pickerview_day">日</string>
+    <string name="pickerview_hours">时</string>
+    <string name="pickerview_minutes">分</string>
+    <string name="pickerview_seconds">秒</string>
+    <string name="ac_search_no_result_pre">没有搜到</string>
+    <string name="ac_search_no_result_suffix">相关的信息</string>
+    <string name="already_select">已选</string>
+
     <string name="added">已添加</string>
     <string name="chat_peoples_num">目前已有1名参与人</string>
     <string name="chat_detail_add">添加</string>

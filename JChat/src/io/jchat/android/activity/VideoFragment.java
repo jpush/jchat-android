@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ import io.jchat.android.entity.FileItem;
 import io.jchat.android.view.SendVideoView;
 
 public class VideoFragment extends BaseFragment {
+
 
     private Activity mContext;
     private View mRootView;
@@ -51,7 +53,6 @@ public class VideoFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
         ViewGroup p = (ViewGroup) mRootView.getParent();
         if (p != null) {
             p.removeAllViewsInLayout();
@@ -69,32 +70,61 @@ public class VideoFragment extends BaseFragment {
             @Override
             public void run() {
                 ContentResolver contentResolver = mContext.getContentResolver();
-                String[] projection = new String[]{MediaStore.Video.VideoColumns.DATA,
+                String[] projection = new String[] {MediaStore.Video.VideoColumns.DATA,
                         MediaStore.Video.VideoColumns.DISPLAY_NAME, MediaStore.Video.VideoColumns.SIZE,
                         MediaStore.Video.VideoColumns.DATE_MODIFIED};
+                try {
+                    String selection = MediaStore.Audio.AudioColumns.MIME_TYPE + "= ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                            + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? ";
 
-                Cursor cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection,
-                        null, null, MediaStore.Video.VideoColumns.DATE_MODIFIED + " desc");
+                    //类型是在http://qd5.iteye.com/blog/1564040找的
+                    String[] selectionArgs = new String[] {
+                            "video/quicktime", "video/mp4", "application/vnd.rn-realmedia", "aapplication/vnd.rn-realmedia",
+                            "video/x-ms-wmv", "video/x-msvideo", "video/3gpp", "video/x-matroska"};
 
-                if (cursor != null) {
-                    while (cursor.moveToNext()) {
-                        String fileName = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DISPLAY_NAME));
-                        String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATA));
-                        String size = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.SIZE));
-                        String date = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATE_MODIFIED));
+                    Cursor cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection,
+                            selection, selectionArgs, MediaStore.Video.VideoColumns.DATE_MODIFIED + " desc");
 
-                        FileItem fileItem = new FileItem(filePath, fileName, size, date);
-                        mVideos.add(fileItem);
+                    if (cursor != null) {
+                        while (cursor.moveToNext()) {
+                            String fileName = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DISPLAY_NAME));
+                            String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATA));
+                            String size = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.SIZE));
+                            String date = cursor.getString(cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATE_MODIFIED));
+                            if (scannerFile(filePath)) {
+                                FileItem fileItem = new FileItem(filePath, fileName, size, date,0);
+                                mVideos.add(fileItem);
+                            }
+                        }
+                        cursor.close();
+                        cursor = null;
+                        myHandler.sendEmptyMessage(SCAN_OK);
+                    } else {
+                        myHandler.sendEmptyMessage(SCAN_ERROR);
                     }
-                    cursor.close();
-                    cursor = null;
-                    myHandler.sendEmptyMessage(SCAN_OK);
-                } else {
-                    myHandler.sendEmptyMessage(SCAN_ERROR);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }).start();
 
+    }
+
+    private File file;
+
+    private boolean scannerFile(String path) {
+        file = new File(path);
+        if (file.exists() && file.length() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void setController(SendFileController controller) {

@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ import io.jchat.android.entity.FileItem;
 import io.jchat.android.view.SendOtherView;
 
 public class OtherFragment extends BaseFragment {
+
 
     private Activity mContext;
     private View mRootView;
@@ -52,7 +54,6 @@ public class OtherFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
         ViewGroup p = (ViewGroup) mRootView.getParent();
         if (p != null) {
             p.removeAllViewsInLayout();
@@ -91,9 +92,10 @@ public class OtherFragment extends BaseFragment {
                         String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE));
                         String date = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED));
-                        FileItem fileItem = new FileItem(filePath, fileName, size, date);
-
-                        mOthers.add(fileItem);
+                        if (scannerFile(filePath)) {
+                            FileItem fileItem = new FileItem(filePath, fileName, size, date,0);
+                            mOthers.add(fileItem);
+                        }
 
                     }
                     cursor.close();
@@ -105,6 +107,17 @@ public class OtherFragment extends BaseFragment {
             }
         }).start();
 
+    }
+
+    private File file;
+
+    private boolean scannerFile(String path) {
+        file = new File(path);
+        if (file.exists() && file.length() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void setController(SendFileController controller) {

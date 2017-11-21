@@ -4,15 +4,18 @@ package io.jchat.android.chatting;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -24,25 +27,33 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.LocationContent;
-import cn.jpush.im.android.api.content.MessageContent;
+import cn.jpush.im.android.api.content.PromptContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ContentType;
@@ -52,23 +63,31 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.R;
 import io.jchat.android.activity.BrowserViewPagerActivity;
-import io.jchat.android.activity.SendLocationActivity;
+import io.jchat.android.activity.DownLoadActivity;
+import io.jchat.android.activity.FriendInfoActivity;
+import io.jchat.android.activity.GroupNotFriendActivity;
+import io.jchat.android.activity.MapPickerActivity;
+import io.jchat.android.adapter.ChattingListAdapter;
+import io.jchat.android.adapter.ChattingListAdapter.ViewHolder;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.FileHelper;
 import io.jchat.android.chatting.utils.HandleResponseCode;
-import io.jchat.android.chatting.utils.IdHelper;
-import io.jchat.android.chatting.MsgListAdapter.ViewHolder;
-import io.jchat.android.entity.FileType;
+import io.jchat.android.tools.BitmapDecoder;
+import io.jchat.android.tools.FileUtils;
+import io.jchat.android.tools.SimpleCommonUtils;
+import io.jchat.android.tools.ToastUtil;
 
 public class ChatItemController {
 
-    private MsgListAdapter mAdapter;
-    private Context mContext;
+    private ChattingListAdapter mAdapter;
+    private Activity mContext;
     private Conversation mConv;
     private List<Message> mMsgList;
-    private MsgListAdapter.ContentLongClickListener mLongClickListener;
+    private ChattingListAdapter.ContentLongClickListener mLongClickListener;
     private float mDensity;
     public Animation mSendingAnim;
     private boolean mSetData = false;
@@ -84,9 +103,10 @@ public class ChatItemController {
     private int mSendMsgId;
     private Queue<Message> mMsgQueue = new LinkedList<Message>();
     private UserInfo mUserInfo;
+    private Map<Integer, UserInfo> mUserInfoMap = new HashMap<>();
 
-    public ChatItemController(MsgListAdapter adapter, Context context, Conversation conv, List<Message> msgList,
-                              float density, MsgListAdapter.ContentLongClickListener longClickListener) {
+    public ChatItemController(ChattingListAdapter adapter, Activity context, Conversation conv, List<Message> msgList,
+                              float density, ChattingListAdapter.ContentLongClickListener longClickListener) {
         this.mAdapter = adapter;
         this.mContext = context;
         this.mConv = conv;
@@ -96,7 +116,7 @@ public class ChatItemController {
         this.mMsgList = msgList;
         this.mLongClickListener = longClickListener;
         this.mDensity = density;
-        mSendingAnim = AnimationUtils.loadAnimation(mContext, IdHelper.getAnim(mContext, "jmui_rotate"));
+        mSendingAnim = AnimationUtils.loadAnimation(mContext, R.anim.jmui_rotate);
         LinearInterpolator lin = new LinearInterpolator();
         mSendingAnim.setInterpolator(lin);
 
@@ -118,8 +138,151 @@ public class ChatItemController {
         });
     }
 
+    public void handleBusinessCard(final Message msg, final ViewHolder holder, int position) {
+        final TextContent[] textContent = {(TextContent) msg.getContent()};
+        final String[] mUserName = {textContent[0].getStringExtra("userName")};
+        final String mAppKey = textContent[0].getStringExtra("appKey");
+        holder.ll_businessCard.setTag(position);
+        int key = (mUserName[0] + mAppKey).hashCode();
+        UserInfo userInfo = mUserInfoMap.get(key);
+        if (userInfo != null) {
+            String name = userInfo.getNickname();
+            //如果没有昵称,名片上面的位置显示用户名
+            //如果有昵称,上面显示昵称,下面显示用户名
+            if (TextUtils.isEmpty(name)) {
+                holder.tv_userName.setText("");
+                holder.tv_nickUser.setText(mUserName[0]);
+            } else {
+                holder.tv_nickUser.setText(name);
+                holder.tv_userName.setText("用户名: " + mUserName[0]);
+            }
+            if (userInfo.getAvatarFile() != null) {
+                holder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
+            } else {
+                holder.business_head.setImageResource(R.drawable.jmui_head_icon);
+            }
+        } else {
+            JMessageClient.getUserInfo(mUserName[0], mAppKey, new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int i, String s, UserInfo userInfo) {
+                    if (i == 0) {
+                        mUserInfoMap.put((mUserName[0] + mAppKey).hashCode(), userInfo);
+                        String name = userInfo.getNickname();
+                        //如果没有昵称,名片上面的位置显示用户名
+                        //如果有昵称,上面显示昵称,下面显示用户名
+                        if (TextUtils.isEmpty(name)) {
+                            holder.tv_userName.setText("");
+                            holder.tv_nickUser.setText(mUserName[0]);
+                        } else {
+                            holder.tv_nickUser.setText(name);
+                            holder.tv_userName.setText("用户名: " + mUserName[0]);
+                        }
+                        if (userInfo.getAvatarFile() != null) {
+                            holder.business_head.setImageBitmap(BitmapFactory.decodeFile(userInfo.getAvatarFile().getAbsolutePath()));
+                        } else {
+                            holder.business_head.setImageResource(R.drawable.jmui_head_icon);
+                        }
+                    } else {
+                        HandleResponseCode.onHandle(mContext, i, false);
+                    }
+                }
+            });
+        }
+
+        holder.ll_businessCard.setOnLongClickListener(mLongClickListener);
+        holder.ll_businessCard.setOnClickListener(new BusinessCard(mUserName[0], mAppKey, holder));
+        if (msg.getDirect() == MessageDirect.send) {
+            switch (msg.getStatus()) {
+                case created:
+                    if (null != mUserInfo) {
+                        holder.sendingIv.setVisibility(View.GONE);
+                        holder.resend.setVisibility(View.VISIBLE);
+                        holder.text_receipt.setVisibility(View.GONE);
+                    }
+                    break;
+                case send_success:
+                    holder.text_receipt.setVisibility(View.VISIBLE);
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.GONE);
+                    break;
+                case send_fail:
+                    holder.text_receipt.setVisibility(View.GONE);
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.VISIBLE);
+                    break;
+                case send_going:
+                    sendingTextOrVoice(holder, msg);
+                    break;
+            }
+        } else {
+            if (mConv.getType() == ConversationType.group) {
+                if (msg.isAtMe()) {
+                    mConv.updateMessageExtra(msg, "isRead", true);
+                }
+                if (msg.isAtAll()) {
+                    mConv.updateMessageExtra(msg, "isReadAtAll", true);
+                }
+                holder.displayName.setVisibility(View.VISIBLE);
+                if (TextUtils.isEmpty(msg.getFromUser().getNickname())) {
+                    holder.displayName.setText(msg.getFromUser().getUserName());
+                } else {
+                    holder.displayName.setText(msg.getFromUser().getNickname());
+                }
+            }
+        }
+        if (holder.resend != null) {
+            holder.resend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAdapter.showResendDialog(holder, msg);
+                }
+            });
+        }
+    }
+
+    private class BusinessCard implements View.OnClickListener {
+        private String userName;
+        private String appKey;
+        private ViewHolder mHolder;
+
+        public BusinessCard(String name, String appKey, ViewHolder holder) {
+            this.userName = name;
+            this.appKey = appKey;
+            this.mHolder = holder;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mHolder.ll_businessCard != null && v.getId() == mHolder.ll_businessCard.getId()) {
+                JMessageClient.getUserInfo(userName, new GetUserInfoCallback() {
+                    @Override
+                    public void gotResult(int i, String s, UserInfo userInfo) {
+                        Intent intent = new Intent();
+                        if (i == 0) {
+                            if (userInfo.isFriend()) {
+                                intent.setClass(mContext, FriendInfoActivity.class);
+                            } else {
+                                intent.setClass(mContext, GroupNotFriendActivity.class);
+                            }
+                            intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, appKey);
+                            intent.putExtra(JChatDemoApplication.TARGET_ID, userName);
+                            intent.putExtra("fromSearch", true);
+                            mContext.startActivity(intent);
+                        }else {
+                            ToastUtil.shortToast(mContext, "获取信息失败,稍后重试");
+                        }
+                    }
+                });
+            }
+
+        }
+    }
+
     public void handleTextMsg(final Message msg, final ViewHolder holder, int position) {
         final String content = ((TextContent) msg.getContent()).getText();
+        SimpleCommonUtils.spannableEmoticonFilter(holder.txtContent, content);
         holder.txtContent.setText(content);
         holder.txtContent.setTag(position);
         holder.txtContent.setOnLongClickListener(mLongClickListener);
@@ -127,17 +290,20 @@ public class ChatItemController {
         if (msg.getDirect() == MessageDirect.send) {
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                    if (null != mUserInfo) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
+                        holder.text_receipt.setVisibility(View.GONE);
                     }
                     break;
                 case send_success:
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
@@ -152,6 +318,9 @@ public class ChatItemController {
             if (mConv.getType() == ConversationType.group) {
                 if (msg.isAtMe()) {
                     mConv.updateMessageExtra(msg, "isRead", true);
+                }
+                if (msg.isAtAll()) {
+                    mConv.updateMessageExtra(msg, "isReadAtAll", true);
                 }
                 holder.displayName.setVisibility(View.VISIBLE);
                 if (TextUtils.isEmpty(msg.getFromUser().getNickname())) {
@@ -175,24 +344,27 @@ public class ChatItemController {
     // 处理图片
     public void handleImgMsg(final Message msg, final ViewHolder holder, final int position) {
         final ImageContent imgContent = (ImageContent) msg.getContent();
+        final String jiguang = imgContent.getStringExtra("jiguang");
         // 先拿本地缩略图
         final String path = imgContent.getLocalThumbnailPath();
+        if (path == null) {
+            //从服务器上拿缩略图
+            imgContent.downloadThumbnailImage(msg, new DownloadCompletionCallback() {
+                @Override
+                public void onComplete(int status, String desc, File file) {
+                    if (status == 0) {
+                        ImageView imageView = setPictureScale(jiguang, msg, file.getPath(), holder.picture);
+                        Picasso.with(mContext).load(file).into(imageView);
+                    }
+                }
+            });
+        } else {
+            ImageView imageView = setPictureScale(jiguang, msg, path, holder.picture);
+            Picasso.with(mContext).load(new File(path)).into(imageView);
+        }
+
         // 接收图片
         if (msg.getDirect() == MessageDirect.receive) {
-            if (path == null) {
-                //从服务器上拿缩略图
-                imgContent.downloadThumbnailImage(msg, new DownloadCompletionCallback() {
-                    @Override
-                    public void onComplete(int status, String desc, File file) {
-                        if (status == 0) {
-                            Picasso.with(mContext).load(file).into(holder.picture);
-                        }
-                    }
-                });
-            } else {
-                setPictureScale(path, holder.picture);
-                Picasso.with(mContext).load(new File(path)).into(holder.picture);
-            }
             //群聊中显示昵称
             if (mConv.getType() == ConversationType.group) {
                 holder.displayName.setVisibility(View.VISIBLE);
@@ -205,45 +377,71 @@ public class ChatItemController {
 
             switch (msg.getStatus()) {
                 case receive_fail:
-                    holder.picture.setImageResource(IdHelper.getDrawable(mContext, "jmui_fetch_failed"));
+                    holder.picture.setImageResource(R.drawable.jmui_fetch_failed);
+                    holder.resend.setVisibility(View.VISIBLE);
+                    holder.resend.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            imgContent.downloadOriginImage(msg, new DownloadCompletionCallback() {
+                                @Override
+                                public void onComplete(int i, String s, File file) {
+                                    if (i == 0) {
+                                        ToastUtil.shortToast(mContext, "下载成功");
+                                        holder.sendingIv.setVisibility(View.GONE);
+                                        mAdapter.notifyDataSetChanged();
+                                    } else {
+                                        ToastUtil.shortToast(mContext, "下载失败" + s);
+                                    }
+                                }
+                            });
+                        }
+                    });
                     break;
                 default:
             }
             // 发送图片方，直接加载缩略图
         } else {
-            try {
-                setPictureScale(path, holder.picture);
-                Picasso.with(mContext).load(new File(path)).into(holder.picture);
-            } catch (NullPointerException e) {
-                Picasso.with(mContext).load(IdHelper.getDrawable(mContext, "jmui_picture_not_found"))
-                        .into(holder.picture);
-            }
+//            try {
+//                setPictureScale(path, holder.picture);
+//                Picasso.with(mContext).load(new File(path)).into(holder.picture);
+//            } catch (NullPointerException e) {
+//                Picasso.with(mContext).load(IdHelper.getDrawable(mContext, "jmui_picture_not_found"))
+//                        .into(holder.picture);
+//            }
             //检查状态
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo && !mUserInfo.isFriend()) {
-                        holder.sendingIv.setVisibility(View.GONE);
-                        holder.resend.setVisibility(View.VISIBLE);
-                    } else {
-                        holder.sendingIv.setVisibility(View.VISIBLE);
-                        holder.resend.setVisibility(View.GONE);
-                    }
+                    holder.picture.setEnabled(false);
+                    holder.resend.setEnabled(false);
+                    holder.text_receipt.setVisibility(View.GONE);
+                    holder.sendingIv.setVisibility(View.VISIBLE);
+                    holder.resend.setVisibility(View.GONE);
+                    holder.progressTv.setText("0%");
                     break;
                 case send_success:
+                    holder.picture.setEnabled(true);
                     holder.sendingIv.clearAnimation();
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.picture.setAlpha(1.0f);
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
+                    holder.resend.setEnabled(true);
+                    holder.picture.setEnabled(true);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.picture.setAlpha(1.0f);
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
+                    holder.picture.setEnabled(false);
+                    holder.resend.setEnabled(false);
+                    holder.text_receipt.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.GONE);
                     sendingImage(msg, holder);
                     break;
                 default:
@@ -257,7 +455,9 @@ public class ChatItemController {
                     if (!mMsgQueue.isEmpty()) {
                         Message message = mMsgQueue.element();
                         if (message.getId() == msg.getId()) {
-                            JMessageClient.sendMessage(message);
+                            MessageSendingOptions options = new MessageSendingOptions();
+                            options.setNeedReadReceipt(true);
+                            JMessageClient.sendMessage(message, options);
                             mSendMsgId = message.getId();
                             sendingImage(message, holder);
                         }
@@ -271,7 +471,7 @@ public class ChatItemController {
             holder.picture.setOnLongClickListener(mLongClickListener);
 
         }
-        if (holder.resend != null) {
+        if (msg.getDirect().equals(MessageDirect.send) && holder.resend != null) {
             holder.resend.setOnClickListener(new View.OnClickListener() {
 
                 @Override
@@ -307,7 +507,9 @@ public class ChatItemController {
                         mMsgQueue.poll();
                         if (!mMsgQueue.isEmpty()) {
                             Message nextMsg = mMsgQueue.element();
-                            JMessageClient.sendMessage(nextMsg);
+                            MessageSendingOptions options = new MessageSendingOptions();
+                            options.setNeedReadReceipt(true);
+                            JMessageClient.sendMessage(nextMsg, options);
                             mSendMsgId = nextMsg.getId();
                         }
                     }
@@ -321,7 +523,6 @@ public class ChatItemController {
                         Message customMsg = mConv.createSendMessage(customContent);
                         mAdapter.addMsgToList(customMsg);
                     } else if (status != 0) {
-                        HandleResponseCode.onHandle(mContext, status, false);
                         holder.resend.setVisibility(View.VISIBLE);
                     }
 
@@ -338,30 +539,32 @@ public class ChatItemController {
         final VoiceContent content = (VoiceContent) msg.getContent();
         final MessageDirect msgDirect = msg.getDirect();
         int length = content.getDuration();
-        String lengthStr = length + mContext.getString(IdHelper.getString(mContext, "jmui_symbol_second"));
+        String lengthStr = length + mContext.getString(R.string.jmui_symbol_second);
         holder.voiceLength.setText(lengthStr);
         //控制语音长度显示，长度增幅随语音长度逐渐缩小
         int width = (int) (-0.04 * length * length + 4.526 * length + 75.214);
         holder.txtContent.setWidth((int) (width * mDensity));
+        //要设置这个position
         holder.txtContent.setTag(position);
         holder.txtContent.setOnLongClickListener(mLongClickListener);
         if (msgDirect == MessageDirect.send) {
-            holder.voice.setImageResource(IdHelper.getDrawable(mContext, "jmui_send_3"));
+            holder.voice.setImageResource(R.drawable.send_3);
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo && !mUserInfo.isFriend()) {
-                        holder.sendingIv.setVisibility(View.GONE);
-                        holder.resend.setVisibility(View.VISIBLE);
-                    }
+                    holder.sendingIv.setVisibility(View.VISIBLE);
+                    holder.resend.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.GONE);
                     break;
                 case send_success:
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     break;
                 case send_fail:
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
                 case send_going:
@@ -379,7 +582,7 @@ public class ChatItemController {
                         holder.displayName.setText(msg.getFromUser().getNickname());
                     }
                 }
-                holder.voice.setImageResource(IdHelper.getDrawable(mContext, "jmui_receive_3"));
+                holder.voice.setImageResource(R.drawable.jmui_receive_3);
                 // 收到语音，设置未读
                 if (msg.getContent().getBooleanExtra("isRead") == null
                         || !msg.getContent().getBooleanExtra("isRead")) {
@@ -400,19 +603,13 @@ public class ChatItemController {
                 }
                 break;
             case receive_fail:
-                holder.voice.setImageResource(IdHelper.getDrawable(mContext, "jmui_receive_3"));
+                holder.voice.setImageResource(R.drawable.jmui_receive_3);
                 // 接收失败，从服务器上下载
                 content.downloadVoiceFile(msg,
                         new DownloadCompletionCallback() {
                             @Override
                             public void onComplete(int status, String desc, File file) {
-                                if (status != 0) {
-                                    Toast.makeText(mContext, IdHelper.getString(mContext,
-                                            "jmui_voice_fetch_failed_toast"),
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Log.i("VoiceMessage", "reload success");
-                                }
+
                             }
                         });
                 break;
@@ -428,9 +625,7 @@ public class ChatItemController {
                     if (msg.getContent() != null) {
                         mAdapter.showResendDialog(holder, msg);
                     } else {
-                        Toast.makeText(mContext, mContext.getString(IdHelper.getString(mContext,
-                                "jmui_sdcard_not_exist_toast")),
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, R.string.jmui_sdcard_not_exist_toast, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -439,7 +634,7 @@ public class ChatItemController {
     }
 
     public void handleLocationMsg(final Message msg, final ViewHolder holder, int position) {
-        LocationContent content = (LocationContent) msg.getContent();
+        final LocationContent content = (LocationContent) msg.getContent();
         String path = content.getStringExtra("path");
 
         holder.location.setText(content.getAddress());
@@ -448,7 +643,21 @@ public class ChatItemController {
                 case receive_going:
                     break;
                 case receive_success:
-
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Bitmap locationBitmap = createLocationBitmap(content.getLongitude(), content.getLatitude());
+                            if (locationBitmap != null) {
+                                mContext.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        holder.locationView.setVisibility(View.VISIBLE);
+                                        holder.picture.setImageBitmap(locationBitmap);
+                                    }
+                                });
+                            }
+                        }
+                    }).start();
                     break;
                 case receive_fail:
                     break;
@@ -466,7 +675,8 @@ public class ChatItemController {
             }
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                    holder.text_receipt.setVisibility(View.GONE);
+                    if (null != mUserInfo/* && !mUserInfo.isFriend()*/) {
                         holder.sendingIv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
                     } else {
@@ -478,12 +688,14 @@ public class ChatItemController {
                     sendingTextOrVoice(holder, msg);
                     break;
                 case send_success:
+                    holder.text_receipt.setVisibility(View.VISIBLE);
                     holder.sendingIv.clearAnimation();
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
                     holder.sendingIv.clearAnimation();
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.sendingIv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
@@ -503,20 +715,41 @@ public class ChatItemController {
                     if (msg.getContent() != null) {
                         mAdapter.showResendDialog(holder, msg);
                     } else {
-                        Toast.makeText(mContext, mContext.getString(IdHelper.getString(mContext,
-                                "jmui_sdcard_not_exist_toast")),
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, R.string.jmui_sdcard_not_exist_toast, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         }
     }
 
+    //位置消息接收方根据百度api生成位置周围图片
+    private Bitmap createLocationBitmap(Number longitude, Number latitude) {
+        String mapUrl = "http://api.map.baidu.com/staticimage?width=160&height=90&center="
+                + longitude + "," + latitude + "&zoom=18";
+        try {
+            URL url = new URL(mapUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setDoOutput(false);
+            conn.setDoInput(true);
+            conn.setConnectTimeout(5000);
+            conn.connect();
+            if (conn.getResponseCode() == 200) {
+                InputStream inputStream = conn.getInputStream();
+                return BitmapFactory.decodeStream(inputStream);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     //正在发送文字或语音
-    private void sendingTextOrVoice(final ViewHolder holder, Message msg) {
+    private void sendingTextOrVoice(final ViewHolder holder, final Message msg) {
+        holder.text_receipt.setVisibility(View.GONE);
+        holder.resend.setVisibility(View.GONE);
         holder.sendingIv.setVisibility(View.VISIBLE);
         holder.sendingIv.startAnimation(mSendingAnim);
-        holder.resend.setVisibility(View.GONE);
         //消息正在发送，重新注册一个监听消息发送完成的Callback
         if (!msg.isSendCompleteCallbackExists()) {
             msg.setOnSendCompleteCallback(new BasicCallback() {
@@ -529,38 +762,169 @@ public class ChatItemController {
                         customContent.setBooleanValue("blackList", true);
                         Message customMsg = mConv.createSendMessage(customContent);
                         mAdapter.addMsgToList(customMsg);
-                    } else if (status != 0) {
-                        HandleResponseCode.onHandle(mContext, status, false);
+                    } else if (status == 803005) {
                         holder.resend.setVisibility(View.VISIBLE);
+                        ToastUtil.shortToast(mContext, "发送失败, 你不在该群组中");
+                    } else if (status != 0) {
+                        holder.resend.setVisibility(View.VISIBLE);
+                        HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
             });
         }
     }
 
-    public void handleFileMsg(final Message msg, final ViewHolder holder, int position) {
-        final FileContent content = (FileContent) msg.getContent();
-        holder.txtContent.setText(content.getFileName());
-        String fileType = content.getStringExtra("fileType");
-        String fileSize = content.getStringExtra("fileSize");
-        holder.sizeTv.setText(fileSize);
-        Drawable drawable;
-        if (fileType.equals(FileType.audio.toString())) {
-            drawable = mContext.getResources().getDrawable(IdHelper.getDrawable(mContext, "jmui_audio"));
-
-        } else if (fileType.equals(FileType.other.toString())) {
-            drawable = mContext.getResources().getDrawable(IdHelper.getDrawable(mContext, "jmui_other"));
+    //小视频
+    public void handleVideo(final Message msg, final ViewHolder holder, int position) {
+        FileContent fileContent = (FileContent) msg.getContent();
+        String videoPath = fileContent.getLocalPath();
+        if (videoPath != null) {
+//            String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + msg.getServerMessageId();
+            String thumbPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + msg.getServerMessageId();
+            String path = BitmapDecoder.extractThumbnail(videoPath, thumbPath);
+            setPictureScale(null, msg, path, holder.picture);
+            Picasso.with(mContext).load(new File(path)).into(holder.picture);
         } else {
-            drawable = mContext.getResources().getDrawable(IdHelper.getDrawable(mContext, "jmui_document"));
+            Picasso.with(mContext).load(R.drawable.video_not_found).into(holder.picture);
         }
-        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-        holder.txtContent.setCompoundDrawables(null, null, drawable, null);
 
+//        if (videoPath != null && new File(videoPath).exists()) {
+//            Bitmap bitmap = BitmapDecoder.extractThumbnail(videoPath);
+//            holder.picture.setImageBitmap(bitmap);
+//        } else {
+//            holder.picture.setImageResource(R.drawable.video_not_found);
+//        }
 
         if (msg.getDirect() == MessageDirect.send) {
             switch (msg.getStatus()) {
                 case created:
-                    if (null != mUserInfo && !mUserInfo.isFriend()) {
+                    holder.videoPlay.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.GONE);
+                    if (null != mUserInfo) {
+                        holder.sendingIv.setVisibility(View.GONE);
+                        holder.resend.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.sendingIv.setVisibility(View.VISIBLE);
+                        holder.resend.setVisibility(View.GONE);
+                    }
+                    break;
+                case send_success:
+                    holder.sendingIv.clearAnimation();
+                    holder.picture.setAlpha(1.0f);
+                    holder.text_receipt.setVisibility(View.VISIBLE);
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.progressTv.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.GONE);
+                    holder.videoPlay.setVisibility(View.VISIBLE);
+                    break;
+                case send_fail:
+                    holder.sendingIv.clearAnimation();
+                    holder.sendingIv.setVisibility(View.GONE);
+                    holder.picture.setAlpha(1.0f);
+                    holder.text_receipt.setVisibility(View.GONE);
+                    holder.progressTv.setVisibility(View.GONE);
+                    holder.resend.setVisibility(View.VISIBLE);
+                    holder.videoPlay.setVisibility(View.VISIBLE);
+                    break;
+                case send_going:
+                    holder.text_receipt.setVisibility(View.GONE);
+                    holder.videoPlay.setVisibility(View.GONE);
+                    sendingImage(msg, holder);
+                    break;
+                default:
+                    holder.picture.setAlpha(0.75f);
+                    holder.sendingIv.setVisibility(View.VISIBLE);
+                    holder.sendingIv.startAnimation(mSendingAnim);
+                    holder.progressTv.setVisibility(View.VISIBLE);
+                    holder.videoPlay.setVisibility(View.GONE);
+                    holder.progressTv.setText("0%");
+                    holder.resend.setVisibility(View.GONE);
+                    //从别的界面返回聊天界面，继续发送
+                    if (!mMsgQueue.isEmpty()) {
+                        Message message = mMsgQueue.element();
+                        if (message.getId() == msg.getId()) {
+                            MessageSendingOptions options = new MessageSendingOptions();
+                            options.setNeedReadReceipt(true);
+                            JMessageClient.sendMessage(message, options);
+                            mSendMsgId = message.getId();
+                            sendingImage(message, holder);
+                        }
+                    }
+                    break;
+            }
+
+            holder.resend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAdapter.showResendDialog(holder, msg);
+                }
+            });
+
+        } else {
+            switch (msg.getStatus()) {
+                case receive_going:
+                    holder.videoPlay.setVisibility(View.VISIBLE);
+                    break;
+                case receive_fail:
+                    holder.videoPlay.setVisibility(View.VISIBLE);
+                    break;
+                case receive_success:
+                    holder.videoPlay.setVisibility(View.VISIBLE);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+        holder.picture.setOnClickListener(new BtnOrTxtListener(position, holder));
+        holder.picture.setTag(position);
+        holder.picture.setOnLongClickListener(mLongClickListener);
+    }
+
+
+    public void handleFileMsg(final Message msg, final ViewHolder holder, int position) {
+        final FileContent content = (FileContent) msg.getContent();
+        if (holder.txtContent != null) {
+            holder.txtContent.setText(content.getFileName());
+        }
+        Number fileSize = content.getNumberExtra("fileSize");
+        if (fileSize != null && holder.sizeTv != null) {
+            String size = FileUtils.getFileSize(fileSize);
+            holder.sizeTv.setText(size);
+        }
+        String fileType = content.getStringExtra("fileType");
+        Drawable drawable;
+        if (fileType != null && (fileType.equals("mp4") || fileType.equals("mov") || fileType.equals("rm") ||
+                fileType.equals("rmvb") || fileType.equals("wmv") || fileType.equals("avi") ||
+                fileType.equals("3gp") || fileType.equals("mkv"))) {
+            drawable = mContext.getResources().getDrawable(R.drawable.jmui_video);
+        } else if (fileType != null && (fileType.equals("wav") || fileType.equals("mp3") || fileType.equals("wma") || fileType.equals("midi"))) {
+            drawable = mContext.getResources().getDrawable(R.drawable.jmui_audio);
+        } else if (fileType != null && (fileType.equals("ppt") || fileType.equals("pptx") || fileType.equals("doc") ||
+                fileType.equals("docx") || fileType.equals("pdf") || fileType.equals("xls") ||
+                fileType.equals("xlsx") || fileType.equals("txt") || fileType.equals("wps"))) {
+            drawable = mContext.getResources().getDrawable(R.drawable.jmui_document);
+            //.jpeg .jpg .png .bmp .gif
+        } else if (fileType != null && (fileType.equals("jpeg") || fileType.equals("jpg") || fileType.equals("png") ||
+                fileType.equals("bmp") || fileType.equals("gif"))) {
+            drawable = mContext.getResources().getDrawable(R.drawable.image_file);
+        } else {
+            drawable = mContext.getResources().getDrawable(R.drawable.jmui_other);
+        }
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+        if (holder.ivDocument != null)
+            holder.ivDocument.setImageBitmap(bitmapDrawable.getBitmap());
+//        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+//        holder.txtContent.setCompoundDrawables(drawable, null, null, null);
+
+        if (msg.getDirect() == MessageDirect.send) {
+            switch (msg.getStatus()) {
+                case created:
+                    holder.progressTv.setVisibility(View.VISIBLE);
+                    holder.progressTv.setText("0%");
+                    holder.resend.setVisibility(View.GONE);
+                    holder.text_receipt.setVisibility(View.GONE);
+                    if (null != mUserInfo) {
                         holder.progressTv.setVisibility(View.GONE);
                         holder.resend.setVisibility(View.VISIBLE);
                     } else {
@@ -570,7 +934,7 @@ public class ChatItemController {
                     }
                     break;
                 case send_going:
-                    holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
+                    holder.text_receipt.setVisibility(View.GONE);
                     holder.progressTv.setVisibility(View.VISIBLE);
                     holder.resend.setVisibility(View.GONE);
                     if (!msg.isContentUploadProgressCallbackExists()) {
@@ -586,8 +950,7 @@ public class ChatItemController {
                         msg.setOnSendCompleteCallback(new BasicCallback() {
                             @Override
                             public void gotResult(int status, String desc) {
-                                holder.contentLl.setBackground(mContext.getDrawable(IdHelper
-                                        .getDrawable(mContext, "jmui_msg_send_bg")));
+                                holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_send_bg));
                                 holder.progressTv.setVisibility(View.GONE);
                                 if (status == 803008) {
                                     CustomContent customContent = new CustomContent();
@@ -595,7 +958,6 @@ public class ChatItemController {
                                     Message customMsg = mConv.createSendMessage(customContent);
                                     mAdapter.addMsgToList(customMsg);
                                 } else if (status != 0) {
-                                    HandleResponseCode.onHandle(mContext, status, false);
                                     holder.resend.setVisibility(View.VISIBLE);
                                 }
                             }
@@ -603,14 +965,17 @@ public class ChatItemController {
                     }
                     break;
                 case send_success:
-                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
-                            .getDrawable(mContext, "jmui_msg_send_bg")));
+                    holder.text_receipt.setVisibility(View.VISIBLE);
+                    holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_send_bg));
+                    holder.alreadySend.setVisibility(View.VISIBLE);
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.GONE);
                     break;
                 case send_fail:
-                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
-                            .getDrawable(mContext, "jmui_msg_send_bg")));
+                    holder.alreadySend.setVisibility(View.VISIBLE);
+                    holder.alreadySend.setText("发送失败");
+                    holder.text_receipt.setVisibility(View.GONE);
+                    holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_send_bg));
                     holder.progressTv.setVisibility(View.GONE);
                     holder.resend.setVisibility(View.VISIBLE);
                     break;
@@ -620,7 +985,7 @@ public class ChatItemController {
                 case receive_going:
                     holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
                     holder.progressTv.setVisibility(View.VISIBLE);
-                    holder.resend.setVisibility(View.GONE);
+                    holder.fileLoad.setText("");
                     if (!msg.isContentDownloadProgressCallbackExists()) {
                         msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
                             @Override
@@ -630,31 +995,32 @@ public class ChatItemController {
                                     holder.progressTv.setText(progressStr);
                                 } else {
                                     holder.progressTv.setVisibility(View.GONE);
-                                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
-                                            .getDrawable(mContext, "jmui_receive_msg")));
+                                    holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_receive_bg));
                                 }
 
                             }
                         });
                     }
                     break;
-                case receive_fail:
+                case receive_fail://收到文件没下载也是这个状态
                     holder.progressTv.setVisibility(View.GONE);
-                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
-                            .getDrawable(mContext, "jmui_receive_msg")));
-                    holder.resend.setVisibility(View.VISIBLE);
+                    //开始是用的下面这行设置但是部分手机会崩溃
+                    //mContext.getDrawable(R.drawable.jmui_msg_receive_bg)
+                    //如果用上面的报错 NoSuchMethodError 就把setBackground后面参数换成下面的
+                    //ContextCompat.getDrawable(mContext, R.drawable.jmui_msg_receive_bg)
+                    holder.contentLl.setBackground(ContextCompat.getDrawable(mContext, R.drawable.jmui_msg_receive_bg));
+                    holder.fileLoad.setText("未下载");
                     break;
                 case receive_success:
                     holder.progressTv.setVisibility(View.GONE);
-                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
-                            .getDrawable(mContext, "jmui_receive_msg")));
+                    holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_receive_bg));
+                    holder.fileLoad.setText("已下载");
                     break;
             }
         }
 
-        if (holder.resend != null) {
-            holder.resend.setOnClickListener(new View.OnClickListener() {
-
+        if (holder.fileLoad != null) {
+            holder.fileLoad.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (msg.getDirect() == MessageDirect.send) {
@@ -663,7 +1029,6 @@ public class ChatItemController {
                         holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
                         holder.progressTv.setText("0%");
                         holder.progressTv.setVisibility(View.VISIBLE);
-                        holder.resend.setVisibility(View.GONE);
                         if (!msg.isContentDownloadProgressCallbackExists()) {
                             msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
                                 @Override
@@ -677,16 +1042,13 @@ public class ChatItemController {
                             @Override
                             public void onComplete(int status, String desc, File file) {
                                 holder.progressTv.setVisibility(View.GONE);
-                                holder.contentLl.setBackground(mContext.getDrawable(IdHelper
-                                        .getDrawable(mContext, "jmui_receive_msg")));
+                                holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_receive_bg));
                                 if (status != 0) {
-                                    holder.resend.setVisibility(View.VISIBLE);
-                                    Toast.makeText(mContext, IdHelper.getString(mContext,
-                                            "download_file_failed"),
+                                    holder.fileLoad.setText("未下载");
+                                    Toast.makeText(mContext, R.string.download_file_failed,
                                             Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(mContext, IdHelper.getString(mContext,
-                                            "download_file_succeed"), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, R.string.download_file_succeed, Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -694,40 +1056,33 @@ public class ChatItemController {
                 }
             });
         }
+        holder.contentLl.setTag(position);
+        holder.contentLl.setOnLongClickListener(mLongClickListener);
         holder.contentLl.setOnClickListener(new BtnOrTxtListener(position, holder));
     }
 
+
     public void handleGroupChangeMsg(Message msg, ViewHolder holder) {
-        UserInfo myInfo = JMessageClient.getMyInfo();
-        GroupInfo groupInfo = (GroupInfo) msg.getTargetInfo();
         String content = ((EventNotificationContent) msg.getContent()).getEventText();
         EventNotificationContent.EventNotificationType type = ((EventNotificationContent) msg
                 .getContent()).getEventNotificationType();
         switch (type) {
             case group_member_added:
+            case group_member_exit:
+            case group_member_removed:
+            case group_info_updated:
                 holder.groupChange.setText(content);
                 holder.groupChange.setVisibility(View.VISIBLE);
-                break;
-            case group_member_exit:
-                holder.groupChange.setVisibility(View.GONE);
                 holder.msgTime.setVisibility(View.GONE);
                 break;
-            case group_member_removed:
-                List<String> userNames = ((EventNotificationContent) msg.getContent()).getUserNames();
-                //被删除的人显示EventNotification
-                if (userNames.contains(myInfo.getNickname()) || userNames.contains(myInfo.getUserName())) {
-                    holder.groupChange.setText(content);
-                    holder.groupChange.setVisibility(View.VISIBLE);
-                    //群主亦显示
-                } else if (myInfo.getUserName().equals(groupInfo.getGroupOwner())) {
-                    holder.groupChange.setText(content);
-                    holder.groupChange.setVisibility(View.VISIBLE);
-                } else {
-                    holder.groupChange.setVisibility(View.GONE);
-                    holder.msgTime.setVisibility(View.GONE);
-                }
-                break;
         }
+    }
+
+    public void handlePromptMsg(Message msg, ViewHolder holder) {
+        String promptText = ((PromptContent) msg.getContent()).getPromptText();
+        holder.groupChange.setText(promptText);
+        holder.groupChange.setVisibility(View.VISIBLE);
+        holder.msgTime.setVisibility(View.GONE);
     }
 
     public void handleCustomMsg(Message msg, ViewHolder holder) {
@@ -735,20 +1090,20 @@ public class ChatItemController {
         Boolean isBlackListHint = content.getBooleanValue("blackList");
         Boolean notFriendFlag = content.getBooleanValue("notFriend");
         if (isBlackListHint != null && isBlackListHint) {
-            holder.groupChange.setText(IdHelper.getString(mContext, "jmui_server_803008"));
+            holder.groupChange.setText(R.string.jmui_server_803008);
             holder.groupChange.setVisibility(View.VISIBLE);
         } else {
             holder.groupChange.setVisibility(View.GONE);
         }
 
-        if (notFriendFlag != null && notFriendFlag) {
-            holder.groupChange.setText(IdHelper.getString(mContext, "send_target_is_not_friend"));
-            holder.groupChange.setVisibility(View.VISIBLE);
-        } else {
-            holder.groupChange.setVisibility(View.GONE);
-        }
+//        if (notFriendFlag != null && notFriendFlag) {
+//            holder.groupChange.setText(IdHelper.getString(mContext, "send_target_is_not_friend"));
+//            holder.groupChange.setVisibility(View.VISIBLE);
+//        } else {
+//            holder.groupChange.setVisibility(View.GONE);
+//        }
+        holder.groupChange.setVisibility(View.GONE);
     }
-
 
     public class BtnOrTxtListener implements View.OnClickListener {
 
@@ -767,7 +1122,7 @@ public class ChatItemController {
             switch (msg.getContentType()) {
                 case voice:
                     if (!FileHelper.isSdCardExist()) {
-                        Toast.makeText(mContext, IdHelper.getString(mContext, "jmui_sdcard_not_exist_toast"),
+                        Toast.makeText(mContext, R.string.jmui_sdcard_not_exist_toast,
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -778,16 +1133,15 @@ public class ChatItemController {
                     // 播放中点击了正在播放的Item 则暂停播放
                     if (mp.isPlaying() && mPosition == position) {
                         if (msgDirect == MessageDirect.send) {
-                            holder.voice.setImageResource(IdHelper.getAnim(mContext, "jmui_voice_send"));
+                            holder.voice.setImageResource(R.drawable.jmui_voice_send);
                         } else {
-                            holder.voice.setImageResource(IdHelper.getAnim(mContext, "jmui_voice_receive"));
+                            holder.voice.setImageResource(R.drawable.jmui_voice_receive);
                         }
                         mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
-                        pauseVoice();
-                        mVoiceAnimation.stop();
+                        pauseVoice(msgDirect, holder.voice);
                         // 开始播放录音
                     } else if (msgDirect == MessageDirect.send) {
-                        holder.voice.setImageResource(IdHelper.getAnim(mContext, "jmui_voice_send"));
+                        holder.voice.setImageResource(R.drawable.jmui_voice_send);
                         mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
 
                         // 继续播放之前暂停的录音
@@ -816,7 +1170,7 @@ public class ChatItemController {
                                     playVoice(position, holder, false);
                                     // 否则直接播放选中的语音
                                 } else {
-                                    holder.voice.setImageResource(IdHelper.getAnim(mContext, "jmui_voice_receive"));
+                                    holder.voice.setImageResource(R.drawable.jmui_voice_receive);
                                     mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
                                     playVoice(position, holder, false);
                                 }
@@ -849,7 +1203,7 @@ public class ChatItemController {
                     break;
                 case location:
                     if (holder.picture != null && v.getId() == holder.picture.getId()) {
-                        Intent intent = new Intent(mContext, SendLocationActivity.class);
+                        Intent intent = new Intent(mContext, MapPickerActivity.class);
                         LocationContent locationContent = (LocationContent) msg.getContent();
                         intent.putExtra("latitude", locationContent.getLatitude().doubleValue());
                         intent.putExtra("longitude", locationContent.getLongitude().doubleValue());
@@ -860,68 +1214,38 @@ public class ChatItemController {
                     break;
                 case file:
                     FileContent content = (FileContent) msg.getContent();
-                    if (!TextUtils.isEmpty(content.getLocalPath())) {
-                        final String fileName = content.getFileName();
-                        final String path = content.getLocalPath();
-                        if (msg.getDirect() == MessageDirect.send) {
-                            browseDocument(fileName, path);
+                    String fileName = content.getFileName();
+                    String extra = content.getStringExtra("video");
+                    if (extra != null) {
+                        fileName = msg.getServerMessageId() + "." + extra;
+                    }
+                    final String path = content.getLocalPath();
+                    if (path != null && new File(path).exists()) {
+                        final String newPath = JChatDemoApplication.FILE_DIR + fileName;
+                        File file = new File(newPath);
+                        if (file.exists() && file.isFile()) {
+                            browseDocument(fileName, newPath);
                         } else {
-                            final String newPath = JChatDemoApplication.FILE_DIR + fileName;
-                            File file = new File(newPath);
-                            if (file.exists() && file.isFile()) {
-                                browseDocument(fileName, newPath);
-                            } else {
-                                FileHelper.getInstance().copyFile(fileName, path, (Activity) mContext,
-                                        new FileHelper.CopyFileCallback() {
-                                            @Override
-                                            public void copyCallback(Uri uri) {
-                                                Toast.makeText(mContext, mContext.getString(IdHelper
-                                                        .getString(mContext, "file_already_copy_hint")),
-                                                        Toast.LENGTH_SHORT).show();
-                                                browseDocument(fileName, newPath);
-                                            }
-                                        });
-                            }
+                            final String finalFileName = fileName;
+                            FileHelper.getInstance().copyFile(fileName, path, (Activity) mContext,
+                                    new FileHelper.CopyFileCallback() {
+                                        @Override
+                                        public void copyCallback(Uri uri) {
+                                            browseDocument(finalFileName, newPath);
+                                        }
+                                    });
                         }
                     } else {
-                        if (msg.getDirect() == MessageDirect.receive) {
-                            holder.contentLl.setBackgroundColor(Color.parseColor("#86222222"));
-                            holder.progressTv.setText("0%");
-                            holder.progressTv.setVisibility(View.VISIBLE);
-                            msg.setOnContentDownloadProgressCallback(new ProgressUpdateCallback() {
-                                @Override
-                                public void onProgressUpdate(double v) {
-                                    String progressStr = (int) (v * 100) + "%";
-                                    holder.progressTv.setText(progressStr);
-                                }
-                            });
-                            content.downloadFile(msg, new DownloadCompletionCallback() {
-                                @Override
-                                public void onComplete(int status, String desc, File file) {
-                                    holder.progressTv.setVisibility(View.GONE);
-                                    holder.contentLl.setBackground(mContext.getDrawable(IdHelper
-                                            .getDrawable(mContext, "jmui_receive_msg")));
-                                    if (status != 0) {
-                                        holder.resend.setVisibility(View.VISIBLE);
-                                        Toast.makeText(mContext, IdHelper.getString(mContext,
-                                                "download_file_failed"),
-                                                Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(mContext, IdHelper.getString(mContext,
-                                                "download_file_succeed"), Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-                        } else {
-                            Toast.makeText(mContext, IdHelper.getString(mContext, "jmui_file_not_found_toast"),
-                                    Toast.LENGTH_SHORT).show();
-                        }
+                        EventBus.getDefault().postSticky(msg);
+                        Intent intent = new Intent(mContext, DownLoadActivity.class);
+                        mContext.startActivity(intent);
                     }
                     break;
             }
 
         }
     }
+
 
     public void playVoice(final int position, final ViewHolder holder, final boolean isSender) {
         // 记录播放录音的位置
@@ -934,7 +1258,7 @@ public class ChatItemController {
                 mVoiceAnimation.stop();
                 mVoiceAnimation = null;
             }
-            holder.voice.setImageResource(IdHelper.getAnim(mContext, "jmui_voice_receive"));
+            holder.voice.setImageResource(R.drawable.jmui_voice_receive);
             mVoiceAnimation = (AnimationDrawable) holder.voice.getDrawable();
         }
         try {
@@ -963,9 +1287,9 @@ public class ChatItemController {
                     mp.reset();
                     mSetData = false;
                     if (isSender) {
-                        holder.voice.setImageResource(IdHelper.getDrawable(mContext, "jmui_send_3"));
+                        holder.voice.setImageResource(R.drawable.send_3);
                     } else {
-                        holder.voice.setImageResource(IdHelper.getDrawable(mContext, "jmui_receive_3"));
+                        holder.voice.setImageResource(R.drawable.jmui_receive_3);
                     }
                     if (autoPlay) {
                         int curCount = mIndexList.indexOf(position);
@@ -981,17 +1305,17 @@ public class ChatItemController {
                 }
             });
         } catch (Exception e) {
-            Toast.makeText(mContext, IdHelper.getString(mContext, "jmui_file_not_found_toast"),
+            Toast.makeText(mContext, R.string.jmui_file_not_found_toast,
                     Toast.LENGTH_SHORT).show();
             VoiceContent vc = (VoiceContent) msg.getContent();
             vc.downloadVoiceFile(msg, new DownloadCompletionCallback() {
                 @Override
                 public void onComplete(int status, String desc, File file) {
                     if (status == 0) {
-                        Toast.makeText(mContext, IdHelper.getString(mContext, "download_completed_toast"),
+                        Toast.makeText(mContext, R.string.download_completed_toast,
                                 Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(mContext, IdHelper.getString(mContext, "file_fetch_failed"),
+                        Toast.makeText(mContext, R.string.file_fetch_failed,
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -1014,57 +1338,56 @@ public class ChatItemController {
      * @param path      图片路径
      * @param imageView 显示图片的View
      */
-    private void setPictureScale(String path, ImageView imageView) {
+    private ImageView setPictureScale(String extra, Message message, String path, final ImageView imageView) {
+
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(path, opts);
+
+
         //计算图片缩放比例
         double imageWidth = opts.outWidth;
         double imageHeight = opts.outHeight;
-        if (imageWidth < 100 * mDensity) {
-            imageHeight = imageHeight * (100 * mDensity / imageWidth);
-            imageWidth = 100 * mDensity;
+        return setDensity(extra, message, imageWidth, imageHeight, imageView);
+    }
+
+    private ImageView setDensity(String extra, Message message, double imageWidth, double imageHeight, ImageView imageView) {
+        if (extra != null) {
+            imageWidth = 200;
+            imageHeight = 200;
+        } else {
+            if (imageWidth > 350) {
+                imageWidth = 550;
+                imageHeight = 250;
+            } else if (imageHeight > 450) {
+                imageWidth = 300;
+                imageHeight = 450;
+            } else if ((imageWidth < 50 && imageWidth > 20) || (imageHeight < 50 && imageHeight > 20)) {
+                imageWidth = 200;
+                imageHeight = 300;
+            } else if (imageWidth < 20 || imageHeight < 20) {
+                imageWidth = 100;
+                imageHeight = 150;
+            } else {
+                imageWidth = 300;
+                imageHeight = 450;
+            }
         }
+
         ViewGroup.LayoutParams params = imageView.getLayoutParams();
         params.width = (int) imageWidth;
         params.height = (int) imageHeight;
         imageView.setLayoutParams(params);
+
+        return imageView;
     }
 
-    public void setAudioPlayByEarPhone(int state) {
-        AudioManager audioManager = (AudioManager) mContext
-                .getSystemService(Context.AUDIO_SERVICE);
-        int currVolume = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
-        audioManager.setMode(AudioManager.MODE_IN_CALL);
-        if (state == 0) {
-            mIsEarPhoneOn = false;
-            audioManager.setSpeakerphoneOn(true);
-            audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
-                    audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
-                    AudioManager.STREAM_VOICE_CALL);
+    private void pauseVoice(MessageDirect msgDirect, ImageView voice) {
+        if (msgDirect == MessageDirect.send) {
+            voice.setImageResource(R.drawable.send_3);
         } else {
-            mIsEarPhoneOn = true;
-            audioManager.setSpeakerphoneOn(false);
-            audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, currVolume,
-                    AudioManager.STREAM_VOICE_CALL);
+            voice.setImageResource(R.drawable.jmui_receive_3);
         }
-    }
-
-    public void releaseMediaPlayer() {
-        if (mp != null)
-            mp.release();
-    }
-
-    public void initMediaPlayer() {
-        mp.reset();
-    }
-
-    public void stopMediaPlayer() {
-        if (mp.isPlaying())
-            mp.stop();
-    }
-
-    private void pauseVoice() {
         mp.pause();
         mSetData = true;
     }
@@ -1096,8 +1419,7 @@ public class ChatItemController {
             mContext.startActivity(intent);
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(mContext, mContext.getString(IdHelper.getString(mContext,
-                    "file_not_support_hint")), Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, R.string.file_not_support_hint, Toast.LENGTH_SHORT).show();
         }
     }
 

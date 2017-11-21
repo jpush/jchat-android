@@ -2,5 +2,6 @@
 <resources>
 
     <integer name="loading_frame_interval">80</integer>
+    <integer name="animation_default_duration">300</integer>
 
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/jmui_chat_item_send_layout" >
+<LinearLayout style="@style/jmui_chat_item_send_layout"
+              xmlns:android="http://schemas.android.com/apk/res/android">
 
     <TextView
         android:id="@+id/jmui_send_time_txt"
@@ -9,57 +9,74 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp" >
+        android:layout_marginTop="5dp">
 
-        <io.jchat.android.chatting.CircleImageView
+        <ImageView
             android:id="@+id/jmui_avatar_iv"
-            style="@style/jmui_chat_item_sender_avatar_style" />
+            style="@style/jmui_chat_item_sender_avatar_style"/>
 
-         <LinearLayout
+        <FrameLayout
             android:id="@+id/jmui_layout_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
-            android:paddingRight="15dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
+            android:layout_marginRight="3dp"
             android:layout_toLeftOf="@id/jmui_avatar_iv"
             android:background="@drawable/jmui_msg_send_bg"
-             android:orientation="vertical">
-
-             <TextView
-                 android:id="@+id/jmui_loc_desc"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:ems="10"
-                 android:textColor="@color/chat_text_color"/>
+            android:orientation="vertical"
+            android:paddingBottom="3dp"
+            android:paddingLeft="3dp"
+            android:paddingTop="3dp">
 
             <ImageView
                 android:id="@+id/jmui_picture_iv"
                 android:layout_width="163dp"
-                android:layout_height="wrap_content"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginLeft="3dp"
+                android:layout_height="90dp"
+                android:gravity="center|bottom"
                 android:scaleType="fitXY"
-                android:src="@drawable/jmui_location_default"
-                android:gravity="center|bottom" />
+                android:src="@drawable/jmui_location_default"/>
 
-        </LinearLayout>
-        
-        <ImageButton
-            android:id="@+id/jmui_fail_resend_ib"
+            <View
+                android:layout_width="163dp"
+                android:layout_height="30dp"
+                android:layout_gravity="bottom"
+                android:alpha="0.6"
+                android:background="#000000"/>
+
+            <TextView
+                android:id="@+id/jmui_loc_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:layout_marginBottom="6dp"
+                android:ellipsize="end"
+                android:ems="10"
+                android:gravity="center"
+                android:maxLines="2"
+                android:textColor="@color/white"
+                android:textSize="12sp"/>
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/text_receipt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_marginRight="7dp"
+            android:layout_toLeftOf="@id/jmui_layout_location"
+            android:text="未读消息"
+            android:textSize="12sp"/>
+
+        <ImageButton
+            android:id="@+id/jmui_fail_resend_ib"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:layout_centerVertical="true"
             android:layout_marginRight="5dp"
             android:layout_toLeftOf="@id/jmui_layout_location"
+            android:background="@drawable/send_message_failed"
             android:clickable="true"
-            android:scaleType="fitCenter"
-            android:src="@drawable/jmui_send_error"
-            android:visibility="gone"
-            />
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/jmui_send_status_tv"
@@ -70,12 +87,12 @@
             android:layout_marginRight="10dp"
             android:layout_toLeftOf="@id/jmui_layout_location"
             android:textSize="12sp"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/jmui_sending_iv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
             android:layout_centerVertical="true"
             android:layout_marginRight="3dp"
             android:layout_toLeftOf="@id/jmui_layout_location"

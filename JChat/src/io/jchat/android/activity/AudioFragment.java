@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,6 @@ public class AudioFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
         ViewGroup p = (ViewGroup) mRootView.getParent();
         if (p != null) {
             p.removeAllViewsInLayout();
@@ -69,12 +69,20 @@ public class AudioFragment extends BaseFragment {
             @Override
             public void run() {
                 ContentResolver contentResolver = mContext.getContentResolver();
-                String[] projection = new String[]{ MediaStore.Audio.AudioColumns.DATA,
+                String[] projection = new String[] {MediaStore.Audio.AudioColumns.DATA,
                         MediaStore.Audio.AudioColumns.DISPLAY_NAME, MediaStore.Audio.AudioColumns.SIZE,
-                        MediaStore.Audio.AudioColumns.DATE_MODIFIED };
+                        MediaStore.Audio.AudioColumns.DATE_MODIFIED, MediaStore.Audio.AudioColumns.MIME_TYPE};
+
+                String selection = MediaStore.Audio.AudioColumns.MIME_TYPE + "= ? "
+                        + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                        + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? "
+                        + " or " + MediaStore.Audio.AudioColumns.MIME_TYPE + " = ? ";
+
+                String[] selectionArgs = new String[] {
+                        "audio/mpeg", "audio/x-ms-wma", "audio/x-wav", "audio/midi"};
 
                 Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        projection, null, null, MediaStore.Audio.AudioColumns.DATE_MODIFIED + " desc");
+                        projection, selection, selectionArgs, MediaStore.Audio.AudioColumns.DATE_MODIFIED + " desc");
 
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
@@ -82,10 +90,10 @@ public class AudioFragment extends BaseFragment {
                         String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DATA));
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.SIZE));
                         String date = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DATE_MODIFIED));
-
-                        FileItem fileItem = new FileItem(filePath, fileName, size, date);
-
-                        mAudios.add(fileItem);
+                        if (scannerFile(filePath)) {
+                            FileItem fileItem = new FileItem(filePath, fileName, size, date, 0);
+                            mAudios.add(fileItem);
+                        }
 
                     }
                     cursor.close();
@@ -98,6 +106,17 @@ public class AudioFragment extends BaseFragment {
             }
         }).start();
 
+    }
+
+    private File file;
+
+    private boolean scannerFile(String path) {
+        file = new File(path);
+        if (file.exists()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void setController(SendFileController controller) {
@@ -148,5 +167,6 @@ public class AudioFragment extends BaseFragment {
             mProgressDialog.dismiss();
         }
     }
+
 
 }

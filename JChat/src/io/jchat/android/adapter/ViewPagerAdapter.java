@@ -11,7 +11,6 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 	
 	public ViewPagerAdapter(FragmentManager fm) {
 		super(fm);
-		// TODO Auto-generated constructor stub
 	}
 
 	public ViewPagerAdapter(FragmentManager fm, List<Fragment> fragments) {
@@ -21,13 +20,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 	
 	@Override
 	public Fragment getItem(int index) {
-		// TODO Auto-generated method stub
 		return mFragmList.get(index);
 	}
 
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
 		return mFragmList.size();
 	}
 

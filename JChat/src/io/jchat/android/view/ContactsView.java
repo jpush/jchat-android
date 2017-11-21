@@ -2,11 +2,10 @@ package io.jchat.android.view;
 
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
-import android.text.TextWatcher;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,114 +14,136 @@ import android.widget.TextView;
 
 import io.jchat.android.R;
 import io.jchat.android.adapter.StickyListAdapter;
+import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.utils.SharePreferenceManager;
 import io.jchat.android.controller.ContactsController;
 
 
 public class ContactsView extends LinearLayout{
 
-	private TextView mTitle;
-    private EditText mSearchEt;
-    private ImageButton mDeleteBtn;
-    private TextView mHint;
-    private Context mContext;
-	private StickyListHeadersListView mListView;
-    private TextView mNewFriendNum;
-    private RelativeLayout mFriendVerifyRl;
-    private RelativeLayout mGroupRl;
+    private StickyListHeadersListView mListView;
     private SideBar mSideBar;
-    private TextView mLetterHintTv;
-    private LayoutInflater mInflater;
-    private ImageView mLoadingIv;
+    private TextView mDialogTextView;
 
-	public ContactsView(Context context, AttributeSet attrs) {
-		super(context, attrs);
+    private ImageButton mIb_goToAddFriend;
+    private TextView mLetterHintTv;
+    private LinearLayout mVerify_ll;
+    private LinearLayout mGroup_ll;
+    private TextView mGroup_verification_num;
+    private TextView mNewFriendNum;
+    private LayoutInflater mInflater;
+    private LinearLayout mSearch_title;
+    private Context mContext;
+    private ImageView mLoadingIv;
+    private LinearLayout mLoadingTv;
+    private View mView_line;
+
+    public ContactsView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
         this.mContext = context;
         mInflater = LayoutInflater.from(context);
-		// TODO Auto-generated constructor stub
-	}
-	
-	public void initModule(float ratio, float density){
-        mTitle = (TextView) findViewById(R.id.title_bar_title);
-        mTitle.setText(mContext.getString(R.string.actionbar_contact));
-        mSearchEt = (EditText) findViewById(R.id.search_et);
-        mDeleteBtn = (ImageButton) findViewById(R.id.delete_ib);
-        mHint = (TextView) findViewById(R.id.contact_hint);
-        mListView = (StickyListHeadersListView) findViewById(R.id.sticky_list_view);
+
+    }
+
+
+    public void initModule(float ratio, float density) {
+        mIb_goToAddFriend = (ImageButton) findViewById(R.id.ib_goToAddFriend);
+
+        mListView = (StickyListHeadersListView) findViewById(R.id.listview);
         mSideBar = (SideBar) findViewById(R.id.sidebar);
-        mLetterHintTv = (TextView) findViewById(R.id.letter_hint_tv);
+        mSideBar.setTextView(mDialogTextView);
+
+        mLetterHintTv = (TextView) findViewById(R.id.group_dialog);
         mSideBar.setTextView(mLetterHintTv);
-        mSideBar.setRatioAndDensity(ratio, density);
         mSideBar.bringToFront();
+
+
         View header = mInflater.inflate(R.layout.contact_list_header, null);
-        mFriendVerifyRl = (RelativeLayout) header.findViewById(R.id.verify_rl);
-        mGroupRl = (RelativeLayout) header.findViewById(R.id.group_chat_rl);
+        mVerify_ll = (LinearLayout) header.findViewById(R.id.verify_ll);
+        mGroup_ll = (LinearLayout) header.findViewById(R.id.group_ll);
+        mGroup_verification_num = (TextView) header.findViewById(R.id.group_verification_num);
         mNewFriendNum = (TextView) header.findViewById(R.id.friend_verification_num);
+        mSearch_title = (LinearLayout) header.findViewById(R.id.search_title);
+        mView_line = header.findViewById(R.id.view_line);
+        mGroup_verification_num.setVisibility(INVISIBLE);
+
         RelativeLayout loadingHeader = (RelativeLayout) mInflater.inflate(R.layout.jmui_drop_down_list_header, null);
         mLoadingIv = (ImageView) loadingHeader.findViewById(R.id.jmui_loading_img);
+        mLoadingTv = (LinearLayout) loadingHeader.findViewById(R.id.loading_view);
         mNewFriendNum.setVisibility(INVISIBLE);
-        mListView.addHeaderView(header);
         mListView.addHeaderView(loadingHeader);
+        mListView.addHeaderView(header, null, false);
         mListView.setDrawingListUnderStickyHeader(true);
         mListView.setAreHeadersSticky(true);
         mListView.setStickyHeaderTopOffset(0);
-	}
 
-	public void setAdapter(StickyListAdapter adapter) {
-		mListView.setAdapter(adapter);
-        mSideBar.setIndex(adapter.getSections());
-	}
-
-    public void setListeners(ContactsController controller) {
-        mFriendVerifyRl.setOnClickListener(controller);
-        mGroupRl.setOnClickListener(controller);
-        mSideBar.setOnClickListener(controller);
-        mDeleteBtn.setOnClickListener(controller);
     }
 
-    public void setSideBarTouchListener(SideBar.OnTouchingLetterChangedListener listener) {
-        mSideBar.setOnTouchingLetterChangedListener(listener);
+
+    public void setListener(ContactsController contactsController) {
+        mIb_goToAddFriend.setOnClickListener(contactsController);
+        mVerify_ll.setOnClickListener(contactsController);
+        mGroup_ll.setOnClickListener(contactsController);
+        mSearch_title.setOnClickListener(contactsController);
     }
 
     public void setSelection(int position) {
         mListView.setSelection(position);
     }
 
+    public void setSideBarTouchListener(SideBar.OnTouchingLetterChangedListener listener) {
+        mSideBar.setOnTouchingLetterChangedListener(listener);
+    }
+
+    public void setAdapter(StickyListAdapter adapter) {
+        mListView.setAdapter(adapter);
+    }
+
     public void showNewFriends(int num) {
         mNewFriendNum.setVisibility(VISIBLE);
-        mNewFriendNum.setText(String.valueOf(num));
+        if (num > 99) {
+            mNewFriendNum.setText("99+");
+        } else {
+            mNewFriendNum.setText(String.valueOf(num));
+        }
     }
 
     public void dismissNewFriends() {
+        SharePreferenceManager.setCachedNewFriendNum(0);
+        JChatDemoApplication.forAddFriend.clear();
         mNewFriendNum.setVisibility(INVISIBLE);
-    }
-
-    public String getSearchText() {
-        return mSearchEt.getText().toString();
-    }
-
-    public void setTextWatcher(TextWatcher watcher) {
-        mSearchEt.addTextChangedListener(watcher);
-    }
-
-    public void showContact() {
-        mSearchEt.setVisibility(VISIBLE);
-        mSideBar.setVisibility(VISIBLE);
-        mListView.setVisibility(VISIBLE);
-        mHint.setVisibility(GONE);
-    }
-
-    public void clearSearchText() {
-        mSearchEt.setText("");
     }
 
     public void showLoadingHeader() {
         mLoadingIv.setVisibility(View.VISIBLE);
+        mLoadingTv.setVisibility(View.VISIBLE);
         AnimationDrawable drawable = (AnimationDrawable) mLoadingIv.getDrawable();
         drawable.start();
-        mLoadingIv.setVisibility(View.VISIBLE);
     }
 
     public void dismissLoadingHeader() {
         mLoadingIv.setVisibility(View.GONE);
+        mLoadingTv.setVisibility(View.GONE);
+
+    }
+
+    /**
+     * desc:当没有好友时候在群组下面画一条线.以区分和好友列表
+     * 当有好友时候,字母索充当分割线
+     *
+     * 如果不这样设置的话,当有好友时候还会显示view线,这样ui界面不太好看
+     */
+
+    public void showLine() {
+        mView_line.setVisibility(View.VISIBLE);
+    }
+
+    public void dismissLine() {
+        mView_line.setVisibility(View.GONE);
+    }
+
+    public void showContact() {
+        mSideBar.setVisibility(VISIBLE);
+        mListView.setVisibility(VISIBLE);
     }
 }

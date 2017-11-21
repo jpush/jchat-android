@@ -14,22 +14,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import io.jchat.android.R;
-import io.jchat.android.adapter.AlbumListAdapter;
 import io.jchat.android.adapter.ImageAdapter;
 import io.jchat.android.controller.SendFileController;
 import io.jchat.android.entity.FileItem;
-import io.jchat.android.entity.ImageBean;
-import io.jchat.android.tools.SortPictureList;
 import io.jchat.android.view.SendImageView;
 
 public class ImageFragment extends BaseFragment {
@@ -60,7 +54,6 @@ public class ImageFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
         ViewGroup p = (ViewGroup) mRootView.getParent();
         if (p != null) {
             p.removeAllViewsInLayout();
@@ -79,9 +72,9 @@ public class ImageFragment extends BaseFragment {
             public void run() {
                 Uri imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                 ContentResolver contentResolver = mContext.getContentResolver();
-                String[] projection = new String[]{ MediaStore.Images.ImageColumns.DATA,
+                String[] projection = new String[] {MediaStore.Images.ImageColumns.DATA,
                         MediaStore.Images.ImageColumns.DISPLAY_NAME,
-                        MediaStore.Images.ImageColumns.SIZE };
+                        MediaStore.Images.ImageColumns.SIZE};
                 Cursor cursor = contentResolver.query(imageUri, projection, null, null,
                         MediaStore.Images.Media.DATE_MODIFIED + " desc");
                 if (cursor == null || cursor.getCount() == 0) {
@@ -94,9 +87,10 @@ public class ImageFragment extends BaseFragment {
                         String fileName = cursor.getString(cursor
                                 .getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
                         String size = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.SIZE));
-
-                        FileItem item = new FileItem(path, fileName, size, null);
-                        mImages.add(item);
+                        if (scannerFile(path)) {
+                            FileItem item = new FileItem(path, fileName, size, null, 0);
+                            mImages.add(item);
+                        }
                     }
                     cursor.close();
                     //通知Handler扫描图片完成
@@ -105,6 +99,17 @@ public class ImageFragment extends BaseFragment {
             }
         }).start();
 
+    }
+
+    private File file;
+
+    private boolean scannerFile(String path) {
+        file = new File(path);
+        if (file.exists() && file.length() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void setController(SendFileController controller) {

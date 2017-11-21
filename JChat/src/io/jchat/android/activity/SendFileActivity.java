@@ -28,7 +28,6 @@ public class SendFileActivity extends FragmentActivity {
     }
 
     public FragmentManager getSupportFragmentManger() {
-        // TODO Auto-generated method stub
         return getSupportFragmentManager();
     }
 

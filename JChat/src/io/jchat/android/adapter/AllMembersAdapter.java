@@ -3,9 +3,11 @@ package io.jchat.android.adapter;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,27 +15,30 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.GridView;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ObjectAnimator;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
 import io.jchat.android.activity.FriendInfoActivity;
-import io.jchat.android.activity.MeInfoActivity;
 import io.jchat.android.activity.MembersInChatActivity;
+import io.jchat.android.activity.PersonalActivity;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.DialogCreator;
-import io.jchat.android.chatting.utils.HandleResponseCode;
-import io.jchat.android.chatting.CircleImageView;
-import io.jchat.android.activity.MembersInChatActivity.ItemModel;
+import io.jchat.android.tools.ToastUtil;
 import io.jchat.android.tools.ViewHolder;
 
 /**
@@ -43,24 +48,35 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         AdapterView.OnItemLongClickListener {
 
     private MembersInChatActivity mContext;
-    private List<ItemModel> mMemberList = new ArrayList<ItemModel>();
+    private List<MembersInChatActivity.ItemModel> mMemberList = new ArrayList<>();
     private boolean mIsDeleteMode;
-    private List<String> mSelectedList = new ArrayList<String>();
+    private List<String> mSelectedList = new ArrayList<>();
     private SparseBooleanArray mSelectMap = new SparseBooleanArray();
     private Dialog mDialog;
     private Dialog mLoadingDialog;
     private boolean mIsCreator;
     private long mGroupId;
     private int mWidth;
+    private GridView mGridView;
+    private HorizontalScrollView mHorizontalScrollView;
+    private CreateGroupAdapter mGroupAdapter;
+    private Map<Long, String> map = new HashMap<>();
+    private TextView selectNum;
 
-    public AllMembersAdapter(MembersInChatActivity context, List<ItemModel> memberList, boolean isDeleteMode,
-                             boolean isCreator, long groupId, int width) {
+    public AllMembersAdapter(MembersInChatActivity context, List<MembersInChatActivity.ItemModel> memberList, boolean isDeleteMode,
+                             boolean isCreator, long groupId, int width, HorizontalScrollView horizontalView,
+                             GridView imageSelectedGridView, CreateGroupAdapter groupAdapter) {
         this.mContext = context;
         this.mMemberList = memberList;
         this.mIsDeleteMode = isDeleteMode;
         this.mIsCreator = isCreator;
         this.mGroupId = groupId;
         this.mWidth = width;
+
+        this.mGridView = imageSelectedGridView;
+        this.mHorizontalScrollView = horizontalView;
+        this.mGroupAdapter = groupAdapter;
+        selectNum = (TextView) context.findViewById(R.id.tv_selNum);
     }
 
     @Override
@@ -84,12 +100,14 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
             LayoutInflater inflater = LayoutInflater.from(mContext);
             convertView = inflater.inflate(R.layout.item_all_member, null);
         }
-        final CircleImageView icon = ViewHolder.get(convertView, R.id.icon_iv);
+        final ImageView icon = ViewHolder.get(convertView, R.id.icon_iv);
         TextView displayName = ViewHolder.get(convertView, R.id.name);
         final CheckBox checkBox = ViewHolder.get(convertView, R.id.check_box_cb);
 
-        final ItemModel itemModel = mMemberList.get(position);
+        final MembersInChatActivity.ItemModel itemModel = mMemberList.get(position);
         final UserInfo userInfo = itemModel.data;
+        final long userID = userInfo.getUserID();
+        final String userName = userInfo.getUserName();
         if (mIsDeleteMode) {
             if (position > 0) {
                 checkBox.setVisibility(View.VISIBLE);
@@ -98,21 +116,81 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
                     public void onClick(View v) {
                         if (checkBox.isChecked()) {
                             mSelectedList.add(userInfo.getUserName());
-                            mSelectMap.put(position, true);
-                            addAnimation(checkBox);
+                            map.put(userID, userName);
+//                            addAnimation(checkBox);
+                            if (mGroupAdapter != null) {
+                                mGroupAdapter.setContact(getSelectedUser());
+                                notifySelectAreaDataSetChanged();
+                            }
                         } else {
                             mSelectedList.remove(userInfo.getUserName());
-                            mSelectMap.delete(position);
+                            map.remove(userID);
+                            if (mGroupAdapter != null) {
+                                mGroupAdapter.setContact(getSelectedUser());
+                                notifySelectAreaDataSetChanged();
+                            }
+                        }
+
+                        if (map.size() > 0) {
+                            selectNum.setText("(" + map.size() + ")");
+                        } else {
+                            selectNum.setText("");
                         }
                     }
                 });
-                checkBox.setChecked(mSelectMap.get(position));
+
+                ArrayList<String> selectedUser = getSelectedUser();
+                if (selectedUser.size() > 0) {
+                    if (selectedUser.contains(userName)) {
+                        checkBox.setChecked(true);
+                    } else {
+                        checkBox.setChecked(false);
+                    }
+                } else {
+                    checkBox.setChecked(false);
+                }
             } else {
-                checkBox.setVisibility(View.INVISIBLE);
+                JMessageClient.getGroupInfo(mGroupId, new GetGroupInfoCallback() {
+                    @Override
+                    public void gotResult(int i, String s, GroupInfo groupInfo) {
+                        if (i == 0) {
+                            if (groupInfo.getGroupOwner().equals(userInfo.getUserName())) {
+                                checkBox.setVisibility(View.INVISIBLE);
+                            } else {
+                                checkBox.setVisibility(View.VISIBLE);
+                                mSelectedList.add(userInfo.getUserName());
+                                map.remove(userID);
+                            }
+                        }
+                    }
+                });
             }
 
         } else {
             checkBox.setVisibility(View.GONE);
+        }
+
+        if (mGridView != null) {
+            mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    ArrayList<String> selectedUser = getSelectedUser();
+                    JMessageClient.getUserInfo(selectedUser.get(position), new GetUserInfoCallback() {
+                        @Override
+                        public void gotResult(int responseCode, String responseMessage, UserInfo info) {
+                            if (responseCode == 0) {
+                                long uid = info.getUserID();
+                                map.remove(uid);
+                                if (mGroupAdapter != null) {
+                                    mGroupAdapter.setContact(getSelectedUser());
+                                    notifySelectAreaDataSetChanged();
+                                }
+                                notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            });
         }
 
         if (!TextUtils.isEmpty(userInfo.getAvatar())) {
@@ -123,7 +201,6 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
                         icon.setImageBitmap(bitmap);
                     } else {
                         icon.setImageResource(R.drawable.jmui_head_icon);
-                        HandleResponseCode.onHandle(mContext, status, false);
                     }
                 }
             });
@@ -137,14 +214,14 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
     /**
      * 给CheckBox加点击动画，利用开源库nineoldandroids设置动画
      */
-    private void addAnimation(View view) {
-        float[] vaules = new float[]{0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f, 1.25f, 1.2f, 1.15f, 1.1f, 1.0f};
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(ObjectAnimator.ofFloat(view, "scaleX", vaules),
-                ObjectAnimator.ofFloat(view, "scaleY", vaules));
-        set.setDuration(150);
-        set.start();
-    }
+//    private void addAnimation(View view) {
+//        float[] vaules = new float[] {0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f, 1.25f, 1.2f, 1.15f, 1.1f, 1.0f};
+//        AnimatorSet set = new AnimatorSet();
+//        set.playTogether(ObjectAnimator.ofFloat(view, "scaleX", vaules),
+//                ObjectAnimator.ofFloat(view, "scaleY", vaules));
+//        set.setDuration(150);
+//        set.start();
+//    }
 
     public List<String> getSelectedList() {
         Log.d("AllMembersAdapter", "SelectedList: " + mSelectedList.toString());
@@ -166,7 +243,7 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         notifyDataSetChanged();
     }
 
-    public void updateListView(List<ItemModel> filterList) {
+    public void updateListView(List<MembersInChatActivity.ItemModel> filterList) {
         mSelectMap.clear();
         mMemberList = filterList;
         notifyDataSetChanged();
@@ -178,13 +255,12 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
         String userName = userInfo.getUserName();
         Intent intent = new Intent();
         if (userName.equals(JMessageClient.getMyInfo().getUserName())) {
-            intent.setClass(mContext, MeInfoActivity.class);
+            intent.setClass(mContext, PersonalActivity.class);
             mContext.startActivity(intent);
         } else {
             intent.setClass(mContext, FriendInfoActivity.class);
             intent.putExtra(JChatDemoApplication.TARGET_APP_KEY, userInfo.getAppKey());
-            intent.putExtra(JChatDemoApplication.TARGET_ID,
-                    userInfo.getUserName());
+            intent.putExtra(JChatDemoApplication.TARGET_ID, userInfo.getUserName());
             intent.putExtra(JChatDemoApplication.GROUP_ID, mGroupId);
             mContext.startActivity(intent);
         }
@@ -214,7 +290,7 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
                                     if (status == 0) {
                                         mContext.refreshMemberList();
                                     } else {
-                                        HandleResponseCode.onHandle(mContext, status, false);
+                                        ToastUtil.shortToast(mContext, "删除失败" + desc);
                                     }
                                 }
                             });
@@ -228,5 +304,39 @@ public class AllMembersAdapter extends BaseAdapter implements AdapterView.OnItem
             mDialog.show();
         }
         return true;
+    }
+
+    ArrayList<String> list = new ArrayList<>();
+
+    public ArrayList<String> getSelectedUser() {
+        list.clear();
+        for (Long key : map.keySet()) {
+            list.add(map.get(key));
+        }
+        return list;
+    }
+
+    private void notifySelectAreaDataSetChanged() {
+        int converViewWidth = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 46, mContext.getResources()
+                .getDisplayMetrics()));
+        ViewGroup.LayoutParams layoutParams = mGridView.getLayoutParams();
+        layoutParams.width = converViewWidth * getSelectedUser().size();
+        layoutParams.height = converViewWidth;
+        mGridView.setLayoutParams(layoutParams);
+        mGridView.setNumColumns(getSelectedUser().size());
+
+        try {
+            final int x = layoutParams.width;
+            final int y = layoutParams.height;
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    mHorizontalScrollView.scrollTo(x, y);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        notifyDataSetChanged();
     }
 }

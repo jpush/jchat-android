@@ -1,23 +1,56 @@
 package io.jchat.android.entity;
 
 
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+
+import cn.jpush.im.android.api.model.Message;
 
 public class FileItem {
-
     private String mFilePath;
     private String mFileName;
     private String mSize;
     private String mDate;
+    private int section;
+    private int msgId;
+    private String mUserName;
+    private Message mMessage;
+    private String localPath;
 
-    public FileItem(String path, String name, String size, String date) {
+    public FileItem(String path, String name, String size, String date, int msgId) {
         this.mFilePath = path;
         this.mFileName = name;
         this.mSize = size;
         this.mDate = date;
+        this.msgId = msgId;
+    }
+
+    public FileItem(String thumbPath, String path, String name, String size, String date, int msgId) {
+        this.mFilePath = thumbPath;
+        this.localPath = path;
+        this.mFileName = name;
+        this.mSize = size;
+        this.mDate = date;
+        this.msgId = msgId;
+    }
+
+    public FileItem(String path, String name, String size, String date, int msgId, String userName, Message message) {
+        this.mFilePath = path;
+        this.mFileName = name;
+        this.mSize = size;
+        this.mDate = date;
+        this.msgId = msgId;
+        this.mUserName = userName;
+        this.mMessage = message;
+    }
+
+    public String getLocalPath(){return localPath;}
+
+    public Message getMessage() {
+        return mMessage;
+    }
+
+    public String getFromeName() {
+        return mUserName;
     }
 
     public String getFilePath() {
@@ -34,6 +67,18 @@ public class FileItem {
 
     public void setFileName(String mFileName) {
         this.mFileName = mFileName;
+    }
+
+    public int getSection() {
+        return section;
+    }
+
+    public void setSection(int section) {
+        this.section = section;
+    }
+
+    public int getMsgId() {
+        return msgId;
     }
 
     public String getFileSize() {
@@ -60,7 +105,7 @@ public class FileItem {
     }
 
     public String getDate() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
-        return format.format(Long.valueOf(mDate) * 1000);
+        return mDate;
     }
+
 }

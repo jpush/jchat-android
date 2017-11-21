@@ -1,132 +1,172 @@
 package io.jchat.android.controller;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
-import android.util.Log;
+import android.content.Intent;
+import android.text.TextUtils;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CompoundButton;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+
+import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 import io.jchat.android.R;
+import io.jchat.android.activity.FinishRegisterActivity;
 import io.jchat.android.activity.LoginActivity;
+import io.jchat.android.activity.MainActivity;
+import io.jchat.android.application.JChatDemoApplication;
+import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.chatting.utils.SharePreferenceManager;
-import io.jchat.android.chatting.utils.DialogCreator;
 import io.jchat.android.database.UserEntry;
-import io.jchat.android.view.LoginView;
-import cn.jpush.im.api.BasicCallback;
+import io.jchat.android.tools.ToastUtil;
 
-public class LoginController implements LoginView.Listener, OnClickListener,
-        CompoundButton.OnCheckedChangeListener {
+public class LoginController implements View.OnClickListener {
 
-    private LoginView mLoginView;
     private LoginActivity mContext;
 
-    public LoginController(LoginView mLoginView, LoginActivity context) {
-        this.mLoginView = mLoginView;
-        this.mContext = context;
+    public LoginController(LoginActivity loginActivity) {
+        this.mContext = loginActivity;
+    }
+
+    private boolean isContainChinese(String str) {
+        Pattern pattern = Pattern.compile("[\u4e00-\u9fa5]");
+        Matcher matcher = pattern.matcher(str);
+        if (matcher.find()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean whatStartWith(String str) {
+        Pattern pattern = Pattern.compile("^([A-Za-z]|[0-9])");
+        Matcher matcher = pattern.matcher(str);
+        if (matcher.find()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean whatContain(String str) {
+        Pattern pattern = Pattern.compile("^[0-9a-zA-Z][a-zA-Z0-9_\\-@\\.]{3,127}$");
+        Matcher matcher = pattern.matcher(str);
+        if (matcher.find()) {
+            return true;
+        }
+        return false;
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.return_btn:
-                mContext.finish();
-                break;
-            case R.id.login_btn:
-                //隐藏软键盘
-                InputMethodManager manager = ((InputMethodManager) mContext
-                        .getSystemService(Activity.INPUT_METHOD_SERVICE));
-                if (mContext.getWindow().getAttributes().softInputMode
-                        != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
-                    if (mContext.getCurrentFocus() != null) {
-                        manager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(),
-                                InputMethodManager.HIDE_NOT_ALWAYS);
-                    }
+            case R.id.btn_login:
+                //登陆验证
+                final String userId = mContext.getUserId();
+                final String password = mContext.getPassword();
+                if (TextUtils.isEmpty(userId)) {
+                    ToastUtil.shortToast(mContext, "用户名不能为空");
+                    mContext.mLogin_userName.setShakeAnimation();
+                    return;
                 }
-
-                final String userId = mLoginView.getUserId();
-                final String password = mLoginView.getPassword();
-
-                if (userId.equals("")) {
-                    mLoginView.userNameError(mContext);
-                    break;
-                } else if (password.equals("")) {
-                    mLoginView.passwordError(mContext);
-                    break;
+                if (TextUtils.isEmpty(password)) {
+                    ToastUtil.shortToast(mContext, "密码不能为空");
+                    mContext.mLogin_passWord.setShakeAnimation();
+                    return;
                 }
-                final Dialog dialog = DialogCreator.createLoadingDialog(mContext,
-                        mContext.getString(R.string.login_hint));
-                dialog.show();
-                JMessageClient.login(userId, password, new BasicCallback() {
-                    @Override
-                    public void gotResult(final int status, final String desc) {
-                        dialog.dismiss();
-                        if (status == 0) {
-                            String username = JMessageClient.getMyInfo().getUserName();
-                            String appKey = JMessageClient.getMyInfo().getAppKey();
-                            UserEntry user = UserEntry.getUser(username, appKey);
-                            if (null == user) {
-                                user = new UserEntry(username, appKey);
-                                user.save();
+                if (userId.length() < 4 || userId.length() > 128) {
+                    mContext.mLogin_userName.setShakeAnimation();
+                    ToastUtil.shortToast(mContext, "用户名为4-128位字符");
+                    return;
+                }
+                if (password.length() < 4 || password.length() > 128) {
+                    mContext.mLogin_userName.setShakeAnimation();
+                    ToastUtil.shortToast(mContext, "密码为4-128位字符");
+                    return;
+                }
+                if (isContainChinese(userId)) {
+                    mContext.mLogin_userName.setShakeAnimation();
+                    ToastUtil.shortToast(mContext, "用户名不支持中文");
+                    return;
+                }
+                if (!whatStartWith(userId)) {
+                    mContext.mLogin_userName.setShakeAnimation();
+                    ToastUtil.shortToast(mContext, "用户名以字母或者数字开头");
+                    return;
+                }
+                if (!whatContain(userId)) {
+                    mContext.mLogin_userName.setShakeAnimation();
+                    ToastUtil.shortToast(mContext, "只能含有: 数字 字母 下划线 . - @");
+                    return;
+                }
+                //登陆
+                if (JChatDemoApplication.registerOrLogin % 2 == 1) {
+                    final Dialog dialog = DialogCreator.createLoadingDialog(mContext,
+                            mContext.getString(R.string.login_hint));
+                    dialog.show();
+                    JMessageClient.login(userId, password, new BasicCallback() {
+                        @Override
+                        public void gotResult(int responseCode, String responseMessage) {
+                            dialog.dismiss();
+                            if (responseCode == 0) {
+                                SharePreferenceManager.setCachedPsw(password);
+                                UserInfo myInfo = JMessageClient.getMyInfo();
+                                File avatarFile = myInfo.getAvatarFile();
+                                //登陆成功,如果用户有头像就把头像存起来,没有就设置null
+                                if (avatarFile != null) {
+                                    SharePreferenceManager.setCachedAvatarPath(avatarFile.getAbsolutePath());
+                                } else {
+                                    SharePreferenceManager.setCachedAvatarPath(null);
+                                }
+                                String username = myInfo.getUserName();
+                                String appKey = myInfo.getAppKey();
+                                UserEntry user = UserEntry.getUser(username, appKey);
+                                if (null == user) {
+                                    user = new UserEntry(username, appKey);
+                                    user.save();
+                                }
+                                mContext.goToActivity(mContext, MainActivity.class);
+                                ToastUtil.shortToast(mContext, "登陆成功");
+                                mContext.finish();
+                            } else {
+                                ToastUtil.shortToast(mContext, "登陆失败" + responseMessage);
                             }
-                            mContext.startMainActivity();
-                        } else {
-                            Log.i("LoginController", "status = " + status);
-                            HandleResponseCode.onHandle(mContext, status, false);
                         }
-                    }
-                });
+                    });
+                    //注册
+                } else {
+                    JMessageClient.register(userId, password, new BasicCallback() {
+                        @Override
+                        public void gotResult(int i, String s) {
+                            if (i == 0) {
+                                SharePreferenceManager.setRegisterName(userId);
+                                SharePreferenceManager.setRegistePass(password);
+                                mContext.startActivity(new Intent(mContext, FinishRegisterActivity.class));
+                                ToastUtil.shortToast(mContext, "注册成功");
+                            } else {
+                                HandleResponseCode.onHandle(mContext, i, false);
+                            }
+                        }
+                    });
+                }
                 break;
-
-            case R.id.register_btn:
-                mContext.startRegisterActivity();
+            case R.id.login_register:
+            case R.id.new_user:
+                mContext.mLogin_passWord.setText("");
+                JChatDemoApplication.registerOrLogin++;
+                if (JChatDemoApplication.registerOrLogin % 2 == 0) {
+                    mContext.mBtn_login.setText("注册");
+                    mContext.mNewUser.setText("去登陆");
+                    mContext.mLogin_register.setText("立即登陆");
+                    mContext.mLogin_desc.setText("已有账号? ");
+                } else {
+                    mContext.mBtn_login.setText("登录");
+                    mContext.mNewUser.setText("新用户");
+                    mContext.mLogin_register.setText("立即注册");
+                    mContext.mLogin_desc.setText("还没有账号? ");
+                }
+                break;
         }
     }
-
-    @Override
-    public void onSoftKeyboardShown(int w, int h, int oldw, int oldh) {
-        int softKeyboardHeight = oldh - h;
-        if (softKeyboardHeight > 300) {
-            mLoginView.setRegistBtnVisable(View.INVISIBLE);
-            boolean writable = SharePreferenceManager.getCachedWritableFlag();
-            if (writable) {
-                Log.i("LoginController", "commit h: " + softKeyboardHeight);
-                SharePreferenceManager.setCachedKeyboardHeight(softKeyboardHeight);
-                SharePreferenceManager.setCachedWritableFlag(false);
-            }
-        }else {
-            mLoginView.setRegistBtnVisable(View.VISIBLE);
-        }
-    }
-
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        Log.d("sdfs", "onCheckedChanged !!!! isChecked = " + isChecked);
-        if (isChecked) {
-            swapEnvironment(true);
-        } else {
-            swapEnvironment(false);
-        }
-    }
-
-    private void swapEnvironment(boolean isTest) {
-        try {
-            Method method = JMessageClient.class.getDeclaredMethod("swapEnvironment", Context.class, Boolean.class);
-            method.invoke(null, mContext, isTest);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

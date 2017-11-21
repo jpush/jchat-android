@@ -20,7 +20,6 @@ public class GroupSettingView extends RelativeLayout{
 
 	public GroupSettingView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public void initModule() {

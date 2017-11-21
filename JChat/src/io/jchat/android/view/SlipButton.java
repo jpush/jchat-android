@@ -50,6 +50,7 @@ public class SlipButton extends View implements OnTouchListener {
             mNowChoose = false;
             NowX = 5;
         }
+        invalidate();
     }
 
     public void setEnabled(boolean b) {
@@ -85,11 +86,11 @@ public class SlipButton extends View implements OnTouchListener {
             canvas.drawBitmap(bg_on, mMatrix, mPaint);//画出打开时的背景
         }
 //			if(NowX >= bg_on.getWidth() - slip_btn.getWidth())
-//				canvas.drawBitmap(bg_on, matrix, paint);
+//				canvas.drawBitmap(bg_on, mMatrix, paint);
 //			else if(NowX <= 0)
-//				canvas.drawBitmap(bg_off, matrix, paint);
+//				canvas.drawBitmap(bg_off, mMatrix, paint);
 //			else if(0 < NowX && NowX < 80)
-//				canvas.drawBitmap(slipping, matrix, paint);
+//				canvas.drawBitmap(slipping, mMatrix, paint);
 
         if (mOnSlip) {//是否是在滑动状态,
             if (NowX >= bg_on.getWidth()) {//是否划出指定范围,不能让游标跑到外头,必须做这个判断

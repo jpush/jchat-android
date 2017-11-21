@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -16,7 +15,6 @@ import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
-import cn.jpush.im.android.api.content.MediaContent;
 import cn.jpush.im.android.api.exceptions.JMFileSizeExceedException;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
@@ -40,7 +37,6 @@ import io.jchat.android.activity.VideoFragment;
 import io.jchat.android.adapter.ViewPagerAdapter;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.chatting.utils.BitmapLoader;
-import io.jchat.android.chatting.utils.HandleResponseCode;
 import io.jchat.android.entity.FileType;
 import io.jchat.android.listener.UpdateSelectedStateListener;
 import io.jchat.android.view.SendFileView;
@@ -149,12 +145,12 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                 Iterator<Map.Entry<FileType, ArrayList<String>>> iterator = mFileMap.entrySet().iterator();
                 mMsgIds = new int[mSize];
                 while (iterator.hasNext()) {
-                    Map.Entry<FileType, ArrayList<String>> entry = iterator.next();
+                    final Map.Entry<FileType, ArrayList<String>> entry = iterator.next();
                     ArrayList<String> list = entry.getValue();
                     switch (entry.getKey()) {
                         case image:
                             Bitmap bitmap;
-                            for (String path : list) {
+                            for (final String path : list) {
                                 if (BitmapLoader.verifyPictureSize(path)) {
                                     File file = new File(path);
                                     ImageContent.createImageContentAsync(file, new ImageContent.CreateImageContentCallback() {
@@ -165,7 +161,6 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                                 mMsgIds[mIndex.get()] = msg.getId();
                                             } else {
                                                 mMsgIds[mIndex.get()] = -1;
-                                                HandleResponseCode.onHandle(mContext, status, false);
                                             }
                                             mIndex.incrementAndGet();
                                             if (mIndex.get() >= mSize) {
@@ -183,7 +178,6 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                                 mMsgIds[mIndex.get()] = msg.getId();
                                             } else {
                                                 mMsgIds[mIndex.get()] = -1;
-                                                HandleResponseCode.onHandle(mContext, status, false);
                                             }
                                             mIndex.incrementAndGet();
                                             if (mIndex.get() >= mSize) {
@@ -194,14 +188,6 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                 }
                             }
                             break;
-                        case video:
-                            mIndex.getAndAdd(list.size());
-                            if (mIndex.get() >= mSize) {
-                                myHandler.sendEmptyMessage(SEND_FILE);
-                            }
-                            Toast.makeText(mContext, mContext.getString(R.string.video_not_support_hint),
-                                    Toast.LENGTH_SHORT).show();
-                            break;
                         default:
                             for (String path : list) {
                                 File file = new File(path);
@@ -210,23 +196,11 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                 if (index > 0) {
                                     fileName = path.substring(index + 1);
                                     try {
+                                        String substring = path.substring(path.lastIndexOf(".") + 1, path.length());
                                         FileContent content = new FileContent(file, fileName);
-                                        content.setStringExtra("fileType", entry.getKey().toString());
-                                        NumberFormat ddf1 = NumberFormat.getNumberInstance();
-                                        //保留小数点后两位
-                                        ddf1.setMaximumFractionDigits(2);
-                                        String sizeDisplay;
-                                        if (file.length() > 1048576.0) {
-                                            double result = file.length() / 1048576.0;
-                                            sizeDisplay = ddf1.format(result) + " MB";
-                                        } else if (file.length() > 1024) {
-                                            double result = file.length() / 1024;
-                                            sizeDisplay = ddf1.format(result) + " KB";
-
-                                        } else {
-                                            sizeDisplay = ddf1.format(file.length()) + " B";
-                                        }
-                                        content.setStringExtra("fileSize", sizeDisplay);
+                                        content.setStringExtra("fileType", substring);
+//                                        content.setStringExtra("fileType", entry.getKey().toString());
+                                        content.setNumberExtra("fileSize", file.length());
                                         Message msg = mConv.createSendMessage(content);
                                         if (mIndex.get() < mSize) {
                                             mMsgIds[mIndex.get()] = msg.getId();
@@ -324,7 +298,7 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
         private final WeakReference<SendFileController> mController;
 
         public MyHandler(SendFileController controller) {
-            mController = new WeakReference<SendFileController>(controller);
+            mController = new WeakReference<>(controller);
         }
 
         @Override

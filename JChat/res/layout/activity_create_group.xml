@@ -1,117 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
-<io.jchat.android.view.CreateGroupView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/create_group_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white" >
+<io.jchat.android.view.SelectFriendView android:id="@+id/select_friend_view"
+                                    xmlns:android="http://schemas.android.com/apk/res/android"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@color/white"
+                                    android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/jmui_jpush_blue" >
+    <RelativeLayout android:id="@+id/menu_title_bar"
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@color/jmui_jpush_blue">
 
         <ImageButton
-            android:id="@+id/creat_group_return_btn"
+            android:id="@+id/jmui_cancel_btn"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/jmui_back_btn_bg"
+            android:src="@drawable/back"/>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:background="@drawable/jmui_back_btn_bg" />
+            android:layout_toRightOf="@id/jmui_cancel_btn"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/jmui_commit_btn"
-            android:layout_width="60dp"
-            android:layout_height="30dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="10dp"
-            android:background="#1EE8BE"
-            android:text="@string/commit"
-            android:textColor="@color/white" />
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/select_friend_title"
+                android:textColor="@color/white"
+                android:textSize="20sp"/>
 
-        <TextView
-            android:id="@+id/target_txt"
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/finish_btn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:gravity="center_vertical"
-            android:text="@string/create_group"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
-    </RelativeLayout>
+            android:layout_alignParentRight="true">
 
-    <EditText
-        android:id="@+id/input_group_id"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:cursorVisible="true"
-        android:textCursorDrawable="@drawable/jmui_text_cursor_bg"
-        style="@style/default_input_style_with_bg"
-        android:layout_margin="10dp"
-        android:hint="输入群名"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="14dp"
+                android:layout_marginRight="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:text="完成"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_normal_size"/>
+
+                <TextView
+                    android:id="@+id/selected_num"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:visibility="gone"/>
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:background="@color/contacts_pinner_bg"
-        android:orientation="vertical"
-        android:paddingBottom="5dp"
-        android:paddingLeft="15dp"
-        android:visibility="gone">
+        android:layout_height="50dp"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/section_show"
+        <RelativeLayout
+            android:id="@+id/rlCtrl"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:background="#fff"
+            android:visibility="visible">
+
+            <HorizontalScrollView
+                android:id="@+id/contact_select_area"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_weight="1"
+                android:fillViewport="true"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingLeft="14dip">
+
+                    <GridView
+                        android:id="@+id/contact_select_area_grid"
+                        style="@style/grid_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:gravity="center"
+                        android:horizontalSpacing="0dip"
+                        android:listSelector="@android:color/transparent"
+                        android:numColumns="5"
+                        android:paddingTop="6dp"
+                        android:verticalSpacing="0dip"/>
+                </LinearLayout>
+            </HorizontalScrollView>
+        </RelativeLayout>
+
+        <EditText
+            android:id="@+id/search_et"
+            style="?android:attr/textViewStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="A"
-            android:textColor="@color/contacts_pinner_txt"
-            />
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:hint="可搜索非好友"
+            android:paddingLeft="8dp"
+            android:textColor="#555555"
+            android:textColorHint="#C2C0C0"
+            android:textSize="14sp"/>
+
     </LinearLayout>
 
-    <RelativeLayout
+    <FrameLayout
+        android:id="@+id/fl_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/contacts_item_bg"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingBottom="5dp"
-        android:paddingLeft="15dp"
-        android:paddingTop="5dp"
-        android:visibility="gone">
+        android:layout_height="match_parent">
 
-        <io.jchat.android.chatting.CircleImageView
-            android:id="@+id/contact_avatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/jmui_head_icon" />
+        <io.jchat.android.view.StickyListHeadersListView
+            android:id="@+id/sticky_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@drawable/main_list_divider_line"
+            android:dividerHeight="1px"/>
 
         <TextView
-            android:id="@+id/contact_username"
+            android:id="@+id/tv_noFriend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@+id/contact_avatar"
-            android:text="Alice" />
+            android:layout_gravity="center"
+            android:text="暂无好友"
+            android:textColor="#C2C0C0"
+            android:textSize="18sp"
+            android:visibility="gone"/>
 
-        <CheckBox
-            android:id="@+id/check_friend"
+        <TextView
+            android:id="@+id/tv_noFilter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="20dp" />
-    </RelativeLayout>
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="50dp"
+            android:text="未匹配到"
+            android:textColor="#C2C0C0"
+            android:textSize="18sp"
+            android:visibility="gone"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/green"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/letter_hint_tv"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:background="@drawable/letter_hint_bg"
+            android:gravity="center"
+            android:textColor="#ffffffff"
+            android:textSize="30dp"
+            android:visibility="invisible"/>
 
-</io.jchat.android.view.CreateGroupView>
+        <io.jchat.android.view.SideBar
+            android:id="@+id/sidebar"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            />
+    </FrameLayout>
+
+</io.jchat.android.view.SelectFriendView>

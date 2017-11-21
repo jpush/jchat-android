@@ -4,15 +4,20 @@ import android.content.Intent;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
+import android.widget.GridView;
+import android.widget.HorizontalScrollView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.UserInfo;
 import io.jchat.android.R;
 import io.jchat.android.activity.SelectFriendActivity;
+import io.jchat.android.adapter.CreateGroupAdapter;
 import io.jchat.android.adapter.StickyListAdapter;
 import io.jchat.android.application.JChatDemoApplication;
 import io.jchat.android.database.FriendEntry;
@@ -31,10 +36,21 @@ public class SelectFriendController implements View.OnClickListener,
     private SelectFriendActivity mContext;
     private StickyListAdapter mAdapter;
     private List<FriendEntry> mData;
+    private Long mGroupID;
+    HorizontalScrollView scrollViewSelected;
+    CreateGroupAdapter groupAdapter;
+    GridView imageSelectedGridView;
+    private FriendEntry mFriendEntry;
 
-    public SelectFriendController(SelectFriendView view, SelectFriendActivity context) {
+    public SelectFriendController(SelectFriendView view, SelectFriendActivity context,
+                                  long groupID, HorizontalScrollView scrollViewSelected,
+                                  CreateGroupAdapter groupAdapter, GridView imageSelectedGridView) {
         this.mSelectFriendView = view;
         this.mContext = context;
+        this.mGroupID = groupID;
+        this.scrollViewSelected = scrollViewSelected;
+        this.groupAdapter = groupAdapter;
+        this.imageSelectedGridView = imageSelectedGridView;
         initData();
     }
 
@@ -42,17 +58,16 @@ public class SelectFriendController implements View.OnClickListener,
         UserEntry userEntry = JChatDemoApplication.getUserEntry();
         mData = userEntry.getFriends();
         Collections.sort(mData, new PinyinComparator());
-        mAdapter = new StickyListAdapter(mContext, mData, true);
+        mAdapter = new StickyListAdapter(mContext, mData, true, scrollViewSelected, imageSelectedGridView, groupAdapter);
+        mAdapter.setGroupID(mGroupID);
         mSelectFriendView.setAdapter(mAdapter);
     }
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.jmui_cancel_btn:
                 mContext.finish();
-                break;
-            case R.id.search_btn:
                 break;
             case R.id.finish_btn:
                 Intent intent = new Intent();
@@ -67,9 +82,8 @@ public class SelectFriendController implements View.OnClickListener,
     public void onTouchingLetterChanged(String s) {
         //该字母首次出现的位置
         int position = mAdapter.getSectionForLetter(s);
-        Log.d("SelectFriendController", "Section position: " + position);
         if (position != -1 && position < mAdapter.getCount()) {
-            mSelectFriendView.setSelection(position);
+            mSelectFriendView.setSelection(position - 1);
         }
     }
 
@@ -88,29 +102,70 @@ public class SelectFriendController implements View.OnClickListener,
 
     }
 
+    List<FriendEntry> forDelete = new ArrayList<>();
+    List<FriendEntry> filterDateList;
+
     /**
      * 根据输入框中的值来过滤数据并更新ListView
+     *
      * @param filterStr
      */
-    private void filterData(String filterStr) {
-        List<FriendEntry> filterDateList = new ArrayList<FriendEntry>();
-
-        if (TextUtils.isEmpty(filterStr)) {
-            filterDateList = mData;
-        } else {
+    private void filterData(final String filterStr) {
+        filterDateList = new ArrayList<>();
+        if (!TextUtils.isEmpty(filterStr)) {
             filterDateList.clear();
-            for(FriendEntry entry : mData) {
-                String name = entry.displayName;
-                if (name.contains(filterStr) || name.startsWith(filterStr)
-                        || entry.letter.equals(filterStr.substring(0, 1).toUpperCase())) {
+            for (FriendEntry entry : mData) {
+                String appKey = entry.appKey;
+
+                String userName = entry.username;
+                String noteName = entry.noteName;
+                String nickName = entry.nickName;
+                if (!userName.equals(filterStr) && userName.contains(filterStr) ||
+                        !userName.equals(filterStr) && noteName.contains(filterStr) ||
+                        !userName.equals(filterStr) && nickName.contains(filterStr) &&
+                                appKey.equals(JMessageClient.getMyInfo().getAppKey())) {
                     filterDateList.add(entry);
                 }
             }
+        } else {
+            if (mFriendEntry != null) {
+                mFriendEntry.delete();
+            }
+            filterDateList = mData;
         }
 
         // 根据a-z进行排序
         Collections.sort(filterDateList, new PinyinComparator());
-        mAdapter.updateListView(filterDateList);
+        mAdapter.updateListView(filterDateList, true, filterStr);
+
+        //当搜索的人不是好友时全局搜索
+        final UserEntry user = UserEntry.getUser(JMessageClient.getMyInfo().getUserName(),
+                JMessageClient.getMyInfo().getAppKey());
+        final List<FriendEntry> finalFilterDateList = filterDateList;
+        JMessageClient.getUserInfo(filterStr, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int responseCode, String responseMessage, UserInfo info) {
+                if (responseCode == 0) {
+                    mFriendEntry = new FriendEntry(info.getUserID(), info.getUserName(), info.getNotename(), info.getNickname(), info.getAppKey(), info.getAvatar(),
+                            info.getUserName(), filterStr.substring(0, 1).toUpperCase(), user);
+                    mFriendEntry.save();
+                    forDelete.add(mFriendEntry);
+                    finalFilterDateList.add(mFriendEntry);
+                    Collections.sort(finalFilterDateList, new PinyinComparator());
+                    mAdapter.updateListView(finalFilterDateList, true, filterStr);
+                }
+            }
+        });
     }
+
+    public void delNotFriend() {
+        if (forDelete != null && forDelete.size() > 0) {
+            for (FriendEntry e : forDelete) {
+                e.delete();
+            }
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
 
 }

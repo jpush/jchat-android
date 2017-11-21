@@ -625,7 +625,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         if (mProgressDialog != null) {
             mProgressDialog.dismiss();
         }
@@ -636,7 +636,6 @@ public class BrowserViewPagerActivity extends BaseActivity {
     public void onBackPressed() {
         if (mDownloading) {
             mProgressDialog.dismiss();
-            //TODO cancel download image
         }
         int pathArray[] = new int[mPathList.size()];
         for (int i = 0; i < pathArray.length; i++) {

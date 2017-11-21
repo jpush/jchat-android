@@ -43,8 +43,7 @@ public class GroupSettingController implements OnClickListener{
 			Intent intent = new Intent();
 			String resultName = mGroupSettingView.getResultName();
 			if (!resultName.equals("")) {
-			//TODO 更新至服务器并保存到数据库中
-				
+
 			intent.putExtra("resultName", resultName);
 			mContext.setResult(2,intent);
 			}

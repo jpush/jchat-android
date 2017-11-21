@@ -98,7 +98,6 @@ public class MeInfoView extends LinearLayout {
     public MeInfoView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.mContext = context;
-        // TODO Auto-generated constructor stub
     }
 
     public void initModule() {
