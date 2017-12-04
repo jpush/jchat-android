@@ -1,5 +1,6 @@
 package jiguang.chat.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -156,6 +157,7 @@ public class SearchContactsActivity extends BaseActivity {
 
             }
 
+            @SuppressLint("StaticFieldLeak")
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mFilterFriendList = new ArrayList<>();
@@ -175,14 +177,10 @@ public class SearchContactsActivity extends BaseActivity {
                     protected void onPostExecute(SearchResult searchResult) {
                         if (searchResult.getFilterStr().equals(mFilterString)) {
                             List<UserInfo> friendList = searchResult.getFriendList();
-                            for (UserInfo friend : friendList) {
-                                mFilterFriendList.add(friend);
-                            }
+                            mFilterFriendList.addAll(friendList);
 
                             List<GroupInfo> groupList = searchResult.getGroupList();
-                            for (GroupInfo group : groupList) {
-                                mFilterGroupList.add(group);
-                            }
+                            mFilterGroupList.addAll(groupList);
 
                             if (mFilterFriendList.size() == 0 && mFilterGroupList.size() == 0) {
                                 if (mFilterString.equals("")) {

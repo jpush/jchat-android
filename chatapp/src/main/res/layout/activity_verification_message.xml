@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_bar_height"
+        android:background="@color/jmui_jpush_blue">
+
+        <ImageButton
+            android:id="@+id/return_btn"
+            android:layout_width="@dimen/title_bar_height"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/jmui_back_btn_bg"
+            android:src="@drawable/back"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/return_btn"
+            android:text="验证消息"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"/>
+
+    </RelativeLayout>
+
+    <RadioGroup
+        android:id="@+id/rg_verification"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rb_friend"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@null"
+            android:button="@null"
+            android:drawableBottom="@drawable/selector_home_title_line"
+            android:gravity="center"
+            android:text="好友验证"
+            android:textColor="@drawable/text_selector"
+            android:textSize="16sp"/>
+
+        <RadioButton
+            android:id="@+id/rb_group"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@null"
+            android:button="@null"
+            android:drawableBottom="@drawable/selector_home_title_line"
+            android:gravity="center"
+            android:text="群组验证"
+            android:textColor="@drawable/text_selector"
+            android:textSize="16sp"/>
+
+    </RadioGroup>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.33dp"
+        android:background="#D2D2D2"/>
+
+    <jiguang.chat.view.NoScrollViewPager
+        android:id="@+id/verification_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </jiguang.chat.view.NoScrollViewPager>
+
+
+</LinearLayout>

@@ -36,6 +36,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
+import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.adapter.ChattingListAdapter;
 import jiguang.chat.utils.FileHelper;
@@ -80,6 +81,7 @@ public class RecordVoiceButton extends Button {
     private Chronometer mVoiceTime;
     private TextView mTimeDown;
     private LinearLayout mMicShow;
+    private String mUserName;
 
     public RecordVoiceButton(Context context) {
         super(context);
@@ -111,6 +113,10 @@ public class RecordVoiceButton extends Button {
         this.mMsgListAdapter = adapter;
         mChatView = chatView;
 
+        if (conv.getType() == ConversationType.single) {
+            UserInfo userInfo = (UserInfo) conv.getTargetInfo();
+            mUserName = userInfo.getUserName();
+        }
     }
 
     @Override
@@ -121,6 +127,14 @@ public class RecordVoiceButton extends Button {
         mTimeShort.setContentView(R.layout.send_voice_time_short);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                if (mConv.getType() == ConversationType.single) {
+                    JMessageClient.sendSingleTransCommand(mUserName, null, "对方正在说话...", new BasicCallback() {
+                        @Override
+                        public void gotResult(int i, String s) {
+
+                        }
+                    });
+                }
                 //文字 松开结束
                 this.setText(mContext.getString(R.string.jmui_send_voice_hint));
                 mIsPressed = true;
@@ -149,6 +163,14 @@ public class RecordVoiceButton extends Button {
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                if (mConv.getType() == ConversationType.single) {
+                    JMessageClient.sendSingleTransCommand(mUserName, null, mConv.getTitle(), new BasicCallback() {
+                        @Override
+                        public void gotResult(int i, String s) {
+
+                        }
+                    });
+                }
                 //文字 按住说话
                 this.setText(mContext.getString(R.string.jmui_record_voice_hint));
                 mIsPressed = false;
@@ -515,7 +537,7 @@ public class RecordVoiceButton extends Button {
 //                            .getString(controller.mContext, "jmui_rest_record_time_hint")), restTime));
                     controller.mMicShow.setVisibility(GONE);
                     controller.mTimeDown.setVisibility(VISIBLE);
-                    controller.mTimeDown.setText(restTime+"");
+                    controller.mTimeDown.setText(restTime + "");
 
                     // 倒计时结束，发送语音, 重置状态
                 } else if (restTime == 0) {

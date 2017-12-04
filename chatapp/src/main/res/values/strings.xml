@@ -45,6 +45,7 @@
     <string name="cross_app_key">跨应用</string>
     <string name="actionbar_conversation">会话</string>
     <string name="actionbar_contact">通讯录</string>
+    <string name="actionbar_chatroom_btn">聊天室</string>
     <string name="actionbar_me">我</string>
     <string name="search_friend_hit">邮箱/用户名/ID</string>
     <string name="search">搜索</string>

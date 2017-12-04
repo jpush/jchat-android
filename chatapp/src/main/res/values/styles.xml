@@ -21,6 +21,7 @@
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
+
     <style name="jmui_record_voice_dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowIsFloating">true</item>
@@ -29,6 +30,7 @@
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowBackground">@drawable/round_background</item>
     </style>
+
     <style name="ac_search_no_results">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -42,11 +44,13 @@
         <item name="android:textColor">#999999</item>
         <item name="android:maxLines">1</item>
     </style>
+
     <style name="ac_search_part_divider_high">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">14dp</item>
         <item name="android:background">#f0f0f6</item>
     </style>
+
     <style name="ac_search_list_view_item_more">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -55,6 +59,7 @@
         <item name="android:layout_marginRight">14dp</item>
         <item name="android:textColor">#999999</item>
     </style>
+
     <style name="ac_search_list_view_divider">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">1dp</item>
@@ -82,18 +87,22 @@
         <item name="android:focusable">true</item>
         <item name="android:background">#bfbfbf</item>
     </style>
+
     <style name="jmui_chat_text_name_style">
         <item name="android:textColor">#818181</item>
         <item name="android:textSize">15sp</item>
         <item name="android:gravity">center</item>
     </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:itemTextAppearance">?android:attr/actionMenuTextAppearance</item>
     </style>
+
     <style name="round_check_box_style" parent="@android:style/Widget.CompoundButton.CheckBox">
         <item name="android:background">@drawable/round_check_box_bg</item>
         <item name="android:button">@null</item>
     </style>
+
     <style name="default_input_style_with_bg">
         <item name="android:padding">5dp</item>
         <item name="android:textColor">#000000</item>
@@ -103,12 +112,15 @@
         <item name="android:focusable">true</item>
         <item name="android:background">@drawable/default_input_bg</item>
     </style>
+
     <style name="grid_view" parent="@android:style/Widget.GridView">
     </style>
+
     <style name="list_view" parent="@android:style/Widget.ListView">
         <item name="android:scrollbarThumbVertical">@drawable/scrollbar_handle_holo_dark</item>
         <item name="android:scrollbarThumbHorizontal">@drawable/scrollbar_handle_holo_dark</item>
     </style>
+
     <style name="dialog_message_text_style">
         <item name="android:textSize">@dimen/normal_text_size</item>
         <item name="android:textColor">@color/color_black_333333</item>
@@ -117,6 +129,7 @@
         <item name="android:paddingTop">@dimen/dialog_padding_vertical</item>
         <item name="android:paddingBottom">@dimen/dialog_padding_vertical</item>
     </style>
+
     <style name="dialog_title_text_style">
         <item name="android:textSize">@dimen/big_text_size</item>
         <item name="android:textColor">@color/color_activity_blue_bg</item>
@@ -126,6 +139,7 @@
         <item name="android:paddingTop">@dimen/dialog_padding_vertical</item>
         <item name="android:paddingBottom">@dimen/dialog_padding_vertical</item>
     </style>
+
     <style name="dialog_default_style" parent="@android:style/Theme.Dialog">
         <item name="android:windowBackground">@color/transparent</item>
         <item name="android:windowFrame">@null</item>
@@ -134,6 +148,7 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:backgroundDimEnabled">true</item>
     </style>
+
     <style name="dialog_button_text_style">
         <item name="android:textSize">@dimen/big_text_size</item>
         <item name="android:textColor">@color/black</item>
@@ -141,10 +156,12 @@
         <item name="android:paddingTop">@dimen/custom_dialog_padding_vertical</item>
         <item name="android:paddingBottom">@dimen/custom_dialog_padding_vertical</item>
     </style>
+
     <style name="default_check_box_style" parent="@android:style/Widget.CompoundButton.CheckBox">
         <item name="android:background">@drawable/default_check_box_style</item>
         <item name="android:button">@null</item>
     </style>
+
     <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">16sp</item>
     </style>
@@ -166,7 +183,7 @@
     </style>
 
     <style name="ActionBarItem">
-        <item name="android:layout_marginTop">7dp</item>
+        <item name="android:paddingTop">7dp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center_horizontal</item>
@@ -275,6 +292,7 @@
         <item name="android:textSize">16sp</item>
         <item name="android:layout_centerVertical">true</item>
     </style>
+
     <style name="info_left_style">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -324,6 +342,7 @@
         <item name="android:statusBarColor">#FF2DD0CF</item>
         <item name="android:windowNoTitle">true</item>
     </style>
+
     <style name="WelcomeStyle" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/loading</item>
         <item name="android:windowNoTitle">true</item>
@@ -333,11 +352,15 @@
         <item name="android:statusBarColor">#FF2DD0CF</item>
         <item name="android:windowNoTitle">true</item>
     </style>
+
+
     <style name="SearchTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:statusBarColor">#E8EDF3</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
+
+
     <style name="Login" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:statusBarColor">#FFFFFF</item>
         <item name="android:windowNoTitle">true</item>
@@ -383,6 +406,7 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Translucent</item>
     </style>
+
     <style name="keyboard_dialog" parent="@android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowIsFloating">true</item>
@@ -405,6 +429,7 @@
         <item name="android:background">#fff</item>
         <item name="android:clickable">true</item>
     </style>
+
     <style name="ChatDetailItemHit">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -425,6 +450,7 @@
         <item name="android:textColor">@color/gray</item>
         <item name="android:textColorHint">@color/gray</item>
     </style>
+
     <style name="ChatDetailArrow">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -443,8 +469,9 @@
         <item name="android:background">@drawable/jmui_list_item_bg</item>
         <item name="android:clickable">true</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:orientation">horizontal </item>
+        <item name="android:orientation">horizontal</item>
     </style>
+
     <style name="MeInfoItemContent">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>

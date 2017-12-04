@@ -45,16 +45,23 @@
                     android:id="@+id/tv_moreGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="19dp"
-                    android:gravity="center_horizontal">
+                    android:gravity="center_horizontal"
+                    android:paddingBottom="19dp">
 
                     <TextView
+                        android:id="@+id/moreGroupMember"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:clickable="true"
-                        android:text="查看更多群成员"
+                        android:text="全部成员"
                         android:textColor="#999999"
                         android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/tv_memberCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#999999"/>
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -153,7 +160,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="20dp"
+                android:layout_height="0.5dp"
                 android:background="#E8EDF3"/>
 
             <LinearLayout
@@ -165,6 +172,61 @@
                     android:text="聊天文件"/>
 
                 <TextView style="@style/ChatDetailItemContent"/>
+
+                <ImageView
+                    style="@style/ChatDetailArrow"/>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:background="#E8EDF3"/>
+
+            <LinearLayout
+                style="@style/ChatDetailItem">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="群组ID"/>
+
+                <TextView
+                    android:id="@+id/tv_groupID"
+                    style="@style/ChatDetailItemContent"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#E8EDF3"/>
+
+            <LinearLayout
+                style="@style/ChatDetailItem">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="群组类型"/>
+
+                <TextView
+                    android:id="@+id/tv_groupType"
+                    style="@style/ChatDetailItemContent"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:background="#E8EDF3"/>
+
+            <LinearLayout
+                android:id="@+id/chat_silence"
+                style="@style/ChatDetailItem">
+
+                <TextView
+                    style="@style/ChatDetailItemHit"
+                    android:text="群禁言列表"/>
+
+                <TextView style="@style/ChatDetailItemContent"/>
+
                 <ImageView
                     style="@style/ChatDetailArrow"/>
 

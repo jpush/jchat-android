@@ -137,16 +137,31 @@
 
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/msg_item_content"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:gravity="center_vertical"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/title_layout"
-                    android:layout_marginTop="1.33dp"
-                    android:ems="10"
-                    android:singleLine="true"
-                    android:textColor="#999999"
-                    android:textSize="14sp"/>
+                    android:layout_below="@+id/title_layout">
+
+                    <ImageView
+                        android:layout_marginTop="2dp"
+                        android:id="@+id/iv_convListSendFail"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/send_message_failed"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/msg_item_content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginTop="1.33dp"
+                        android:ems="10"
+                        android:singleLine="true"
+                        android:textColor="#999999"
+                        android:textSize="14sp"/>
+                </LinearLayout>
 
                 <ImageView
                     android:id="@+id/iv_groupBlocked"

@@ -5,35 +5,32 @@
               android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/search_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="33.33dp"
+        android:background="#fff"
+        android:gravity="center">
 
         <ImageView
-            android:id="@+id/search_icon"
-            android:padding="5dp"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/jmui_head_icon"/>
-
-        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_gravity="center"
+            android:paddingRight="10.17dp"
+            android:src="@drawable/search1"/>
 
-            <TextView
-                android:id="@+id/search_nick"
-                android:layout_marginTop="5dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="昵称"/>
-
-            <TextView
-                android:id="@+id/search_user"
-                android:layout_marginTop="5dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="用户名"/>
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_chatRoomTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:text="搜索"
+            android:textColor="#868989"
+            android:textSize="14sp"/>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="#E8EDF3"/>
 
 </LinearLayout>

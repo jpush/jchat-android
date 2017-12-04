@@ -1,5 +1,6 @@
 package jiguang.chat.controller;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Handler;
@@ -39,11 +40,12 @@ import jiguang.chat.R;
 import jiguang.chat.activity.ChatDetailActivity;
 import jiguang.chat.activity.FriendInfoActivity;
 import jiguang.chat.activity.GroupAvatarActivity;
-import jiguang.chat.activity.GroupGridViewActivity;
+import jiguang.chat.activity.GroupMemberListActivity;
 import jiguang.chat.activity.GroupNotFriendActivity;
 import jiguang.chat.activity.MainActivity;
 import jiguang.chat.activity.MembersInChatActivity;
 import jiguang.chat.activity.PersonalActivity;
+import jiguang.chat.activity.SilenceUsersActivity;
 import jiguang.chat.activity.VerificationActivity;
 import jiguang.chat.activity.historyfile.activity.HistoryFileActivity;
 import jiguang.chat.adapter.GroupMemberGridAdapter;
@@ -129,6 +131,9 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             mGroupInfo = (GroupInfo) conv.getTargetInfo();
             mChatDetailView.initNoDisturb(mGroupInfo.getNoDisturb());
             mMemberInfoList = mGroupInfo.getGroupMembers();
+            mChatDetailView.setMemberCount(" " + mMemberInfoList.size() + " 人");
+            mChatDetailView.setGroupId(mGroupId + "");
+            mChatDetailView.setGroupType(mGroupInfo.getGroupFlag() == 2 ? "普通群" : "私有群");
             String groupOwnerId = mGroupInfo.getGroupOwner();
             mGroupName = mGroupInfo.getGroupName();
             mGroupDesc = mGroupInfo.getGroupDescription();
@@ -215,6 +220,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         mChatDetailView.getGridView().setFocusable(false);
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     public void onClick(View v) {
         Intent intent = new Intent();
@@ -236,11 +242,11 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 break;
             case R.id.rl_groupAvatar:
                 intent.setClass(mContext, GroupAvatarActivity.class);
-                intent.putExtra("groupID",mGroupId);
-                if(mGroupInfo.getBigAvatarFile() != null && mGroupInfo.getBigAvatarFile().exists()) {
+                intent.putExtra("groupID", mGroupId);
+                if (mGroupInfo.getBigAvatarFile() != null && mGroupInfo.getBigAvatarFile().exists()) {
                     intent.putExtra("groupAvatar", mGroupInfo.getBigAvatarFile().getAbsolutePath());
                 }
-                mContext.startActivityForResult(intent,4);
+                mContext.startActivityForResult(intent, 4);
                 break;
             // 删除聊天记录
             case R.id.group_chat_del_ll:
@@ -298,7 +304,11 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 mDialog.show();
                 break;
             case R.id.tv_moreGroup:
-                intent.setClass(mContext, GroupGridViewActivity.class);
+            case R.id.moreGroupMember:
+                //群成员列表,gridView
+                //intent.setClass(mContext, GroupGridViewActivity.class);
+                //群成员list列表
+                intent.setClass(mContext, GroupMemberListActivity.class);
                 intent.putExtra(JGApplication.GROUP_ID, mGroupId);
                 intent.putExtra(JGApplication.DELETE_MODE, false);
                 mContext.startActivityForResult(intent, JGApplication.REQUEST_CODE_ALL_MEMBER);
@@ -412,6 +422,12 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 intent.putExtra("isGroup", mIsGroup);
                 mContext.startActivity(intent);
                 mContext.overridePendingTransition(R.anim.trans_in, R.anim.trans_out);
+                break;
+                //跳转群禁言列表
+            case R.id.chat_silence:
+                intent = new Intent(mContext, SilenceUsersActivity.class);
+                intent.putExtra("groupID", mGroupId);
+                mContext.startActivity(intent);
                 break;
         }
     }

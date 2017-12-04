@@ -52,6 +52,11 @@ public class ChatDetailView extends LinearLayout {
     private LinearLayout mDetailAddFriend;
     private RelativeLayout mClear_rl;
     private ImageView mIv_groupAvatar;
+    private TextView mMoreGroupMember;
+    private TextView mTv_memberCount;
+    private TextView mTv_groupType;
+    private TextView mTv_groupID;
+    private LinearLayout mChat_silence;
 
     public ChatDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -72,6 +77,7 @@ public class ChatDetailView extends LinearLayout {
         mGroupChatRecordLL = (LinearLayout) findViewById(R.id.group_chat_record_ll);
         mGroupChatDelLL = (LinearLayout) findViewById(R.id.group_chat_del_ll);
         mChatFile = (LinearLayout) findViewById(R.id.chat_file);
+        mChat_silence = findViewById(R.id.chat_silence);
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
         mTitle = (TextView) findViewById(R.id.title);
         mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
@@ -84,6 +90,10 @@ public class ChatDetailView extends LinearLayout {
         mBlockBtn = (SlipButton) findViewById(R.id.block_slip_btn);
         mBlockLine = findViewById(R.id.block_split_line);
         mTv_moreGroup = (LinearLayout) findViewById(R.id.tv_moreGroup);
+        mTv_memberCount = findViewById(R.id.tv_memberCount);
+        mMoreGroupMember = findViewById(R.id.moreGroupMember);
+        mTv_groupType = findViewById(R.id.tv_groupType);
+        mTv_groupID = findViewById(R.id.tv_groupID);
         mAddFriend = (Button) findViewById(R.id.chat_detail_add_friend);
         mDetailAddFriend = (LinearLayout) findViewById(R.id.detail_add_friend);
         mClear_rl = (RelativeLayout) findViewById(R.id.clear_rl);
@@ -106,9 +116,12 @@ public class ChatDetailView extends LinearLayout {
         mReturnBtn.setOnClickListener(onClickListener);
         mDelGroupBtn.setOnClickListener(onClickListener);
         mTv_moreGroup.setOnClickListener(onClickListener);
+        mMoreGroupMember.setOnClickListener(onClickListener);
         mAddFriend.setOnClickListener(onClickListener);
         mClear_rl.setOnClickListener(onClickListener);
         mChatFile.setOnClickListener(onClickListener);
+        mChat_silence.setOnClickListener(onClickListener);
+
     }
 
     public void setOnChangeListener(SlipButton.OnChangedListener listener) {
@@ -118,6 +131,18 @@ public class ChatDetailView extends LinearLayout {
 
     public void setItemListener(AdapterView.OnItemClickListener listener) {
         mGridView.setOnItemClickListener(listener);
+    }
+
+    public void setGroupType(String type) {
+        mTv_groupType.setText(type);
+    }
+
+    public void setGroupId(String groupId) {
+        mTv_groupID.setText(groupId);
+    }
+
+    public void setMemberCount(String count) {
+        mTv_memberCount.setText(count);
     }
 
     public void setTitle(String title) {

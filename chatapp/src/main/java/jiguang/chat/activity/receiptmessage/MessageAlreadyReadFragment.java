@@ -30,6 +30,7 @@ public class MessageAlreadyReadFragment extends BaseFragment {
     public MessageAlreadyReadFragment(long groupIdForReceipt) {
         this.mGroupId = groupIdForReceipt;
     }
+
     public MessageAlreadyReadFragment() {
     }
 

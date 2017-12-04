@@ -25,22 +25,22 @@
                 <Button
                     android:id="@+id/actionbar_msg_btn"
                     style="@style/ActionBarItem"
-                    android:drawableTop="@drawable/actionbar_msg_drawable_bg"
+                    android:drawableTop="@drawable/actionbar_conversation_bg"
                     android:text="@string/actionbar_msg"/>
 
                 <TextView
                     android:id="@+id/all_unread_number"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginLeft="12dp"
-                    android:textSize="10sp"
                     android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="2dp"
                     android:background="@drawable/unread_msg_red"
+                    android:elevation="7dp"
                     android:gravity="center"
                     android:text="99+"
                     android:textColor="@android:color/white"
-                    android:elevation="7dp"
+                    android:textSize="10sp"
                     android:visibility="gone"/>
             </FrameLayout>
 
@@ -55,6 +55,18 @@
                     android:drawableTop="@drawable/actionbar_contact_drawable_bg"
                     android:text="@string/actionbar_contact"/>
 
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/actionbar_chatroom_btn"
+                    style="@style/ActionBarItem"
+                    android:drawableTop="@drawable/actionbar_msg_drawable_bg"
+                    android:text="@string/actionbar_chatroom_btn"/>
             </FrameLayout>
 
             <FrameLayout

@@ -17,10 +17,10 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import jiguang.chat.R;
-import jiguang.chat.activity.FriendRecommendActivity;
 import jiguang.chat.activity.GroupActivity;
 import jiguang.chat.activity.SearchContactsActivity;
 import jiguang.chat.activity.SearchForAddFriendActivity;
+import jiguang.chat.activity.VerificationMessageActivity;
 import jiguang.chat.adapter.StickyListAdapter;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
@@ -57,7 +57,8 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
                 mContext.startActivity(intent);
                 break;
             case R.id.verify_ll://验证消息
-                intent.setClass(mContext, FriendRecommendActivity.class);
+                //intent.setClass(mContext, FriendRecommendActivity.class);
+                intent.setClass(mContext, VerificationMessageActivity.class);
                 mContext.startActivity(intent);
                 mContactsView.dismissNewFriends();
                 break;
@@ -84,7 +85,7 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
             public void gotResult(int responseCode, String responseMessage, List<UserInfo> userInfoList) {
                 mContactsView.dismissLoadingHeader();
                 if (responseCode == 0) {
-                    if (userInfoList.size() != 0) {
+                    if (userInfoList != null && userInfoList.size() != 0) {
                         mContactsView.dismissLine();
                         ActiveAndroid.beginTransaction();
                         try {

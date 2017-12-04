@@ -1,6 +1,5 @@
 package jiguang.chat.activity;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,22 +19,14 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.CreateGroupCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
-import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.eventbus.EventBus;
-import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.adapter.CreateGroupAdapter;
 import jiguang.chat.adapter.StickyListAdapter;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
 import jiguang.chat.database.UserEntry;
-import jiguang.chat.entity.Event;
-import jiguang.chat.entity.EventType;
-import jiguang.chat.utils.DialogCreator;
-import jiguang.chat.utils.ToastUtil;
 import jiguang.chat.utils.keyboard.utils.EmoticonsKeyboardUtils;
 import jiguang.chat.utils.pinyin.PinyinComparator;
 import jiguang.chat.utils.sidebar.SideBar;
@@ -60,7 +51,6 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
     private GridView imageSelectedGridView;
     private CreateGroupAdapter mGroupAdapter;
     private Context mContext;
-    private Dialog mLoadingDialog;
     private FriendEntry mFriendEntry;
     private TextView mTv_noFriend;
     private TextView mTv_noFilter;
@@ -143,65 +133,15 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
                 break;
             case R.id.finish_btn:
                 //拿到所选择的userName
-                final ArrayList<String> selectedUser = mAdapter.getSelectedUser();
-                mLoadingDialog = DialogCreator.createLoadingDialog(mContext,
-                        mContext.getString(R.string.creating_hint));
-                mLoadingDialog.show();
-                JMessageClient.createGroup("", "", new CreateGroupCallback() {
-                    @Override
-                    public void gotResult(int responseCode, String responseMsg, final long groupId) {
-                        if (responseCode == 0) {
-                            if (selectedUser.size() > 0) {
-                                JMessageClient.addGroupMembers(groupId, selectedUser, new BasicCallback() {
-                                    @Override
-                                    public void gotResult(int responseCode, String responseMessage) {
-                                        mLoadingDialog.dismiss();
-                                        if (responseCode == 0) {
-                                            //如果创建群组时添加了人,那么就在size基础上加上自己
-                                            createGroup(groupId, selectedUser.size() + 1);
-                                        } else if (responseCode == 810007) {
-                                            ToastUtil.shortToast(mContext, "不能添加自己");
-                                        } else {
-                                            ToastUtil.shortToast(mContext, "添加失败");
-                                        }
-                                    }
-                                });
-                            } else {
-                                mLoadingDialog.dismiss();
-                                //如果创建群组时候没有选择人,那么size就是1
-                                createGroup(groupId, 1);
-                            }
-                        } else {
-                            mLoadingDialog.dismiss();
-                            ToastUtil.shortToast(mContext, responseMsg);
-                        }
-                    }
-                });
+                if (JGApplication.selectedUser != null && JGApplication.selectedUser.size() > 0) {
+                    JGApplication.selectedUser.clear();
+                }
+                JGApplication.selectedUser = mAdapter.getSelectedUser();
+                Intent intent = new Intent(mContext, SelectCreateGroupTypeActivity.class);
+                startActivity(intent);
                 break;
         }
     }
-
-    private void createGroup(long groupId, int groupMembersSize) {
-        Conversation groupConversation = JMessageClient.getGroupConversation(groupId);
-        if (groupConversation == null) {
-            groupConversation = Conversation.createGroupConversation(groupId);
-            EventBus.getDefault().post(new Event.Builder()
-                    .setType(EventType.createConversation)
-                    .setConversation(groupConversation)
-                    .build());
-        }
-
-        Intent intent = new Intent();
-        //设置跳转标志
-        intent.putExtra("fromGroup", true);
-        intent.putExtra(JGApplication.CONV_TITLE, groupConversation.getTitle());
-        intent.putExtra(JGApplication.MEMBERS_COUNT, groupMembersSize);
-        intent.putExtra(JGApplication.GROUP_ID, groupId);
-        intent.setClass(mContext, ChatActivity.class);
-        mContext.startActivity(intent);
-        finish();
-    }
-
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {

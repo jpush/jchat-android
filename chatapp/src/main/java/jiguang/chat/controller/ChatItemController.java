@@ -1071,6 +1071,8 @@ public class ChatItemController {
             case group_member_exit:
             case group_member_removed:
             case group_info_updated:
+            case group_member_keep_silence:
+            case group_member_keep_silence_cancel:
                 holder.groupChange.setText(content);
                 holder.groupChange.setVisibility(View.VISIBLE);
                 holder.msgTime.setVisibility(View.GONE);

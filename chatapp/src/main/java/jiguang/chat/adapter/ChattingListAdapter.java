@@ -96,6 +96,7 @@ public class ChattingListAdapter extends BaseAdapter {
     private ChatItemController mController;
     private Dialog mDialog;
     private boolean mHasLastPage = false;
+    private boolean isChatRoom = false;
 
     public ChattingListAdapter(Activity context, Conversation conv, ContentLongClickListener longClickListener) {
         this.mContext = context;
@@ -123,10 +124,12 @@ public class ChattingListAdapter extends BaseAdapter {
                     }
                 });
             }
-        } else {
+        } else if (mConv.getType() == ConversationType.group) {
             //群聊
             GroupInfo groupInfo = (GroupInfo) mConv.getTargetInfo();
             mGroupId = groupInfo.getGroupID();
+        } else {
+            isChatRoom = true;
         }
         checkSendingImgMsg();
     }
@@ -649,7 +652,8 @@ public class ChattingListAdapter extends BaseAdapter {
             default:
                 mController.handleCustomMsg(msg, holder);
         }
-        if (msg.getDirect() == MessageDirect.send && !msg.getContentType().equals(ContentType.prompt) && msg.getContentType() != ContentType.custom) {
+        if (msg.getDirect() == MessageDirect.send && !msg.getContentType().equals(ContentType.prompt)
+                && msg.getContentType() != ContentType.custom && !isChatRoom) {
             if (msg.getUnreceiptCnt() == 0) {
                 if (msg.getTargetType() == ConversationType.group) {
                     holder.text_receipt.setText("全部已读");

@@ -9,6 +9,7 @@ import java.util.List;
 
 import jiguang.chat.R;
 import jiguang.chat.activity.MainActivity;
+import jiguang.chat.activity.fragment.ChatRoomFragment;
 import jiguang.chat.activity.fragment.ContactsFragment;
 import jiguang.chat.activity.fragment.ConversationListFragment;
 import jiguang.chat.activity.fragment.MeFragment;
@@ -25,6 +26,7 @@ public class MainController implements View.OnClickListener, ViewPager.OnPageCha
     private ConversationListFragment mConvListFragment;
     private MeFragment mMeFragment;
     private ContactsFragment mContactsFragment;
+    private ChatRoomFragment mChatRoomFragment;
 
 
     public MainController(MainView mMainView, MainActivity context) {
@@ -38,10 +40,12 @@ public class MainController implements View.OnClickListener, ViewPager.OnPageCha
         // init Fragment
         mConvListFragment = new ConversationListFragment();
         mContactsFragment = new ContactsFragment();
+        mChatRoomFragment = new ChatRoomFragment();
         mMeFragment = new MeFragment();
 
         fragments.add(mConvListFragment);
         fragments.add(mContactsFragment);
+        fragments.add(mChatRoomFragment);
         fragments.add(mMeFragment);
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(mContext.getSupportFragmentManger(),
                 fragments);
@@ -51,7 +55,6 @@ public class MainController implements View.OnClickListener, ViewPager.OnPageCha
 
     @Override
     public void onClick(View v) {
-        // TODO Auto-generated method stub
         switch (v.getId()) {
             case R.id.actionbar_msg_btn:
                 mMainView.setCurrentItem(0, false);
@@ -59,8 +62,11 @@ public class MainController implements View.OnClickListener, ViewPager.OnPageCha
             case R.id.actionbar_contact_btn:
                 mMainView.setCurrentItem(1, false);
                 break;
-            case R.id.actionbar_me_btn:
+            case R.id.actionbar_chatroom_btn:
                 mMainView.setCurrentItem(2, false);
+                break;
+            case R.id.actionbar_me_btn:
+                mMainView.setCurrentItem(3, false);
                 break;
         }
     }

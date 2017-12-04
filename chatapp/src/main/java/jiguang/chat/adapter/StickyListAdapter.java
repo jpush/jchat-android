@@ -231,7 +231,18 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         }
 
         final long[] uid = new long[1];
-        uid[0] = friend.uid;
+        if (friend.uid == null) {
+            JMessageClient.getUserInfo(friend.username, new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int i, String s, UserInfo userInfo) {
+                    if (i == 0) {
+                        uid[0] = userInfo.getUserID();
+                    }
+                }
+            });
+        } else {
+            uid[0] = friend.uid;
+        }
         if (!mIsSearch) {
             holder.displayName.setText(friend.displayName);
         } else {

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jiguang.chat.view.ChatRoomView android:id="@+id/chat_room_view"
+                                xmlns:android="http://schemas.android.com/apk/res/android"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_bar_height"
+        android:background="@color/jmui_jpush_blue">
+
+        <TextView
+            android:id="@+id/main_title_bar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="14dp"
+            android:text="聊天室"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"/>
+
+        <!--<ImageButton
+            android:id="@+id/create_group_btn"
+            android:layout_width="55dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/msg_title_bar_right_btn_bg"
+            android:src="@drawable/msg_titlebar_right_btn"/>-->
+    </RelativeLayout>
+
+    <FrameLayout
+        android:background="#fff"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/null_chatRoom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="暂无聊天室"
+            android:textColor="#999999"
+            android:textSize="16sp"
+            android:visibility="gone"/>
+
+        <ListView
+            android:id="@+id/lv_chatRoom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:dividerHeight="0.5dp"
+            android:listSelector="@android:color/transparent"
+            android:cacheColorHint="@android:color/transparent"
+            android:layout_marginTop="0dp"
+            android:divider="@drawable/main_list_divider_line"/>
+
+    </FrameLayout>
+
+</jiguang.chat.view.ChatRoomView>

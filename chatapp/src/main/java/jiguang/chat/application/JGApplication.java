@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -101,6 +102,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final String TARGET_APP_KEY = "targetAppKey";
     public static int maxImgCount;               //允许选择图片最大数
     public static final String GROUP_NAME = "groupName";
+    public static String groupAvatarPath;
 
     public static Context context;
     public static LocationService locationService;
@@ -113,13 +115,14 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static List<UserInfo> alreadyRead = new ArrayList<>();
     public static List<UserInfo> unRead = new ArrayList<>();
     public static List<String> forAddFriend = new ArrayList<>();
+    public static Conversation delConversation;
+    public static ArrayList<String> selectedUser;
 
     @Override
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
         StorageUtil.init(context, null);
-
         Fresco.initialize(getApplicationContext());
         SDKInitializer.initialize(getApplicationContext());
         locationService = new LocationService(getApplicationContext());

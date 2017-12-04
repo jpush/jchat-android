@@ -60,7 +60,8 @@ public class FriendInfoActivity extends BaseActivity {
             mTargetAppKey = JMessageClient.getMyInfo().getAppKey();
         }
         mFriendInfoView.initModel(this);
-        mFriendInfoController = new FriendInfoController(mFriendInfoView, this);
+        int flags = getIntent().getFlags();
+        mFriendInfoController = new FriendInfoController(flags, this);
         mFriendInfoView.setListeners(mFriendInfoController);
         mFriendInfoView.setOnChangeListener(mFriendInfoController);
         mIsFromContact = getIntent().getBooleanExtra("fromContact", false);
@@ -164,8 +165,6 @@ public class FriendInfoActivity extends BaseActivity {
                     .setConversation(conv)
                     .build());
         }
-        finish();
-
     }
 
     public UserInfo getUserInfo() {

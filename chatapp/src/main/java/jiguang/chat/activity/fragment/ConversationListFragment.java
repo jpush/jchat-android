@@ -311,6 +311,9 @@ public class ConversationListFragment extends BaseFragment {
         super.onResume();
         dismissPopWindow();
         mMenuItemView.showAddFriend();
+        if (JGApplication.delConversation != null) {
+            mConvListController.delConversation();
+        }
         mConvListController.getAdapter().notifyDataSetChanged();
     }
 

@@ -1,16 +1,24 @@
 apply plugin: 'com.android.application'
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    compileSdkVersion 26
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "io.jchat.android"
         minSdkVersion 18
         targetSdkVersion 23
         versionCode 61
-        versionName "2.2.0"
+        versionName "2.3.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        jackOptions {
+            enabled true
+        }
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                includeCompileClasspath = true
+//            }
+//        }
     }
     buildTypes {
         release {
@@ -18,6 +26,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    //忽略fragment的打包错误,这种做法有问题.应该http://blog.csdn.net/chniccs/article/details/51258972第三种方式
+//    lintOptions {
+//        abortOnError false
+//    }
 
     signingConfigs {
         release {
@@ -40,8 +53,10 @@ android {
     }
     aaptOptions.cruncherEnabled = false
     aaptOptions.useNewCruncher = false
-
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -65,4 +80,5 @@ dependencies {
     compile project(':reclib-qq')
     compile project(':reclib-testemoticons')
     compile 'com.contrarywind:Android-PickerView:3.2.4'
+    compile 'com.yanzhenjie:permission:1.1.2'
 }
