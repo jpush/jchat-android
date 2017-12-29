@@ -36,6 +36,7 @@ public class ChatRoomController implements AdapterView.OnItemClickListener, View
     private void initChatRoomAdapter() {
         Dialog loadingDialog = DialogCreator.createLoadingDialog(mContext, "正在加载...");
         loadingDialog.show();
+        //这里获取的聊天室数量应该有设计设计怎么获取的逻辑???
         ChatRoomManager.getChatRoomListByApp(0, 10, new RequestCallback<List<ChatRoomInfo>>() {
             @Override
             public void gotResult(int i, String s, List<ChatRoomInfo> chatRoomInfos) {

@@ -27,6 +27,9 @@ import android.widget.Toast;
 
 import com.sj.emoji.EmojiBean;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -375,9 +378,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         ekBar.getEtChat().setOnFocusChangeListener((v, hasFocus) -> {
             String content;
             if (hasFocus) {
-                content = "对方正在输入...";
+                content = "{\"type\": \"input\",\"content\": {\"message\": \"对方正在输入\"}}";
             } else {
-                content = mConv.getTitle();
+                content = "{\"type\": \"input\",\"content\": {\"message\": \"\"}}";
             }
             if (mIsSingle) {
                 JMessageClient.sendSingleTransCommand(mTargetId, null, content, new BasicCallback() {
@@ -421,7 +424,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             } else if (null != mAtList) {
                 msg = mConv.createSendMessage(content, mAtList, null);
             } else {
-                LogUtils.d("ChatActivity", "create send message conversation = " + mConv +"==content==" + content.toString());
+                LogUtils.d("ChatActivity", "create send message conversation = " + mConv + "==content==" + content.toString());
                 msg = mConv.createSendMessage(content);
             }
 
@@ -681,7 +684,23 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     public void onEvent(CommandNotificationEvent event) {
         if (event.getType().equals(CommandNotificationEvent.Type.single)) {
             String msg = event.getMsg();
-            runOnUiThread(() -> mChatView.setTitle(msg));
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        JSONObject object = new JSONObject(msg);
+                        JSONObject jsonContent = object.getJSONObject("content");
+                        String messageString = jsonContent.getString("message");
+                        if (TextUtils.isEmpty(messageString)) {
+                            mChatView.setTitle(mConv.getTitle());
+                        } else {
+                            mChatView.setTitle(messageString);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
     }
 
