@@ -115,6 +115,7 @@ public class ContactsView extends LinearLayout {
 
     public void dismissNewFriends() {
         SharePreferenceManager.setCachedNewFriendNum(0);
+        JGApplication.forAddIntoGroup.clear();
         JGApplication.forAddFriend.clear();
         mNewFriendNum.setVisibility(INVISIBLE);
     }

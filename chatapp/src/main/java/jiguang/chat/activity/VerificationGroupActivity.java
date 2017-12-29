@@ -39,6 +39,7 @@ public class VerificationGroupActivity extends BaseActivity {
                 public void gotResult(int i, String s) {
                     if (i == 0) {
                         Toast.makeText(VerificationGroupActivity.this, "申请已发出,等待审核", Toast.LENGTH_SHORT).show();
+                        finish();
                     } else {
                         HandleResponseCode.onHandle(VerificationGroupActivity.this, i, false);
                     }

@@ -259,6 +259,15 @@ public class ContactsFragment extends BaseFragment {
                         @Override
                         public void gotResult(int i, String s, List<UserInfo> list) {
                             if (i == 0) {
+                                if (JGApplication.forAddIntoGroup.size() > 0) {
+                                    for (String addName : JGApplication.forAddIntoGroup) {
+                                        if (addName.equals(list.get(0).getUserName())) {
+                                            return;
+                                        } else {
+                                            JGApplication.forAddIntoGroup.add(list.get(0).getUserName());
+                                        }
+                                    }
+                                }
                                 GroupApplyEntry entry;
                                 //邀请,from是邀请方
                                 if (type.equals(GroupApprovalEvent.Type.invited_into_group)) {
@@ -295,6 +304,10 @@ public class ContactsFragment extends BaseFragment {
                                     }
                                 }
                                 entry.save();
+
+                                int showNum = SharePreferenceManager.getCachedNewFriendNum() + 1;
+                                mContactsView.showNewFriends(showNum);
+                                SharePreferenceManager.setCachedNewFriendNum(showNum);
                             }
                         }
                     });

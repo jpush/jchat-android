@@ -115,6 +115,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static List<UserInfo> alreadyRead = new ArrayList<>();
     public static List<UserInfo> unRead = new ArrayList<>();
     public static List<String> forAddFriend = new ArrayList<>();
+    public static List<String> forAddIntoGroup = new ArrayList<>();
     public static Conversation delConversation;
     public static ArrayList<String> selectedUser;
 

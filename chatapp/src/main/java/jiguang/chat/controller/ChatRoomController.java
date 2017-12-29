@@ -34,7 +34,7 @@ public class ChatRoomController implements AdapterView.OnItemClickListener, View
     }
 
     private void initChatRoomAdapter() {
-        Dialog loadingDialog = DialogCreator.createLoadingDialog(mContext, "正在加载聊天室...");
+        Dialog loadingDialog = DialogCreator.createLoadingDialog(mContext, "正在加载...");
         loadingDialog.show();
         ChatRoomManager.getChatRoomListByApp(0, 10, new RequestCallback<List<ChatRoomInfo>>() {
             @Override
