@@ -49,23 +49,8 @@ public class ChatRoomDetailActivity extends BaseActivity {
                     mInfo = chatRoomInfos.get(0);
                     mChatRoomName.setText(mInfo.getName());
                     mChatRoomID.setText(mInfo.getRoomID() + "");
-                    mInfo.getDescription(new RequestCallback<String>() {
-                        @Override
-                        public void gotResult(int i, String s, String s2) {
-                            if (i == 0) {
-                                mChatRoomDesc.setText(s2);
-                            }
-                        }
-                    });
-
-                    mInfo.getTotalMemberCount(new RequestCallback<Integer>() {
-                        @Override
-                        public void gotResult(int i, String s, Integer integer) {
-                            if (i == 0) {
-                                mChatRoomMember.setText(integer + "");
-                            }
-                        }
-                    });
+                    mChatRoomDesc.setText(mInfo.getDescription());
+                    mChatRoomMember.setText(mInfo.getTotalMemberCount() + "");
                 }
             }
         });

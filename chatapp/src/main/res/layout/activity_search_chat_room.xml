@@ -48,7 +48,7 @@
             android:focusableInTouchMode="true"
             android:imeActionLabel=""
             android:imeOptions="actionSearch"
-            android:inputType="textNoSuggestions"
+            android:inputType="number"
             android:maxLines="1"
             android:paddingRight="6dp"
             android:textColor="#000"
@@ -61,7 +61,10 @@
             android:background="@color/line_normal"
             android:gravity="center"
             android:paddingLeft="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:paddingRight="16dp"
+            android:layout_marginRight="5dp"
             android:text="搜索"
             android:textColor="#fff"
             android:textSize="14sp"/>
@@ -91,6 +94,7 @@
                 android:id="@+id/iv_chatRoomAvatar"
                 android:layout_width="47dp"
                 android:layout_height="47dp"
+                android:layout_gravity="center_vertical"
                 android:src="@drawable/group"/>
 
             <RelativeLayout
@@ -114,6 +118,8 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/tv_chatRoomName"
                     android:layout_marginTop="2dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="聊天室介绍"
                     android:textColor="#999999"
                     android:textSize="14sp"/>

@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,6 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.eventbus.EventBus;
-import cn.jpush.im.android.utils.JsonUtil;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ContactsController;
@@ -253,6 +254,7 @@ public class ContactsFragment extends BaseFragment {
             @Override
             public void gotResult(int i, String s, UserInfo fromUserInfo) {
                 if (i == 0) {
+                    Gson gson = new Gson();
                     event.getApprovalUserInfoList(new GetUserInfoListCallback() {
                         @Override
                         public void gotResult(int i, String s, List<UserInfo> list) {
@@ -267,12 +269,12 @@ public class ContactsFragment extends BaseFragment {
                                     if (fromUserInfo.getAvatar() != null) {
                                         entry = new GroupApplyEntry(fromUserInfo.getUserName(), list.get(0).getUserName(), fromUserInfo.getAppKey(),
                                                 list.get(0).getAvatarFile().getPath(), fromUserInfo.getDisplayName(), list.get(0).getDisplayName(),
-                                                null, GroupApplyInvitation.INVITED.getValue(), JsonUtil.toJson(event), gid + "",
+                                                null, GroupApplyInvitation.INVITED.getValue(), gson.toJson(event), gid + "",
                                                 user, 0, 0);//邀请type=0
                                     } else {
                                         entry = new GroupApplyEntry(fromUserInfo.getUserName(), list.get(0).getUserName(), fromUserInfo.getAppKey(),
                                                 null, fromUserInfo.getDisplayName(), list.get(0).getDisplayName(),
-                                                null, GroupApplyInvitation.INVITED.getValue(), JsonUtil.toJson(event), gid + "",
+                                                null, GroupApplyInvitation.INVITED.getValue(), gson.toJson(event), gid + "",
                                                 user, 0, 0);//邀请type=0
                                     }
                                 } else {
@@ -283,12 +285,12 @@ public class ContactsFragment extends BaseFragment {
                                     if (fromUserInfo.getAvatar() != null) {
                                         entry = new GroupApplyEntry(list.get(0).getUserName(), list.get(0).getUserName(), list.get(0).getAppKey(),
                                                 list.get(0).getAvatarFile().getPath(), list.get(0).getDisplayName(), list.get(0).getDisplayName(),
-                                                event.getReason(), GroupApplyInvitation.INVITED.getValue(), JsonUtil.toJson(event), gid + "",
+                                                event.getReason(), GroupApplyInvitation.INVITED.getValue(), gson.toJson(event), gid + "",
                                                 user, 0, 1);//申请type=1
                                     } else {
                                         entry = new GroupApplyEntry(list.get(0).getUserName(), list.get(0).getUserName(), list.get(0).getAppKey(),
                                                 null, fromUserInfo.getDisplayName(), list.get(0).getDisplayName(),
-                                                event.getReason(), GroupApplyInvitation.INVITED.getValue(), JsonUtil.toJson(event), gid + "",
+                                                event.getReason(), GroupApplyInvitation.INVITED.getValue(), gson.toJson(event), gid + "",
                                                 user, 0, 1);//申请type=1
                                     }
                                 }

@@ -1,5 +1,6 @@
 package jiguang.chat.controller;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -14,6 +15,7 @@ import jiguang.chat.R;
 import jiguang.chat.activity.ChatRoomDetailActivity;
 import jiguang.chat.activity.SearchChatRoomActivity;
 import jiguang.chat.adapter.ChatRoomAdapter;
+import jiguang.chat.utils.DialogCreator;
 import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.view.ChatRoomView;
 
@@ -32,10 +34,12 @@ public class ChatRoomController implements AdapterView.OnItemClickListener, View
     }
 
     private void initChatRoomAdapter() {
-
+        Dialog loadingDialog = DialogCreator.createLoadingDialog(mContext, "正在加载聊天室...");
+        loadingDialog.show();
         ChatRoomManager.getChatRoomListByApp(0, 10, new RequestCallback<List<ChatRoomInfo>>() {
             @Override
             public void gotResult(int i, String s, List<ChatRoomInfo> chatRoomInfos) {
+                loadingDialog.dismiss();
                 if (i == 0) {
                     mChatRoomView.setChatRoomAdapter(new ChatRoomAdapter(mContext, chatRoomInfos, mChatRoomView));
                 } else {

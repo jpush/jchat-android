@@ -1,5 +1,6 @@
 package jiguang.chat.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MotionEvent;
@@ -17,6 +18,7 @@ import cn.jpush.im.android.api.ChatRoomManager;
 import cn.jpush.im.android.api.callback.RequestCallback;
 import cn.jpush.im.android.api.model.ChatRoomInfo;
 import jiguang.chat.R;
+import jiguang.chat.utils.CommonUtils;
 
 /**
  * Created by ${chenyn} on 2017/11/9.
@@ -31,6 +33,7 @@ public class SearchChatRoomActivity extends BaseActivity {
     private EditText mSearchEditText;
     private LinearLayout mAc_iv_press_back;
     private TextView mTv_search;
+    private long mRoomID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +60,10 @@ public class SearchChatRoomActivity extends BaseActivity {
             return false;
         });
 
-        mAc_iv_press_back.setOnClickListener(v -> finish());
+        mAc_iv_press_back.setOnClickListener(v -> {
+            finish();
+            CommonUtils.hideKeyboard(SearchChatRoomActivity.this);
+        });
         mTv_search.setOnClickListener(v -> {
             if (!TextUtils.isEmpty(mSearchEditText.getText())) {
                 String roomId = mSearchEditText.getText().toString().trim();
@@ -65,16 +71,9 @@ public class SearchChatRoomActivity extends BaseActivity {
                     @Override
                     public void gotResult(int i, String s, List<ChatRoomInfo> chatRoomInfos) {
                         if (i == 0) {
+                            mRoomID = chatRoomInfos.get(0).getRoomID();
                             mLl_chatRoomItem.setVisibility(View.VISIBLE);
-                            chatRoomInfos.get(0).getDescription(new RequestCallback<String>() {
-                                @Override
-                                public void gotResult(int i, String s, String s2) {
-                                    if ( i == 0) {
-                                        mTv_chatRoomDesc.setText(s2);
-                                    }
-                                }
-                            });
-
+                            mTv_chatRoomDesc.setText(chatRoomInfos.get(0).getDescription());
                             mTv_chatRoomName.setText(chatRoomInfos.get(0).getName());
                         }else {
                             mLl_chatRoomItem.setVisibility(View.GONE);
@@ -83,6 +82,12 @@ public class SearchChatRoomActivity extends BaseActivity {
                     }
                 });
             }
+        });
+
+        mLl_chatRoomItem.setOnClickListener(v -> {
+            Intent intent = new Intent(SearchChatRoomActivity.this, ChatRoomDetailActivity.class);
+            intent.putExtra("chatRoomId", mRoomID);
+            startActivity(intent);
         });
 
     }
@@ -97,4 +102,5 @@ public class SearchChatRoomActivity extends BaseActivity {
         mAc_iv_press_back = (LinearLayout) findViewById(R.id.ac_iv_press_back);
         mSearchEditText = (EditText) findViewById(R.id.ac_et_search);
     }
+
 }

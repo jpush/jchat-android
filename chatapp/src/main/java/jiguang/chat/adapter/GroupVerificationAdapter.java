@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.io.File;
 import java.util.List;
 
@@ -22,7 +24,6 @@ import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.event.GroupApprovalEvent;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.utils.JsonUtil;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.database.GroupApplyEntry;
@@ -123,7 +124,8 @@ public class GroupVerificationAdapter extends BaseAdapter {
 
         //申请
         //0为初始状态
-        GroupApprovalEvent event = JsonUtil.fromJson(entry.eventJson, GroupApprovalEvent.class);
+        Gson gson = new Gson();
+        GroupApprovalEvent event = gson.fromJson(entry.eventJson, GroupApprovalEvent.class);
         if (entry.btnState == 0) {
             holder.item_add_btn.setBackgroundColor(Color.parseColor("#2DD0CF"));
             holder.item_add_btn.setTextColor(Color.parseColor("#FFFFFF"));

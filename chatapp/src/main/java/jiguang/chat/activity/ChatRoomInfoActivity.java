@@ -23,7 +23,7 @@ public class ChatRoomInfoActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room_info);
-        initTitle(true, true, "详细资料", "", false, "");
+        initTitle(true, true, "聊天室资料", "", false, "");
         mTv_chatRoomName = (TextView) findViewById(R.id.tv_chatRoomName);
         tv_chatRoomID = (TextView) findViewById(R.id.tv_chatRoomID);
         tv_chatRoomMember = (TextView) findViewById(R.id.tv_chatRoomMember);
@@ -39,22 +39,9 @@ public class ChatRoomInfoActivity extends BaseActivity {
                     ChatRoomInfo info = chatRoomInfos.get(0);
                     mTv_chatRoomName.setText(info.getName());
                     tv_chatRoomID.setText(info.getRoomID() + "");
-                    info.getTotalMemberCount(new RequestCallback<Integer>() {
-                        @Override
-                        public void gotResult(int i, String s, Integer integer) {
-                            if (i == 0) {
-                                tv_chatRoomMember.setText(integer + "");
-                            }
-                        }
-                    });
-                    info.getDescription(new RequestCallback<String>() {
-                        @Override
-                        public void gotResult(int i, String s, String s2) {
-                            if (i == 0) {
-                                tv_chatRoomDesc.setText(s2);
-                            }
-                        }
-                    });
+                    tv_chatRoomMember.setText(info.getTotalMemberCount() + "");
+                    tv_chatRoomDesc.setText(info.getDescription());
+
                 }
             }
         });

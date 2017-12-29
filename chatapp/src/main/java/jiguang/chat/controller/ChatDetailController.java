@@ -42,6 +42,7 @@ import jiguang.chat.activity.FriendInfoActivity;
 import jiguang.chat.activity.GroupAvatarActivity;
 import jiguang.chat.activity.GroupMemberListActivity;
 import jiguang.chat.activity.GroupNotFriendActivity;
+import jiguang.chat.activity.GroupUserInfoActivity;
 import jiguang.chat.activity.MainActivity;
 import jiguang.chat.activity.MembersInChatActivity;
 import jiguang.chat.activity.PersonalActivity;
@@ -100,6 +101,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private String mAvatarPath;
     private boolean mFriend;
     private Long mUid;
+    private String mGroupOwnerId;
 
     public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context, int size,
                                 int width) {
@@ -134,7 +136,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             mChatDetailView.setMemberCount(" " + mMemberInfoList.size() + " 人");
             mChatDetailView.setGroupId(mGroupId + "");
             mChatDetailView.setGroupType(mGroupInfo.getGroupFlag() == 2 ? "普通群" : "私有群");
-            String groupOwnerId = mGroupInfo.getGroupOwner();
+            mGroupOwnerId = mGroupInfo.getGroupOwner();
             mGroupName = mGroupInfo.getGroupName();
             mGroupDesc = mGroupInfo.getGroupDescription();
             if (mGroupInfo.getAvatarFile() != null && mGroupInfo.getAvatarFile().exists()) {
@@ -155,7 +157,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             }
 
             // 判断是否为群主
-            if (groupOwnerId != null && groupOwnerId.equals(mMyUsername)) {
+            if (mGroupOwnerId != null && mGroupOwnerId.equals(mMyUsername)) {
                 mIsCreator = true;
             }
             mChatDetailView.setMyName(mMyUsername);
@@ -513,16 +515,20 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     intent.setClass(mContext, PersonalActivity.class);
                 } else {
                     UserInfo userInfo = mMemberInfoList.get(position);
+                    intent.setClass(mContext, GroupUserInfoActivity.class);
+                    intent.putExtra("groupID",mGroupId);
+                    intent.putExtra("groupUserName",userInfo.getUserName());
+                    intent.putExtra("groupOwner",mGroupOwnerId);
                     //是否是好友
-                    if (userInfo.isFriend()) {
-                        intent.setClass(mContext, FriendInfoActivity.class);
-                        intent.putExtra("group_grid", true);
-                    } else {
-                        intent.setClass(mContext, GroupNotFriendActivity.class);
-                    }
-                    intent.putExtra(JGApplication.TARGET_ID, userInfo.getUserName());
-                    intent.putExtra(JGApplication.TARGET_APP_KEY, userInfo.getAppKey());
-                    intent.putExtra(JGApplication.GROUP_ID, mGroupId);
+//                    if (userInfo.isFriend()) {
+//                        intent.setClass(mContext, FriendInfoActivity.class);
+//                        intent.putExtra("group_grid", true);
+//                    } else {
+//                        intent.setClass(mContext, GroupNotFriendActivity.class);
+//                    }
+//                    intent.putExtra(JGApplication.TARGET_ID, userInfo.getUserName());
+//                    intent.putExtra(JGApplication.TARGET_APP_KEY, userInfo.getAppKey());
+//                    intent.putExtra(JGApplication.GROUP_ID, mGroupId);
                 }
                 mContext.startActivity(intent);
                 // 点击添加成员按钮

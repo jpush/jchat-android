@@ -86,6 +86,7 @@ import jiguang.chat.utils.keyboard.interfaces.EmoticonClickListener;
 import jiguang.chat.utils.keyboard.utils.EmoticonsKeyboardUtils;
 import jiguang.chat.utils.keyboard.widget.FuncLayout;
 import jiguang.chat.utils.photovideo.takevideo.CameraActivity;
+import jiguang.chat.utils.photovideo.takevideo.utils.LogUtils;
 import jiguang.chat.view.ChatView;
 import jiguang.chat.view.SimpleAppsGridView;
 import jiguang.chat.view.TipItem;
@@ -174,7 +175,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
     private void initChatRoom(long chatRoomId) {
         ProgressDialog dialog = new ProgressDialog(mContext);
-        dialog.setMessage("正在加载...");
+        dialog.setMessage("正在进入聊天室...");
         dialog.show();
         ChatRoomManager.enterChatRoom(chatRoomId, new RequestCallback<Conversation>() {
             @Override
@@ -405,6 +406,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
         ekBar.getEtChat().setOnSizeChangedListener((w, h, oldw, oldh) -> scrollToBottom());
         //发送按钮
+        //发送文本消息
         ekBar.getBtnSend().setOnClickListener(v -> {
             String mcgContent = ekBar.getEtChat().getText().toString();
             scrollToBottom();
@@ -419,6 +421,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             } else if (null != mAtList) {
                 msg = mConv.createSendMessage(content, mAtList, null);
             } else {
+                LogUtils.d("ChatActivity", "create send message conversation = " + mConv +"==content==" + content.toString());
                 msg = mConv.createSendMessage(content);
             }
 
@@ -436,6 +439,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     forDel.clear();
                 }
             } else {
+                JMessageClient.sendMessage(msg);
                 mChatAdapter.addMsgToList(msg);
                 ekBar.getEtChat().setText("");
             }

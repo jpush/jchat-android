@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import cn.jpush.im.android.api.callback.RequestCallback;
 import cn.jpush.im.android.api.model.ChatRoomInfo;
 import jiguang.chat.R;
 import jiguang.chat.view.ChatRoomView;
@@ -63,14 +62,8 @@ public class ChatRoomAdapter extends BaseAdapter {
 
         ChatRoomInfo chatRoomInfo = mChatRoomInfoList.get(position);
         holder.tv_chatRoomName.setText(chatRoomInfo.getName());
-        chatRoomInfo.getDescription(new RequestCallback<String>() {
-            @Override
-            public void gotResult(int i, String s, String s2) {
-                if (i == 0) {
-                    holder.tv_chatRoomContent.setText(s2);
-                }
-            }
-        });
+        holder.tv_chatRoomContent.setText(chatRoomInfo.getDescription());
+
 
         return convertView;
     }

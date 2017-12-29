@@ -199,7 +199,7 @@ public class ConversationListFragment extends BaseFragment {
      */
     public void onEvent(OfflineMessageEvent event) {
         Conversation conv = event.getConversation();
-        if (!conv.getTargetId().equals("feedback_Android")) {
+        if (!conv.getTargetId().equals("feedback_Android") && conv.getType() != ConversationType.chatroom) {
             mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
         }
     }
@@ -226,7 +226,7 @@ public class ConversationListFragment extends BaseFragment {
      */
     public void onEvent(ConversationRefreshEvent event) {
         Conversation conv = event.getConversation();
-        if (!conv.getTargetId().equals("feedback_Android")) {
+        if (!conv.getTargetId().equals("feedback_Android") && conv.getType() != ConversationType.chatroom) {
             mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
             //多端在线未读数改变时刷新
             if (event.getReason().equals(ConversationRefreshEvent.Reason.UNREAD_CNT_UPDATED)) {
@@ -246,7 +246,9 @@ public class ConversationListFragment extends BaseFragment {
             switch (msg.what) {
                 case REFRESH_CONVERSATION_LIST:
                     Conversation conv = (Conversation) msg.obj;
-                    mConvListController.getAdapter().setToTop(conv);
+                    if (conv.getType() != ConversationType.chatroom) {
+                        mConvListController.getAdapter().setToTop(conv);
+                    }
                     break;
                 case DISMISS_REFRESH_HEADER:
                     mContext.runOnUiThread(new Runnable() {

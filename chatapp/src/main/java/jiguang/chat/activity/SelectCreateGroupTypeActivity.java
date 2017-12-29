@@ -47,6 +47,7 @@ public class SelectCreateGroupTypeActivity extends BaseActivity implements TextW
     private EditText mEt_groupName;
     private LinearLayout mLl_groupType;
     private TextView mTv_groupSelect;
+    private TextView tvInGroupDesc;
     private Button mBtn_createGroup;
     private ChoosePhoto mChoosePhoto;
     private File avatarFile;
@@ -108,7 +109,7 @@ public class SelectCreateGroupTypeActivity extends BaseActivity implements TextW
                     }
                 });
             } else {
-                JMessageClient.createRestrictedGroup(mEt_groupName.getText().toString(), "", avatarFile, "", new CreateGroupCallback() {
+                JMessageClient.createPublicGroup(mEt_groupName.getText().toString(), "", avatarFile, "", new CreateGroupCallback() {
                     @Override
                     public void gotResult(int responseCode, String responseMsg, final long groupId) {
                         if (responseCode == 0) {
@@ -188,6 +189,7 @@ public class SelectCreateGroupTypeActivity extends BaseActivity implements TextW
         mEt_groupName = (EditText) findViewById(R.id.et_groupName);
         mLl_groupType = (LinearLayout) findViewById(R.id.ll_groupType);
         mTv_groupSelect = (TextView) findViewById(R.id.tv_groupSelect);
+        tvInGroupDesc = (TextView) findViewById(R.id.tvInGroupDesc);
         mBtn_createGroup = (Button) findViewById(R.id.btn_createGroup);
 
         mBtn_createGroup.setClickable(false);
@@ -217,10 +219,12 @@ public class SelectCreateGroupTypeActivity extends BaseActivity implements TextW
             switch (v.getId()) {
                 case R.id.man_rl:
                     mTv_groupSelect.setText("私有群");
+                    tvInGroupDesc.setText("只能通过群成员邀请入群，无需审核");
                     genderDialog.dismiss();
                     break;
                 case R.id.woman_rl:
                     mTv_groupSelect.setText("公开群");
+                    tvInGroupDesc.setText("用户可主动申请入群，需群主审核");
                     genderDialog.dismiss();
                     break;
                 case R.id.rl_secrecy:
