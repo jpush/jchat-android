@@ -56,7 +56,7 @@ JChat 同时具备好友模式和无好友模式：
 - 百度地图
 
 ### 特别说明
-* JChat 不支持eclipse
+* JChat Eclipse版本需要开发者自己切换到eclipse-jchat分支.注:Eclipse版本以后不再维护更新.
 * JChat 是一个单独的完整项目,不能作为module添加到其他项目中
 
 ### 相关文档
