@@ -313,6 +313,10 @@
             android:screenOrientation="portrait"
             android:name=".activity.GroupAvatarActivity"
             android:theme="@style/AppTh"/>
+        <provider
+            android:name="com.activeandroid.content.ContentProvider"
+            android:authorities="${applicationId}"
+            android:exported="false" />
     </application>
 
 </manifest>
