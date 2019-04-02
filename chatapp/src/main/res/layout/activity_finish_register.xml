@@ -116,8 +116,7 @@
         android:layout_marginLeft="30dip"
         android:layout_marginRight="30dip"
         android:layout_marginTop="20dip"
-        android:background="@drawable/blue_btn_selector"
-        android:enabled="false"
+        android:background="@color/blue_btn_normal"
         android:text="完成"
         android:textColor="@drawable/blue_text_selector"
         android:textSize="16sp"/>

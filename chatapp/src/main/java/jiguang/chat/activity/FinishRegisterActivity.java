@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
@@ -194,11 +193,11 @@ public class FinishRegisterActivity extends BaseActivity {
         @Override
         public void onTextChanged(CharSequence cs, int start, int before,
                                   int count) {
-            if (!TextUtils.isEmpty(mNickNameEt.getText().toString())) {
-                mFinishBtn.setEnabled(true);
-            } else {
-                mFinishBtn.setEnabled(false);
-            }
+//            if (!TextUtils.isEmpty(mNickNameEt.getText().toString())) {
+//                mFinishBtn.setEnabled(true);
+//            } else {
+//                mFinishBtn.setEnabled(false);
+//            }
         }
     }
 }

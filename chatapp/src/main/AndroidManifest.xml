@@ -51,84 +51,16 @@
             android:name="AA_DB_VERSION"
             android:value="4"/>
 
-        <!-- Required SDK 核心功能 -->
-        <!-- 可配置android:process参数将PushService放在其他进程中 -->
-        <service
-            android:name="cn.jpush.android.service.PushService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":remote">
-            <intent-filter>
-                <action android:name="cn.jpush.android.intent.REGISTER"/>
-                <action android:name="cn.jpush.android.intent.REPORT"/>
-                <action android:name="cn.jpush.android.intent.PushService"/>
-                <action android:name="cn.jpush.android.intent.PUSH_TIME"/>
-            </intent-filter>
-        </service>
-
-        <!-- Required SDK核心功能 -->
-        <receiver
-            android:name="cn.jpush.android.service.PushReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter android:priority="1000">
-                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED_PROXY"/>
-
-                <category android:name="${applicationId}"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.USER_PRESENT"/>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
-            </intent-filter>
-            <!-- Optional -->
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_ADDED"/>
-                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
-
-                <data android:scheme="package"/>
-            </intent-filter>
-        </receiver>
-
-        <!-- Required SDK核心功能 -->
-        <receiver
-            android:name="cn.jpush.im.android.helpers.IMReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter android:priority="1000">
-                <action android:name="cn.jpush.im.android.action.IM_RESPONSE"/>
-                <action android:name="cn.jpush.im.android.action.NOTIFICATION_CLICK_PROXY"/>
-
-                <category android:name="${applicationId}"/>
-            </intent-filter>
-        </receiver>
-
-
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote">
         </service>
+
+        <!--如果需要使用到位置服务，需要更换百度地图apikey为自己的apikey-->
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="UAkQeBK84ioVGzYgA1rSWYfuD4xYtpmV"/>
-
-        <!-- Required SDK核心功能 -->
-        <receiver
-            android:name="cn.jpush.android.service.AlarmReceiver"
-            android:exported="false"/>
-
-        <meta-data
-            android:name="JPUSH_CHANNEL"
-            android:value="developer-default"/>
-        <meta-data
-            android:name="JPUSH_APPKEY"
-            android:value="4f7aef34fb361292c566a1cd"/>
-
-        <provider
-            android:name="cn.jpush.android.service.DataProvider"
-            android:authorities="${applicationId}.DataProvider"
-            android:exported="true"/>
-
         <activity
             android:name=".activity.WelcomeActivity"
             android:screenOrientation="portrait"
@@ -152,6 +84,7 @@
         <activity
             android:name=".activity.FinishRegisterActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateVisible"
             android:theme="@style/BaseThemes"/>
         <activity
             android:name=".activity.ResetPasswordActivity"
@@ -439,6 +372,10 @@
             android:name=".activity.GroupAvatarActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTh"/>
+        <provider
+            android:name="com.activeandroid.content.ContentProvider"
+            android:authorities="${applicationId}"
+            android:exported="false" />
     </application>
 
 </manifest>

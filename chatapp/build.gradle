@@ -11,14 +11,16 @@ android {
         versionName "2.3.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        jackOptions {
-            enabled true
+        manifestPlaceholders = [
+                JPUSH_PKGNAME : applicationId,
+                JPUSH_APPKEY : "4f7aef34fb361292c566a1cd", //JPush上注册的包名对应的appkey.
+                JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
+        ]
+
+        ndk {
+            //选择要添加的对应cpu类型的.so库。
+            abiFilters 'armeabi', 'armeabi-v7a', 'armeabi-v8a','x86', 'x86_64', 'mips', 'mips64'
         }
-//        javaCompileOptions {
-//            annotationProcessorOptions {
-//                includeCompileClasspath = true
-//            }
-//        }
     }
     buildTypes {
         release {
@@ -27,25 +29,6 @@ android {
         }
     }
 
-    //忽略fragment的打包错误,这种做法有问题.应该http://blog.csdn.net/chniccs/article/details/51258972第三种方式
-//    lintOptions {
-//        abortOnError false
-//    }
-
-    signingConfigs {
-        release {
-            storeFile file("release.keystore")
-            storePassword "jpush-release"
-            keyAlias "release.keystore"
-            keyPassword "jpush-release"
-        }
-        debug {
-            storeFile file("debug.keystore")
-            storePassword "jpush-debug"
-            keyAlias "debug.keystore"
-            keyPassword "jpush-debug"
-        }
-    }
     sourceSets {
         main {
             jniLibs.srcDirs = ['libs']
@@ -81,4 +64,6 @@ dependencies {
     compile project(':reclib-testemoticons')
     compile 'com.contrarywind:Android-PickerView:3.2.4'
     compile 'com.yanzhenjie:permission:1.1.2'
+    compile 'cn.jiguang.sdk:jmessage:2.7.0'  // 此处以JMessage 2.7.0 版本为例。
+    compile 'cn.jiguang.sdk:jcore:1.2.3'  // 此处以JCore 1.2.3 版本为例。
 }
