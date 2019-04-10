@@ -512,9 +512,7 @@ public class ChattingListAdapter extends BaseAdapter {
                     holder.picture = (ImageView) convertView.findViewById(R.id.jmui_picture_iv);
                     holder.locationView = convertView.findViewById(R.id.location_view);
                     break;
-                case custom:
-                case prompt:
-                case eventNotification:
+                default:
                     holder.groupChange = (TextView) convertView.findViewById(R.id.jmui_group_content);
                     break;
             }
@@ -649,11 +647,15 @@ public class ChattingListAdapter extends BaseAdapter {
             case prompt:
                 mController.handlePromptMsg(msg, holder);
                 break;
-            default:
+            case custom:
                 mController.handleCustomMsg(msg, holder);
+                break;
+            default:
+                mController.handleUnSupportMsg(msg, holder);
+                break;
         }
         if (msg.getDirect() == MessageDirect.send && !msg.getContentType().equals(ContentType.prompt)
-                && msg.getContentType() != ContentType.custom && !isChatRoom) {
+                && msg.getContentType() != ContentType.custom  && !isChatRoom && msg.getContentType() != ContentType.video) {
             if (msg.getUnreceiptCnt() == 0) {
                 if (msg.getTargetType() == ConversationType.group) {
                     holder.text_receipt.setText("全部已读");

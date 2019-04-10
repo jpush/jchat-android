@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 
 import com.google.gson.Gson;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,6 @@ import cn.jpush.im.android.api.event.GroupApprovalRefuseEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ContactsController;

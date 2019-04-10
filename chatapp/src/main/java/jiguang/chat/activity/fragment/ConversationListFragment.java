@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 
+import org.greenrobot.eventbus.EventBus;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -32,7 +34,6 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ConversationListController;

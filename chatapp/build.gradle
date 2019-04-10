@@ -46,28 +46,29 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:multidex:1.0.1'
-    compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.android.support:recyclerview-v7:26.1.0'
-    compile 'com.android.support:design:26.1.0'
-    testCompile 'junit:junit:4.12'
-    compile 'com.jakewharton:butterknife:7.0.1'
+    implementation 'com.android.support:multidex:1.0.1'
+    implementation 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:recyclerview-v7:26.1.0'
+    implementation 'com.android.support:design:26.1.0'
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.jakewharton:butterknife:7.0.1'
     annotationProcessor 'com.jakewharton:butterknife:7.0.1'
-    compile 'com.github.bumptech.glide:glide:3.6.1'
-    compile 'com.github.w446108264:AndroidEmoji:1.0.0'
-    compile 'com.github.chrisbanes.photoview:library:1.2.4'
-    compile 'com.facebook.fresco:fresco:0.8.1'
-    compile 'org.greenrobot:eventbus:3.0.0'
-    compile 'io.reactivex:rxandroid:1.2.1'
-    compile project(':reclib-qq')
-    compile project(':reclib-testemoticons')
-    compile 'com.contrarywind:Android-PickerView:3.2.4'
-    compile 'com.yanzhenjie:permission:1.1.2'
-    compile 'cn.jiguang.sdk:jmessage:2.7.0'  // 此处以JMessage 2.7.0 版本为例。
-    compile 'cn.jiguang.sdk:jcore:1.2.3'  // 此处以JCore 1.2.3 版本为例。
+    implementation 'com.github.bumptech.glide:glide:3.6.1'
+    implementation 'com.github.w446108264:AndroidEmoji:1.0.0'
+    implementation 'com.github.chrisbanes.photoview:library:1.2.4'
+    implementation 'com.facebook.fresco:fresco:0.8.1'
+    implementation 'org.greenrobot:eventbus:3.0.0'
+    implementation 'io.reactivex:rxandroid:1.2.1'
+    implementation project(':reclib-qq')
+    implementation project(':reclib-testemoticons')
+    implementation 'com.contrarywind:Android-PickerView:3.2.4'
+    implementation 'com.yanzhenjie:permission:1.1.2'
+    implementation 'cn.jiguang.sdk:jmessage:2.8.2'  // 此处以J
+    implementation 'cn.jiguang.sdk:jcore:1.2.7'
+    implementation 'org.greenrobot:eventbus:3.1.1'
 }

@@ -19,6 +19,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
@@ -30,7 +32,6 @@ import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
-import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;

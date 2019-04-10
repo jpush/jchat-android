@@ -412,5 +412,6 @@
     <string name="scan_barcode_title">条形码扫描</string>
     <string name="scan_qrcode_title">返回</string>
     <string name="scan_qrcode_hint">将取景框对准二维码，即可自动扫描</string>
+    <string name="unsupported_msg">当前版本不支持此消息类型</string>
 
 </resources>

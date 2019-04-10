@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -1091,10 +1092,14 @@ public class ChatItemController {
         CustomContent content = (CustomContent) msg.getContent();
         Boolean isBlackListHint = content.getBooleanValue("blackList");
         Boolean notFriendFlag = content.getBooleanValue("notFriend");
-        if (isBlackListHint != null && isBlackListHint) {
-            holder.groupChange.setText(R.string.jmui_server_803008);
-            holder.groupChange.setVisibility(View.VISIBLE);
-        } else {
+        //TODO:2019/04/09 会话列表滑动时自定义消息这里groupChange会出现null的情况
+        if (holder.groupChange != null) {
+            if (isBlackListHint != null && isBlackListHint) {
+                holder.groupChange.setText(R.string.jmui_server_803008);
+                holder.groupChange.setVisibility(View.VISIBLE);
+            } else {
+                holder.groupChange.setVisibility(View.GONE);
+            }
             holder.groupChange.setVisibility(View.GONE);
         }
 
@@ -1104,7 +1109,12 @@ public class ChatItemController {
 //        } else {
 //            holder.groupChange.setVisibility(View.GONE);
 //        }
-        holder.groupChange.setVisibility(View.GONE);
+    }
+
+    public void handleUnSupportMsg(Message msg, ViewHolder holder) {
+        if (holder.groupChange != null) {
+            holder.groupChange.setText(R.string.unsupported_msg);
+        }
     }
 
     public class BtnOrTxtListener implements View.OnClickListener {

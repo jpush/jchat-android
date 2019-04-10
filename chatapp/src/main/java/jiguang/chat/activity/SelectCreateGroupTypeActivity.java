@@ -19,12 +19,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.CreateGroupCallback;
 import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;

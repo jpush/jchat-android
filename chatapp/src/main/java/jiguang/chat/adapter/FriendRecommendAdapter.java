@@ -12,6 +12,8 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,6 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.activity.FriendInfoActivity;

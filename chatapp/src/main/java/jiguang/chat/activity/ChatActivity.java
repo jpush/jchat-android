@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.sj.emoji.EmojiBean;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -60,7 +61,6 @@ import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
-import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.adapter.ChattingListAdapter;

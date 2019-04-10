@@ -8,9 +8,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 
-import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.model.AppBean;
