@@ -59,11 +59,11 @@ dependencies {
     implementation 'com.jakewharton:butterknife:7.0.1'
     annotationProcessor 'com.jakewharton:butterknife:7.0.1'
     implementation 'com.github.bumptech.glide:glide:3.6.1'
-    implementation 'com.github.w446108264:AndroidEmoji:1.0.0'
     implementation 'com.github.chrisbanes.photoview:library:1.2.4'
     implementation 'com.facebook.fresco:fresco:0.8.1'
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'io.reactivex:rxandroid:1.2.1'
+    implementation project(':emoji')
     implementation project(':reclib-qq')
     implementation project(':reclib-testemoticons')
     implementation 'com.contrarywind:Android-PickerView:3.2.4'
