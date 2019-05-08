@@ -68,7 +68,8 @@ dependencies {
     implementation project(':reclib-testemoticons')
     implementation 'com.contrarywind:Android-PickerView:3.2.4'
     implementation 'com.yanzhenjie:permission:1.1.2'
-    implementation 'cn.jiguang.sdk:jmessage:2.8.2'  // 此处以J
-    implementation 'cn.jiguang.sdk:jcore:1.2.7'
+    implementation 'cn.jiguang.sdk:jmessage:2.9.0'  // 此处以J
+    implementation 'cn.jiguang.sdk:jcore:2.0.0'
     implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation 'in.srain.cube:ptr-load-more:1.0.6'
 }

@@ -51,6 +51,18 @@
             android:name="AA_DB_VERSION"
             android:value="4"/>
 
+        <!-- Since JCore2.0.0 Required SDK核心功能-->
+        <!-- 可配置android:process参数将PushService放在其他进程中 -->
+        <service
+            android:name=".MyService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":pushcore">
+            <intent-filter>
+                <action android:name="cn.jiguang.user.service.action" />
+            </intent-filter>
+        </service>
+
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
