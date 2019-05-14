@@ -33,6 +33,7 @@ public class ChatRoomFragment extends BaseFragment {
 
         mChatRoomView.setListener(mRoomController);
         mChatRoomView.setClickListener(mRoomController);
+        mChatRoomView.setPtrHandler(mRoomController);
     }
 
     @Override

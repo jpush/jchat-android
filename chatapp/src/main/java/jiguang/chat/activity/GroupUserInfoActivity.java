@@ -43,11 +43,15 @@ public class GroupUserInfoActivity extends BaseActivity {
     private TextView mTv_address;
     private Button mBtn_send_message;
     private String mUserName;
+    private String mAppKey = JMessageClient.getMyInfo().getAppKey(); // 默认使用本应用appkey
+    public static final String IS_FROM_GROUP = "is_from_group";
+    private boolean isFromGroup = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.group_user_info);
+        isFromGroup = getIntent().getBooleanExtra(IS_FROM_GROUP, true);
 
         initView();
         initData();
@@ -56,7 +60,7 @@ public class GroupUserInfoActivity extends BaseActivity {
     private void initData() {
         Dialog dialog = DialogCreator.createLoadingDialog(GroupUserInfoActivity.this, "正在加载...");
         dialog.show();
-        JMessageClient.getUserInfo(mUserName, new GetUserInfoCallback() {
+        JMessageClient.getUserInfo(mUserName, mAppKey, new GetUserInfoCallback() {
             @Override
             public void gotResult(int i, String s, UserInfo userInfo) {
                 dialog.dismiss();
@@ -126,11 +130,16 @@ public class GroupUserInfoActivity extends BaseActivity {
     }
 
     private void initView() {
-        mUserName = getIntent().getStringExtra("groupUserName");
+        if (isFromGroup) {
+            mUserName = getIntent().getStringExtra("groupUserName");
+        } else {
+            mUserName = getIntent().getStringExtra(JGApplication.NAME);
+            mAppKey = getIntent().getStringExtra(JGApplication.TARGET_APP_KEY);
+        }
         findViewById(R.id.return_btn).setOnClickListener(v -> finish());
         String groupOwner = getIntent().getStringExtra("groupOwner");
         mIv_more = (ImageView) findViewById(R.id.iv_more);
-        if (groupOwner.equals(JMessageClient.getMyInfo().getUserName())) {
+        if (isFromGroup && groupOwner.equals(JMessageClient.getMyInfo().getUserName())) {
             mIv_more.setVisibility(View.VISIBLE);
         } else {
             mIv_more.setVisibility(View.GONE);
@@ -145,6 +154,9 @@ public class GroupUserInfoActivity extends BaseActivity {
         mTv_birthday = (TextView) findViewById(R.id.tv_birthday);
         mTv_address = (TextView) findViewById(R.id.tv_address);
         mBtn_send_message = (Button) findViewById(R.id.btn_send_message);
+        if (!isFromGroup) {
+            mBtn_send_message.setVisibility(View.GONE);
+        }
     }
 
     public String getBirthday(UserInfo info) {

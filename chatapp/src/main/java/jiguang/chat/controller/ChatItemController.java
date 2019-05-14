@@ -59,6 +59,7 @@ import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
+import cn.jpush.im.android.api.model.ChatRoomInfo;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
@@ -1199,12 +1200,25 @@ public class ChatItemController {
                 case image:
                     if (holder.picture != null && v.getId() == holder.picture.getId()) {
                         Intent intent = new Intent();
-                        intent.putExtra(JGApplication.TARGET_ID, mConv.getTargetId());
+                        String targetId = "";
                         intent.putExtra("msgId", msg.getId());
-                        if (mConv.getType() == ConversationType.group) {
-                            GroupInfo groupInfo = (GroupInfo) mConv.getTargetInfo();
-                            intent.putExtra(JGApplication.GROUP_ID, groupInfo.getGroupID());
+                        Object targetInfo = mConv.getTargetInfo();
+                        switch (mConv.getType()) {
+                            case single:
+                                targetId = ((UserInfo) targetInfo).getUserName();
+                                break;
+                            case group:
+                                targetId = String.valueOf(((GroupInfo) targetInfo).getGroupID());
+                                break;
+                            case chatroom:
+                                targetId = String.valueOf(((ChatRoomInfo) targetInfo).getRoomID());
+                                intent.putExtra(BrowserViewPagerActivity.MSG_JSON, msg.toJson());
+                                intent.putExtra(BrowserViewPagerActivity.MSG_LIST_JSON, getImsgMsgListJson());
+                                break;
+                            default:
                         }
+                        intent.putExtra(JGApplication.CONV_TYPE, mConv.getType());
+                        intent.putExtra(JGApplication.TARGET_ID, targetId);
                         intent.putExtra(JGApplication.TARGET_APP_KEY, mConv.getTargetAppKey());
                         intent.putExtra("msgCount", mMsgList.size());
                         intent.putIntegerArrayListExtra(JGApplication.MsgIDs, getImgMsgIDList());
@@ -1464,6 +1478,16 @@ public class ChatItemController {
             }
         }
         return imgMsgIDList;
+    }
+
+    private String getImsgMsgListJson() {
+        List<Message> messages = new ArrayList<>();
+        for (Message msg : mMsgList) {
+            if (msg.getContentType() == ContentType.image) {
+                messages.add(msg);
+            }
+        }
+        return Message.collectionToJson(messages);
     }
 
     private void browseDocument(String fileName, String path) {

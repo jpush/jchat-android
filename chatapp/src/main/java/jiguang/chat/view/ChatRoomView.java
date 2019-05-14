@@ -9,6 +9,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import in.srain.cube.views.ptr.PtrFrameLayout;
+import in.srain.cube.views.ptr.PtrHandler;
 import jiguang.chat.R;
 import jiguang.chat.adapter.ChatRoomAdapter;
 import jiguang.chat.controller.ChatRoomController;
@@ -23,6 +25,7 @@ public class ChatRoomView extends LinearLayout{
     private ListView mChatRoomListView;
     private LayoutInflater mInflater;
     private LinearLayout mSearch_title;
+    private PtrFrameLayout ptrFrameLayout;
 
     public ChatRoomView(Context context) {
         super(context);
@@ -42,6 +45,8 @@ public class ChatRoomView extends LinearLayout{
         mSearch_title = view.findViewById(R.id.search_title);
         mChatRoomListView = findViewById(R.id.lv_chatRoom);
         mChatRoomListView.addHeaderView(view);
+        ptrFrameLayout = findViewById(R.id.ptr_layout);
+        ptrFrameLayout.setResistanceFooter(1.0f);
     }
 
     public void setListener(ChatRoomController listener) {
@@ -55,4 +60,9 @@ public class ChatRoomView extends LinearLayout{
     public void setChatRoomAdapter(ChatRoomAdapter chatRoomAdapter) {
         mChatRoomListView.setAdapter(chatRoomAdapter);
     }
+
+    public void setPtrHandler(PtrHandler ptrHandler) {
+        ptrFrameLayout.setPtrHandler(ptrHandler);
+    }
+
 }

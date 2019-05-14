@@ -1,5 +1,6 @@
 package jiguang.chat.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -45,6 +46,7 @@ public class SearchChatRoomActivity extends BaseActivity {
         initData();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initData() {
         //清空EditText
         mSearchEditText.setOnTouchListener((v, event) -> {

@@ -40,12 +40,13 @@ import jiguang.chat.utils.photochoose.PhotoUtils;
 public class PersonalActivity extends BaseActivity implements SelectAddressInterface, View.OnClickListener {
 
     public static final int SIGN = 1;
-    public static final int FLAGS_SIGN = 2;
     public static final String SIGN_KEY = "sign_key";
 
     public static final int NICK_NAME = 4;
-    public static final int FLAGS_NICK = 3;
     public static final String NICK_NAME_KEY = "nick_name_key";
+
+    private static final int SIGN_COUNT = 250;
+    private static final int NICK_COUNT = 64;
 
     private RelativeLayout mRl_cityChoose;
     private TextView mTv_city;
@@ -190,14 +191,16 @@ public class PersonalActivity extends BaseActivity implements SelectAddressInter
                 break;
             case R.id.rl_nickName:
                 //昵称
-                intent.setFlags(FLAGS_NICK);
-                intent.putExtra("old_nick", mMyInfo.getNickname());
+                intent.putExtra(NickSignActivity.TYPE, NickSignActivity.Type.PERSON_NICK);
+                intent.putExtra(NickSignActivity.COUNT, NICK_COUNT);
+                intent.putExtra(NickSignActivity.DESC, mMyInfo.getNickname());
                 startActivityForResult(intent, NICK_NAME);
                 break;
             case R.id.sign:
                 //签名
-                intent.setFlags(FLAGS_SIGN);
-                intent.putExtra("old_sign", mMyInfo.getSignature());
+                intent.putExtra(NickSignActivity.TYPE, NickSignActivity.Type.PERSON_SIGN);
+                intent.putExtra(NickSignActivity.COUNT, SIGN_COUNT);
+                intent.putExtra(NickSignActivity.DESC, mMyInfo.getSignature());
                 startActivityForResult(intent, SIGN);
                 break;
             case R.id.rl_gender:
