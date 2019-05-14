@@ -104,7 +104,7 @@ public class SearchForChatRoomActivity extends BaseActivity implements View.OnCl
                                         } else {
                                             mSearch_header.setImageResource(R.drawable.rc_default_portrait);
                                         }
-                                        mSearchName.setText(TextUtils.isEmpty(info.getNickname()) ? info.getUserName() : info.getNickname());
+                                        mSearchName.setText(info.getDisplayName());
                                     } else {
                                         ToastUtil.shortToast(SearchForChatRoomActivity.this, "该用户不存在");
                                         mSearch_result.setVisibility(View.GONE);

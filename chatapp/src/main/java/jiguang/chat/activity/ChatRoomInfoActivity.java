@@ -151,7 +151,7 @@ public class ChatRoomInfoActivity extends BaseActivity implements View.OnClickLi
                             if (i == 0) {
                                 ownerInfo = userInfo;
                                 isOwner = (ownerInfo.getUserID() == JMessageClient.getMyInfo().getUserID());
-                                mTvChatRoomOwner.setText(ownerInfo.getUserName());
+                                mTvChatRoomOwner.setText(ownerInfo.getDisplayName());
                             }
                             if (taskCount.decrementAndGet() == 0) {
                                 loadingDialog.dismiss();

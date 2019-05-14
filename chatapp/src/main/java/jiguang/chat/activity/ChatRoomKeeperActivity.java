@@ -13,7 +13,6 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -126,7 +125,6 @@ public class ChatRoomKeeperActivity extends BaseActivity {
     }
 
     public void onEventMainThread(ChatRoomNotificationEvent event) {
-        Log.d("69523", "event type:" + event.getType() + "mAdapter:" + mAdapter);
         switch (event.getType()) {
             case add_chatroom_admin:
             case del_chatroom_admin:
@@ -137,7 +135,6 @@ public class ChatRoomKeeperActivity extends BaseActivity {
                             if (i == 0) {
                                 mKeepers.clear();
                                 mKeepers.addAll(userInfos);
-                                Log.d("69523", "userinfo size:" + userInfos.size());
                                 addAll(true);
                                 mTvNullKeeper.setVisibility(userInfos.size() > 0 ? View.GONE : View.VISIBLE);
                             }
@@ -169,10 +166,8 @@ public class ChatRoomKeeperActivity extends BaseActivity {
                     filterData();
                     break;
                 case SEARCH_MEMBER_SUCCESS:
-                    Log.d("69523", "cccccccccccccccccccccc");
                     ChatRoomKeeperActivity activity = mActivity.get();
                     if (activity != null && activity.mAdapter != null) {
-                        Log.d("69523", "dddddddddddddddd");
                         activity.mAdapter.notifyDataSetChanged();
                     }
                     break;
@@ -191,7 +186,7 @@ public class ChatRoomKeeperActivity extends BaseActivity {
         if (TextUtils.isEmpty(mSearchText)) {
             addAll(true);
         } else {
-            String nickname, pinyin;
+            String displayName, pinyin;
             int sort;
             SpannableString result;
             ItemModel model;
@@ -199,11 +194,8 @@ public class ChatRoomKeeperActivity extends BaseActivity {
             for (int i = 0; i < mPinyinList.size(); i++) {
                 sort = 0;
                 userInfo = mKeepers.get(i);
-                nickname = userInfo.getNickname();
-                if (TextUtils.isEmpty(nickname)) {
-                    nickname = userInfo.getUserName();
-                }
-                result = new SpannableString(nickname);
+                displayName = userInfo.getDisplayName();
+                result = new SpannableString(displayName);
                 //先进行拼音匹配
                 pinyin = mPinyinList.get(i).toLowerCase();
                 int offset = pinyin.indexOf(mSearchText.toLowerCase());
@@ -213,7 +205,7 @@ public class ChatRoomKeeperActivity extends BaseActivity {
                     result.setSpan(new ForegroundColorSpan(Color.RED), offset,
                             offset + mSearchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     //进行直接匹配
-                    int index = nickname.indexOf(mSearchText);
+                    int index = displayName.indexOf(mSearchText);
                     if (index != -1) {
                         sort += mSearchText.length();
                         result.setSpan(new ForegroundColorSpan(Color.RED), index,
@@ -230,7 +222,7 @@ public class ChatRoomKeeperActivity extends BaseActivity {
                     mShowKeeperList.add(model);
                     //进行直接匹配
                 } else {
-                    int index = nickname.indexOf(mSearchText);
+                    int index = displayName.indexOf(mSearchText);
                     if (index != -1) {
                         sort += mSearchText.length();
                         result.setSpan(new ForegroundColorSpan(Color.RED), index,
@@ -253,7 +245,6 @@ public class ChatRoomKeeperActivity extends BaseActivity {
         ItemModel itemModel;
         mPinyinList.clear();
         mShowKeeperList.clear();
-        Log.d("69523", "aaaaaaaaaaaaaaaaaaaa");
         for (UserInfo userInfo: mKeepers) {
             itemModel = new ItemModel();
             itemModel.data = userInfo;
@@ -267,7 +258,6 @@ public class ChatRoomKeeperActivity extends BaseActivity {
             mShowKeeperList.add(itemModel);
         }
         if (needSendMessage) {
-            Log.d("69523", "bbbbbbbbbbbbbbbbbbbbbbbbb size:" + mShowKeeperList.size());
             myHandler.sendEmptyMessage(SEARCH_MEMBER_SUCCESS);
         }
     }
