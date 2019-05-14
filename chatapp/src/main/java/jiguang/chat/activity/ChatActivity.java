@@ -195,6 +195,10 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         ProgressDialog dialog = new ProgressDialog(mContext);
         dialog.setMessage("正在进入聊天室...");
         dialog.show();
+        dialog.setOnCancelListener((d) -> {
+            d.dismiss();
+            ChatActivity.this.finish();
+        });
         ChatRoomManager.enterChatRoom(chatRoomId, new RequestCallback<Conversation>() {
             @Override
             public void gotResult(int i, String s, Conversation conversation) {
@@ -1120,9 +1124,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     Toast.makeText(this, "请在应用管理中打开“位置”访问权限！", Toast.LENGTH_LONG).show();
                 } else {
                     intent = new Intent(mContext, MapPickerActivity.class);
+                    intent.putExtra(JGApplication.CONV_TYPE, mConv.getType());
                     intent.putExtra(JGApplication.TARGET_ID, mTargetId);
                     intent.putExtra(JGApplication.TARGET_APP_KEY, mTargetAppKey);
-                    intent.putExtra(JGApplication.GROUP_ID, mGroupId);
                     intent.putExtra("sendLocation", true);
                     startActivityForResult(intent, JGApplication.REQUEST_CODE_SEND_LOCATION);
                 }
