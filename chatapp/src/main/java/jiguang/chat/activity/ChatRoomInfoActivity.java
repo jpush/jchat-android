@@ -179,7 +179,7 @@ public class ChatRoomInfoActivity extends BaseActivity implements View.OnClickLi
                     }
                 }
                 mGvChatRoomKeeper.setNumColumns(keeperListDisplay.size());
-                mGridAdapter = new ChatRoomKeeperGridAdapter(ChatRoomInfoActivity.this, keeperListDisplay, mAvatarSize);
+                mGridAdapter = new ChatRoomKeeperGridAdapter(ChatRoomInfoActivity.this, keeperListDisplay);
                 mGvChatRoomKeeper.setAdapter(mGridAdapter);
                 if (taskCount.decrementAndGet() == 0) {
                     loadingDialog.dismiss();
