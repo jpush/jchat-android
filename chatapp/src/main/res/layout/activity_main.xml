@@ -50,11 +50,10 @@
                 android:layout_weight="1">
 
                 <Button
-                    android:id="@+id/actionbar_contact_btn"
+                    android:id="@+id/actionbar_chatroom_btn"
                     style="@style/ActionBarItem"
-                    android:drawableTop="@drawable/actionbar_contact_drawable_bg"
-                    android:text="@string/actionbar_contact"/>
-
+                    android:drawableTop="@drawable/actionbar_msg_drawable_bg"
+                    android:text="@string/actionbar_chatroom_btn"/>
             </FrameLayout>
 
             <FrameLayout
@@ -63,10 +62,11 @@
                 android:layout_weight="1">
 
                 <Button
-                    android:id="@+id/actionbar_chatroom_btn"
+                    android:id="@+id/actionbar_contact_btn"
                     style="@style/ActionBarItem"
-                    android:drawableTop="@drawable/actionbar_msg_drawable_bg"
-                    android:text="@string/actionbar_chatroom_btn"/>
+                    android:drawableTop="@drawable/actionbar_contact_drawable_bg"
+                    android:text="@string/actionbar_contact"/>
+
             </FrameLayout>
 
             <FrameLayout

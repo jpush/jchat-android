@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
@@ -123,14 +124,23 @@ public class MapPickerActivity extends AppCompatActivity implements AdapterView.
         initMap();
         initIntent();
 
+        ConversationType convType = (ConversationType) getIntent().getSerializableExtra(JGApplication.CONV_TYPE);
         String targetId = getIntent().getStringExtra(JGApplication.TARGET_ID);
         String targetAppKey = getIntent().getStringExtra(JGApplication.TARGET_APP_KEY);
-        long groupId = getIntent().getLongExtra(JGApplication.GROUP_ID, 0);
-
-        if (groupId != 0) {
-            conv = JMessageClient.getGroupConversation(groupId);
-        } else {
-            conv = JMessageClient.getSingleConversation(targetId, targetAppKey);
+        if (convType != null) {
+            switch (convType) {
+                case single:
+                    conv = JMessageClient.getSingleConversation(targetId, targetAppKey);
+                    break;
+                case group:
+                    conv = JMessageClient.getGroupConversation(Long.valueOf(targetId));
+                    break;
+                case chatroom:
+                    conv = JMessageClient.getChatRoomConversation(Long.valueOf(targetId));
+                    break;
+                default:
+                    break;
+            }
         }
 
 

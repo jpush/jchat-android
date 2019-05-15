@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.exceptions.JMFileSizeExceedException;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
@@ -61,7 +63,7 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
     private int mSize;
     private final static int SEND_FILE = 0x4001;
     private MyHandler myHandler = new MyHandler(this);
-    private int[] mMsgIds;
+    private Message[] mMsgs;
 
 
     public SendFileController(SendFileActivity context, SendFileView view) {
@@ -90,11 +92,17 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
 
         String targetId = mContext.getIntent().getStringExtra(JGApplication.TARGET_ID);
         String targetAppKey = mContext.getIntent().getStringExtra(JGApplication.TARGET_APP_KEY);
-        long groupId = mContext.getIntent().getLongExtra(JGApplication.GROUP_ID, 0);
-        if (groupId != 0) {
-            mConv = JMessageClient.getGroupConversation(groupId);
-        } else {
-            mConv = JMessageClient.getSingleConversation(targetId, targetAppKey);
+        ConversationType convType = (ConversationType) mContext.getIntent().getSerializableExtra(JGApplication.CONV_TYPE);
+        switch (convType) {
+            case single:
+                mConv = JMessageClient.getSingleConversation(targetId, targetAppKey);
+                break;
+            case group:
+                mConv = JMessageClient.getGroupConversation(Long.valueOf(targetId));
+                break;
+            case chatroom:
+                mConv = JMessageClient.getChatRoomConversation(Long.valueOf(targetId));
+
         }
     }
 
@@ -144,7 +152,7 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                 mDialog.setMessage(mContext.getString(R.string.sending_hint));
                 mDialog.show();
                 Iterator<Map.Entry<FileType, ArrayList<String>>> iterator = mFileMap.entrySet().iterator();
-                mMsgIds = new int[mSize];
+                mMsgs = new Message[mSize];
                 while (iterator.hasNext()) {
                     final Map.Entry<FileType, ArrayList<String>> entry = iterator.next();
                     ArrayList<String> list = entry.getValue();
@@ -159,9 +167,9 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                         public void gotResult(int status, String desc, ImageContent imageContent) {
                                             if (status == 0) {
                                                 Message msg = mConv.createSendMessage(imageContent);
-                                                mMsgIds[mIndex.get()] = msg.getId();
+                                                mMsgs[mIndex.get()] = msg;
                                             } else {
-                                                mMsgIds[mIndex.get()] = -1;
+                                                mMsgs[mIndex.get()] = null;
                                             }
                                             mIndex.incrementAndGet();
                                             if (mIndex.get() >= mSize) {
@@ -176,9 +184,9 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                         public void gotResult(int status, String desc, ImageContent imageContent) {
                                             if (status == 0) {
                                                 Message msg = mConv.createSendMessage(imageContent);
-                                                mMsgIds[mIndex.get()] = msg.getId();
+                                                mMsgs[mIndex.get()] = msg;
                                             } else {
-                                                mMsgIds[mIndex.get()] = -1;
+                                                mMsgs[mIndex.get()] = null;
                                             }
                                             mIndex.incrementAndGet();
                                             if (mIndex.get() >= mSize) {
@@ -204,7 +212,7 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                                         content.setNumberExtra("fileSize", file.length());
                                         Message msg = mConv.createSendMessage(content);
                                         if (mIndex.get() < mSize) {
-                                            mMsgIds[mIndex.get()] = msg.getId();
+                                            mMsgs[mIndex.get()] = msg;
                                             mIndex.incrementAndGet();
                                             if (mIndex.get() >= mSize) {
                                                 myHandler.sendEmptyMessage(SEND_FILE);
@@ -310,7 +318,7 @@ public class SendFileController implements View.OnClickListener, ViewPager.OnPag
                 switch (msg.what) {
                     case SEND_FILE:
                         Intent intent = new Intent();
-                        intent.putExtra(JGApplication.MsgIDs, controller.mMsgIds);
+                        intent.putExtra(JGApplication.MSG_LIST_JSON, Message.collectionToJson(Arrays.asList(controller.mMsgs)));
                         controller.mContext.setResult(JGApplication.RESULT_CODE_SEND_FILE, intent);
                         if (controller.mDialog != null) {
                             controller.mDialog.dismiss();

@@ -1,6 +1,7 @@
 package jiguang.chat.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -19,15 +20,19 @@ import jiguang.chat.R;
  */
 
 public class NickSignActivity extends BaseActivity {
+    public static final String TYPE = "type";
+    public static final String COUNT = "count";
+    public static final String DESC = "desc";
+
+    public enum Type {
+        GROUP_NAME, GROUP_DESC, PERSON_SIGN, PERSON_NICK, CHAT_ROOM_NAME, CHAT_ROOM_DESC;
+    }
 
     private EditText mEd_sign;
+    private TextView mTv_title;
     private TextView mTv_count;
     private LinearLayout mLl_nickSign;
-    private static final int SIGN_COUNT = 250;
-    private static final int NICK_COUNT = 64;
 
-    private static final int GROUP_DESC = 250;
-    private static final int GROUP_NAME = 64;
     private Button mJmui_commit_btn;
 
     @Override
@@ -37,43 +42,78 @@ public class NickSignActivity extends BaseActivity {
 
         initView();
         Intent intent = getIntent();
-        if (intent.getFlags() == PersonalActivity.FLAGS_SIGN) {
-            initViewSign("个性签名", SIGN_COUNT);
-            initData(SIGN_COUNT);
-        } else if (intent.getFlags() == PersonalActivity.FLAGS_NICK) {
-            initViewNick("修改昵称", NICK_COUNT);
-            initData(NICK_COUNT);
-        } else if (intent.getFlags() == ChatDetailActivity.FLAGS_GROUP_DESC) {
-            initViewSign("群描述", GROUP_DESC);
-            initData(GROUP_DESC);
-        } else if (intent.getFlags() == ChatDetailActivity.FLAGS_GROUP_NAME) {
-            initViewNick("群名称", GROUP_NAME);
-            initData(GROUP_NAME);
+        Type type = (Type) intent.getSerializableExtra(TYPE);
+        int count = intent.getIntExtra(COUNT, 0);
+        switch (type) {
+            case PERSON_SIGN:
+                initViewSign("个性签名", count);
+                break;
+            case PERSON_NICK:
+                initViewNick("修改昵称", count);
+                break;
+            case GROUP_DESC:
+                initViewSign("群描述", count);
+                break;
+            case GROUP_NAME:
+                initViewNick("群名称", count);
+                break;
+            case CHAT_ROOM_NAME:
+            case CHAT_ROOM_DESC:
+                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mEd_sign.getLayoutParams();
+                layoutParams.leftMargin = (int) (10 * mDensity);
+                layoutParams.rightMargin = (int) (10 * mDensity);
+                layoutParams.topMargin = (int) (5 * mDensity);
+                if (type == Type.CHAT_ROOM_NAME) {
+                    initViewNick("聊天室名称", count);
+                    mTv_title.setText("聊天室名称");
+                    layoutParams.bottomMargin = (int) (20 * mDensity);
+                } else {
+                    initViewSign("聊天室介绍", count);
+                    mTv_title.setText("聊天室介绍");
+                    layoutParams.bottomMargin = (int) (30 * mDensity);
+                }
+                mTv_count.setVisibility(View.GONE);
+                mTv_title.setVisibility(View.VISIBLE);
+                mEd_sign.setFocusable(false);
+                mEd_sign.setFocusableInTouchMode(false);
+                mEd_sign.setBackgroundColor(Color.parseColor("#FFE8EDF3"));
+                mEd_sign.setLayoutParams(layoutParams);
+                mLl_nickSign.setBackgroundColor(Color.WHITE);
+                mJmui_commit_btn.setVisibility(View.GONE);
+                break;
+
+            default:
+                break;
         }
-        initListener(intent.getFlags());
+        initData(count);
+        initListener(type);
     }
 
-    private void initListener(final int flags) {
+    private void initListener(Type type) {
         mJmui_commit_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String sign = mEd_sign.getText().toString();
                 Intent intent = new Intent();
-                if (flags == PersonalActivity.FLAGS_NICK) {//3
-                    intent.putExtra(PersonalActivity.NICK_NAME_KEY, sign);
-                    setResult(PersonalActivity.NICK_NAME, intent);//4
-                } else if (flags == PersonalActivity.FLAGS_SIGN) {//2
-                    intent.putExtra(PersonalActivity.SIGN_KEY, sign);
-                    setResult(PersonalActivity.SIGN, intent);//1
-
-                } else if (flags == ChatDetailActivity.FLAGS_GROUP_DESC) {//71
-                    intent.putExtra(ChatDetailActivity.GROUP_DESC_KEY, sign);
-                    setResult(ChatDetailActivity.GROUP_DESC, intent);//70
-
-                } else if (flags == ChatDetailActivity.FLAGS_GROUP_NAME) {//73
-                    intent.putExtra(ChatDetailActivity.GROUP_NAME_KEY, sign);
-                    setResult(ChatDetailActivity.GROUP_NAME, intent);//72
-
+                switch (type) {
+                    case PERSON_NICK:
+                        intent.putExtra(PersonalActivity.NICK_NAME_KEY, sign);
+                        setResult(PersonalActivity.NICK_NAME, intent);//4
+                        break;
+                    case PERSON_SIGN:
+                        intent.putExtra(PersonalActivity.SIGN_KEY, sign);
+                        setResult(PersonalActivity.SIGN, intent);//1
+                        break;
+                    case GROUP_DESC:
+                        intent.putExtra(ChatDetailActivity.GROUP_DESC_KEY, sign);
+                        setResult(ChatDetailActivity.GROUP_DESC, intent);//70
+                        break;
+                    case GROUP_NAME:
+                        intent.putExtra(ChatDetailActivity.GROUP_NAME_KEY, sign);
+                        setResult(ChatDetailActivity.GROUP_NAME, intent);//72
+                        break;
+                    default:
+                        break;
                 }
                 //做更新动作
                 finish();
@@ -108,20 +148,8 @@ public class NickSignActivity extends BaseActivity {
         mLl_nickSign = (LinearLayout) findViewById(R.id.ll_nickSign);
         mTv_count = (TextView) findViewById(R.id.tv_count);
         mJmui_commit_btn = (Button) findViewById(R.id.jmui_commit_btn);
-
-        if (getIntent().getStringExtra("group_name") != null) {
-            mEd_sign.setText(getIntent().getStringExtra("group_name"));
-        }
-        if (getIntent().getStringExtra("group_desc") != null) {
-            mEd_sign.setText(getIntent().getStringExtra("group_desc"));
-        }
-        if (getIntent().getStringExtra("old_nick") != null) {
-            mEd_sign.setText(getIntent().getStringExtra("old_nick"));
-        }
-        if (getIntent().getStringExtra("old_sign") != null) {
-            mEd_sign.setText(getIntent().getStringExtra("old_sign"));
-        }
-
+        mTv_title = (TextView) findViewById(R.id.tv_title);
+        mEd_sign.setText(getIntent().getStringExtra(DESC));
         mEd_sign.setSelection(mEd_sign.getText().length());
 
     }
@@ -135,11 +163,11 @@ public class NickSignActivity extends BaseActivity {
         mTv_count.setText(flag - length + "");
     }
 
-    private void initViewNick(String str, int flag) {
+    private void initViewNick(String str, int count) {
         initTitle(true, true, str, "", true, "完成");
-        mEd_sign.setFilters(new InputFilter[] {new MyLengthFilter(flag)});
+        mEd_sign.setFilters(new InputFilter[] {new MyLengthFilter(count)});
         int length = mEd_sign.getText().toString().getBytes().length;
-        mTv_count.setText(flag - length + "");
+        mTv_count.setText(count - length + "");
 
 
         int width = LinearLayout.LayoutParams.MATCH_PARENT;

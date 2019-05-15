@@ -11,8 +11,10 @@ import java.util.List;
 
 import cn.jpush.im.android.api.ChatRoomManager;
 import cn.jpush.im.android.api.callback.RequestCallback;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.ChatRoomInfo;
 import jiguang.chat.R;
+import jiguang.chat.application.JGApplication;
 import jiguang.chat.utils.dialog.LoadDialog;
 
 /**
@@ -57,6 +59,7 @@ public class ChatRoomDetailActivity extends BaseActivity {
         mEnterChatRoom.setOnClickListener(v -> {
             Intent intent = new Intent(ChatRoomDetailActivity.this, ChatActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+            intent.putExtra(JGApplication.CONV_TYPE, ConversationType.chatroom);
             intent.putExtra("chatRoomId", chatRoomId);
             intent.putExtra("chatRoomName", mInfo.getName());
             startActivity(intent);

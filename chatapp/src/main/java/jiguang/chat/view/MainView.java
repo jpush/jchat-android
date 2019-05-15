@@ -26,8 +26,8 @@ public class MainView extends RelativeLayout {
 
     public void initModule() {
         mBtnListID = new int[] {
-                R.id.actionbar_msg_btn, R.id.actionbar_contact_btn,
-                R.id.actionbar_chatroom_btn, R.id.actionbar_me_btn};
+                R.id.actionbar_msg_btn, R.id.actionbar_chatroom_btn,
+                R.id.actionbar_contact_btn, R.id.actionbar_me_btn};
         mBtnList = new Button[mBtnListID.length];
         for (int i = 0; i < mBtnListID.length; i++) {
             mBtnList[i] = (Button) findViewById(mBtnListID[i]);

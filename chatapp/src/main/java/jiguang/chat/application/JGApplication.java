@@ -82,9 +82,12 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final int RESULT_CODE_ME_INFO = 20;
 
     public static final String DRAFT = "draft";
+    public static final String CONV_TYPE = "conversationType"; //value使用 ConversationType
+    public static final String ROOM_ID = "roomId";
     public static final String GROUP_ID = "groupId";
     public static final String POSITION = "position";
     public static final String MsgIDs = "msgIDs";
+    public static final String MSG_LIST_JSON = "msg_list_json";
     public static final String NAME = "name";
     public static final String ATALL = "atall";
     public static final String SEARCH_AT_MEMBER_NAME = "search_at_member_name";

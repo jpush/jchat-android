@@ -497,4 +497,18 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@null</item>
     </style>
+
+    <style name="DividingLineSmall">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0.33dp</item>
+        <item name="android:layout_marginLeft">14dp</item>
+        <item name="android:background">#D9D9D9</item>
+    </style>
+
+    <style name="DividingLineBig">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:background">#E8EDF3</item>
+    </style>
+
 </resources>

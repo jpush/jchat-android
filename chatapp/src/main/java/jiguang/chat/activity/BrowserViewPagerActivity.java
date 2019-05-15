@@ -36,13 +36,16 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.ProgressUpdateCallback;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.enums.ContentType;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import jiguang.chat.R;
@@ -98,6 +101,9 @@ public class BrowserViewPagerActivity extends BaseActivity {
     private final static int GET_NEXT_PAGE_OF_PICTURE = 0x2002;
     private final static int SET_CURRENT_POSITION = 0x2003;
     private Dialog mDialog;
+    public final static String MSG_JSON = "msg_json";
+    public final static String MSG_LIST_JSON  = "msg_list_json";
+    private List<Message> messages = new ArrayList<>();
 
 
     /**
@@ -128,17 +134,25 @@ public class BrowserViewPagerActivity extends BaseActivity {
         backgroundThread.start();
         mBackgroundHandler = new BackgroundHandler(backgroundThread.getLooper());
         final Intent intent = this.getIntent();
-        long groupId = intent.getLongExtra(JGApplication.GROUP_ID, 0);
+        ConversationType conversationType = (ConversationType) intent.getSerializableExtra(JGApplication.CONV_TYPE);
+        String targetId = intent.getStringExtra(JGApplication.TARGET_ID);
         String targetAppKey = intent.getStringExtra(JGApplication.TARGET_APP_KEY);
-        mMessageId = intent.getIntExtra("msgId", 0);
-        if (groupId != 0) {
-            mConv = JMessageClient.getGroupConversation(groupId);
-        } else {
-            String targetId = intent.getStringExtra(JGApplication.TARGET_ID);
-            if (targetId != null) {
-                mConv = JMessageClient.getSingleConversation(targetId, targetAppKey);
+        if (conversationType != null) {
+            switch (conversationType) {
+                case single:
+                    mConv = JMessageClient.getSingleConversation(targetId, targetAppKey);
+                    break;
+                case group:
+                    mConv = JMessageClient.getGroupConversation(Long.valueOf(targetId));
+                    break;
+                case chatroom:
+                    mConv = JMessageClient.getChatRoomConversation(Long.valueOf(targetId));
+                    break;
+                default:
+                    break;
             }
         }
+        mMessageId = intent.getIntExtra("msgId", 0);
         mStart = intent.getIntExtra("msgCount", 0);
         mPosition = intent.getIntExtra(JGApplication.POSITION, 0);
         mFromChatActivity = intent.getBooleanExtra("fromChatActivity", true);
@@ -416,7 +430,11 @@ public class BrowserViewPagerActivity extends BaseActivity {
         @Override
         public void onPageSelected(final int i) {
             if (mFromChatActivity) {
-                mMsg = mConv.getMessage(mMsgIdList.get(i));
+                if (mConv.getType() == ConversationType.chatroom) {
+                    mMsg = messages.get(i);
+                } else {
+                    mMsg = mConv.getMessage(mMsgIdList.get(i));
+                }
                 ImageContent ic = (ImageContent) mMsg.getContent();
                 //每次选择或滑动图片，如果不存在本地图片则下载，显示大图
                 if (ic.getLocalPath() == null && i != mPosition) {
@@ -478,36 +496,66 @@ public class BrowserViewPagerActivity extends BaseActivity {
      * 初始化会话中的所有图片路径
      */
     private void initImgPathList() {
-        mMsgIdList = this.getIntent().getIntegerArrayListExtra(JGApplication.MsgIDs);
-        Message msg;
         ImageContent ic;
-        for (int msgID : mMsgIdList) {
-            msg = mConv.getMessage(msgID);
-            if (msg.getContentType().equals(ContentType.image)) {
-                ic = (ImageContent) msg.getContent();
+        if (mConv.getType() == ConversationType.chatroom) {
+            messages.clear();
+            messages.addAll(Message.fromJsonToCollection(getIntent().getStringExtra(MSG_LIST_JSON)));
+            for (Message message : messages) {
+                ic = (ImageContent) message.getContent();
                 if (!TextUtils.isEmpty(ic.getLocalPath())) {
                     mPathList.add(ic.getLocalPath());
                 } else {
                     mPathList.add(ic.getLocalThumbnailPath());
                 }
             }
+        } else {
+            Message msg;
+            mMsgIdList = this.getIntent().getIntegerArrayListExtra(JGApplication.MsgIDs);
+            for (int msgID : mMsgIdList) {
+                msg = mConv.getMessage(msgID);
+                if (msg.getContentType().equals(ContentType.image)) {
+                    ic = (ImageContent) msg.getContent();
+                    if (!TextUtils.isEmpty(ic.getLocalPath())) {
+                        mPathList.add(ic.getLocalPath());
+                    } else {
+                        mPathList.add(ic.getLocalThumbnailPath());
+                    }
+                }
+            }
         }
     }
 
-    private void initCurrentItem() {
+    private int getChatRoomMsgItem(Message msg) {
+        int item = 0;
+        for (int i = 0; i < messages.size(); i++) {
+            if (messages.get(i).getServerMessageId().equals(msg.getServerMessageId())) {
+                item = i;
+                break;
+            }
+        }
+        return item;
+    }
+
+    protected void initCurrentItem() {
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             Toast.makeText(this, this.getString(R.string.jmui_local_picture_not_found_toast), Toast.LENGTH_SHORT).show();
         }
-        mMsg = mConv.getMessage(mMessageId);
+        int currentItem = 0;
+        if (mConv.getType() == ConversationType.chatroom) {
+            mMsg = Message.fromJson(getIntent().getStringExtra(MSG_JSON));
+            currentItem = getChatRoomMsgItem(mMsg);
+        } else {
+            mMsg = mConv.getMessage(mMessageId);
+            currentItem = mMsgIdList.indexOf(mMsg.getId());
+        }
         photoView = new PhotoView(mFromChatActivity, this);
-        int currentItem = mMsgIdList.indexOf(mMsg.getId());
         try {
             ImageContent ic = (ImageContent) mMsg.getContent();
             //如果点击的是第一张图片并且图片未下载过，则显示大图
-            if (ic.getLocalPath() == null && mMsgIdList.indexOf(mMsg.getId()) == 0) {
+            if (ic.getLocalPath() == null && currentItem == 0) {
                 downloadImage();
             }
-            String path = mPathList.get(mMsgIdList.indexOf(mMsg.getId()));
+            String path = mPathList.get(currentItem);
             //如果发送方上传了原图
             if (ic.getBooleanExtra("originalPicture") != null && ic.getBooleanExtra("originalPicture")) {
                 mLoadBtn.setVisibility(View.GONE);
@@ -781,6 +829,7 @@ public class BrowserViewPagerActivity extends BaseActivity {
             if (activity != null) {
                 switch (msg.what) {
                     case DOWNLOAD_ORIGIN_IMAGE_SUCCEED:
+                        activity.mProgressDialog.dismiss();
                         //更新图片并显示
                         Bundle bundle = msg.getData();
                         activity.mPathList.set(bundle.getInt(JGApplication.POSITION), bundle.getString("path"));

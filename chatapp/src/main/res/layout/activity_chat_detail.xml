@@ -89,7 +89,9 @@
                     android:text="群头像"/>
 
                 <ImageView
-                    style="@style/ChatDetailArrow"/>
+                    style="@style/ChatDetailArrow"
+                    android:layout_marginStart="11dp"
+                    android:layout_toEndOf="@+id/iv_groupAvatar"/>
 
                 <ImageView
                     android:id="@+id/iv_groupAvatar"

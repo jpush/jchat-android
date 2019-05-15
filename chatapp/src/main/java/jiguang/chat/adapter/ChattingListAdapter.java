@@ -172,6 +172,7 @@ public class ChattingListAdapter extends BaseAdapter {
             List<Message> msgList = mConv.getMessagesFromNewest(mMsgList.size(), PAGE_MESSAGE_COUNT);
             if (msgList != null) {
                 for (Message msg : msgList) {
+                    // TODO:2019/04/23 这里是否效率低下，每次都需要移动整个list
                     mMsgList.add(0, msg);
                 }
                 if (msgList.size() > 0) {
@@ -227,8 +228,7 @@ public class ChattingListAdapter extends BaseAdapter {
         }
     }
 
-    public void setSendMsgs(int msgIds) {
-        Message msg = mConv.getMessage(msgIds);
+    public void setSendMsgs(Message msg) {
         if (msg != null) {
             mMsgList.add(msg);
             incrementStartPosition();
@@ -455,7 +455,7 @@ public class ChattingListAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         final Message msg = mMsgList.get(position);
         //消息接收方发送已读回执
-        if (msg.getDirect() == MessageDirect.receive && !msg.haveRead()) {
+        if (msg.getDirect() == MessageDirect.receive && !msg.haveRead() && !isChatRoom) {
             msg.setHaveRead(new BasicCallback() {
                 @Override
                 public void gotResult(int i, String s) {
@@ -512,9 +512,7 @@ public class ChattingListAdapter extends BaseAdapter {
                     holder.picture = (ImageView) convertView.findViewById(R.id.jmui_picture_iv);
                     holder.locationView = convertView.findViewById(R.id.location_view);
                     break;
-                case custom:
-                case prompt:
-                case eventNotification:
+                default:
                     holder.groupChange = (TextView) convertView.findViewById(R.id.jmui_group_content);
                     break;
             }
@@ -649,11 +647,18 @@ public class ChattingListAdapter extends BaseAdapter {
             case prompt:
                 mController.handlePromptMsg(msg, holder);
                 break;
-            default:
+            case custom:
                 mController.handleCustomMsg(msg, holder);
+                break;
+            default:
+                mController.handleUnSupportMsg(msg, holder);
+                break;
+        }
+        if (isChatRoom && holder.text_receipt != null) {
+            holder.text_receipt.setVisibility(View.GONE);
         }
         if (msg.getDirect() == MessageDirect.send && !msg.getContentType().equals(ContentType.prompt)
-                && msg.getContentType() != ContentType.custom && !isChatRoom) {
+                && msg.getContentType() != ContentType.custom  && !isChatRoom && msg.getContentType() != ContentType.video) {
             if (msg.getUnreceiptCnt() == 0) {
                 if (msg.getTargetType() == ConversationType.group) {
                     holder.text_receipt.setText("全部已读");
