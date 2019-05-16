@@ -3,8 +3,13 @@ package jiguang.chat.controller;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.AdapterView;
+
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +18,6 @@ import cn.jpush.im.android.api.ChatRoomManager;
 import cn.jpush.im.android.api.callback.RequestCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.ChatRoomInfo;
-import in.srain.cube.views.ptr.PtrDefaultHandler;
-import in.srain.cube.views.ptr.PtrDefaultHandler2;
-import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler2;
 import jiguang.chat.R;
 import jiguang.chat.activity.ChatActivity;
 import jiguang.chat.activity.SearchChatRoomActivity;
@@ -30,7 +31,7 @@ import jiguang.chat.view.ChatRoomView;
  * Created by ${chenyn} on 2017/10/31.
  */
 
-public class ChatRoomController implements AdapterView.OnItemClickListener, View.OnClickListener, PtrHandler2 {
+public class ChatRoomController implements AdapterView.OnItemClickListener, View.OnClickListener, OnRefreshListener, OnLoadMoreListener {
     private ChatRoomView mChatRoomView;
     private Context mContext;
     private static final int PAGE_COUNT = 15;
@@ -84,12 +85,7 @@ public class ChatRoomController implements AdapterView.OnItemClickListener, View
     }
 
     @Override
-    public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-        return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);
-    }
-
-    @Override
-    public void onRefreshBegin(PtrFrameLayout frame) {
+    public void onRefresh(@NonNull RefreshLayout refreshLayout) {
         ChatRoomManager.getChatRoomListByApp(0, PAGE_COUNT, new RequestCallback<List<ChatRoomInfo>>() {
             @Override
             public void gotResult(int i, String s, List<ChatRoomInfo> result) {
@@ -102,18 +98,13 @@ public class ChatRoomController implements AdapterView.OnItemClickListener, View
                 } else {
                     HandleResponseCode.onHandle(mContext, i, false);
                 }
-                frame.refreshComplete();
+                refreshLayout.finishRefresh();
             }
         });
     }
 
     @Override
-    public boolean checkCanDoLoadMore(PtrFrameLayout frame, View content, View footer) {
-        return PtrDefaultHandler2.checkContentCanBePulledUp(frame, content, footer);
-    }
-
-    @Override
-    public void onLoadMoreBegin(PtrFrameLayout frame) {
+    public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
         ChatRoomManager.getChatRoomListByApp(chatRoomInfos.size(), PAGE_COUNT, new RequestCallback<List<ChatRoomInfo>>() {
             @Override
             public void gotResult(int i, String s, List<ChatRoomInfo> result) {
@@ -125,7 +116,7 @@ public class ChatRoomController implements AdapterView.OnItemClickListener, View
                 } else {
                     HandleResponseCode.onHandle(mContext, i, false);
                 }
-                frame.refreshComplete();
+                refreshLayout.finishLoadMore();
             }
         });
     }

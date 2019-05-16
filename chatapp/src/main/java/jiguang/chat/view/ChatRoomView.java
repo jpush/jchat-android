@@ -9,8 +9,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+
 import jiguang.chat.R;
 import jiguang.chat.adapter.ChatRoomAdapter;
 import jiguang.chat.controller.ChatRoomController;
@@ -25,7 +27,7 @@ public class ChatRoomView extends LinearLayout{
     private ListView mChatRoomListView;
     private LayoutInflater mInflater;
     private LinearLayout mSearch_title;
-    private PtrFrameLayout ptrFrameLayout;
+    private SmartRefreshLayout smartRefreshLayout;
 
     public ChatRoomView(Context context) {
         super(context);
@@ -45,8 +47,7 @@ public class ChatRoomView extends LinearLayout{
         mSearch_title = view.findViewById(R.id.search_title);
         mChatRoomListView = findViewById(R.id.lv_chatRoom);
         mChatRoomListView.addHeaderView(view);
-        ptrFrameLayout = findViewById(R.id.ptr_layout);
-        ptrFrameLayout.setResistanceFooter(1.0f);
+        smartRefreshLayout = findViewById(R.id.refreshLayout);
     }
 
     public void setListener(ChatRoomController listener) {
@@ -61,8 +62,12 @@ public class ChatRoomView extends LinearLayout{
         mChatRoomListView.setAdapter(chatRoomAdapter);
     }
 
-    public void setPtrHandler(PtrHandler ptrHandler) {
-        ptrFrameLayout.setPtrHandler(ptrHandler);
+    public void setOnRefreshListener(OnRefreshListener onRefreshListener) {
+        smartRefreshLayout.setOnRefreshListener(onRefreshListener);
+    }
+
+    public void setOnLoadMoreListener(OnLoadMoreListener loadMoreListener) {
+        smartRefreshLayout.setOnLoadMoreListener(loadMoreListener);
     }
 
 }
