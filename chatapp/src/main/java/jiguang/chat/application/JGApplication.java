@@ -77,6 +77,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final int REQUEST_CODE_SEND_LOCATION = 24;
     public static final int REQUEST_CODE_FRIEND_INFO = 16;
     public static final int RESULT_CODE_CHAT_DETAIL = 15;
+    public static final int REQUEST_CODE_FRIEND_LIST = 17;
     public static final int ON_GROUP_EVENT = 3004;
     public static final String DELETE_MODE = "deleteMode";
     public static final int RESULT_CODE_ME_INFO = 20;
@@ -87,6 +88,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final String GROUP_ID = "groupId";
     public static final String POSITION = "position";
     public static final String MsgIDs = "msgIDs";
+    public static final String MSG_JSON = "msg_json";
     public static final String MSG_LIST_JSON = "msg_list_json";
     public static final String NAME = "name";
     public static final String ATALL = "atall";

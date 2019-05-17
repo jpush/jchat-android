@@ -673,16 +673,18 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     @Override
     protected void onResume() {
         String targetId = getIntent().getStringExtra(TARGET_ID);
-        if (!mIsSingle) {
+        if (mIsSingle) {
+            if (null != targetId) {
+                String appKey = getIntent().getStringExtra(TARGET_APP_KEY);
+                JMessageClient.enterSingleConversation(targetId, appKey);
+            }
+        } else if (!isChatRoom) {
             long groupId = getIntent().getLongExtra(GROUP_ID, 0);
             if (groupId != 0) {
                 JGApplication.isAtMe.put(groupId, false);
                 JGApplication.isAtall.put(groupId, false);
                 JMessageClient.enterGroupConversation(groupId);
             }
-        } else if (null != targetId) {
-            String appKey = getIntent().getStringExtra(TARGET_APP_KEY);
-            JMessageClient.enterSingleConversation(targetId, appKey);
         }
 
         //历史消息中删除后返回到聊天界面刷新界面
@@ -695,7 +697,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             mChatAdapter.notifyDataSetChanged();
         //发送名片返回聊天界面刷新信息
         if (SharePreferenceManager.getIsOpen()) {
-            initData();
+            if (!isChatRoom) {
+                initData();
+            }
             SharePreferenceManager.setIsOpen(false);
         }
         super.onResume();
@@ -1147,10 +1151,10 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 break;
             case JGApplication.BUSINESS_CARD:
                 intent = new Intent(mContext, FriendListActivity.class);
-                intent.putExtra("isSingle", mIsSingle);
-                intent.putExtra("userId", mTargetId);
-                intent.putExtra("groupId", mGroupId);
-                startActivity(intent);
+                intent.putExtra(JGApplication.CONV_TYPE, mConv.getType());
+                intent.putExtra(JGApplication.TARGET_ID, mTargetId);
+                intent.putExtra(JGApplication.TARGET_APP_KEY, mTargetAppKey);;
+                startActivityForResult(intent, JGApplication.REQUEST_CODE_FRIEND_LIST);
                 break;
             case JGApplication.TACK_VIDEO:
             case JGApplication.TACK_VOICE:
@@ -1173,6 +1177,20 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             case RequestCode.PICK_IMAGE://4
                 onPickImageActivityResult(requestCode, data);
                 break;
+            case JGApplication.REQUEST_CODE_FRIEND_LIST:
+                // 发送名片成功后，聊天室需要添加消息
+                if (resultCode == RESULT_OK && isChatRoom) {
+                    String msgJson = data.getStringExtra(JGApplication.MSG_JSON);
+                    if (msgJson != null) {
+                        Message msg = Message.fromJson(msgJson);
+                        if (msg != null) {
+                            mChatAdapter.addMsgToList(msg);
+                            mChatAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+                break;
+
         }
 
         switch (resultCode) {

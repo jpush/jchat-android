@@ -17,12 +17,14 @@ import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.adapter.FriendListAdapter;
+import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
 import jiguang.chat.database.UserEntry;
 import jiguang.chat.utils.DialogCreator;
@@ -87,10 +89,26 @@ public class FriendListActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Object itemAtPosition = parent.getItemAtPosition(position);
                 FriendEntry friendEntry = (FriendEntry) itemAtPosition;
-                if (getIntent().getBooleanExtra("isSingle", false)) {
-                    setBusinessCard(friendEntry, JMessageClient.getSingleConversation(getIntent().getStringExtra("userId")));
-                } else {
-                    setBusinessCard(friendEntry, JMessageClient.getGroupConversation(getIntent().getLongExtra("groupId", 0)));
+                ConversationType convType = (ConversationType) getIntent().getSerializableExtra(JGApplication.CONV_TYPE);
+                String targetId = getIntent().getStringExtra(JGApplication.TARGET_ID);
+                String targetAppKey = getIntent().getStringExtra(JGApplication.TARGET_APP_KEY);
+                Conversation conv = null;
+                if (convType != null) {
+                    switch (convType) {
+                        case single:
+                            conv = JMessageClient.getSingleConversation(targetId, targetAppKey);
+                            break;
+                        case group:
+                            conv = JMessageClient.getGroupConversation(Long.valueOf(targetId));
+                            break;
+                        case chatroom:
+                            conv = JMessageClient.getChatRoomConversation(Long.valueOf(targetId));
+                            break;
+                        default:
+                    }
+                }
+                if (conv != null) {
+                    setBusinessCard(friendEntry, conv);
                 }
             }
         });
@@ -133,6 +151,9 @@ public class FriendListActivity extends BaseActivity {
                                 if (i == 0) {
                                     SharePreferenceManager.setIsOpen(true);
                                     Toast.makeText(FriendListActivity.this, "发送成功", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent();
+                                    intent.putExtra(JGApplication.MSG_JSON, textMessage.toJson());
+                                    FriendListActivity.this.setResult(RESULT_OK, intent);
                                     finish();
                                 } else {
                                     HandleResponseCode.onHandle(FriendListActivity.this, i, false);
