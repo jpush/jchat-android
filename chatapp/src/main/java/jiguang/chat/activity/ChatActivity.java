@@ -877,6 +877,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
         @Override
         public void onContentLongClick(final int position, View view) {
+            if (isChatRoom) {
+                return;
+            }
             final Message msg = mChatAdapter.getMessage(position);
 
             if (msg == null) {
