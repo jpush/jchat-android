@@ -13,10 +13,8 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -781,8 +779,29 @@ public class ChatItemController {
         FileContent fileContent = (FileContent) msg.getContent();
         String videoPath = fileContent.getLocalPath();
         if (videoPath != null) {
-//            String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + msg.getServerMessageId();
-            String thumbPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + msg.getServerMessageId();
+            File dir = new File(JGApplication.THUMP_PICTURE_DIR);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            String thumbPath;
+            if (msg.getServerMessageId() == 0) {
+                switch (msg.getTargetType()) {
+                    case single:
+                        thumbPath = dir + "/" + msg.getTargetType() + "_" + ((UserInfo) msg.getTargetInfo()).getUserID() + "_" + msg.getId();
+                        break;
+                    case group:
+                        thumbPath = dir + "/" + msg.getTargetType() + "_" + ((GroupInfo) msg.getTargetInfo()).getGroupID() + "_" + msg.getId();
+                        break;
+                    case chatroom:
+                        thumbPath = dir + "/" + msg.getTargetType() + "_" + ((ChatRoomInfo) msg.getTargetInfo()).getRoomID() + "_" + msg.getId();
+                        break;
+                    default:
+                        Picasso.with(mContext).load(R.drawable.video_not_found).into(holder.picture);
+                        return;
+                }
+            } else {
+                thumbPath = dir + "/" + msg.getServerMessageId();
+            }
             String path = BitmapDecoder.extractThumbnail(videoPath, thumbPath);
             setPictureScale(null, msg, path, holder.picture);
             Picasso.with(mContext).load(new File(path)).into(holder.picture);
@@ -1016,7 +1035,9 @@ public class ChatItemController {
                 case receive_success:
                     holder.progressTv.setVisibility(View.GONE);
                     holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_receive_bg));
-                    holder.fileLoad.setText("已下载");
+                    if (mConv.getType() != ConversationType.chatroom) {
+                        holder.fileLoad.setText("已下载");
+                    }
                     break;
             }
         }

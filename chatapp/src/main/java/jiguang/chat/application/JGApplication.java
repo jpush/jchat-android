@@ -102,6 +102,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     private static final String JCHAT_CONFIGS = "JChat_configs";
     public static String FILE_DIR = "sdcard/JChatDemo/recvFiles/";
     public static String VIDEO_DIR = "sdcarVIDEOd/JChatDemo/sendFiles/";
+    public static String THUMP_PICTURE_DIR;
     public static final String TARGET_ID = "targetId";
     public static final String ATUSER = "atuser";
     public static final String TARGET_APP_KEY = "targetAppKey";
@@ -128,6 +129,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
+        THUMP_PICTURE_DIR = context.getFilesDir().getAbsolutePath() + "/JChatDemo";
         StorageUtil.init(context, null);
         Fresco.initialize(getApplicationContext());
         SDKInitializer.initialize(getApplicationContext());
