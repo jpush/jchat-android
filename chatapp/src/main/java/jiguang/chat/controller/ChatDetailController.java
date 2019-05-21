@@ -186,7 +186,6 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             mChatDetailView.setAdapter(mGridAdapter);
             // 设置单聊界面
             mChatDetailView.setSingleView(mUserInfo.isFriend());
-            mChatDetailView.dismissAllMembersBtn();
             mChatDetailView.isLoadMoreShow(false);
 
             JMessageClient.getUserInfo(mTargetId, new GetUserInfoCallback() {

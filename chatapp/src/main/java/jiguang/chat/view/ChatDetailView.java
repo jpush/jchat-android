@@ -25,8 +25,6 @@ public class ChatDetailView extends LinearLayout {
 
 
     private LinearLayout mGroupDescLL;
-    private View mSplitLine1;
-    private View mSplitLine2;
     private LinearLayout mGroupNameLL;
     private LinearLayout mMyNameLL;
     private LinearLayout mGroupNumLL;
@@ -67,8 +65,6 @@ public class ChatDetailView extends LinearLayout {
     public void initModule() {
         mGroupDescLL = (LinearLayout) findViewById(R.id.group_desc_ll);
         mGroupDesc = (TextView) findViewById(R.id.chat_detail_group_desc);
-        mSplitLine1 = findViewById(R.id.all_member_split_line1);
-        mSplitLine2 = findViewById(R.id.all_member_split_line2);
         mGroupNameLL = (LinearLayout) findViewById(R.id.group_name_ll);
         mGroupAvatarLL = (RelativeLayout) findViewById(R.id.rl_groupAvatar);
         mIv_groupAvatar = (ImageView) findViewById(R.id.iv_groupAvatar);
@@ -169,10 +165,20 @@ public class ChatDetailView extends LinearLayout {
             mDetailAddFriend.setVisibility(VISIBLE);
             mDelGroupBtn.setVisibility(GONE);
         }
+        mGroupDescLL.setVisibility(View.GONE);
         mGroupNameLL.setVisibility(View.GONE);
         mGroupAvatarLL.setVisibility(View.GONE);
         mGroupNumLL.setVisibility(View.GONE);
         mMyNameLL.setVisibility(View.GONE);
+        findViewById(R.id.group_id).setVisibility(View.GONE);
+        findViewById(R.id.group_type).setVisibility(View.GONE);
+        findViewById(R.id.chat_silence).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_1).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_2).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_3).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_4).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_5).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_6).setVisibility(View.GONE);
         mDelGroupBtn.setText("删除好友");
     }
 
@@ -187,12 +193,6 @@ public class ChatDetailView extends LinearLayout {
 
     public void setGroupDesc(String desc) {
         mGroupDesc.setText(desc);
-    }
-
-    public void dismissAllMembersBtn() {
-        mSplitLine1.setVisibility(View.GONE);
-        mSplitLine2.setVisibility(View.GONE);
-        mGroupDescLL.setVisibility(View.GONE);
     }
 
     public void initNoDisturb(int status) {

@@ -74,7 +74,6 @@
             </LinearLayout>
 
             <View
-                android:id="@+id/all_member_split_line1"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
                 android:background="#E8EDF3"/>
@@ -103,7 +102,7 @@
             </RelativeLayout>
 
             <View
-                android:id="@+id/all_member_split_line"
+                android:id="@+id/single_chat_remove_1"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="#E8EDF3"/>
@@ -128,7 +127,7 @@
             </LinearLayout>
 
             <View
-                android:id="@+id/all_member_split_line2"
+                android:id="@+id/single_chat_remove_2"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="#E8EDF3"/>
@@ -181,11 +180,13 @@
             </LinearLayout>
 
             <View
+                android:id="@+id/single_chat_remove_3"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
                 android:background="#E8EDF3"/>
 
             <LinearLayout
+                android:id="@+id/group_id"
                 style="@style/ChatDetailItem">
 
                 <TextView
@@ -198,11 +199,13 @@
             </LinearLayout>
 
             <View
+                android:id="@+id/single_chat_remove_4"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="#E8EDF3"/>
 
             <LinearLayout
+                android:id="@+id/group_type"
                 style="@style/ChatDetailItem">
 
                 <TextView
@@ -215,6 +218,7 @@
             </LinearLayout>
 
             <View
+                android:id="@+id/single_chat_remove_5"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
                 android:background="#E8EDF3"/>
@@ -258,6 +262,7 @@
             </RelativeLayout>
 
             <View
+                android:id="@+id/single_chat_remove_6"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="#E8EDF3"/>
