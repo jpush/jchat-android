@@ -37,6 +37,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:focusable="false"
             android:background="@drawable/jmui_remove_btn_bg"
             android:padding="10dp"
             android:text = "移除"
