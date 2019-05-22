@@ -88,6 +88,8 @@ public class SearchChatRoomActivity extends BaseActivity {
                 } catch (NumberFormatException e) {
                     Toast.makeText(SearchChatRoomActivity.this, "搜索的聊天室不存在", Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                Toast.makeText(SearchChatRoomActivity.this, "请输入聊天室ID", Toast.LENGTH_SHORT).show();
             }
         });
 
