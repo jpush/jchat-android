@@ -21,6 +21,8 @@ import android.view.WindowManager;
 import android.widget.PopupWindow;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
@@ -68,6 +70,9 @@ public class ConversationListFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         isCreate = true;
         mContext = this.getActivity();
 
@@ -267,7 +272,8 @@ public class ConversationListFragment extends BaseFragment {
         }
     }
 
-    public void onEventMainThread(Event event) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(Event event) { ;
         switch (event.getType()) {
             case createConversation:
                 Conversation conv = event.getConversation();
@@ -340,5 +346,4 @@ public class ConversationListFragment extends BaseFragment {
             mConvListController.getAdapter().sortConvList();
         }
     }
-
 }
