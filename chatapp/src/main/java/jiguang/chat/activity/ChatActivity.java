@@ -35,6 +35,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,7 @@ import butterknife.ButterKnife;
 import cn.jpush.im.android.api.ChatRoomManager;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.callback.RequestCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.FileContent;
@@ -53,6 +56,7 @@ import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
 import cn.jpush.im.android.api.event.ChatRoomMessageEvent;
+import cn.jpush.im.android.api.event.ChatRoomNotificationEvent;
 import cn.jpush.im.android.api.event.CommandNotificationEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.event.MessageReceiptStatusChangeEvent;
@@ -735,6 +739,49 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     public void onEventMainThread(ChatRoomMessageEvent event) {
         List<Message> messages = event.getMessages();
         mChatAdapter.addMsgListToList(messages);
+    }
+
+    public void onEventMainThread(ChatRoomNotificationEvent event) {
+        try {
+            Constructor constructor =  EventNotificationContent.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            List<Message> messages = new ArrayList<>();
+            switch (event.getType()) {
+                case add_chatroom_admin:
+                case del_chatroom_admin:
+                    event.getTargetUserInfoList(new GetUserInfoListCallback() {
+                        @Override
+                        public void gotResult(int i, String s, List<UserInfo> list) {
+                            if (i == 0) {
+                                for (UserInfo userInfo : list) {
+                                    try {
+                                        EventNotificationContent content = (EventNotificationContent) constructor.newInstance();
+                                        Field field = content.getClass().getSuperclass().getDeclaredField("contentType");
+                                        field.setAccessible(true);
+                                        field.set(content, ContentType.eventNotification);
+                                        String user = userInfo.getUserID() == JMessageClient.getMyInfo().getUserID()
+                                                ? "你" : TextUtils.isEmpty(userInfo.getNickname()) ? userInfo.getUserName() : userInfo.getNickname();
+                                        String result = event.getType() == ChatRoomNotificationEvent.Type.add_chatroom_admin ? "被设置成管理员" : "被取消管理员";
+                                        content.setStringExtra("msg", user + result);
+                                        if (mConv != null) {
+                                            messages.add(mConv.createSendMessage(content));
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                if (messages.size() > 0) {
+                                    mChatAdapter.addMsgListToList(messages);
+                                }
+                            }
+                        }
+                    });
+                    break;
+                default:
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void onEvent(MessageEvent event) {

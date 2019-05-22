@@ -1086,6 +1086,13 @@ public class ChatItemController {
 
 
     public void handleGroupChangeMsg(Message msg, ViewHolder holder) {
+        String extraMsg = msg.getContent().getStringExtra("msg");
+        if (extraMsg != null) { // 聊天室通知事件消息
+            holder.groupChange.setText(extraMsg);
+            holder.groupChange.setVisibility(View.VISIBLE);
+            holder.msgTime.setVisibility(View.GONE);
+            return;
+        }
         String content = ((EventNotificationContent) msg.getContent()).getEventText();
         EventNotificationContent.EventNotificationType type = ((EventNotificationContent) msg
                 .getContent()).getEventNotificationType();
