@@ -72,6 +72,7 @@
 
     <LinearLayout
         android:id="@+id/ll_chat_room_keeper"
+        android:descendantFocusability="blocksDescendants"
         style="@style/ChatDetailItem">
 
         <TextView
