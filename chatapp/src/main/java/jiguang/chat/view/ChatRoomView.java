@@ -21,13 +21,14 @@ import jiguang.chat.controller.ChatRoomController;
  * Created by ${chenyn} on 2017/10/31.
  */
 
-public class ChatRoomView extends LinearLayout{
+public class ChatRoomView extends LinearLayout {
     private ChatRoomController mListener;
     private Context mContext;
     private ListView mChatRoomListView;
     private LayoutInflater mInflater;
     private LinearLayout mSearch_title;
     private SmartRefreshLayout smartRefreshLayout;
+    private TextView mNullChatRoom;
 
     public ChatRoomView(Context context) {
         super(context);
@@ -48,6 +49,7 @@ public class ChatRoomView extends LinearLayout{
         mChatRoomListView = findViewById(R.id.lv_chatRoom);
         mChatRoomListView.addHeaderView(view);
         smartRefreshLayout = findViewById(R.id.refreshLayout);
+        mNullChatRoom = findViewById(R.id.null_chatRoom);
     }
 
     public void setListener(ChatRoomController listener) {
@@ -68,6 +70,10 @@ public class ChatRoomView extends LinearLayout{
 
     public void setOnLoadMoreListener(OnLoadMoreListener loadMoreListener) {
         smartRefreshLayout.setOnLoadMoreListener(loadMoreListener);
+    }
+
+    public void setNullChatRoom(boolean isNullChatRoom) {
+        mNullChatRoom.setVisibility(isNullChatRoom ? VISIBLE : GONE);
     }
 
 }

@@ -58,6 +58,7 @@ public class ChatRoomController implements AdapterView.OnItemClickListener, View
                 }
                 chatRoomAdapter = new ChatRoomAdapter(mContext, chatRoomInfos, mChatRoomView);
                 mChatRoomView.setChatRoomAdapter(chatRoomAdapter);
+                mChatRoomView.setNullChatRoom(chatRoomInfos.size() == 0);
             }
         });
     }
@@ -86,12 +87,14 @@ public class ChatRoomController implements AdapterView.OnItemClickListener, View
 
     @Override
     public void onRefresh(@NonNull RefreshLayout refreshLayout) {
+        mChatRoomView.setNullChatRoom(false);
         ChatRoomManager.getChatRoomListByApp(0, PAGE_COUNT, new RequestCallback<List<ChatRoomInfo>>() {
             @Override
             public void gotResult(int i, String s, List<ChatRoomInfo> result) {
                 if (i == 0) {
                     chatRoomInfos.clear();
                     chatRoomInfos.addAll(result);
+                    mChatRoomView.setNullChatRoom(chatRoomInfos.size() == 0);
                     if (chatRoomAdapter != null) {
                         chatRoomAdapter.notifyDataSetChanged();
                     }
@@ -105,11 +108,13 @@ public class ChatRoomController implements AdapterView.OnItemClickListener, View
 
     @Override
     public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
+        mChatRoomView.setNullChatRoom(false);
         ChatRoomManager.getChatRoomListByApp(chatRoomInfos.size(), PAGE_COUNT, new RequestCallback<List<ChatRoomInfo>>() {
             @Override
             public void gotResult(int i, String s, List<ChatRoomInfo> result) {
                 if (i == 0) {
                     chatRoomInfos.addAll(result);
+                    mChatRoomView.setNullChatRoom(chatRoomInfos.size() == 0);
                     if (chatRoomAdapter != null) {
                         chatRoomAdapter.notifyDataSetChanged();
                     }
