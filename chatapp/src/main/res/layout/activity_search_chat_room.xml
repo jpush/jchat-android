@@ -109,6 +109,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="聊天室名字"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:textColor="#2C2C2C"
                     android:textSize="16sp"/>
 
