@@ -89,6 +89,7 @@ public class ChatRoomKeeperListAdapter extends BaseAdapter implements AdapterVie
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+        holder.iv_keeperAvatar.setImageResource(R.drawable.rc_default_portrait);
         UserInfo userInfo = keepers.get(position).data;
         userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
             @Override
