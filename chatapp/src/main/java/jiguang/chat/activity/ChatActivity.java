@@ -526,6 +526,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     private void returnBtn() {
         mConv.resetUnreadCount();
         dismissSoftInput();
+        if (mChatAdapter != null) {
+            mChatAdapter.stopMediaPlayer();
+        }
         JMessageClient.exitConversation();
         //发送保存为草稿事件到会话列表
         EventBus.getDefault().post(new Event.Builder().setType(EventType.draft)
