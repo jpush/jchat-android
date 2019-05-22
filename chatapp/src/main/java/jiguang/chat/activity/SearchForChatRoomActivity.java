@@ -62,7 +62,7 @@ public class SearchForChatRoomActivity extends BaseActivity implements View.OnCl
         mIvClear = (ImageView) findViewById(R.id.iv_clear);
         mIvClear.setOnClickListener(this);
 
-        initTitle(true, true, "添加黑名单", "", false, "");
+        initTitle(true, true, "添加管理员", "", false, "");
     }
 
     @Override
