@@ -445,6 +445,9 @@ public final class CameraManager {
      * @param y
      */
     public void handleFocusMetering(float x, float y) {
+        if (mCamera == null) { // TODO:2019/05/22 使用三星手机发送小视频时会报空指针异常，这里先判断非空，后续查找原因
+            return;
+        }
         Camera.Parameters params = mCamera.getParameters();
         Camera.Size previewSize = params.getPreviewSize();
         Rect focusRect = calculateTapArea(x, y, 1f, previewSize);
