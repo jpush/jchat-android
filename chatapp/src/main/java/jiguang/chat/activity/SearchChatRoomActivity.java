@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -60,6 +62,42 @@ public class SearchChatRoomActivity extends BaseActivity {
                 }
             }
             return false;
+        });
+
+
+        mSearchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_UNSPECIFIED) {
+
+                    String keytag = mSearchEditText.getText().toString().trim();
+
+                    if (TextUtils.isEmpty(keytag)) {
+                        Toast.makeText(SearchChatRoomActivity.this, "请输入聊天室ID", Toast.LENGTH_SHORT).show();
+                    } else {
+                        String roomId = mSearchEditText.getText().toString().trim();
+                        try {
+                            long id = Long.parseLong(roomId);
+                            ChatRoomManager.getChatRoomInfos(Collections.singleton(id), new RequestCallback<List<ChatRoomInfo>>() {
+                                @Override
+                                public void gotResult(int i, String s, List<ChatRoomInfo> chatRoomInfos) {
+                                    if (i == 0) {
+                                        mRoomID = chatRoomInfos.get(0).getRoomID();
+                                        mLl_chatRoomItem.setVisibility(View.VISIBLE);
+                                        mTv_chatRoomDesc.setText(chatRoomInfos.get(0).getDescription());
+                                        mTv_chatRoomName.setText(chatRoomInfos.get(0).getName());
+                                    }else {
+                                        mLl_chatRoomItem.setVisibility(View.GONE);
+                                        Toast.makeText(SearchChatRoomActivity.this, "搜索的聊天室不存在", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                        } catch (NumberFormatException e) {
+                            Toast.makeText(SearchChatRoomActivity.this, "搜索的聊天室不存在", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+                return true;
+            }
         });
 
         mAc_iv_press_back.setOnClickListener(v -> {
