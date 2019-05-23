@@ -26,7 +26,7 @@
             android:layout_marginLeft="14dp"
             android:layout_weight="1"
             android:background="@null"
-            android:hint="搜索用户名"
+            android:hint="搜索群组ID"
             android:inputType="number"
             android:maxLength="15"
             android:maxLines="1"
