@@ -6,8 +6,10 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import jiguang.chat.R;
+import jiguang.chat.utils.SharePreferenceManager;
 
 /**
  * Created by ${chenyn} on 2017/2/20.
@@ -18,11 +20,11 @@ public class MainView extends RelativeLayout {
     private Button[] mBtnList;
     private int[] mBtnListID;
     private ScrollControlViewPager mViewContainer;
+    private TextView mAllContactNumber;
 
     public MainView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
-
 
     public void initModule() {
         mBtnListID = new int[] {
@@ -33,8 +35,16 @@ public class MainView extends RelativeLayout {
             mBtnList[i] = (Button) findViewById(mBtnListID[i]);
         }
         mViewContainer = (ScrollControlViewPager) findViewById(R.id.viewpager);
+        mViewContainer.setOffscreenPageLimit(2);
         mBtnList[0].setTextColor(getResources().getColor(R.color.actionbar_pres_color));
         mBtnList[0].setSelected(true);
+        mAllContactNumber = findViewById(R.id.all_contact_number);
+        if (SharePreferenceManager.getCachedNewFriendNum() > 0) {
+            mAllContactNumber.setVisibility(VISIBLE);
+            mAllContactNumber.setText(String.valueOf(SharePreferenceManager.getCachedNewFriendNum()));
+        } else {
+            mAllContactNumber.setVisibility(GONE);
+        }
     }
 
     public void setOnClickListener(OnClickListener onclickListener) {

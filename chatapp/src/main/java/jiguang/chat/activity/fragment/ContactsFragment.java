@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 
@@ -50,6 +51,7 @@ import jiguang.chat.view.ContactsView;
 public class ContactsFragment extends BaseFragment {
     private View mRootView;
     private ContactsView mContactsView;
+    private TextView mAllContactNumber;
     private ContactsController mContactsController;
     private Activity mContext;
 
@@ -63,6 +65,7 @@ public class ContactsFragment extends BaseFragment {
                 (ViewGroup) getActivity().findViewById(R.id.main_view), false);
 
         mContactsView = (ContactsView) mRootView.findViewById(R.id.contacts_view);
+        mAllContactNumber = getActivity().findViewById(R.id.all_contact_number);
 
         mContactsView.initModule(mRatio, mDensity);
         mContactsController = new ContactsController(mContactsView, this.getActivity());
@@ -217,6 +220,8 @@ public class ContactsFragment extends BaseFragment {
                         //收到好友请求数字 +1
                         int showNum = SharePreferenceManager.getCachedNewFriendNum() + 1;
                         mContactsView.showNewFriends(showNum);
+                        mAllContactNumber.setVisibility(View.VISIBLE);
+                        mAllContactNumber.setText(String.valueOf(showNum));
                         SharePreferenceManager.setCachedNewFriendNum(showNum);
                     }
                 }
@@ -308,6 +313,9 @@ public class ContactsFragment extends BaseFragment {
 
                                 int showNum = SharePreferenceManager.getCachedNewFriendNum() + 1;
                                 mContactsView.showNewFriends(showNum);
+                                mAllContactNumber.setVisibility(View.VISIBLE);
+                                mAllContactNumber.setText(String.valueOf(showNum));
+
                                 SharePreferenceManager.setCachedNewFriendNum(showNum);
                             }
                         }

@@ -75,13 +75,16 @@ public class ContactsView extends LinearLayout {
         RelativeLayout loadingHeader = (RelativeLayout) mInflater.inflate(R.layout.jmui_drop_down_list_header, null);
         mLoadingIv = (ImageView) loadingHeader.findViewById(R.id.jmui_loading_img);
         mLoadingTv = (LinearLayout) loadingHeader.findViewById(R.id.loading_view);
-        mNewFriendNum.setVisibility(INVISIBLE);
         mListView.addHeaderView(loadingHeader);
         mListView.addHeaderView(header, null, false);
         mListView.setDrawingListUnderStickyHeader(true);
         mListView.setAreHeadersSticky(true);
         mListView.setStickyHeaderTopOffset(0);
-
+        if (SharePreferenceManager.getCachedNewFriendNum() > 0) {
+            showNewFriends(SharePreferenceManager.getCachedNewFriendNum());
+        } else {
+            mNewFriendNum.setVisibility(INVISIBLE);
+        }
     }
 
 

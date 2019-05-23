@@ -67,6 +67,21 @@
                     android:drawableTop="@drawable/actionbar_contact_drawable_bg"
                     android:text="@string/actionbar_contact"/>
 
+                <TextView
+                    android:id="@+id/all_contact_number"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="2dp"
+                    android:background="@drawable/unread_msg_red"
+                    android:elevation="7dp"
+                    android:gravity="center"
+                    android:text="99+"
+                    android:textColor="@android:color/white"
+                    android:textSize="10sp"
+                    android:visibility="gone"/>
+
             </FrameLayout>
 
             <FrameLayout
