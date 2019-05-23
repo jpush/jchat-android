@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
 
 import com.activeandroid.ActiveAndroid;
 
@@ -39,12 +40,14 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
     private Activity mContext;
     private List<FriendEntry> mList = new ArrayList<>();
     private StickyListAdapter mAdapter;
+    private TextView mAllContactNumber;
     private List<FriendEntry> forDelete = new ArrayList<>();
 
 
     public ContactsController(ContactsView mContactsView, FragmentActivity context) {
         this.mContactsView = mContactsView;
         this.mContext = context;
+        mAllContactNumber = mContext.findViewById(R.id.all_contact_number);
     }
 
 
@@ -61,6 +64,7 @@ public class ContactsController implements View.OnClickListener, SideBar.OnTouch
                 intent.setClass(mContext, VerificationMessageActivity.class);
                 mContext.startActivity(intent);
                 mContactsView.dismissNewFriends();
+                mAllContactNumber.setVisibility(View.GONE);
                 break;
             case R.id.group_ll://群组
                 intent.setClass(mContext, GroupActivity.class);

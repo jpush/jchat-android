@@ -88,6 +88,7 @@ public class ChatRoomKeeperActivity extends BaseActivity {
                     }
                     mAdapter = new ChatRoomKeeperListAdapter(ChatRoomKeeperActivity.this, mShowKeeperList, roomID, isOwner);
                     mLvKeeper.setAdapter(mAdapter);
+                    mLvKeeper.setOnItemClickListener(mAdapter);
                     loadingDialog.dismiss();
                 } else {
                     loadingDialog.dismiss();

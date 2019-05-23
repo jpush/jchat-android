@@ -889,4 +889,10 @@ public class ChattingListAdapter extends BaseAdapter {
         public abstract void onContentLongClick(int position, View view);
     }
 
+    public void stopMediaPlayer() {
+        if (mController != null) {
+            mController.stopMediaPlayer();
+        }
+    }
+
 }

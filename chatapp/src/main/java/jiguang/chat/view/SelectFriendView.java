@@ -11,7 +11,7 @@ import android.widget.TextView;
 import jiguang.chat.R;
 import jiguang.chat.adapter.StickyListAdapter;
 import jiguang.chat.utils.sidebar.SideBar;
-import jiguang.chat.view.listview.StickyListHeadersListView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 
 public class SelectFriendView extends LinearLayout {

@@ -98,6 +98,7 @@ public class ChatRoomInfoActivity extends BaseActivity implements View.OnClickLi
                 };
                 exitDialog = DialogCreator.createBaseDialogWithTitle(ChatRoomInfoActivity.this, "确定退出聊天室", listener);
                 exitDialog.show();
+                break;
             default:
                 break;
         }
@@ -129,6 +130,9 @@ public class ChatRoomInfoActivity extends BaseActivity implements View.OnClickLi
         mTvChatRoomDesc = (TextView) findViewById(R.id.tv_chatRoomDesc);
         mTvChatRoomOwner = (TextView) findViewById(R.id.tv_chatRoomOwner);
         mGvChatRoomKeeper = (NoScrollGridView) findViewById(R.id.grid_chatRommKeeper);
+        mGvChatRoomKeeper.setClickable(false);
+        mGvChatRoomKeeper.setPressed(false);
+        mGvChatRoomKeeper.setEnabled(false);
         roomId = getIntent().getLongExtra("chatRoomId", 0);
         findViewById(R.id.ll_chat_room_name).setOnClickListener(this);
         findViewById(R.id.ll_chat_room_desc).setOnClickListener(this);

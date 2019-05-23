@@ -72,5 +72,6 @@ dependencies {
     implementation 'cn.jiguang.sdk:jmessage:2.9.0'  // 此处以J
     implementation 'cn.jiguang.sdk:jcore:2.0.0'
     implementation 'org.greenrobot:eventbus:3.1.1'
-    implementation 'in.srain.cube:ptr-load-more:1.0.6'
+    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-26'
+    implementation 'com.github.mtotschnig:StickyListHeaders:2.7.1'
 }

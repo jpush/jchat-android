@@ -30,7 +30,7 @@ import jiguang.chat.database.UserEntry;
 import jiguang.chat.utils.keyboard.utils.EmoticonsKeyboardUtils;
 import jiguang.chat.utils.pinyin.PinyinComparator;
 import jiguang.chat.utils.sidebar.SideBar;
-import jiguang.chat.view.listview.StickyListHeadersListView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 
 /**

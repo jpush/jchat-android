@@ -22,6 +22,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import jiguang.chat.R;
 import jiguang.chat.activity.GroupMemberListActivity;
 import jiguang.chat.utils.pinyin.HanziToPinyin;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 /**
  * Created by ${chenyn} on 2017/11/3.

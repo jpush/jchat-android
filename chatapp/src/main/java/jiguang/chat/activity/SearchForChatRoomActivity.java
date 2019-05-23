@@ -62,7 +62,7 @@ public class SearchForChatRoomActivity extends BaseActivity implements View.OnCl
         mIvClear = (ImageView) findViewById(R.id.iv_clear);
         mIvClear.setOnClickListener(this);
 
-        initTitle(true, true, "添加黑名单", "", false, "");
+        initTitle(true, true, "添加管理员", "", false, "");
     }
 
     @Override
@@ -122,8 +122,9 @@ public class SearchForChatRoomActivity extends BaseActivity implements View.OnCl
                         if (i == 0) {
                             ToastUtil.shortToast(SearchForChatRoomActivity.this, "添加成功");
                         } else {
-                            ToastUtil.shortToast(SearchForChatRoomActivity.this, "添加失败,code:" + i);
+                            handleErrorCode(i);
                         }
+
                         mSearch_result.setVisibility(View.GONE);
                     }
                 });
@@ -134,6 +135,20 @@ public class SearchForChatRoomActivity extends BaseActivity implements View.OnCl
             default:
 
         }
+    }
+
+    private void handleErrorCode(int code) {
+        String result = "添加失败,code:" + code;
+        switch (code) {
+            case 7130004:
+                result = "添加失败，管理员人数已达上限";
+                break;
+            case 7130006:
+                result = "添加失败，用户不在聊天室中";
+                break;
+            default:
+        }
+        ToastUtil.shortToast(SearchForChatRoomActivity.this, result);
     }
 
     private class TextChange implements TextWatcher {

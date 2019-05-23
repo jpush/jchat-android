@@ -1,9 +1,10 @@
 package jiguang.chat.adapter;
 
-import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,19 +48,21 @@ import jiguang.chat.view.SwipeLayout;
 
 public class FriendRecommendAdapter extends BaseAdapter {
 
-    private Activity mContext;
+    private Fragment mFragment;
+    private Context mContext;
     private List<FriendRecommendEntry> mList = new ArrayList<>();
     private LayoutInflater mInflater;
     private float mDensity;
     private int mWidth;
 
-    public FriendRecommendAdapter(Activity context, List<FriendRecommendEntry> list, float density,
+    public FriendRecommendAdapter(Fragment fragment, List<FriendRecommendEntry> list, float density,
                                   int width) {
-        this.mContext = context;
-        this.mList = list;
-        this.mInflater = LayoutInflater.from(mContext);
-        this.mDensity = density;
-        this.mWidth = width;
+        mFragment = fragment;
+        mContext = mFragment.getActivity();
+        mList = list;
+        mInflater = LayoutInflater.from(mContext);
+        mDensity = density;
+        mWidth = width;
     }
 
     @Override
@@ -202,7 +205,7 @@ public class FriendRecommendAdapter extends BaseAdapter {
                     intent.putExtra("position", position);
                     intent.putExtra(JGApplication.TARGET_ID, entry.username);
                     intent.putExtra(JGApplication.TARGET_APP_KEY, entry.appKey);
-                    mContext.startActivityForResult(intent, 0);
+                    mFragment.startActivityForResult(intent, 0);
                     //2.已经添加的 --> 好友详情
                 } else if (entry.state.equals(FriendInvitation.ACCEPTED.getValue())) {
                     JMessageClient.getUserInfo(item.username, new GetUserInfoCallback() {
@@ -218,7 +221,7 @@ public class FriendRecommendAdapter extends BaseAdapter {
                                 }
                                 intent1.putExtra(JGApplication.TARGET_ID, entry.username);
                                 intent1.putExtra(JGApplication.TARGET_APP_KEY, entry.appKey);
-                                mContext.startActivityForResult(intent1, 0);
+                                mFragment.startActivityForResult(intent1, 0);
                             }
                         }
                     });
@@ -229,7 +232,7 @@ public class FriendRecommendAdapter extends BaseAdapter {
                     intent.putExtra("reason", item.reason);
                     intent.putExtra(JGApplication.TARGET_ID, entry.username);
                     intent.putExtra(JGApplication.TARGET_APP_KEY, entry.appKey);
-                    mContext.startActivityForResult(intent, 0);
+                    mFragment.startActivityForResult(intent, 0);
                 }
 
             }
@@ -298,7 +301,7 @@ public class FriendRecommendAdapter extends BaseAdapter {
                         }
                         intent.putExtra(JGApplication.TARGET_ID, entry.username);
                         intent.putExtra(JGApplication.TARGET_APP_KEY, entry.appKey);
-                        mContext.startActivityForResult(intent, 0);
+                        mFragment.startActivityForResult(intent, 0);
                     }
                 });
             }

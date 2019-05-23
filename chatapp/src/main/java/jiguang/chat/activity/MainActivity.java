@@ -7,10 +7,8 @@ import android.support.v4.app.FragmentManager;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-import com.yanzhenjie.alertdialog.AlertDialog;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.PermissionListener;
-import com.yanzhenjie.permission.RationaleListener;
 
 import java.util.ArrayList;
 import java.util.List;

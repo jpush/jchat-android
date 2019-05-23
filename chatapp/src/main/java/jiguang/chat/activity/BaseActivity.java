@@ -69,6 +69,12 @@ public class BaseActivity extends SwipeBackActivity {
             mReturn_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm.isActive() && getCurrentFocus() != null) {
+                        if (getCurrentFocus().getWindowToken() != null) {
+                            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                        }
+                    }
                     finish();
                 }
             });

@@ -60,7 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <jiguang.chat.view.listview.StickyListHeadersListView
+        <se.emilsjolander.stickylistheaders.StickyListHeadersListView
             android:id="@+id/at_member_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

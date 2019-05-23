@@ -40,7 +40,7 @@ public class FriendFragment extends BaseFragment {
         UserEntry user = JGApplication.getUserEntry();
         if (null != user) {
             mList = user.getRecommends();
-            mAdapter = new FriendRecommendAdapter(mContext, mList, mDensity, mWidth);
+            mAdapter = new FriendRecommendAdapter(this, mList, mDensity, mWidth);
             mListView.setAdapter(mAdapter);
         } else {
             Log.e("FriendRecommendActivity", "Unexpected error: User table null");

@@ -21,7 +21,7 @@ import jiguang.chat.adapter.GroupMemberListAdapter;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.utils.GroupMemberListComparator;
 import jiguang.chat.utils.sidebar.SideBar;
-import jiguang.chat.view.listview.StickyListHeadersListView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * Created by ${chenyn} on 2017/11/3.

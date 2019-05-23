@@ -77,6 +77,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final int REQUEST_CODE_SEND_LOCATION = 24;
     public static final int REQUEST_CODE_FRIEND_INFO = 16;
     public static final int RESULT_CODE_CHAT_DETAIL = 15;
+    public static final int REQUEST_CODE_FRIEND_LIST = 17;
     public static final int ON_GROUP_EVENT = 3004;
     public static final String DELETE_MODE = "deleteMode";
     public static final int RESULT_CODE_ME_INFO = 20;
@@ -87,6 +88,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public static final String GROUP_ID = "groupId";
     public static final String POSITION = "position";
     public static final String MsgIDs = "msgIDs";
+    public static final String MSG_JSON = "msg_json";
     public static final String MSG_LIST_JSON = "msg_list_json";
     public static final String NAME = "name";
     public static final String ATALL = "atall";
@@ -100,6 +102,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     private static final String JCHAT_CONFIGS = "JChat_configs";
     public static String FILE_DIR = "sdcard/JChatDemo/recvFiles/";
     public static String VIDEO_DIR = "sdcarVIDEOd/JChatDemo/sendFiles/";
+    public static String THUMP_PICTURE_DIR;
     public static final String TARGET_ID = "targetId";
     public static final String ATUSER = "atuser";
     public static final String TARGET_APP_KEY = "targetAppKey";
@@ -126,6 +129,7 @@ public class JGApplication extends com.activeandroid.app.Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
+        THUMP_PICTURE_DIR = context.getFilesDir().getAbsolutePath() + "/JChatDemo";
         StorageUtil.init(context, null);
         Fresco.initialize(getApplicationContext());
         SDKInitializer.initialize(getApplicationContext());
