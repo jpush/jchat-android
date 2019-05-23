@@ -43,6 +43,7 @@ import jiguang.chat.activity.FriendInfoActivity;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
 import jiguang.chat.utils.photochoose.SelectableRoundedImageView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 /**
  * Created by ${chenyn} on 2017/3/16.

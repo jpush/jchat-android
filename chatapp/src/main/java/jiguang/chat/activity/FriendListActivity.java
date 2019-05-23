@@ -32,7 +32,7 @@ import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.pinyin.PinyinComparator;
 import jiguang.chat.utils.sidebar.SideBar;
-import jiguang.chat.view.listview.StickyListHeadersListView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * Created by ${chenyn} on 2017/9/21.

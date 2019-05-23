@@ -21,13 +21,13 @@ import java.util.List;
 import cn.jpush.im.android.api.content.FileContent;
 import jiguang.chat.R;
 import jiguang.chat.activity.DownLoadActivity;
-import jiguang.chat.adapter.StickyListHeadersAdapter;
 import jiguang.chat.entity.FileItem;
 import jiguang.chat.entity.SelectedHistoryFileListener;
 import jiguang.chat.utils.FileHelper;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.ViewHolder;
 import jiguang.chat.view.MyImageView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 /**
  * Created by ${chenyn} on 2017/8/29.

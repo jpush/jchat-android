@@ -18,7 +18,7 @@ import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ContactsController;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.sidebar.SideBar;
-import jiguang.chat.view.listview.StickyListHeadersListView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 
 /**

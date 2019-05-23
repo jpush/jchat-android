@@ -12,8 +12,9 @@ import android.widget.ListAdapter;
 
 import java.util.LinkedList;
 import java.util.List;
+
 import jiguang.chat.view.CheckableWrapperView;
-import jiguang.chat.adapter.StickyListHeadersAdapter;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 
 /**

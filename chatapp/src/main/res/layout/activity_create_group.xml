@@ -133,13 +133,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <jiguang.chat.view.listview.StickyListHeadersListView
+        <se.emilsjolander.stickylistheaders.StickyListHeadersListView
             android:id="@+id/sticky_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@drawable/main_list_divider_line"
             android:dividerHeight="1px">
-        </jiguang.chat.view.listview.StickyListHeadersListView>
+        </se.emilsjolander.stickylistheaders.StickyListHeadersListView>
 
         <TextView
             android:id="@+id/tv_noFriend"
