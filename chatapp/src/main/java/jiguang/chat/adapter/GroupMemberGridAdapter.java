@@ -34,7 +34,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     private int mCurrentNum;
     //用群成员项数余4得到，作为下标查找mRestArray，得到空白项
     private int mRestNum;
-    private static final int MAX_GRID_ITEM = 40;
+    private int maxGridItem;
     private boolean mIsGroup;
     private String mTargetId;
     private Context mContext;
@@ -53,6 +53,7 @@ public class GroupMemberGridAdapter extends BaseAdapter {
         this.mMemberList = memberList;
         mCurrentNum = mMemberList.size();
         this.mIsCreator = isCreator;
+        maxGridItem = isCreator ? 13 : 14;
         this.mAvatarSize = size;
         initBlankItem(mCurrentNum);
     }
@@ -66,8 +67,8 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     }
 
     public void initBlankItem(int size) {
-        if (mMemberList.size() > MAX_GRID_ITEM) {
-            mCurrentNum = MAX_GRID_ITEM - 1;
+        if (mMemberList.size() > maxGridItem) {
+            mCurrentNum = maxGridItem;
         } else {
             mCurrentNum = mMemberList.size();
         }
@@ -75,8 +76,8 @@ public class GroupMemberGridAdapter extends BaseAdapter {
     }
 
     public void refreshMemberList() {
-        if (mMemberList.size() > MAX_GRID_ITEM) {
-            mCurrentNum = MAX_GRID_ITEM - 1;
+        if (mMemberList.size() > maxGridItem) {
+            mCurrentNum = maxGridItem;
         } else {
             mCurrentNum = mMemberList.size();
         }
