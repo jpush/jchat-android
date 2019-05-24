@@ -258,6 +258,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         mChatView.setChatListAdapter(mChatAdapter);
         mChatView.setToBottom();
         mChatView.setConversation(mConv);
+        mChatView.setGroupIcon();
         initEmoticonsKeyBoardBar();
     }
 

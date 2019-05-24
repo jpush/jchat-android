@@ -59,6 +59,7 @@ public class SelectCreateGroupTypeActivity extends BaseActivity implements TextW
 
         setContentView(R.layout.activity_select_create_group_type);
         initTitle(true, true, "发起群聊", "", false, "");
+        JGApplication.groupAvatarPath = null;//清空头像信息
 
         initView();
         initData();
