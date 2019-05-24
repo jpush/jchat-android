@@ -912,7 +912,9 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
      */
     public void refresh(long groupId) {
         //当前群聊
-        if (mGroupId == groupId) {
+        if (mGroupId == groupId && mGroupInfo != null) {
+            mMemberInfoList.clear();
+            mMemberInfoList.addAll(mGroupInfo.getGroupMembers());
             refreshMemberList();
         }
     }
