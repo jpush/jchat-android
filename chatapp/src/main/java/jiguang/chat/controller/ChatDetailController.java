@@ -625,6 +625,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             public void gotResult(final int status, final String desc) {
                 mLoadingDialog.dismiss();
                 if (status == 0) {
+                    mMemberInfoList.clear();
+                    mMemberInfoList.addAll(mGroupInfo.getGroupMembers());
                     refreshMemberList();
                 } else {
                     ToastUtil.shortToast(mContext, "添加失败");

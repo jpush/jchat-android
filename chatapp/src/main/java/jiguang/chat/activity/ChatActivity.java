@@ -258,6 +258,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         mChatView.setChatListAdapter(mChatAdapter);
         mChatView.setToBottom();
         mChatView.setConversation(mConv);
+        mChatView.setGroupIcon();
         initEmoticonsKeyBoardBar();
     }
 
@@ -808,8 +809,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     case group_member_removed:
                         //删除群成员事件
                         userNames = ((EventNotificationContent) message.getContent()).getUserNames();
+                        UserInfo operator = ((EventNotificationContent) message.getContent()).getOperatorUserInfo();
                         //群主删除了当前用户，则隐藏聊天详情按钮
-                        if (userNames.contains(mMyInfo.getNickname()) || userNames.contains(mMyInfo.getUserName())) {
+                        if ((userNames.contains(mMyInfo.getNickname()) || userNames.contains(mMyInfo.getUserName())) && operator.getUserID() != mMyInfo.getUserID()) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
