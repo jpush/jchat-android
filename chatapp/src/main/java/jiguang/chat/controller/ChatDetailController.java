@@ -84,7 +84,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private Dialog mLoadingDialog = null;
     private static final int ADD_MEMBERS_TO_GRIDVIEW = 2048;
     private static final int ADD_A_MEMBER_TO_GRIDVIEW = 2049;
-    private static final int MAX_GRID_ITEM = 40;
+    private int maxGridItem = 40;
     private String mGroupName;
     private String mGroupDesc;
     private final MyHandler myHandler = new MyHandler(this);
@@ -161,6 +161,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             if (mGroupOwnerId != null && mGroupOwnerId.equals(mMyUsername)) {
                 mIsCreator = true;
             }
+            maxGridItem = mIsCreator ? 13 : 14;
             mChatDetailView.setMyName(mMyUsername);
             mChatDetailView.showBlockView(mGroupInfo.isGroupBlocked());
             initAdapter();
@@ -213,8 +214,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private void initAdapter() {
         // 初始化头像
         mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberInfoList, mIsCreator, mAvatarSize);
-        if (mMemberInfoList.size() > MAX_GRID_ITEM) {
-            mCurrentNum = MAX_GRID_ITEM - 1;
+        if (mMemberInfoList.size() > maxGridItem) {
+            mCurrentNum = maxGridItem;
         } else {
             mCurrentNum = mMemberInfoList.size();
         }
@@ -637,7 +638,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
 
     //添加或者删除成员后重新获得MemberInfoList
     public void refreshMemberList() {
-        mCurrentNum = mMemberInfoList.size() > MAX_GRID_ITEM ? MAX_GRID_ITEM - 1 : mMemberInfoList.size();
+        mCurrentNum = mMemberInfoList.size() > maxGridItem ? maxGridItem : mMemberInfoList.size();
         mGridAdapter.refreshMemberList();
     }
 
@@ -915,6 +916,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         if (mGroupId == groupId && mGroupInfo != null) {
             mMemberInfoList.clear();
             mMemberInfoList.addAll(mGroupInfo.getGroupMembers());
+            mChatDetailView.setMemberCount(" " + mMemberInfoList.size() + " 人");
             refreshMemberList();
         }
     }
