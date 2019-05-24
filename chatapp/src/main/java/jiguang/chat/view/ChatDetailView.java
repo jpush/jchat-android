@@ -178,7 +178,6 @@ public class ChatDetailView extends LinearLayout {
         findViewById(R.id.single_chat_remove_3).setVisibility(View.GONE);
         findViewById(R.id.single_chat_remove_4).setVisibility(View.GONE);
         findViewById(R.id.single_chat_remove_5).setVisibility(View.GONE);
-        findViewById(R.id.single_chat_remove_6).setVisibility(View.GONE);
         mDelGroupBtn.setText("删除好友");
     }
 
