@@ -43,6 +43,7 @@ import jiguang.chat.activity.FriendInfoActivity;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.database.FriendEntry;
 import jiguang.chat.utils.photochoose.SelectableRoundedImageView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 /**
  * Created by ${chenyn} on 2017/3/16.
@@ -231,7 +232,18 @@ public class StickyListAdapter extends BaseAdapter implements StickyListHeadersA
         }
 
         final long[] uid = new long[1];
-        uid[0] = friend.uid;
+        if (friend.uid == null) {
+            JMessageClient.getUserInfo(friend.username, new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int i, String s, UserInfo userInfo) {
+                    if (i == 0) {
+                        uid[0] = userInfo.getUserID();
+                    }
+                }
+            });
+        } else {
+            uid[0] = friend.uid;
+        }
         if (!mIsSearch) {
             holder.displayName.setText(friend.displayName);
         } else {

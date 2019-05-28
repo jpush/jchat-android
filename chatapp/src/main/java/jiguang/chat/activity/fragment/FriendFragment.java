@@ -1,8 +1,13 @@
-package jiguang.chat.activity;
+package jiguang.chat.activity.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 
 import java.util.List;
@@ -15,24 +20,23 @@ import jiguang.chat.database.UserEntry;
 import jiguang.chat.entity.FriendInvitation;
 
 /**
- * Created by ${chenyn} on 2017/3/17.
- *
- * 通讯录界面.验证消息
+ * Created by ${chenyn} on 2017/11/7.
  */
 
-public class FriendRecommendActivity extends BaseActivity {
+public class FriendFragment extends BaseFragment {
 
+    private Activity mContext;
     private ListView mListView;
     private FriendRecommendAdapter mAdapter;
     private List<FriendRecommendEntry> mList;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_friend_recommend);
+        this.mContext = getActivity();
+    }
 
-        initView();
-
+    private void initData() {
         UserEntry user = JGApplication.getUserEntry();
         if (null != user) {
             mList = user.getRecommends();
@@ -43,14 +47,21 @@ public class FriendRecommendActivity extends BaseActivity {
         }
     }
 
-    private void initView() {
-        initTitle(true, true, "新的朋友", "", false, "");
-        mListView = (ListView) findViewById(R.id.friend_recommend_list_view);
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return initView();
+    }
 
+    private View initView() {
+        View view = View.inflate(mContext, R.layout.verification_friend, null);
+        mListView = view.findViewById(R.id.friend_recommend_list_view);
+        initData();
+        return view;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (resultCode) {
             case JGApplication.RESULT_BUTTON:
@@ -60,7 +71,7 @@ public class FriendRecommendActivity extends BaseActivity {
                 if (btnState == 2) {
                     entry.state = FriendInvitation.ACCEPTED.getValue();
                     entry.save();
-                }else if (btnState == 1) {
+                } else if (btnState == 1) {
                     entry.state = FriendInvitation.REFUSED.getValue();
                     entry.save();
                 }
@@ -70,7 +81,9 @@ public class FriendRecommendActivity extends BaseActivity {
         }
     }
 
-    protected void onResume() {
+
+    @Override
+    public void onResume() {
         super.onResume();
         mAdapter.notifyDataSetChanged();
     }

@@ -16,6 +16,7 @@ import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.activity.PersonalActivity;
+import jiguang.chat.application.JGApplication;
 import jiguang.chat.utils.HandleResponseCode;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.ToastUtil;
@@ -133,6 +134,21 @@ public class ChoosePhoto {
 
             @Override
             public void onPhotoCancel() {
+            }
+        });
+    }
+
+    public void getCreateGroupAvatar(ImageView iv_groupAvatar) {
+        photoUtils = new PhotoUtils(new PhotoUtils.OnPhotoResultListener() {
+            @Override
+            public void onPhotoResult(Uri uri) {
+                iv_groupAvatar.setImageBitmap(BitmapFactory.decodeFile(uri.getPath()));
+                JGApplication.groupAvatarPath = uri.getPath();
+            }
+
+            @Override
+            public void onPhotoCancel() {
+
             }
         });
     }

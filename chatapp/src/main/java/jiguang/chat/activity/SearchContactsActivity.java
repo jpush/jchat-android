@@ -1,5 +1,6 @@
 package jiguang.chat.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -33,6 +34,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +53,6 @@ import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
-import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
@@ -156,6 +158,7 @@ public class SearchContactsActivity extends BaseActivity {
 
             }
 
+            @SuppressLint("StaticFieldLeak")
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mFilterFriendList = new ArrayList<>();
@@ -175,14 +178,10 @@ public class SearchContactsActivity extends BaseActivity {
                     protected void onPostExecute(SearchResult searchResult) {
                         if (searchResult.getFilterStr().equals(mFilterString)) {
                             List<UserInfo> friendList = searchResult.getFriendList();
-                            for (UserInfo friend : friendList) {
-                                mFilterFriendList.add(friend);
-                            }
+                            mFilterFriendList.addAll(friendList);
 
                             List<GroupInfo> groupList = searchResult.getGroupList();
-                            for (GroupInfo group : groupList) {
-                                mFilterGroupList.add(group);
-                            }
+                            mFilterGroupList.addAll(groupList);
 
                             if (mFilterFriendList.size() == 0 && mFilterGroupList.size() == 0) {
                                 if (mFilterString.equals("")) {

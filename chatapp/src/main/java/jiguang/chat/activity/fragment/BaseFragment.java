@@ -39,6 +39,7 @@ public class BaseFragment extends Fragment {
     protected int mAvatarSize;
     private Context mContext;
     public Activity mActivity;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

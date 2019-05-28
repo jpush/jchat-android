@@ -73,7 +73,6 @@ public class FileHelper {
                             destDir.mkdirs();
                         }
                         final File tempFile = new File(JGApplication.FILE_DIR + fileName);
-                        System.out.println("=================" + tempFile.exists() + tempFile.isFile());
                         FileOutputStream fos = new FileOutputStream(tempFile);
                         byte[] bt = new byte[1024];
                         int c;

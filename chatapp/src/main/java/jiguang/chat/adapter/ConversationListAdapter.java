@@ -33,6 +33,7 @@ import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
+import cn.jpush.im.android.api.enums.MessageStatus;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
@@ -234,6 +235,7 @@ public class ConversationListAdapter extends BaseAdapter {
         ImageView groupBlocked = ViewHolder.get(convertView, R.id.iv_groupBlocked);
         ImageView newMsgDisturb = ViewHolder.get(convertView, R.id.new_group_msg_disturb);
         ImageView newGroupMsgDisturb = ViewHolder.get(convertView, R.id.new_msg_disturb);
+        ImageView convListSendFail = ViewHolder.get(convertView, R.id.iv_convListSendFail);
 
         final SwipeLayoutConv swipeLayout = ViewHolder.get(convertView, R.id.swp_layout);
         final TextView delete = ViewHolder.get(convertView, R.id.tv_delete);
@@ -250,7 +252,7 @@ public class ConversationListAdapter extends BaseAdapter {
             Message lastMsg = convItem.getLatestMessage();
             if (lastMsg != null) {
                 TimeFormat timeFormat = new TimeFormat(mContext, lastMsg.getCreateTime());
-//                //会话界面时间
+                //会话界面时间
                 datetime.setText(timeFormat.getTime());
                 String contentStr;
                 switch (lastMsg.getContentType()) {
@@ -292,6 +294,12 @@ public class ConversationListAdapter extends BaseAdapter {
                     default:
                         contentStr = ((TextContent) lastMsg.getContent()).getText();
                         break;
+                }
+
+                if (lastMsg.getStatus() == MessageStatus.send_fail) {
+                    convListSendFail.setVisibility(View.VISIBLE);
+                }else {
+                    convListSendFail.setVisibility(View.GONE);
                 }
 
                 MessageContent msgContent = lastMsg.getContent();
@@ -358,7 +366,11 @@ public class ConversationListAdapter extends BaseAdapter {
                                         !lastMsg.getContentType().equals(ContentType.prompt) &&
                                         //排除自己给自己发送消息
                                         !((UserInfo) lastMsg.getTargetInfo()).getUserName().equals(JMessageClient.getMyInfo().getUserName())) {
-                                    content.setText("[已读]" + contentStr);
+                                    if (lastMsg.getStatus() == MessageStatus.send_fail) {
+                                        content.setText(contentStr);
+                                    }else {
+                                        content.setText("[已读]" + contentStr);
+                                    }
                                 } else {
                                     content.setText(contentStr);
                                 }
@@ -416,7 +428,7 @@ public class ConversationListAdapter extends BaseAdapter {
             } else {
                 headIcon.setImageResource(R.drawable.jmui_head_icon);
             }
-        } else {
+        } else if (convItem.getType().equals(ConversationType.group)) {
             mGroupInfo = (GroupInfo) convItem.getTargetInfo();
             if (mGroupInfo != null) {
                 mGroupInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {

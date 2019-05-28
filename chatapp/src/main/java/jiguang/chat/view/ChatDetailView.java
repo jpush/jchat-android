@@ -25,8 +25,6 @@ public class ChatDetailView extends LinearLayout {
 
 
     private LinearLayout mGroupDescLL;
-    private View mSplitLine1;
-    private View mSplitLine2;
     private LinearLayout mGroupNameLL;
     private LinearLayout mMyNameLL;
     private LinearLayout mGroupNumLL;
@@ -52,6 +50,11 @@ public class ChatDetailView extends LinearLayout {
     private LinearLayout mDetailAddFriend;
     private RelativeLayout mClear_rl;
     private ImageView mIv_groupAvatar;
+    private TextView mMoreGroupMember;
+    private TextView mTv_memberCount;
+    private TextView mTv_groupType;
+    private TextView mTv_groupID;
+    private LinearLayout mChat_silence;
 
     public ChatDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -62,8 +65,6 @@ public class ChatDetailView extends LinearLayout {
     public void initModule() {
         mGroupDescLL = (LinearLayout) findViewById(R.id.group_desc_ll);
         mGroupDesc = (TextView) findViewById(R.id.chat_detail_group_desc);
-        mSplitLine1 = findViewById(R.id.all_member_split_line1);
-        mSplitLine2 = findViewById(R.id.all_member_split_line2);
         mGroupNameLL = (LinearLayout) findViewById(R.id.group_name_ll);
         mGroupAvatarLL = (RelativeLayout) findViewById(R.id.rl_groupAvatar);
         mIv_groupAvatar = (ImageView) findViewById(R.id.iv_groupAvatar);
@@ -72,6 +73,7 @@ public class ChatDetailView extends LinearLayout {
         mGroupChatRecordLL = (LinearLayout) findViewById(R.id.group_chat_record_ll);
         mGroupChatDelLL = (LinearLayout) findViewById(R.id.group_chat_del_ll);
         mChatFile = (LinearLayout) findViewById(R.id.chat_file);
+        mChat_silence = findViewById(R.id.chat_silence);
         mReturnBtn = (ImageButton) findViewById(R.id.return_btn);
         mTitle = (TextView) findViewById(R.id.title);
         mMenuBtn = (ImageButton) findViewById(R.id.right_btn);
@@ -84,6 +86,10 @@ public class ChatDetailView extends LinearLayout {
         mBlockBtn = (SlipButton) findViewById(R.id.block_slip_btn);
         mBlockLine = findViewById(R.id.block_split_line);
         mTv_moreGroup = (LinearLayout) findViewById(R.id.tv_moreGroup);
+        mTv_memberCount = findViewById(R.id.tv_memberCount);
+        mMoreGroupMember = findViewById(R.id.moreGroupMember);
+        mTv_groupType = findViewById(R.id.tv_groupType);
+        mTv_groupID = findViewById(R.id.tv_groupID);
         mAddFriend = (Button) findViewById(R.id.chat_detail_add_friend);
         mDetailAddFriend = (LinearLayout) findViewById(R.id.detail_add_friend);
         mClear_rl = (RelativeLayout) findViewById(R.id.clear_rl);
@@ -106,9 +112,12 @@ public class ChatDetailView extends LinearLayout {
         mReturnBtn.setOnClickListener(onClickListener);
         mDelGroupBtn.setOnClickListener(onClickListener);
         mTv_moreGroup.setOnClickListener(onClickListener);
+        mMoreGroupMember.setOnClickListener(onClickListener);
         mAddFriend.setOnClickListener(onClickListener);
         mClear_rl.setOnClickListener(onClickListener);
         mChatFile.setOnClickListener(onClickListener);
+        mChat_silence.setOnClickListener(onClickListener);
+
     }
 
     public void setOnChangeListener(SlipButton.OnChangedListener listener) {
@@ -118,6 +127,18 @@ public class ChatDetailView extends LinearLayout {
 
     public void setItemListener(AdapterView.OnItemClickListener listener) {
         mGridView.setOnItemClickListener(listener);
+    }
+
+    public void setGroupType(String type) {
+        mTv_groupType.setText(type);
+    }
+
+    public void setGroupId(String groupId) {
+        mTv_groupID.setText(groupId);
+    }
+
+    public void setMemberCount(String count) {
+        mTv_memberCount.setText(count);
     }
 
     public void setTitle(String title) {
@@ -144,10 +165,19 @@ public class ChatDetailView extends LinearLayout {
             mDetailAddFriend.setVisibility(VISIBLE);
             mDelGroupBtn.setVisibility(GONE);
         }
+        mGroupDescLL.setVisibility(View.GONE);
         mGroupNameLL.setVisibility(View.GONE);
         mGroupAvatarLL.setVisibility(View.GONE);
         mGroupNumLL.setVisibility(View.GONE);
         mMyNameLL.setVisibility(View.GONE);
+        findViewById(R.id.group_id).setVisibility(View.GONE);
+        findViewById(R.id.group_type).setVisibility(View.GONE);
+        findViewById(R.id.chat_silence).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_1).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_2).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_3).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_4).setVisibility(View.GONE);
+        findViewById(R.id.single_chat_remove_5).setVisibility(View.GONE);
         mDelGroupBtn.setText("删除好友");
     }
 
@@ -162,12 +192,6 @@ public class ChatDetailView extends LinearLayout {
 
     public void setGroupDesc(String desc) {
         mGroupDesc.setText(desc);
-    }
-
-    public void dismissAllMembersBtn() {
-        mSplitLine1.setVisibility(View.GONE);
-        mSplitLine2.setVisibility(View.GONE);
-        mGroupDescLL.setVisibility(View.GONE);
     }
 
     public void initNoDisturb(int status) {

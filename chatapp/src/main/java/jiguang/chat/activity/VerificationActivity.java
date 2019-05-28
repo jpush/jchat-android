@@ -3,11 +3,8 @@ package jiguang.chat.activity;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
@@ -42,22 +39,14 @@ public class VerificationActivity extends BaseActivity {
     }
 
     private void initData() {
-        mEt_reason.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEND) {
-                    sendAddReason();
-                }
-                return false;
-            }
-        });
-
-        mJmui_commit_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        mEt_reason.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
                 sendAddReason();
             }
+            return false;
         });
+
+        mJmui_commit_btn.setOnClickListener(v -> sendAddReason());
     }
 
     private void sendAddReason() {

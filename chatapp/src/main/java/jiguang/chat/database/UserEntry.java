@@ -36,6 +36,14 @@ public class UserEntry extends Model {
         return getMany(FriendRecommendEntry.class, "User");
     }
 
+    public List<GroupApplyEntry> getGroupApplyRecommends() {
+        return getMany(GroupApplyEntry.class, "User");
+    }
+
+    public List<RefuseGroupEntry> getRefuseGroupRecommends() {
+        return getMany(RefuseGroupEntry.class, "User");
+    }
+
     public List<FriendEntry> getFriends() {
         return getMany(FriendEntry.class, "User");
     }

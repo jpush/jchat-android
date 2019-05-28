@@ -45,7 +45,6 @@
                         android:layout_height="wrap_content"
                         android:maxWidth="190dp"
                         android:singleLine="true"
-                        android:text="昵称"
                         android:textColor="#FFFFFF"
                         android:textSize="18sp"/>
 
@@ -56,7 +55,6 @@
                         android:singleLine="true"
                         android:textColor="#FFFFFF"
                         android:textSize="20sp"/>
-
                 </LinearLayout>
 
                 <ImageButton
@@ -73,10 +71,10 @@
                 android:layout_height="match_parent">
 
                 <jiguang.chat.view.listview.DropDownListView
-                    android:background="#E8EDF3"
                     android:id="@+id/lv_chat"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="#E8EDF3"
                     android:cacheColorHint="#00000000"
                     android:divider="@null"
                     android:fadingEdge="none"

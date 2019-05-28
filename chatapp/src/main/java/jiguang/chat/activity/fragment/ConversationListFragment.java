@@ -20,6 +20,10 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.enums.ConversationType;
@@ -32,7 +36,6 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ConversationListController;
@@ -67,6 +70,9 @@ public class ConversationListFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         isCreate = true;
         mContext = this.getActivity();
 
@@ -199,7 +205,7 @@ public class ConversationListFragment extends BaseFragment {
      */
     public void onEvent(OfflineMessageEvent event) {
         Conversation conv = event.getConversation();
-        if (!conv.getTargetId().equals("feedback_Android")) {
+        if (!conv.getTargetId().equals("feedback_Android") && conv.getType() != ConversationType.chatroom) {
             mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
         }
     }
@@ -226,7 +232,7 @@ public class ConversationListFragment extends BaseFragment {
      */
     public void onEvent(ConversationRefreshEvent event) {
         Conversation conv = event.getConversation();
-        if (!conv.getTargetId().equals("feedback_Android")) {
+        if (!conv.getTargetId().equals("feedback_Android") && conv.getType() != ConversationType.chatroom) {
             mBackgroundHandler.sendMessage(mBackgroundHandler.obtainMessage(REFRESH_CONVERSATION_LIST, conv));
             //多端在线未读数改变时刷新
             if (event.getReason().equals(ConversationRefreshEvent.Reason.UNREAD_CNT_UPDATED)) {
@@ -246,7 +252,9 @@ public class ConversationListFragment extends BaseFragment {
             switch (msg.what) {
                 case REFRESH_CONVERSATION_LIST:
                     Conversation conv = (Conversation) msg.obj;
-                    mConvListController.getAdapter().setToTop(conv);
+                    if (conv.getType() != ConversationType.chatroom) {
+                        mConvListController.getAdapter().setToTop(conv);
+                    }
                     break;
                 case DISMISS_REFRESH_HEADER:
                     mContext.runOnUiThread(new Runnable() {
@@ -264,7 +272,8 @@ public class ConversationListFragment extends BaseFragment {
         }
     }
 
-    public void onEventMainThread(Event event) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(Event event) { ;
         switch (event.getType()) {
             case createConversation:
                 Conversation conv = event.getConversation();
@@ -311,6 +320,9 @@ public class ConversationListFragment extends BaseFragment {
         super.onResume();
         dismissPopWindow();
         mMenuItemView.showAddFriend();
+        if (JGApplication.delConversation != null) {
+            mConvListController.delConversation();
+        }
         mConvListController.getAdapter().notifyDataSetChanged();
     }
 
@@ -334,5 +346,4 @@ public class ConversationListFragment extends BaseFragment {
             mConvListController.getAdapter().sortConvList();
         }
     }
-
 }

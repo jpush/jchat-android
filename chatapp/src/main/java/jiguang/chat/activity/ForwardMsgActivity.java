@@ -15,6 +15,7 @@ import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
@@ -64,7 +65,7 @@ public class ForwardMsgActivity extends BaseActivity {
     private void initData() {
         List<Conversation> conversationList = JMessageClient.getConversationList();
         for (Conversation conv : conversationList) {
-            if (!conv.getTargetId().equals("feedback_Android")) {
+            if (!conv.getTargetId().equals("feedback_Android") && conv.getType() != ConversationType.chatroom) {
                 forwardList.add(conv);
             }
         }

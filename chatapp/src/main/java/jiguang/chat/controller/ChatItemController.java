@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
@@ -58,6 +57,7 @@ import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
+import cn.jpush.im.android.api.model.ChatRoomInfo;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
@@ -779,8 +779,29 @@ public class ChatItemController {
         FileContent fileContent = (FileContent) msg.getContent();
         String videoPath = fileContent.getLocalPath();
         if (videoPath != null) {
-//            String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + msg.getServerMessageId();
-            String thumbPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + msg.getServerMessageId();
+            File dir = new File(JGApplication.THUMP_PICTURE_DIR);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            String thumbPath;
+            if (msg.getServerMessageId() == 0) {
+                switch (msg.getTargetType()) {
+                    case single:
+                        thumbPath = dir + "/" + msg.getTargetType() + "_" + ((UserInfo) msg.getTargetInfo()).getUserID() + "_" + msg.getId();
+                        break;
+                    case group:
+                        thumbPath = dir + "/" + msg.getTargetType() + "_" + ((GroupInfo) msg.getTargetInfo()).getGroupID() + "_" + msg.getId();
+                        break;
+                    case chatroom:
+                        thumbPath = dir + "/" + msg.getTargetType() + "_" + ((ChatRoomInfo) msg.getTargetInfo()).getRoomID() + "_" + msg.getId();
+                        break;
+                    default:
+                        Picasso.with(mContext).load(R.drawable.video_not_found).into(holder.picture);
+                        return;
+                }
+            } else {
+                thumbPath = dir + "/" + msg.getServerMessageId();
+            }
             String path = BitmapDecoder.extractThumbnail(videoPath, thumbPath);
             setPictureScale(null, msg, path, holder.picture);
             Picasso.with(mContext).load(new File(path)).into(holder.picture);
@@ -1014,7 +1035,9 @@ public class ChatItemController {
                 case receive_success:
                     holder.progressTv.setVisibility(View.GONE);
                     holder.contentLl.setBackground(mContext.getDrawable(R.drawable.jmui_msg_receive_bg));
-                    holder.fileLoad.setText("已下载");
+                    if (mConv.getType() != ConversationType.chatroom) {
+                        holder.fileLoad.setText("已下载");
+                    }
                     break;
             }
         }
@@ -1063,6 +1086,13 @@ public class ChatItemController {
 
 
     public void handleGroupChangeMsg(Message msg, ViewHolder holder) {
+        String extraMsg = msg.getContent().getStringExtra("msg");
+        if (extraMsg != null) { // 聊天室通知事件消息
+            holder.groupChange.setText(extraMsg);
+            holder.groupChange.setVisibility(View.VISIBLE);
+            holder.msgTime.setVisibility(View.GONE);
+            return;
+        }
         String content = ((EventNotificationContent) msg.getContent()).getEventText();
         EventNotificationContent.EventNotificationType type = ((EventNotificationContent) msg
                 .getContent()).getEventNotificationType();
@@ -1071,6 +1101,8 @@ public class ChatItemController {
             case group_member_exit:
             case group_member_removed:
             case group_info_updated:
+            case group_member_keep_silence:
+            case group_member_keep_silence_cancel:
                 holder.groupChange.setText(content);
                 holder.groupChange.setVisibility(View.VISIBLE);
                 holder.msgTime.setVisibility(View.GONE);
@@ -1089,10 +1121,14 @@ public class ChatItemController {
         CustomContent content = (CustomContent) msg.getContent();
         Boolean isBlackListHint = content.getBooleanValue("blackList");
         Boolean notFriendFlag = content.getBooleanValue("notFriend");
-        if (isBlackListHint != null && isBlackListHint) {
-            holder.groupChange.setText(R.string.jmui_server_803008);
-            holder.groupChange.setVisibility(View.VISIBLE);
-        } else {
+        //TODO:2019/04/09 会话列表滑动时自定义消息这里groupChange会出现null的情况
+        if (holder.groupChange != null) {
+            if (isBlackListHint != null && isBlackListHint) {
+                holder.groupChange.setText(R.string.jmui_server_803008);
+                holder.groupChange.setVisibility(View.VISIBLE);
+            } else {
+                holder.groupChange.setVisibility(View.GONE);
+            }
             holder.groupChange.setVisibility(View.GONE);
         }
 
@@ -1102,7 +1138,12 @@ public class ChatItemController {
 //        } else {
 //            holder.groupChange.setVisibility(View.GONE);
 //        }
-        holder.groupChange.setVisibility(View.GONE);
+    }
+
+    public void handleUnSupportMsg(Message msg, ViewHolder holder) {
+        if (holder.groupChange != null) {
+            holder.groupChange.setText(R.string.unsupported_msg);
+        }
     }
 
     public class BtnOrTxtListener implements View.OnClickListener {
@@ -1187,12 +1228,25 @@ public class ChatItemController {
                 case image:
                     if (holder.picture != null && v.getId() == holder.picture.getId()) {
                         Intent intent = new Intent();
-                        intent.putExtra(JGApplication.TARGET_ID, mConv.getTargetId());
+                        String targetId = "";
                         intent.putExtra("msgId", msg.getId());
-                        if (mConv.getType() == ConversationType.group) {
-                            GroupInfo groupInfo = (GroupInfo) mConv.getTargetInfo();
-                            intent.putExtra(JGApplication.GROUP_ID, groupInfo.getGroupID());
+                        Object targetInfo = mConv.getTargetInfo();
+                        switch (mConv.getType()) {
+                            case single:
+                                targetId = ((UserInfo) targetInfo).getUserName();
+                                break;
+                            case group:
+                                targetId = String.valueOf(((GroupInfo) targetInfo).getGroupID());
+                                break;
+                            case chatroom:
+                                targetId = String.valueOf(((ChatRoomInfo) targetInfo).getRoomID());
+                                intent.putExtra(BrowserViewPagerActivity.MSG_JSON, msg.toJson());
+                                intent.putExtra(BrowserViewPagerActivity.MSG_LIST_JSON, getImsgMsgListJson());
+                                break;
+                            default:
                         }
+                        intent.putExtra(JGApplication.CONV_TYPE, mConv.getType());
+                        intent.putExtra(JGApplication.TARGET_ID, targetId);
                         intent.putExtra(JGApplication.TARGET_APP_KEY, mConv.getTargetAppKey());
                         intent.putExtra("msgCount", mMsgList.size());
                         intent.putIntegerArrayListExtra(JGApplication.MsgIDs, getImgMsgIDList());
@@ -1452,6 +1506,16 @@ public class ChatItemController {
             }
         }
         return imgMsgIDList;
+    }
+
+    private String getImsgMsgListJson() {
+        List<Message> messages = new ArrayList<>();
+        for (Message msg : mMsgList) {
+            if (msg.getContentType() == ContentType.image) {
+                messages.add(msg);
+            }
+        }
+        return Message.collectionToJson(messages);
     }
 
     private void browseDocument(String fileName, String path) {

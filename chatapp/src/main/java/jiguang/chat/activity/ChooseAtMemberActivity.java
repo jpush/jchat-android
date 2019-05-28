@@ -23,7 +23,7 @@ import jiguang.chat.model.ParentLinkedHolder;
 import jiguang.chat.utils.keyboard.widget.EmoticonsEditText;
 import jiguang.chat.utils.pinyin.UserComparator;
 import jiguang.chat.utils.sidebar.SideBar;
-import jiguang.chat.view.listview.StickyListHeadersListView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 
 /**

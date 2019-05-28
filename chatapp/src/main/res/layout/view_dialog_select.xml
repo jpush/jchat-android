@@ -24,9 +24,9 @@
         android:layout_width="match_parent"
         android:dividerHeight="0.5dp"
         android:divider="#DAD9DB"
-        android:layout_marginTop="5dip"
         android:listSelector="@android:color/transparent"
         android:cacheColorHint="@android:color/transparent"
+        android:layout_marginTop="5dip"
         android:layout_height="wrap_content" >
     </ListView>
 

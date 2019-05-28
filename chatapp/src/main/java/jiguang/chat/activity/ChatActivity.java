@@ -3,6 +3,7 @@ package jiguang.chat.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -26,15 +27,26 @@ import android.widget.Toast;
 
 import com.sj.emoji.EmojiBean;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import cn.jpush.im.android.api.ChatRoomManager;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
+import cn.jpush.im.android.api.callback.RequestCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.FileContent;
 import cn.jpush.im.android.api.content.ImageContent;
@@ -43,6 +55,9 @@ import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.enums.MessageDirect;
+import cn.jpush.im.android.api.event.ChatRoomMessageEvent;
+import cn.jpush.im.android.api.event.ChatRoomNotificationEvent;
+import cn.jpush.im.android.api.event.CommandNotificationEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.event.MessageReceiptStatusChangeEvent;
 import cn.jpush.im.android.api.event.MessageRetractEvent;
@@ -52,7 +67,6 @@ import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
-import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.adapter.ChattingListAdapter;
@@ -68,6 +82,7 @@ import jiguang.chat.pickerimage.utils.SendImageHelper;
 import jiguang.chat.pickerimage.utils.StorageType;
 import jiguang.chat.pickerimage.utils.StorageUtil;
 import jiguang.chat.pickerimage.utils.StringUtil;
+import jiguang.chat.utils.CommonUtils;
 import jiguang.chat.utils.IdHelper;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.SimpleCommonUtils;
@@ -78,9 +93,9 @@ import jiguang.chat.utils.keyboard.XhsEmoticonsKeyBoard;
 import jiguang.chat.utils.keyboard.data.EmoticonEntity;
 import jiguang.chat.utils.keyboard.interfaces.EmoticonClickListener;
 import jiguang.chat.utils.keyboard.utils.EmoticonsKeyboardUtils;
-import jiguang.chat.utils.keyboard.widget.EmoticonsEditText;
 import jiguang.chat.utils.keyboard.widget.FuncLayout;
 import jiguang.chat.utils.photovideo.takevideo.CameraActivity;
+import jiguang.chat.utils.photovideo.takevideo.utils.LogUtils;
 import jiguang.chat.view.ChatView;
 import jiguang.chat.view.SimpleAppsGridView;
 import jiguang.chat.view.TipItem;
@@ -140,11 +155,15 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     InputMethodManager mImm;
     private final UIHandler mUIHandler = new UIHandler(this);
     private boolean mAtAll = false;
+    private boolean isChatRoom = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         mContext = this;
 
         setContentView(R.layout.activity_chat);
@@ -157,9 +176,90 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
         ButterKnife.bind(this);
 
-        initData();
         initView();
+        //来自聊天室
+        ConversationType conversationType = (ConversationType) getIntent().getSerializableExtra(JGApplication.CONV_TYPE);
+        if (conversationType != null && conversationType == ConversationType.chatroom) {
+            initChatRoom(getIntent().getLongExtra("chatRoomId", 0));
+            mTargetId = String.valueOf(getIntent().getLongExtra("chatRoomId", 0));
+            mChatView.setChatTitle(getIntent().getStringExtra("chatRoomName"));
+            isChatRoom = true;
+        } else {
+            initData();
+        }
+    }
 
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
+
+    private void initChatRoom(long chatRoomId) {
+        ProgressDialog dialog = new ProgressDialog(mContext);
+        dialog.setMessage("正在进入聊天室...");
+        dialog.show();
+        dialog.setOnCancelListener((d) -> {
+            d.dismiss();
+            ChatActivity.this.finish();
+        });
+        ChatRoomManager.enterChatRoom(chatRoomId, new RequestCallback<Conversation>() {
+            @Override
+            public void gotResult(int i, String s, Conversation conversation) {
+                if (i == 0) {
+                    dialog.dismiss();
+                    if (conversation == null) {
+                        mConv = Conversation.createChatRoomConversation(chatRoomId);
+                    } else {
+                        mConv = conversation;
+                    }
+                    initChatRoomData();
+                } else if (i == 851003) { // 已经在聊天室中先退出聊天室再进入
+                    ChatRoomManager.leaveChatRoom(chatRoomId, new BasicCallback() {
+                        @Override
+                        public void gotResult(int i, String s) {
+                            if (i == 0) {
+                                ChatRoomManager.enterChatRoom(chatRoomId, new RequestCallback<Conversation>() {
+                                    @Override
+                                    public void gotResult(int i, String s, Conversation conversation) {
+                                        dialog.dismiss();
+                                        if (i == 0) {
+                                            if (conversation == null) {
+                                                mConv = Conversation.createChatRoomConversation(chatRoomId);
+                                            } else {
+                                                mConv = conversation;
+                                            }
+                                            initChatRoomData();
+                                        }
+                                    }
+                                });
+                            } else if (i == 852004) {
+                                dialog.dismiss();
+                                mConv = Conversation.createChatRoomConversation(chatRoomId);
+                                initChatRoomData();
+                            } else {
+                                dialog.dismiss();
+                                Toast.makeText(ChatActivity.this, "进入聊天室失败" + s, Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        }
+                    });
+                } else {
+                    dialog.dismiss();
+                    Toast.makeText(ChatActivity.this, "进入聊天室失败" + s, Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+        });
+    }
+
+    private void initChatRoomData() {
+        mChatAdapter = new ChattingListAdapter(mContext, mConv, longClickListener);
+        mChatView.setChatListAdapter(mChatAdapter);
+        mChatView.setToBottom();
+        mChatView.setConversation(mConv);
+        mChatView.setGroupIcon();
+        initEmoticonsKeyBoardBar();
     }
 
     private void initData() {
@@ -169,6 +269,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         mTargetAppKey = intent.getStringExtra(TARGET_APP_KEY);
         mTitle = intent.getStringExtra(JGApplication.CONV_TITLE);
         mMyInfo = JMessageClient.getMyInfo();
+        initEmoticonsKeyBoardBar();
         if (!TextUtils.isEmpty(mTargetId)) {
             //单聊
             mIsSingle = true;
@@ -182,6 +283,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             //群聊
             mIsSingle = false;
             mGroupId = intent.getLongExtra(GROUP_ID, 0);
+            mTargetId = String.valueOf(mGroupId);
             final boolean fromGroup = intent.getBooleanExtra("fromGroup", false);
             if (fromGroup) {
                 mChatView.setChatTitle(mTitle, intent.getIntExtra(MEMBERS_COUNT, 0));
@@ -257,7 +359,8 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     }
 
     private void initView() {
-        initEmoticonsKeyBoardBar();
+        lvChat = (DropDownListView) findViewById(R.id.lv_chat);
+        ekBar = (XhsEmoticonsKeyBoard) findViewById(R.id.ek_bar);
         initListView();
 
         ekBar.getEtChat().addTextChangedListener(new TextWatcher() {
@@ -288,7 +391,6 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-
             }
 
             @Override
@@ -301,6 +403,31 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 }
             }
         });
+
+        ekBar.getEtChat().setOnFocusChangeListener((v, hasFocus) -> {
+            String content;
+            if (hasFocus) {
+                content = "{\"type\": \"input\",\"content\": {\"message\": \"对方正在输入\"}}";
+            } else {
+                content = "{\"type\": \"input\",\"content\": {\"message\": \"\"}}";
+            }
+            if (mIsSingle) {
+                JMessageClient.sendSingleTransCommand(mTargetId, null, content, new BasicCallback() {
+                    @Override
+                    public void gotResult(int i, String s) {
+
+                    }
+                });
+            }
+        });
+
+        mChatView.getChatListView().setOnTouchListener((v, event) -> {
+            mChatView.getChatListView().setFocusable(true);
+            mChatView.getChatListView().setFocusableInTouchMode(true);
+            mChatView.getChatListView().requestFocus();
+            CommonUtils.hideKeyboard(mContext);
+            return false;
+        });
     }
 
     private void initEmoticonsKeyBoardBar() {
@@ -309,31 +436,28 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         SimpleAppsGridView gridView = new SimpleAppsGridView(this);
         ekBar.addFuncView(gridView);
 
-        ekBar.getEtChat().setOnSizeChangedListener(new EmoticonsEditText.OnSizeChangedListener() {
-            @Override
-            public void onSizeChanged(int w, int h, int oldw, int oldh) {
-                scrollToBottom();
-            }
-        });
+        ekBar.getEtChat().setOnSizeChangedListener((w, h, oldw, oldh) -> scrollToBottom());
         //发送按钮
-        ekBar.getBtnSend().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String mcgContent = ekBar.getEtChat().getText().toString();
-                scrollToBottom();
-                if (mcgContent.equals("")) {
-                    return;
-                }
-                Message msg;
-                TextContent content = new TextContent(mcgContent);
-                if (mAtAll) {
-                    msg = mConv.createSendMessageAtAllMember(content, null);
-                    mAtAll = false;
-                } else if (null != mAtList) {
-                    msg = mConv.createSendMessage(content, mAtList, null);
-                } else {
-                    msg = mConv.createSendMessage(content);
-                }
+        //发送文本消息
+        ekBar.getBtnSend().setOnClickListener(v -> {
+            String mcgContent = ekBar.getEtChat().getText().toString();
+            scrollToBottom();
+            if (mcgContent.equals("")) {
+                return;
+            }
+            Message msg;
+            TextContent content = new TextContent(mcgContent);
+            if (mAtAll) {
+                msg = mConv.createSendMessageAtAllMember(content, null);
+                mAtAll = false;
+            } else if (null != mAtList) {
+                msg = mConv.createSendMessage(content, mAtList, null);
+            } else {
+                LogUtils.d("ChatActivity", "create send message conversation = " + mConv + "==content==" + content.toString());
+                msg = mConv.createSendMessage(content);
+            }
+
+            if (!isChatRoom) {
                 //设置需要已读回执
                 MessageSendingOptions options = new MessageSendingOptions();
                 options.setNeedReadReceipt(true);
@@ -346,6 +470,10 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 if (forDel != null) {
                     forDel.clear();
                 }
+            } else {
+                JMessageClient.sendMessage(msg);
+                mChatAdapter.addMsgToList(msg);
+                ekBar.getEtChat().setText("");
             }
         });
         //切换语音输入
@@ -369,7 +497,12 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 returnBtn();
                 break;
             case R.id.jmui_right_btn:
-                startChatDetailActivity(mTargetId, mTargetAppKey, mGroupId);
+                //如果是聊天室
+                if (isChatRoom) {
+                    startChatRoomActivity(getIntent().getLongExtra("chatRoomId", 0));
+                } else {
+                    startChatDetailActivity(mTargetId, mTargetAppKey, mGroupId);
+                }
                 break;
             case R.id.jmui_at_me_btn:
                 if (mUnreadMsgCnt < ChattingListAdapter.PAGE_MESSAGE_COUNT) {
@@ -384,22 +517,50 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         }
     }
 
+    private void startChatRoomActivity(long chatRoomId) {
+        Intent intent = new Intent(ChatActivity.this, ChatRoomInfoActivity.class);
+        intent.putExtra("chatRoomId", chatRoomId);
+        startActivity(intent);
+    }
+
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         returnBtn();
     }
 
     private void returnBtn() {
         mConv.resetUnreadCount();
         dismissSoftInput();
+        if (mChatAdapter != null) {
+            mChatAdapter.stopMediaPlayer();
+        }
         JMessageClient.exitConversation();
         //发送保存为草稿事件到会话列表
         EventBus.getDefault().post(new Event.Builder().setType(EventType.draft)
                 .setConversation(mConv)
                 .setDraft(ekBar.getEtChat().getText().toString())
                 .build());
-        finish();
+        JGApplication.delConversation = null;
+        if (mConv.getAllMessage() == null || mConv.getAllMessage().size() == 0) {
+            if (mIsSingle) {
+                JMessageClient.deleteSingleConversation(mTargetId);
+            } else {
+                JMessageClient.deleteGroupConversation(mGroupId);
+            }
+            JGApplication.delConversation = mConv;
+        }
+        if (isChatRoom) {
+            ChatRoomManager.leaveChatRoom(Long.valueOf(mTargetId), new BasicCallback() {
+                @Override
+                public void gotResult(int i, String s) {
+                    ChatActivity.this.finish();
+                    ChatActivity.super.onBackPressed();
+                }
+            });
+        } else {
+            finish();
+            super.onBackPressed();
+        }
     }
 
     private void dismissSoftInput() {
@@ -520,16 +681,18 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     @Override
     protected void onResume() {
         String targetId = getIntent().getStringExtra(TARGET_ID);
-        if (!mIsSingle) {
+        if (mIsSingle) {
+            if (null != targetId) {
+                String appKey = getIntent().getStringExtra(TARGET_APP_KEY);
+                JMessageClient.enterSingleConversation(targetId, appKey);
+            }
+        } else if (!isChatRoom) {
             long groupId = getIntent().getLongExtra(GROUP_ID, 0);
             if (groupId != 0) {
                 JGApplication.isAtMe.put(groupId, false);
                 JGApplication.isAtall.put(groupId, false);
                 JMessageClient.enterGroupConversation(groupId);
             }
-        } else if (null != targetId) {
-            String appKey = getIntent().getStringExtra(TARGET_APP_KEY);
-            JMessageClient.enterSingleConversation(targetId, appKey);
         }
 
         //历史消息中删除后返回到聊天界面刷新界面
@@ -538,14 +701,88 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 mChatAdapter.removeMessage(msg);
             }
         }
-        mChatAdapter.notifyDataSetChanged();
+        if (mChatAdapter != null)
+            mChatAdapter.notifyDataSetChanged();
         //发送名片返回聊天界面刷新信息
         if (SharePreferenceManager.getIsOpen()) {
-            initData();
+            if (!isChatRoom) {
+                initData();
+            }
             SharePreferenceManager.setIsOpen(false);
         }
         super.onResume();
 
+    }
+
+    public void onEvent(CommandNotificationEvent event) {
+        if (event.getType().equals(CommandNotificationEvent.Type.single)) {
+            String msg = event.getMsg();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        JSONObject object = new JSONObject(msg);
+                        JSONObject jsonContent = object.getJSONObject("content");
+                        String messageString = jsonContent.getString("message");
+                        if (TextUtils.isEmpty(messageString)) {
+                            mChatView.setTitle(mConv.getTitle());
+                        } else {
+                            mChatView.setTitle(messageString);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    }
+
+    public void onEventMainThread(ChatRoomMessageEvent event) {
+        List<Message> messages = event.getMessages();
+        mChatAdapter.addMsgListToList(messages);
+    }
+
+    public void onEventMainThread(ChatRoomNotificationEvent event) {
+        try {
+            Constructor constructor =  EventNotificationContent.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            List<Message> messages = new ArrayList<>();
+            switch (event.getType()) {
+                case add_chatroom_admin:
+                case del_chatroom_admin:
+                    event.getTargetUserInfoList(new GetUserInfoListCallback() {
+                        @Override
+                        public void gotResult(int i, String s, List<UserInfo> list) {
+                            if (i == 0) {
+                                for (UserInfo userInfo : list) {
+                                    try {
+                                        EventNotificationContent content = (EventNotificationContent) constructor.newInstance();
+                                        Field field = content.getClass().getSuperclass().getDeclaredField("contentType");
+                                        field.setAccessible(true);
+                                        field.set(content, ContentType.eventNotification);
+                                        String user = userInfo.getUserID() == JMessageClient.getMyInfo().getUserID()
+                                                ? "你" : TextUtils.isEmpty(userInfo.getNickname()) ? userInfo.getUserName() : userInfo.getNickname();
+                                        String result = event.getType() == ChatRoomNotificationEvent.Type.add_chatroom_admin ? "被设置成管理员" : "被取消管理员";
+                                        content.setStringExtra("msg", user + result);
+                                        if (mConv != null) {
+                                            messages.add(mConv.createSendMessage(content));
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                if (messages.size() > 0) {
+                                    mChatAdapter.addMsgListToList(messages);
+                                }
+                            }
+                        }
+                    });
+                    break;
+                default:
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void onEvent(MessageEvent event) {
@@ -565,20 +802,16 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                         //群主把当前用户添加到群聊，则显示聊天详情按钮
                         refreshGroupNum();
                         if (userNames.contains(mMyInfo.getNickname()) || userNames.contains(mMyInfo.getUserName())) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mChatView.showRightBtn();
-                                }
-                            });
+                            runOnUiThread(() -> mChatView.showRightBtn());
                         }
 
                         break;
                     case group_member_removed:
                         //删除群成员事件
                         userNames = ((EventNotificationContent) message.getContent()).getUserNames();
+                        UserInfo operator = ((EventNotificationContent) message.getContent()).getOperatorUserInfo();
                         //群主删除了当前用户，则隐藏聊天详情按钮
-                        if (userNames.contains(mMyInfo.getNickname()) || userNames.contains(mMyInfo.getUserName())) {
+                        if ((userNames.contains(mMyInfo.getNickname()) || userNames.contains(mMyInfo.getUserName())) && operator.getUserID() != mMyInfo.getUserID()) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -696,6 +929,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
 
         @Override
         public void onContentLongClick(final int position, View view) {
+            if (isChatRoom) {
+                return;
+            }
             final Message msg = mChatAdapter.getMessage(position);
 
             if (msg == null) {
@@ -915,6 +1151,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
         }
     }
 
+    @Subscribe (threadMode = ThreadMode.MAIN)
     public void onEventMainThread(ImageEvent event) {
         Intent intent;
         switch (event.getFlag()) {
@@ -946,9 +1183,9 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     Toast.makeText(this, "请在应用管理中打开“位置”访问权限！", Toast.LENGTH_LONG).show();
                 } else {
                     intent = new Intent(mContext, MapPickerActivity.class);
+                    intent.putExtra(JGApplication.CONV_TYPE, mConv.getType());
                     intent.putExtra(JGApplication.TARGET_ID, mTargetId);
                     intent.putExtra(JGApplication.TARGET_APP_KEY, mTargetAppKey);
-                    intent.putExtra(JGApplication.GROUP_ID, mGroupId);
                     intent.putExtra("sendLocation", true);
                     startActivityForResult(intent, JGApplication.REQUEST_CODE_SEND_LOCATION);
                 }
@@ -963,16 +1200,16 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     intent = new Intent(mContext, SendFileActivity.class);
                     intent.putExtra(JGApplication.TARGET_ID, mTargetId);
                     intent.putExtra(JGApplication.TARGET_APP_KEY, mTargetAppKey);
-                    intent.putExtra(JGApplication.GROUP_ID, mGroupId);
+                    intent.putExtra(JGApplication.CONV_TYPE, mConv.getType());
                     startActivityForResult(intent, JGApplication.REQUEST_CODE_SEND_FILE);
                 }
                 break;
             case JGApplication.BUSINESS_CARD:
                 intent = new Intent(mContext, FriendListActivity.class);
-                intent.putExtra("isSingle", mIsSingle);
-                intent.putExtra("userId", mTargetId);
-                intent.putExtra("groupId", mGroupId);
-                startActivity(intent);
+                intent.putExtra(JGApplication.CONV_TYPE, mConv.getType());
+                intent.putExtra(JGApplication.TARGET_ID, mTargetId);
+                intent.putExtra(JGApplication.TARGET_APP_KEY, mTargetAppKey);;
+                startActivityForResult(intent, JGApplication.REQUEST_CODE_FRIEND_LIST);
                 break;
             case JGApplication.TACK_VIDEO:
             case JGApplication.TACK_VOICE:
@@ -995,6 +1232,20 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
             case RequestCode.PICK_IMAGE://4
                 onPickImageActivityResult(requestCode, data);
                 break;
+            case JGApplication.REQUEST_CODE_FRIEND_LIST:
+                // 发送名片成功后，聊天室需要添加消息
+                if (resultCode == RESULT_OK && isChatRoom) {
+                    String msgJson = data.getStringExtra(JGApplication.MSG_JSON);
+                    if (msgJson != null) {
+                        Message msg = Message.fromJson(msgJson);
+                        if (msg != null) {
+                            mChatAdapter.addMsgToList(msg);
+                            mChatAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+                break;
+
         }
 
         switch (resultCode) {
@@ -1030,7 +1281,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                         public void gotResult(int responseCode, String responseMessage, ImageContent imageContent) {
                             if (responseCode == 0) {
                                 Message msg = mConv.createSendMessage(imageContent);
-                                handleSendMsg(msg.getId());
+                                handleSendMsg(msg);
                             }
                         }
                     });
@@ -1043,7 +1294,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                         FileContent fileContent = new FileContent(new File(path));
                         fileContent.setStringExtra("video", "mp4");
                         Message msg = mConv.createSendMessage(fileContent);
-                        handleSendMsg(msg.getId());
+                        handleSendMsg(msg);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1075,9 +1326,11 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 mChatView.setToBottom();
                 break;
             case JGApplication.RESULT_CODE_SEND_FILE:
-                int[] intArrayExtra = data.getIntArrayExtra(MsgIDs);
-                for (int msgId : intArrayExtra) {
-                    handleSendMsg(msgId);
+                String msgListJson = data.getStringExtra(JGApplication.MSG_LIST_JSON);
+                if (msgListJson != null) {
+                    for (Message msg : Message.fromJsonToCollection(msgListJson)) {
+                        handleSendMsg(msg);
+                    }
                 }
                 break;
             case JGApplication.RESULT_CODE_CHAT_DETAIL:
@@ -1141,7 +1394,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                     public void gotResult(int responseCode, String responseMessage, ImageContent imageContent) {
                         if (responseCode == 0) {
                             Message msg = mConv.createSendMessage(imageContent);
-                            handleSendMsg(msg.getId());
+                            handleSendMsg(msg);
                         }
                     }
                 });
@@ -1160,7 +1413,7 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
                 if (responseCode == 0) {
                     imageContent.setStringExtra("jiguang", "xiong");
                     Message msg = mConv.createSendMessage(imageContent);
-                    handleSendMsg(msg.getId());
+                    handleSendMsg(msg);
                 } else {
                     ToastUtil.shortToast(mContext, responseMessage);
                 }
@@ -1171,10 +1424,10 @@ public class ChatActivity extends BaseActivity implements FuncLayout.OnFuncKeyBo
     /**
      * 处理发送图片，刷新界面
      *
-     * @param data intent
+     * @param msg
      */
-    private void handleSendMsg(int data) {
-        mChatAdapter.setSendMsgs(data);
+    private void handleSendMsg(Message msg) {
+        mChatAdapter.setSendMsgs(msg);
         mChatView.setToBottom();
     }
 

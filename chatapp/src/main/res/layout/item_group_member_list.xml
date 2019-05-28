@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp">
+
+        <ImageView
+            android:scaleType="fitXY"
+            android:id="@+id/iv_memberAvatar"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:src="@drawable/jmui_head_icon"/>
+
+        <TextView
+            android:id="@+id/tv_memberName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="15dp"
+            android:text="昵称"
+            android:textSize="15dp"/>
+
+        <ImageView
+            android:id="@+id/iv_silence"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="20dp"
+            android:src="@drawable/no_disturb"/>
+    </LinearLayout>
+</LinearLayout>

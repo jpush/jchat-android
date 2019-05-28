@@ -1,5 +1,6 @@
 package jiguang.chat.controller;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Handler;
@@ -17,6 +18,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -33,17 +36,18 @@ import cn.jpush.im.android.api.enums.ContentType;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.eventbus.EventBus;
 import cn.jpush.im.api.BasicCallback;
 import jiguang.chat.R;
 import jiguang.chat.activity.ChatDetailActivity;
 import jiguang.chat.activity.FriendInfoActivity;
 import jiguang.chat.activity.GroupAvatarActivity;
-import jiguang.chat.activity.GroupGridViewActivity;
+import jiguang.chat.activity.GroupMemberListActivity;
 import jiguang.chat.activity.GroupNotFriendActivity;
+import jiguang.chat.activity.GroupUserInfoActivity;
 import jiguang.chat.activity.MainActivity;
 import jiguang.chat.activity.MembersInChatActivity;
 import jiguang.chat.activity.PersonalActivity;
+import jiguang.chat.activity.SilenceUsersActivity;
 import jiguang.chat.activity.VerificationActivity;
 import jiguang.chat.activity.historyfile.activity.HistoryFileActivity;
 import jiguang.chat.adapter.GroupMemberGridAdapter;
@@ -80,7 +84,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private Dialog mLoadingDialog = null;
     private static final int ADD_MEMBERS_TO_GRIDVIEW = 2048;
     private static final int ADD_A_MEMBER_TO_GRIDVIEW = 2049;
-    private static final int MAX_GRID_ITEM = 40;
+    private int maxGridItem = 40;
     private String mGroupName;
     private String mGroupDesc;
     private final MyHandler myHandler = new MyHandler(this);
@@ -98,6 +102,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private String mAvatarPath;
     private boolean mFriend;
     private Long mUid;
+    private String mGroupOwnerId;
 
     public ChatDetailController(ChatDetailView chatDetailView, ChatDetailActivity context, int size,
                                 int width) {
@@ -129,7 +134,10 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             mGroupInfo = (GroupInfo) conv.getTargetInfo();
             mChatDetailView.initNoDisturb(mGroupInfo.getNoDisturb());
             mMemberInfoList = mGroupInfo.getGroupMembers();
-            String groupOwnerId = mGroupInfo.getGroupOwner();
+            mChatDetailView.setMemberCount(" " + mMemberInfoList.size() + " 人");
+            mChatDetailView.setGroupId(mGroupId + "");
+            mChatDetailView.setGroupType(mGroupInfo.getGroupFlag() == 2 ? "普通群" : "私有群");
+            mGroupOwnerId = mGroupInfo.getGroupOwner();
             mGroupName = mGroupInfo.getGroupName();
             mGroupDesc = mGroupInfo.getGroupDescription();
             if (mGroupInfo.getAvatarFile() != null && mGroupInfo.getAvatarFile().exists()) {
@@ -150,9 +158,10 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             }
 
             // 判断是否为群主
-            if (groupOwnerId != null && groupOwnerId.equals(mMyUsername)) {
+            if (mGroupOwnerId != null && mGroupOwnerId.equals(mMyUsername)) {
                 mIsCreator = true;
             }
+            maxGridItem = mIsCreator ? 13 : 14;
             mChatDetailView.setMyName(mMyUsername);
             mChatDetailView.showBlockView(mGroupInfo.isGroupBlocked());
             initAdapter();
@@ -178,7 +187,6 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             mChatDetailView.setAdapter(mGridAdapter);
             // 设置单聊界面
             mChatDetailView.setSingleView(mUserInfo.isFriend());
-            mChatDetailView.dismissAllMembersBtn();
             mChatDetailView.isLoadMoreShow(false);
 
             JMessageClient.getUserInfo(mTargetId, new GetUserInfoCallback() {
@@ -206,8 +214,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
     private void initAdapter() {
         // 初始化头像
         mGridAdapter = new GroupMemberGridAdapter(mContext, mMemberInfoList, mIsCreator, mAvatarSize);
-        if (mMemberInfoList.size() > MAX_GRID_ITEM) {
-            mCurrentNum = MAX_GRID_ITEM - 1;
+        if (mMemberInfoList.size() > maxGridItem) {
+            mCurrentNum = maxGridItem;
         } else {
             mCurrentNum = mMemberInfoList.size();
         }
@@ -215,6 +223,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
         mChatDetailView.getGridView().setFocusable(false);
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     public void onClick(View v) {
         Intent intent = new Intent();
@@ -236,11 +245,11 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 break;
             case R.id.rl_groupAvatar:
                 intent.setClass(mContext, GroupAvatarActivity.class);
-                intent.putExtra("groupID",mGroupId);
-                if(mGroupInfo.getBigAvatarFile() != null && mGroupInfo.getBigAvatarFile().exists()) {
+                intent.putExtra("groupID", mGroupId);
+                if (mGroupInfo.getBigAvatarFile() != null && mGroupInfo.getBigAvatarFile().exists()) {
                     intent.putExtra("groupAvatar", mGroupInfo.getBigAvatarFile().getAbsolutePath());
                 }
-                mContext.startActivityForResult(intent,4);
+                mContext.startActivityForResult(intent, 4);
                 break;
             // 删除聊天记录
             case R.id.group_chat_del_ll:
@@ -298,7 +307,11 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 mDialog.show();
                 break;
             case R.id.tv_moreGroup:
-                intent.setClass(mContext, GroupGridViewActivity.class);
+            case R.id.moreGroupMember:
+                //群成员列表,gridView
+                //intent.setClass(mContext, GroupGridViewActivity.class);
+                //群成员list列表
+                intent.setClass(mContext, GroupMemberListActivity.class);
                 intent.putExtra(JGApplication.GROUP_ID, mGroupId);
                 intent.putExtra(JGApplication.DELETE_MODE, false);
                 mContext.startActivityForResult(intent, JGApplication.REQUEST_CODE_ALL_MEMBER);
@@ -413,6 +426,12 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                 mContext.startActivity(intent);
                 mContext.overridePendingTransition(R.anim.trans_in, R.anim.trans_out);
                 break;
+                //跳转群禁言列表
+            case R.id.chat_silence:
+                intent = new Intent(mContext, SilenceUsersActivity.class);
+                intent.putExtra("groupID", mGroupId);
+                mContext.startActivity(intent);
+                break;
         }
     }
 
@@ -497,16 +516,20 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
                     intent.setClass(mContext, PersonalActivity.class);
                 } else {
                     UserInfo userInfo = mMemberInfoList.get(position);
+                    intent.setClass(mContext, GroupUserInfoActivity.class);
+                    intent.putExtra("groupID",mGroupId);
+                    intent.putExtra("groupUserName",userInfo.getUserName());
+                    intent.putExtra("groupOwner",mGroupOwnerId);
                     //是否是好友
-                    if (userInfo.isFriend()) {
-                        intent.setClass(mContext, FriendInfoActivity.class);
-                        intent.putExtra("group_grid", true);
-                    } else {
-                        intent.setClass(mContext, GroupNotFriendActivity.class);
-                    }
-                    intent.putExtra(JGApplication.TARGET_ID, userInfo.getUserName());
-                    intent.putExtra(JGApplication.TARGET_APP_KEY, userInfo.getAppKey());
-                    intent.putExtra(JGApplication.GROUP_ID, mGroupId);
+//                    if (userInfo.isFriend()) {
+//                        intent.setClass(mContext, FriendInfoActivity.class);
+//                        intent.putExtra("group_grid", true);
+//                    } else {
+//                        intent.setClass(mContext, GroupNotFriendActivity.class);
+//                    }
+//                    intent.putExtra(JGApplication.TARGET_ID, userInfo.getUserName());
+//                    intent.putExtra(JGApplication.TARGET_APP_KEY, userInfo.getAppKey());
+//                    intent.putExtra(JGApplication.GROUP_ID, mGroupId);
                 }
                 mContext.startActivity(intent);
                 // 点击添加成员按钮
@@ -603,6 +626,8 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
             public void gotResult(final int status, final String desc) {
                 mLoadingDialog.dismiss();
                 if (status == 0) {
+                    mMemberInfoList.clear();
+                    mMemberInfoList.addAll(mGroupInfo.getGroupMembers());
                     refreshMemberList();
                 } else {
                     ToastUtil.shortToast(mContext, "添加失败");
@@ -613,7 +638,7 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
 
     //添加或者删除成员后重新获得MemberInfoList
     public void refreshMemberList() {
-        mCurrentNum = mMemberInfoList.size() > MAX_GRID_ITEM ? MAX_GRID_ITEM - 1 : mMemberInfoList.size();
+        mCurrentNum = mMemberInfoList.size() > maxGridItem ? maxGridItem : mMemberInfoList.size();
         mGridAdapter.refreshMemberList();
     }
 
@@ -888,7 +913,10 @@ public class ChatDetailController implements OnClickListener, OnItemClickListene
      */
     public void refresh(long groupId) {
         //当前群聊
-        if (mGroupId == groupId) {
+        if (mGroupId == groupId && mGroupInfo != null) {
+            mMemberInfoList.clear();
+            mMemberInfoList.addAll(mGroupInfo.getGroupMembers());
+            mChatDetailView.setMemberCount(" " + mMemberInfoList.size() + " 人");
             refreshMemberList();
         }
     }

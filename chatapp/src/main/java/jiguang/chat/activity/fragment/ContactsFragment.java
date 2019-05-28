@@ -6,6 +6,11 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.google.gson.Gson;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,19 +22,23 @@ import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.event.ContactNotifyEvent;
+import cn.jpush.im.android.api.event.GroupApprovalEvent;
+import cn.jpush.im.android.api.event.GroupApprovalRefuseEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.ContactsController;
 import jiguang.chat.database.FriendEntry;
 import jiguang.chat.database.FriendRecommendEntry;
+import jiguang.chat.database.GroupApplyEntry;
+import jiguang.chat.database.RefuseGroupEntry;
 import jiguang.chat.database.UserEntry;
 import jiguang.chat.entity.Event;
 import jiguang.chat.entity.EventType;
 import jiguang.chat.entity.FriendInvitation;
+import jiguang.chat.entity.GroupApplyInvitation;
 import jiguang.chat.utils.SharePreferenceManager;
 import jiguang.chat.utils.ThreadUtil;
 import jiguang.chat.utils.pinyin.HanziToPinyin;
@@ -42,9 +51,9 @@ import jiguang.chat.view.ContactsView;
 public class ContactsFragment extends BaseFragment {
     private View mRootView;
     private ContactsView mContactsView;
+    private TextView mAllContactNumber;
     private ContactsController mContactsController;
     private Activity mContext;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +65,7 @@ public class ContactsFragment extends BaseFragment {
                 (ViewGroup) getActivity().findViewById(R.id.main_view), false);
 
         mContactsView = (ContactsView) mRootView.findViewById(R.id.contacts_view);
+        mAllContactNumber = getActivity().findViewById(R.id.all_contact_number);
 
         mContactsView.initModule(mRatio, mDensity);
         mContactsController = new ContactsController(mContactsView, this.getActivity());
@@ -210,6 +220,8 @@ public class ContactsFragment extends BaseFragment {
                         //收到好友请求数字 +1
                         int showNum = SharePreferenceManager.getCachedNewFriendNum() + 1;
                         mContactsView.showNewFriends(showNum);
+                        mAllContactNumber.setVisibility(View.VISIBLE);
+                        mAllContactNumber.setText(String.valueOf(showNum));
                         SharePreferenceManager.setCachedNewFriendNum(showNum);
                     }
                 }
@@ -237,6 +249,109 @@ public class ContactsFragment extends BaseFragment {
                 }
             }
         }
+    }
+
+    //群主收到群组验证事件
+    public void onEvent(GroupApprovalEvent event) {
+        final UserEntry user = JGApplication.getUserEntry();
+        GroupApprovalEvent.Type type = event.getType();
+        long gid = event.getGid();
+        event.getFromUserInfo(new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int i, String s, UserInfo fromUserInfo) {
+                if (i == 0) {
+                    Gson gson = new Gson();
+                    event.getApprovalUserInfoList(new GetUserInfoListCallback() {
+                        @Override
+                        public void gotResult(int i, String s, List<UserInfo> list) {
+                            if (i == 0) {
+                                if (JGApplication.forAddIntoGroup.size() > 0) {
+                                    for (String addName : JGApplication.forAddIntoGroup) {
+                                        if (addName.equals(list.get(0).getUserName())) {
+                                            return;
+                                        } else {
+                                            JGApplication.forAddIntoGroup.add(list.get(0).getUserName());
+                                        }
+                                    }
+                                }
+                                GroupApplyEntry entry;
+                                //邀请,from是邀请方
+                                if (type.equals(GroupApprovalEvent.Type.invited_into_group)) {
+                                    entry = GroupApplyEntry.getEntry(user, list.get(0).getUserName(), list.get(0).getAppKey());
+                                    if (entry != null) {
+                                        entry.delete();
+                                    }
+                                    if (fromUserInfo.getAvatar() != null) {
+                                        entry = new GroupApplyEntry(fromUserInfo.getUserName(), list.get(0).getUserName(), fromUserInfo.getAppKey(),
+                                                list.get(0).getAvatarFile().getPath(), fromUserInfo.getDisplayName(), list.get(0).getDisplayName(),
+                                                null, GroupApplyInvitation.INVITED.getValue(), gson.toJson(event), gid + "",
+                                                user, 0, 0);//邀请type=0
+                                    } else {
+                                        entry = new GroupApplyEntry(fromUserInfo.getUserName(), list.get(0).getUserName(), fromUserInfo.getAppKey(),
+                                                null, fromUserInfo.getDisplayName(), list.get(0).getDisplayName(),
+                                                null, GroupApplyInvitation.INVITED.getValue(), gson.toJson(event), gid + "",
+                                                user, 0, 0);//邀请type=0
+                                    }
+                                } else {
+                                    entry = GroupApplyEntry.getEntry(user, fromUserInfo.getUserName(), fromUserInfo.getAppKey());
+                                    if (entry != null) {
+                                        entry.delete();
+                                    }
+                                    if (fromUserInfo.getAvatar() != null) {
+                                        entry = new GroupApplyEntry(list.get(0).getUserName(), list.get(0).getUserName(), list.get(0).getAppKey(),
+                                                list.get(0).getAvatarFile().getPath(), list.get(0).getDisplayName(), list.get(0).getDisplayName(),
+                                                event.getReason(), GroupApplyInvitation.INVITED.getValue(), gson.toJson(event), gid + "",
+                                                user, 0, 1);//申请type=1
+                                    } else {
+                                        entry = new GroupApplyEntry(list.get(0).getUserName(), list.get(0).getUserName(), list.get(0).getAppKey(),
+                                                null, fromUserInfo.getDisplayName(), list.get(0).getDisplayName(),
+                                                event.getReason(), GroupApplyInvitation.INVITED.getValue(), gson.toJson(event), gid + "",
+                                                user, 0, 1);//申请type=1
+                                    }
+                                }
+                                entry.save();
+
+                                int showNum = SharePreferenceManager.getCachedNewFriendNum() + 1;
+                                mContactsView.showNewFriends(showNum);
+                                mAllContactNumber.setVisibility(View.VISIBLE);
+                                mAllContactNumber.setText(String.valueOf(showNum));
+
+                                SharePreferenceManager.setCachedNewFriendNum(showNum);
+                            }
+                        }
+                    });
+
+                }
+            }
+        });
+    }
+
+    //收到被拒绝事件
+    public void onEvent(GroupApprovalRefuseEvent event) {
+        final UserEntry user = JGApplication.getUserEntry();
+        long gid = event.getGid();
+        event.getToUserInfoList(new GetUserInfoListCallback() {
+            @Override
+            public void gotResult(int i, String s, List<UserInfo> list) {
+                if (i == 0) {
+                    String userName = list.get(0).getUserName();
+                    String displayName = list.get(0).getDisplayName();
+                    String appKey = list.get(0).getAppKey();
+                    String path = null;
+                    if (list.get(0).getAvatar() != null) {
+                        path = list.get(0).getAvatarFile().getPath();
+                    }
+                    RefuseGroupEntry groupEntry = RefuseGroupEntry.getEntry(user, userName, appKey);
+                    if (groupEntry != null) {
+                        groupEntry.delete();
+                    }
+                    groupEntry = new RefuseGroupEntry(user, userName, displayName, gid + "", appKey, path);
+                    groupEntry.save();
+
+                }
+            }
+        });
+
     }
 
     private String getLetter(String name) {

@@ -42,6 +42,7 @@
             android:id="@+id/finish_btn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:clickable="true"
             android:layout_alignParentRight="true">
 
             <LinearLayout
@@ -55,7 +56,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"
-                    android:text="完成"
+                    android:text="确定"
                     android:textColor="@color/white"
                     android:textSize="@dimen/text_normal_size"/>
 
@@ -132,13 +133,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <jiguang.chat.view.listview.StickyListHeadersListView
+        <se.emilsjolander.stickylistheaders.StickyListHeadersListView
             android:id="@+id/sticky_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@drawable/main_list_divider_line"
             android:dividerHeight="1px">
-        </jiguang.chat.view.listview.StickyListHeadersListView>
+        </se.emilsjolander.stickylistheaders.StickyListHeadersListView>
 
         <TextView
             android:id="@+id/tv_noFriend"

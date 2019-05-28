@@ -47,12 +47,13 @@ public class ChatDetailActivity extends BaseActivity {
     private static final int ADD_FRIEND_REQUEST_CODE = 3;
 
     public static final int GROUP_DESC = 70;
-    public static final int FLAGS_GROUP_DESC = 71;
     public static final String GROUP_DESC_KEY = "group_desc_key";
 
     public static final int GROUP_NAME = 72;
-    public static final int FLAGS_GROUP_NAME = 73;
     public static final String GROUP_NAME_KEY = "group_name_key";
+
+    private static final int GROUP_DESC_COUNT = 250;
+    private static final int GROUP_NAME_COUNT = 64;
 
     private long groupID;
 
@@ -104,13 +105,15 @@ public class ChatDetailActivity extends BaseActivity {
         this.groupID = groupId;
         Intent intent = new Intent(ChatDetailActivity.this, NickSignActivity.class);
         if (nameOrDesc == 1) {
-            intent.setFlags(FLAGS_GROUP_NAME);
-            intent.putExtra("group_name", mGroupName);
+            intent.putExtra(NickSignActivity.TYPE, NickSignActivity.Type.GROUP_NAME);
+            intent.putExtra(NickSignActivity.COUNT, GROUP_NAME_COUNT);
+            intent.putExtra(NickSignActivity.DESC, mGroupName);
         } else {
-            intent.setFlags(FLAGS_GROUP_DESC);
-            intent.putExtra("group_desc", mGroupDesc);
+            intent.putExtra(NickSignActivity.TYPE, NickSignActivity.Type.GROUP_DESC);
+            intent.putExtra(NickSignActivity.COUNT, GROUP_DESC_COUNT);
+            intent.putExtra(NickSignActivity.DESC, mGroupDesc);
         }
-        startActivityForResult(intent, GROUP_NAME);
+        startActivityForResult(intent, nameOrDesc == 1 ? GROUP_NAME : GROUP_DESC);
     }
 
     @Override

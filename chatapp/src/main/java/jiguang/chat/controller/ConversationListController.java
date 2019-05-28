@@ -64,7 +64,8 @@ public class ConversationListController implements View.OnClickListener,
             SortConvList sortConvList = new SortConvList();
             Collections.sort(mDatas, sortConvList);
             for (Conversation con : mDatas) {
-                if (con.getTargetId().equals("feedback_Android")) {
+                //如果会话有聊天室会话就把这会话删除
+                if (con.getTargetId().equals("feedback_Android") || con.getType().equals(ConversationType.chatroom)) {
                     delFeedBack.add(con);
                 }
                 if (!TextUtils.isEmpty(con.getExtra())) {
@@ -129,7 +130,7 @@ public class ConversationListController implements View.OnClickListener,
                 mContext.getActivity().startActivity(intent);
                 return;
                 //单聊
-            } else {
+            } else if (conv.getType() == ConversationType.single) {
                 String targetId = ((UserInfo) conv.getTargetInfo()).getUserName();
                 intent.putExtra(JGApplication.TARGET_ID, targetId);
                 intent.putExtra(JGApplication.TARGET_APP_KEY, conv.getTargetAppKey());
@@ -191,5 +192,8 @@ public class ConversationListController implements View.OnClickListener,
             mDialog.getWindow().setLayout((int) (0.8 * mWidth), WindowManager.LayoutParams.WRAP_CONTENT);
         }
         return true;
+    }
+    public void delConversation() {
+        mDatas.remove(JGApplication.delConversation);
     }
 }

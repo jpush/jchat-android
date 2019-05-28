@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="52dp"
+              android:background="#FFFFFFFF"
+              android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp">
+
+        <ImageView
+            android:id="@+id/icon_iv"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="10dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/rc_default_portrait"/>
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="12dp"
+            android:layout_toRightOf="@+id/icon_iv"
+            android:ellipsize="end"
+            android:text="aaaaaaaaa"
+            android:singleLine="true"
+            android:textColor="#2C2C2C"
+            android:textSize="16sp"/>
+
+        <Button
+            android:id="@+id/bt_removeKeeper"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:focusable="false"
+            android:background="@drawable/jmui_remove_btn_bg"
+            android:padding="10dp"
+            android:text = "移除"
+            android:textColor="@color/jmui_jpush_blue"
+            android:textSize="16sp"/>
+
+
+    </RelativeLayout>
+
+</LinearLayout>

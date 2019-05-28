@@ -3,7 +3,7 @@ package jiguang.chat.view.listview;
 import android.content.Context;
 import android.widget.SectionIndexer;
 
-import jiguang.chat.adapter.StickyListHeadersAdapter;
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 
 class SectionIndexerAdapterWrapper extends

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.view.View;
 
 import jiguang.chat.R;
+import jiguang.chat.activity.SearchAddOpenGroupActivity;
 import jiguang.chat.activity.CommonScanActivity;
 import jiguang.chat.activity.CreateGroupActivity;
 import jiguang.chat.activity.SearchForAddFriendActivity;
@@ -47,6 +48,11 @@ public class MenuItemController implements View.OnClickListener {
             case R.id.ll_saoYiSao:
                 intent = new Intent(mFragment.getContext(), CommonScanActivity.class);
                 intent.putExtra(Constant.REQUEST_SCAN_MODE, Constant.REQUEST_SCAN_MODE_QRCODE_MODE);
+                mFragment.getContext().startActivity(intent);
+                break;
+            //加入公开群
+            case R.id.add_open_group:
+                intent = new Intent(mFragment.getContext(), SearchAddOpenGroupActivity.class);
                 mFragment.getContext().startActivity(intent);
                 break;
             default:

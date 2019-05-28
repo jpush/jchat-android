@@ -8,13 +8,14 @@ import android.text.TextUtils;
 
 import com.activeandroid.query.Update;
 
+import org.greenrobot.eventbus.EventBus;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
-import cn.jpush.im.android.eventbus.EventBus;
 import jiguang.chat.R;
 import jiguang.chat.application.JGApplication;
 import jiguang.chat.controller.FriendInfoController;
@@ -60,7 +61,8 @@ public class FriendInfoActivity extends BaseActivity {
             mTargetAppKey = JMessageClient.getMyInfo().getAppKey();
         }
         mFriendInfoView.initModel(this);
-        mFriendInfoController = new FriendInfoController(mFriendInfoView, this);
+        int flags = getIntent().getFlags();
+        mFriendInfoController = new FriendInfoController(flags, this);
         mFriendInfoView.setListeners(mFriendInfoController);
         mFriendInfoView.setOnChangeListener(mFriendInfoController);
         mIsFromContact = getIntent().getBooleanExtra("fromContact", false);
@@ -164,8 +166,6 @@ public class FriendInfoActivity extends BaseActivity {
                     .setConversation(conv)
                     .build());
         }
-        finish();
-
     }
 
     public UserInfo getUserInfo() {

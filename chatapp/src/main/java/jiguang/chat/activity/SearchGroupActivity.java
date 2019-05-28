@@ -320,8 +320,14 @@ public class SearchGroupActivity extends BaseActivity implements View.OnClickLis
                     UserInfo info = ((UserInfo) itemAtPosition);
                     if (info.isFriend()) {
                         intent.setClass(SearchGroupActivity.this, FriendInfoActivity.class);
+                        if (getIntent().getFlags() == 1) {//设置是群成员点击过去的详情界面
+                            intent.setFlags(1);
+                        }
                         intent.putExtra("fromSearch", true);
                     } else {
+                        if (getIntent().getFlags() == 1) {
+                            intent.setFlags(1);
+                        }
                         intent.setClass(SearchGroupActivity.this, GroupNotFriendActivity.class);
                     }
                     intent.putExtra(JGApplication.TARGET_ID, info.getUserName());

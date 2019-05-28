@@ -26,7 +26,7 @@ import jiguang.chat.activity.fragment.BaseFragment;
 import jiguang.chat.activity.historyfile.adapter.AudioFileAdapter;
 import jiguang.chat.activity.historyfile.controller.HistoryFileController;
 import jiguang.chat.entity.FileItem;
-import jiguang.chat.view.listview.StickyListHeadersListView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * Created by ${chenyn} on 2017/8/23.

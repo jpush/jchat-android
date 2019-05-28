@@ -50,14 +50,18 @@ public class ChatView extends RelativeLayout {
         mChatTitle = (TextView) findViewById(R.id.jmui_title);
         mAtMeBtn = (Button) findViewById(R.id.jmui_at_me_btn);
         if (densityDpi <= 160) {
-            mChatTitle.setMaxWidth((int)(180 * density + 0.5f));
-        }else if (densityDpi <= 240) {
-            mChatTitle.setMaxWidth((int)(190 * density + 0.5f));
-        }else {
-            mChatTitle.setMaxWidth((int)(200 * density + 0.5f));
+            mChatTitle.setMaxWidth((int) (180 * density + 0.5f));
+        } else if (densityDpi <= 240) {
+            mChatTitle.setMaxWidth((int) (190 * density + 0.5f));
+        } else {
+            mChatTitle.setMaxWidth((int) (200 * density + 0.5f));
         }
         mChatListView = (DropDownListView) findViewById(R.id.lv_chat);
 
+    }
+
+    public DropDownListView getChatListView() {
+        return mChatListView;
     }
 
     public void setToPosition(int position) {
@@ -72,6 +76,7 @@ public class ChatView extends RelativeLayout {
     public DropDownListView getListView() {
         return mChatListView;
     }
+
     public void setToBottom() {
         mChatListView.clearFocus();
         mChatListView.post(new Runnable() {
@@ -81,6 +86,7 @@ public class ChatView extends RelativeLayout {
             }
         });
     }
+
     public void setConversation(Conversation conv) {
         this.mConv = conv;
     }
@@ -112,6 +118,7 @@ public class ChatView extends RelativeLayout {
     public void setChatTitle(int id) {
         mChatTitle.setText(id);
     }
+
     public void showAtMeButton() {
         mAtMeBtn.setVisibility(VISIBLE);
     }
@@ -127,6 +134,11 @@ public class ChatView extends RelativeLayout {
     public void setChatTitle(String title) {
         mChatTitle.setText(title);
     }
+
+    public void setTitle(String title) {
+        mChatTitle.setText(title);
+    }
+
     public void dismissGroupNum() {
         mGroupNumTv.setVisibility(View.GONE);
     }

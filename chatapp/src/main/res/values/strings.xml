@@ -45,6 +45,7 @@
     <string name="cross_app_key">跨应用</string>
     <string name="actionbar_conversation">会话</string>
     <string name="actionbar_contact">通讯录</string>
+    <string name="actionbar_chatroom_btn">聊天室</string>
     <string name="actionbar_me">我</string>
     <string name="search_friend_hit">邮箱/用户名/ID</string>
     <string name="search">搜索</string>
@@ -411,5 +412,14 @@
     <string name="scan_barcode_title">条形码扫描</string>
     <string name="scan_qrcode_title">返回</string>
     <string name="scan_qrcode_hint">将取景框对准二维码，即可自动扫描</string>
+    <string name="unsupported_msg">当前版本不支持此消息类型</string>
+    <string name="no_more_load">没有更多数据啦</string>
+
+    <!-- 聊天室相关 -->
+    <string name="room_name">聊天室名称</string>
+    <string name="room_desc">聊天室介绍</string>
+    <string name="room_owner">房主</string>
+    <string name="room_keeper">管理员</string>
+    <string name="room_exit">退出聊天室</string>
 
 </resources>
